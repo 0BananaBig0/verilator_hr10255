@@ -112,6 +112,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         putsQuoted(nodep->origName());
         outputChildrenEnd(nodep, "instance");
     }
+    /**
+     * @brief 访问 if 语句
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstNodeIf* nodep) override {
         outputTag(nodep, "if");
         puts(">\n");
@@ -126,6 +130,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         }
         puts("</if>\n");
     }
+    /**
+     * @brief 访问 while 语句
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstWhile* nodep) override {
         outputTag(nodep, "while");
         puts(">\n");
@@ -149,11 +157,19 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         }
         puts("</while>\n");
     }
+    /**
+     * @brief  访问 Ast 网表
+     * @note   与 RTL 有关
+     */
     virtual void visit(AstNetlist* nodep) override {
         puts("<netlist>\n");
         iterateChildren(nodep);
         puts("</netlist>\n");
     }
+    /**
+     * @brief  暂不清楚
+     * @note   暂不清楚，应该与 RTL 无关
+     */
     virtual void visit(AstConstPool* nodep) override {
         if (!v3Global.opt.xmlOnly()) {
             puts("<constpool>\n");
@@ -161,6 +177,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             puts("</constpool>\n");
         }
     }
+    /**
+     * @brief   访问 init 语句
+     * @note    与 RTL 无关
+     */
     virtual void visit(AstInitArray* nodep) override {
         puts("<initarray>\n");
         const AstInitArray::KeyItemMap& map = nodep->map();
@@ -173,6 +193,11 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         }
         puts("</initarray>\n");
     }
+    /**
+     * @brief   访问 Ast 模块
+     * @note    1 - 与 RTL 有关 
+     *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
+     */
     virtual void visit(AstNodeModule* nodep) override {
         outputTag(nodep, "");
         puts(" origName=");
@@ -181,19 +206,32 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             || nodep->level() == 2)  // ==2 because we don't add wrapper when in XML mode
             puts(" topModule=\"1\"");  // IEEE vpiTopModule
         if (nodep->modPublic()) puts(" public=\"true\"");
+#if 0
+        cout<< "AstNodeModule visit : "<<endl;
+        cout<< "origName : " << nodep->origName() << "\tlevel : " << nodep->level() <<endl;
+#endif
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief   访问 Ast 的 Var
+     * @note    1 - 与 RTL 有关 
+     *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
+     *          3 - 目前知道的是，var 其实是抽象层次的理解，向像 RTL 级别的 input，output 以及 wire ，都算是 var
+     */
     virtual void visit(AstVar* nodep) override {
         const AstVarType typ = nodep->varType();
         const string kw = nodep->verilogKwd();
         const string vt = nodep->dtypep()->name();
         outputTag(nodep, "");
-        if (nodep->isIO()) {
+        // 判断节点是否为输入输出类型
+        // Hint : 例如 input，output
+        if (nodep->isIO()) { 
             puts(" dir=");
             putsQuoted(kw);
             if (nodep->pinNum() != 0) puts(" pinIndex=\"" + cvtToStr(nodep->pinNum()) + "\"");
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : typ == AstVarType::PORT ? "port" : "unknown");
+        // Hint : 例如 wire
         } else {
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : kw);
@@ -221,6 +259,13 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         if (nodep->attrSFormat()) puts(" sformat=\"true\"");
         outputChildrenEnd(nodep, "");
     }
+
+    /**
+     * @brief 访问 Ast Pin
+     * @note  1 - Pin 只会出现在 instance ，也即是 pin 是属于实例化的模块
+     *            在电路上的一个体现它就是一根导线，有自己的端口
+     *        2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
+     */
     virtual void visit(AstPin* nodep) override {
         // What we call a pin in verilator is a port in the IEEE spec.
         outputTag(nodep, "port");  // IEEE: vpiPort
@@ -231,6 +276,11 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         // Children includes vpiHighConn and vpiLowConn; we don't support port bits (yet?)
         outputChildrenEnd(nodep, "port");
     }
+    /**
+     * @brief 访问 Ast Sen
+     * @note  1 - 是于 RTL 有关的，但是其是时序电路才会用到，组合电路遇不见，目前没有使用
+     *        2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
+     */
     virtual void visit(AstSenItem* nodep) override {
         outputTag(nodep, "");
         puts(" edgeType=\"" + cvtToStr(nodep->edgeType().ascii()) + "\"");  // IEEE vpiTopModule
@@ -244,20 +294,32 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         putsQuoted(kw);
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstVarXRef* nodep) override {
         outputTag(nodep, "");
         puts(" dotted=");
         putsQuoted(nodep->dotted());
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstNodeCCall* nodep) override {
         outputTag(nodep, "");
         puts(" func=");
         putsQuoted(nodep->funcp()->name());
         outputChildrenEnd(nodep, "");
     }
-
-    // Data types
+    /**
+     * @brief 访问 Ast 基本数据类型
+     * @note  1 - 与 RTL 有关
+     *        2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
+     *        3 - 非常重要，需要搞清楚
+     */
     virtual void visit(AstBasicDType* nodep) override {
         outputTag(nodep, "basicdtype");
         if (nodep->isRanged()) {
@@ -267,6 +329,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         if (nodep->isSigned()) { puts(" signed=\"true\""); }
         puts("/>\n");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  可能有关系，需要更复杂的输入测试做验证
+     */
     virtual void visit(AstIfaceRefDType* nodep) override {
         string mpn;
         outputTag(nodep, "");
@@ -275,18 +341,30 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         putsQuoted(mpn);
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstDisplay* nodep) override {
         outputTag(nodep, "");
         puts(" displaytype=");
         putsQuoted(nodep->verilogKwd());
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstElabDisplay* nodep) override {
         outputTag(nodep, "");
         puts(" displaytype=");
         putsQuoted(nodep->verilogKwd());
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstExtend* nodep) override {
         outputTag(nodep, "");
         puts(" width=");
@@ -295,6 +373,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         putsQuoted(cvtToStr(nodep->lhsp()->widthMinV()));
         outputChildrenEnd(nodep, "");
     }
+    /**
+     * @brief 暂不清楚
+     * @note  与 RTL 无关
+     */
     virtual void visit(AstExtendS* nodep) override {
         outputTag(nodep, "");
         puts(" width=");
@@ -304,7 +386,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputChildrenEnd(nodep, "");
     }
 
-    // Default
+    /**
+     * @brief 定义默认行为的 visit 行为
+     * @note  所有没有重载的类型都会进入到这里
+     */
     virtual void visit(AstNode* nodep) override {
         outputTag(nodep, "");
         outputChildrenEnd(nodep, "");
