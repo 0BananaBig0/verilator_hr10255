@@ -105,13 +105,6 @@
 
 V3Global v3Global;
 
-static void reportStatsIfEnabled() {
-    if (v3Global.opt.stats()) {
-        V3Stats::statsFinalAll(v3Global.rootp());
-        V3Stats::statsReport();
-    }
-    if (v3Global.opt.debugEmitV()) V3EmitV::debugEmitV("final");
-}
 
 static void process() {
     // Sort modules by level so later algorithms don't need to care
@@ -207,7 +200,11 @@ static void process() {
     }
 
     // Statistics
-    reportStatsIfEnabled();
+    if (v3Global.opt.stats()) {
+        V3Stats::statsFinalAll(v3Global.rootp());
+        V3Stats::statsReport();
+    }
+    if (v3Global.opt.debugEmitV()) V3EmitV::debugEmitV("final");
 }
 
 static void verilate(const string& argString) {
@@ -228,52 +225,6 @@ static void verilate(const string& argString) {
     // Cleanup memory for valgrind leak analysis
     v3Global.clear();
     FileLine::deleteAllRemaining();
-}
-
-static string buildMakeCmd(const string& makefile, const string& target) {
-    const V3StringList& makeFlags = v3Global.opt.makeFlags();
-    const int jobs = v3Global.opt.buildJobs();
-    UASSERT(jobs >= 0, "-j option parser in V3Options.cpp filters out negative value");
-
-    std::ostringstream cmd;
-    cmd << v3Global.opt.getenvMAKE();
-    cmd << " -C " << v3Global.opt.makeDir();
-    cmd << " -f " << makefile;
-    if (jobs == 0) {
-        cmd << " -j";
-    } else if (jobs > 1) {
-        cmd << " -j " << jobs;
-    }
-    for (const string& flag : makeFlags) cmd << ' ' << flag;
-    if (!target.empty()) cmd << ' ' << target;
-
-    return cmd.str();
-}
-
-static void execBuildJob() {
-    UASSERT(v3Global.opt.build(), "--build is not specified.");
-    UASSERT(v3Global.opt.gmake(), "--build requires GNU Make.");
-    UASSERT(!v3Global.opt.cmake(), "--build cannot use CMake.");
-    UINFO(1, "Start Build\n");
-
-    const string cmdStr = buildMakeCmd(v3Global.opt.prefix() + ".mk", "");
-    const int exit_code = V3Os::system(cmdStr);
-    if (exit_code != 0) {
-        v3error(cmdStr << " exited with " << exit_code << std::endl);
-        std::exit(exit_code);
-    }
-}
-
-static void execHierVerilation() {
-    UASSERT(v3Global.hierPlanp(), "must be called only when plan exists");
-    const string makefile = v3Global.opt.prefix() + "_hier.mk ";
-    const string target = v3Global.opt.build() ? " hier_build" : " hier_verilation";
-    const string cmdStr = buildMakeCmd(makefile, target);
-    const int exit_code = V3Os::system(cmdStr);
-    if (exit_code != 0) {
-        v3error(cmdStr << " exited with " << exit_code << std::endl);
-        std::exit(exit_code);
-    }
 }
 
 //######################################################################
