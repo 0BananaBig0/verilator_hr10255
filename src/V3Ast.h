@@ -82,6 +82,10 @@ using MTaskIdSet = std::set<int>;  // Set of mtaskIds for Var sorting
 
 //######################################################################
 
+/**
+ * @brief AstType 枚举类型
+ * @note  通过 astgen 自动生成
+ */
 class AstType final {
 public:
 #include "V3Ast__gen_types.h"  // From ./astgen
@@ -1272,7 +1276,7 @@ public:
 };
 
 //######################################################################
-// AstNVisitor -- Allows new functions to be called on each node
+// AstNVisitor -- 允许新的函数被调用在每个节点上
 // type without changing the base classes.  See "Modern C++ Design".
 
 class AstNVisitor VL_NOT_FINAL : public AstNDeleter {
@@ -1297,7 +1301,8 @@ public:
     AstNode* iterateSubtreeReturnEdits(AstNode* nodep);
 
 #include "V3Ast__gen_visitor.h"  // From ./astgen
-    // Things like:
+    // 包含像下面这样的东西:
+    // V3Ast__gen_visitor.h 是由 astagen 脚本 (python) 脚本自动生成的
     //  virtual void visit(AstBreak* nodep) { visit((AstNodeStmt*)(nodep)); }
     //  virtual void visit(AstNodeStmt* nodep) { visit((AstNode*)(nodep)); }
 };
@@ -1491,9 +1496,22 @@ protected:
     }
 
 public:
-    // ACCESSORS
+    // 访问者
+    /**
+     * @brief 获取节点类型
+     * @note  以 ID 的形式访问
+     */
     inline AstType type() const { return m_type; }
-    const char* typeName() const { return type().ascii(); }  // See also prettyTypeName
+    /**
+     * @brief 获取节点类型名称
+     * @note  以字符串的形式访问你
+     */
+    const char* typeName() const {
+#if 0
+        std::cout << "typeName ： " << type().ascii() << std::endl;
+#endif
+        return type().ascii(); 
+    }  // See also prettyTypeName
     AstNode* nextp() const { return m_nextp; }
     AstNode* backp() const { return m_backp; }
     AstNode* abovep() const;  // Parent node above, only when no nextp() as otherwise slow
@@ -1501,6 +1519,9 @@ public:
     AstNode* op2p() const { return m_op2p; }
     AstNode* op3p() const { return m_op3p; }
     AstNode* op4p() const { return m_op4p; }
+    /**
+     * @brief 获取节点类型
+     */
     AstNodeDType* dtypep() const { return m_dtypep; }
     AstNode* clonep() const { return ((m_cloneCnt == s_cloneCntGbl) ? m_clonep : nullptr); }
     AstNode* firstAbovep() const {  // Returns nullptr when second or later in list
@@ -1537,14 +1558,32 @@ public:
     static constexpr int INSTR_COUNT_TIME = INSTR_COUNT_CALL + 5;  // Determine simulation time
     static constexpr int INSTR_COUNT_PLI = 20;  // PLI routines
 
-    // ACCESSORS
+    // 访问者
+    /**
+     * @brief 获取 name
+     */
     virtual string name() const { return ""; }
+    /**
+     * @brief 获取 origName
+     */
     virtual string origName() const { return ""; }
+    /**
+     * @brief 设置 name
+     */
     virtual void name(const string& name) {
         this->v3fatalSrc("name() called on object without name() method");
     }
+    /**
+     * @brief 设置 tag
+     */
     virtual void tag(const string& text) {}
+    /**
+     * @brief 获取 tag
+     */
     virtual string tag() const { return ""; }
+    /**
+     * @brief 获取 verilogKwd
+     */
     virtual string verilogKwd() const { return ""; }
     string nameProtect() const;  // Name with --protect-id applied
     string origNameProtect() const;  // origName with --protect-id applied
@@ -1797,7 +1836,7 @@ public:
     void dumpTreeFile(const string& filename, bool append = false, bool doDump = true,
                       bool doCheck = true);
     static void dumpTreeFileGdb(const AstNode* nodep, const char* filenamep = nullptr);
-
+    
     // METHODS - queries
     // Changes control flow, disable some optimizations
     virtual bool isBrancher() const { return false; }
@@ -1828,11 +1867,11 @@ public:
     virtual bool maybePointedTo() const { return false; }
     virtual const char* broken() const { return nullptr; }
 
-    // INVOKERS
+    // 调用触发
     virtual void accept(AstNVisitor& v) = 0;
 
 protected:
-    // All AstNVisitor related functions are called as methods off the visitor
+    // 所有与AstInvisitor相关的函数都作为访问者的方法调用
     friend class AstNVisitor;
     // Use instead AstNVisitor::iterateChildren
     void iterateChildren(AstNVisitor& v);
@@ -2985,7 +3024,7 @@ public:
 };
 
 //######################################################################
-// Inline AstNVisitor METHODS
+// Inline AstNVisitor 方法
 
 inline void AstNVisitor::iterate(AstNode* nodep) { nodep->accept(*this); }
 inline void AstNVisitor::iterateNull(AstNode* nodep) {
