@@ -117,10 +117,6 @@ static void process() {
     // Sort modules by level so later algorithms don't need to care
     V3LinkLevel::modSortByLevel();
     V3Error::abortIfErrors();
-    if (v3Global.opt.debugExitParse()) {
-        cout << "--debug-exit-parse: Exiting after parse\n";
-        std::exit(0);
-    }
 
     // Convert parseref's to varrefs, and other directly post parsing fixups
     V3LinkParse::linkParse(v3Global.rootp());
@@ -158,17 +154,6 @@ static void process() {
     V3Dead::deadifyModules(v3Global.rootp());
     v3Global.checkTree();
 
-    // Create a hierarchical verilation plan
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly() && v3Global.opt.hierarchical()) {
-        V3HierBlockPlan::createPlan(v3Global.rootp());
-        // If a plan is created, further analysis is not necessary.
-        // The actual Verilation will be done based on this plan.
-        if (v3Global.hierPlanp()) {
-            reportStatsIfEnabled();
-            return;
-        }
-    }
-
     // Calculate and check widths, edit tree to TRUNC/EXTRACT any width mismatches
     V3Width::width(v3Global.rootp());
 
@@ -200,50 +185,8 @@ static void process() {
     //
     V3Assert::assertAll(v3Global.rootp());
 
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // Add top level wrapper with instance pointing to old top
-        // Move packages to under new top
-        // Must do this after we know parameters and dtypes (as don't clone dtype decls)
-        V3LinkLevel::wrapTop(v3Global.rootp());
-    }
-
     // Propagate constants into expressions
     V3Const::constifyAllLint(v3Global.rootp());
-
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // Split packed variables into multiple pieces to resolve UNOPTFLAT.
-        // should be after constifyAllLint() which flattens to 1D bit vector
-        V3SplitVar::splitVariable(v3Global.rootp());
-
-        // Remove cell arrays (must be between V3Width and scoping)
-        V3Inst::dearrayAll(v3Global.rootp());
-        V3LinkDot::linkDotArrayed(v3Global.rootp());
-
-        // Task inlining & pushing BEGINs names to variables/cells
-        // Begin processing must be after Param, before module inlining
-        V3Begin::debeginAll(v3Global.rootp());  // Flatten cell names, before inliner
-
-        // Expand inouts, stage 2
-        // Also simplify pin connections to always be AssignWs in prep for V3Unknown
-        V3Tristate::tristateAll(v3Global.rootp());
-    }
-
-    if (!v3Global.opt.xmlOnly()) {
-        // Move assignments from X into MODULE temps.
-        // (Before flattening, so each new X variable is shared between all scopes of that module.)
-        V3Unknown::unknownAll(v3Global.rootp());
-        v3Global.constRemoveXs(true);
-    }
-
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // Module inlining
-        // Cannot remove dead variables after this, as alias information for final
-        // V3Scope's V3LinkDot is in the AstVar.
-        if (v3Global.opt.oInline()) {
-            V3Inline::inlineAll(v3Global.rootp());
-            V3LinkDot::linkDotArrayed(v3Global.rootp());  // Cleanup as made new modules
-        }
-    }
 
     //--PRE-FLAT OPTIMIZATIONS------------------
 
@@ -256,303 +199,15 @@ static void process() {
 
     V3Error::abortIfErrors();
 
-    //--FLATTENING---------------
-
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // We're going to flatten the hierarchy, so as many optimizations that
-        // can be done as possible should be before this....
-
-        // Convert instantiations to wassigns and always blocks
-        V3Inst::instAll(v3Global.rootp());
-
-        // Inst may have made lots of concats; fix them
-        V3Const::constifyAll(v3Global.rootp());
-
-        // Flatten hierarchy, creating a SCOPE for each module's usage as a cell
-        V3Scope::scopeAll(v3Global.rootp());
-        V3LinkDot::linkDotScope(v3Global.rootp());
-
-        // Relocate classes (after linkDot)
-        V3Class::classAll(v3Global.rootp());
-    }
-
-    //--SCOPE BASED OPTIMIZATIONS--------------
-
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // Cleanup
-        V3Const::constifyAll(v3Global.rootp());
-        V3Dead::deadifyDTypesScoped(v3Global.rootp());
-        v3Global.checkTree();
-    }
-
-    if (!v3Global.opt.xmlOnly()) {
-        // Convert case statements to if() blocks.  Must be after V3Unknown
-        // Must be before V3Task so don't need to deal with task in case value compares
-        V3Case::caseAll(v3Global.rootp());
-    }
-
-    if (!(v3Global.opt.xmlOnly() && !v3Global.opt.flatten())) {
-        // Inline all tasks
-        V3Task::taskAll(v3Global.rootp());
-    }
-
-    if (!v3Global.opt.xmlOnly()) {
-        // Add __PVT's
-        // After V3Task so task internal variables will get renamed
-        V3Name::nameAll(v3Global.rootp());
-
-        // Loop unrolling & convert FORs to WHILEs
-        V3Unroll::unrollAll(v3Global.rootp());
-
-        // Expand slices of arrays
-        V3Slice::sliceAll(v3Global.rootp());
-
-        // Push constants across variables and remove redundant assignments
-        V3Const::constifyAll(v3Global.rootp());
-
-        if (v3Global.opt.oLife()) V3Life::lifeAll(v3Global.rootp());
-
-        // Make large low-fanin logic blocks into lookup tables
-        // This should probably be done much later, once we have common logic elimination.
-        if (!v3Global.opt.lintOnly() && v3Global.opt.oTable()) {
-            V3Table::tableAll(v3Global.rootp());
-        }
-
-        // Cleanup
-        V3Const::constifyAll(v3Global.rootp());
-        V3Dead::deadifyDTypesScoped(v3Global.rootp());
-        v3Global.checkTree();
-
-        // Move assignments/sensitives into a SBLOCK for each unique sensitivity list
-        // (May convert some ALWAYS to combo blocks, so should be before V3Gate step.)
-        V3Active::activeAll(v3Global.rootp());
-
-        // Split single ALWAYS blocks into multiple blocks for better ordering chances
-        if (v3Global.opt.oSplit()) V3Split::splitAlwaysAll(v3Global.rootp());
-        V3SplitAs::splitAsAll(v3Global.rootp());
-
-        // Create tracing sample points, before we start eliminating signals
-        if (v3Global.opt.trace()) V3TraceDecl::traceDeclAll(v3Global.rootp());
-
-        // Gate-based logic elimination; eliminate signals and push constant across cell boundaries
-        // Instant propagation makes lots-o-constant reduction possibilities.
-        if (v3Global.opt.oGate()) {
-            V3Gate::gateAll(v3Global.rootp());
-            // V3Gate calls constant propagation itself.
-        } else {
-            v3info("Command Line disabled gate optimization with -Og/-O0.  "
-                   "This may cause ordering problems.");
-        }
-
-        // Combine COVERINCs with duplicate terms
-        if (v3Global.opt.coverage()) V3CoverageJoin::coverageJoin(v3Global.rootp());
-
-        // Remove unused vars
-        V3Const::constifyAll(v3Global.rootp());
-        V3Dead::deadifyAllScoped(v3Global.rootp());
-
-        // Clock domain crossing analysis
-        if (v3Global.opt.cdc()) {
-            V3Cdc::cdcAll(v3Global.rootp());
-            V3Error::abortIfErrors();
-            return;
-        }
-
-        // Reorder assignments in pipelined blocks
-        if (v3Global.opt.oReorder()) V3Split::splitReorderAll(v3Global.rootp());
-
-        // Create delayed assignments
-        // This creates lots of duplicate ACTIVES so ActiveTop needs to be after this step
-        V3Delayed::delayedAll(v3Global.rootp());
-
-        // Make Active's on the top level.
-        // Differs from V3Active, because identical clocks may be pushed
-        // down to a module and now be identical
-        V3ActiveTop::activeTopAll(v3Global.rootp());
-
-        if (v3Global.opt.stats()) V3Stats::statsStageAll(v3Global.rootp(), "PreOrder");
-        if (v3Global.opt.debugEmitV()) V3EmitV::debugEmitV("preorder");
-
-        // Order the code; form SBLOCKs and BLOCKCALLs
-        V3Order::orderAll(v3Global.rootp());
-
-        // Change generated clocks to look at delayed signals
-        V3GenClk::genClkAll(v3Global.rootp());
-
-        // Convert sense lists into IF statements.
-        V3Clock::clockAll(v3Global.rootp());
-
-        // Cleanup any dly vars or other temps that are simple assignments
-        // Life must be done before Subst, as it assumes each CFunc under
-        // _eval is called only once.
-        if (v3Global.opt.oLife()) {
-            V3Const::constifyAll(v3Global.rootp());
-            V3Life::lifeAll(v3Global.rootp());
-        }
-        if (v3Global.opt.oLifePost()) V3LifePost::lifepostAll(v3Global.rootp());
-
-        // Remove unused vars
-        V3Const::constifyAll(v3Global.rootp());
-        V3Dead::deadifyAllScoped(v3Global.rootp());
-
-        // Detect change loop
-        V3Changed::changedAll(v3Global.rootp());
-
-        // Create tracing logic, since we ripped out some signals the user might want to trace
-        // Note past this point, we presume traced variables won't move between CFuncs
-        // (It's OK if untraced temporaries move around, or vars
-        // "effectively" activate the same way.)
-        if (v3Global.opt.trace()) V3Trace::traceAll(v3Global.rootp());
-
-        if (v3Global.opt.stats()) V3Stats::statsStageAll(v3Global.rootp(), "Scoped");
-    }
-
-    //--MODULE OPTIMIZATIONS--------------
-
-    if (!v3Global.opt.xmlOnly()) {
-        // Split deep blocks to appease MSVC++.  Must be before Localize.
-        if (!v3Global.opt.lintOnly() && v3Global.opt.compLimitBlocks()) {
-            V3DepthBlock::depthBlockAll(v3Global.rootp());
-        }
-
-        // Up until this point, all references must be scoped
-        v3Global.assertScoped(false);
-
-        // Move variables from modules to function local variables where possible
-        if (v3Global.opt.oLocalize()) V3Localize::localizeAll(v3Global.rootp());
-
-        // Remove remaining scopes; make varrefs/funccalls relative to current module
-        V3Descope::descopeAll(v3Global.rootp());
-
-        // Icache packing; combine common code in each module's functions into subroutines
-        if (v3Global.opt.oCombine()) V3Combine::combineAll(v3Global.rootp());
-    }
-
-    V3Error::abortIfErrors();
-
-    //--GENERATION------------------
-
-    if (!v3Global.opt.xmlOnly()) {
-        // Remove unused vars
-        V3Const::constifyAll(v3Global.rootp());
-        V3Dead::deadifyAll(v3Global.rootp());
-
-        // Here down, widthMin() is the Verilog width, and width() is the C++ width
-        // Bits between widthMin() and width() are irrelevant, but may be non zero.
-        v3Global.widthMinUsage(VWidthMinUsage::VERILOG_WIDTH);
-
-        // Make all math operations either 8, 16, 32 or 64 bits
-        V3Clean::cleanAll(v3Global.rootp());
-
-        // Move wide constants to BLOCK temps / ConstPool.
-        V3Premit::premitAll(v3Global.rootp());
-    }
-
-    // Expand macros and wide operators into C++ primitives
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly() && v3Global.opt.oExpand()) {
-        V3Expand::expandAll(v3Global.rootp());
-    }
-
-    // Propagate constants across WORDSEL arrayed temporaries
-    if (!v3Global.opt.xmlOnly() && v3Global.opt.oSubst()) {
-        // Constant folding of expanded stuff
-        V3Const::constifyCpp(v3Global.rootp());
-        V3Subst::substituteAll(v3Global.rootp());
-    }
-
-    if (!v3Global.opt.xmlOnly() && v3Global.opt.oSubstConst()) {
-        // Constant folding of substitutions
-        V3Const::constifyCpp(v3Global.rootp());
-        V3Dead::deadifyAll(v3Global.rootp());
-    }
-
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly()) {
-        if (v3Global.opt.oMergeCond()) {
-            // Merge conditionals
-            V3MergeCond::mergeAll(v3Global.rootp());
-        }
-
-        if (v3Global.opt.oReloop()) {
-            // Reform loops to reduce code size
-            // Must be after all Sel/array index based optimizations
-            V3Reloop::reloopAll(v3Global.rootp());
-        }
-
-        // Fix very deep expressions
-        // Mark evaluation functions as member functions, if needed.
-        V3Depth::depthAll(v3Global.rootp());
-
-        // Branch prediction
-        V3Branch::branchAll(v3Global.rootp());
-
-        // Add C casts when longs need to become long-long and vice-versa
-        // Note depth may insert something needing a cast, so this must be last.
-        V3Cast::castAll(v3Global.rootp());
-    }
-
-    V3Error::abortIfErrors();
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly()) {  //
-        V3CCtors::cctorsAll();
-    }
-
-    if (!v3Global.opt.xmlOnly() && v3Global.opt.mtasks()) {
-        // Finalize our MTask cost estimates and pack the mtasks into
-        // threads. Must happen pre-EmitC which relies on the packing
-        // order. Must happen post-V3LifePost which changes the relative
-        // costs of mtasks.
-        V3Partition::finalize();
-    }
-
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly() && !v3Global.opt.dpiHdrOnly()) {
-        // Add common methods/etc to modules
-        V3Common::commonAll();
-
-        // Order variables
-        V3VariableOrder::orderAll();
-
-        // Create AstCUse to determine what class forward declarations/#includes needed in C
-        V3CUse::cUseAll();
-    }
-
     // Output the text
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly() && !v3Global.opt.dpiHdrOnly()) {
-        // emitcInlines is first, as it may set needHInlines which other emitters read
-        V3EmitC::emitcInlines();
-        V3EmitC::emitcSyms();
-        V3EmitC::emitcConstPool();
-        V3EmitC::emitcModel();
-        V3EmitC::emitcHeaders();
-    } else if (v3Global.opt.dpiHdrOnly()) {
-        V3EmitC::emitcSyms(true);
-    }
-    if (!v3Global.opt.xmlOnly()
-        && !v3Global.opt.dpiHdrOnly()) {  // Unfortunately we have some lint checks in emitcImp.
-        V3EmitC::emitcImp();
-    }
     if (v3Global.opt.xmlOnly()
         // Check XML when debugging to make sure no missing node types
         || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() && !v3Global.opt.dpiHdrOnly())) {
         V3EmitXml::emitxml();
     }
 
-    // Output DPI protected library files
-    if (!v3Global.opt.protectLib().empty()) {
-        V3ProtectLib::protect();
-        V3EmitV::emitvFiles();
-        V3EmitC::emitcFiles();
-    }
-
     // Statistics
     reportStatsIfEnabled();
-
-    if (!v3Global.opt.lintOnly() && !v3Global.opt.xmlOnly() && !v3Global.opt.dpiHdrOnly()) {
-        // Makefile must be after all other emitters
-        if (v3Global.opt.main()) V3EmitCMain::emit();
-        if (v3Global.opt.cmake()) V3EmitCMake::emit();
-        if (v3Global.opt.gmake()) V3EmitMk::emitmk();
-    }
-
-    // Note early return above when opt.cdc()
 }
 
 static void verilate(const string& argString) {
