@@ -40,19 +40,24 @@ struct CmpLevel {
 };
 
 void V3LinkLevel::modSortByLevel() {
-    // Sort modules by levels, root down to lowest children
-    // Calculate levels again in case we added modules
+    // 按级别对模块进行排序，从根到最低的子级
+    
+    // 如果我们添加了模块，请重新计算级别
     UINFO(2, "modSortByLevel()\n");
 
-    // level() was computed for us in V3LinkCells
+    // level() 在 V3LinkCells 被计算好
 
-    ModVec mods;  // Modules
-    ModVec tops;  // Top level modules
+    ModVec mods;  // 模块
+    ModVec tops;  // 顶级模块
+
+    // 获取顶级模块以及所有模块
     for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
          nodep = VN_AS(nodep->nextp(), NodeModule)) {
         if (nodep->level() <= 2) tops.push_back(nodep);
         mods.push_back(nodep);
     }
+
+    // 如果顶级模块不止一个，代表输入非法
     if (tops.size() >= 2) {
         AstNode* secp = tops[1];  // Complain about second one, as first often intended
         if (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
@@ -68,19 +73,36 @@ void V3LinkLevel::modSortByLevel() {
         }
     }
 
+#if 0
+
+    cout<<"顶级模块"<<endl;
+    for(auto& top : tops){
+        cout<<"name : "<<top->name()<<"\t origin name : "<<top->origName()<<"\tlevel : "<<top->level()<<endl;
+    }
+    cout<<endl;
+    cout<<"所有模块"<<endl;
+    for(auto& mod : mods){
+        cout<<"name : "<<mod->name()<<"\t origin name : "<<mod->origName()<<"\tlevel : "<<mod->level()<<endl;
+    }
+    cout<<endl;
+#endif
+
     timescaling(mods);
 
-    // Reorder the netlist's modules to have modules in level sorted order
+    // 重新排列网络列表的模块，使模块按级别排序
     stable_sort(mods.begin(), mods.end(), CmpLevel());  // Sort the vector
     UINFO(9, "modSortByLevel() sorted\n");  // Comment required for gcc4.6.3 / bug666
+    
     for (AstNodeModule* nodep : mods) {
-        nodep->clearIter();  // Because we didn't iterate to find the node
-        // pointers, may have a stale m_iterp() needing cleanup
-        nodep->unlinkFrBack();
+        nodep->clearIter();  // 因为我们不需要迭代找到节点
+        nodep->unlinkFrBack(); // pointers, may have a stale m_iterp() needing cleanup
     }
     UASSERT_OBJ(!v3Global.rootp()->modulesp(), v3Global.rootp(), "Unlink didn't work");
+
+    // 向 AstNetlist 添加模块
     for (AstNodeModule* nodep : mods) v3Global.rootp()->addModulep(nodep);
     UINFO(9, "modSortByLevel() done\n");  // Comment required for gcc4.6.3 / bug666
+
     V3Global::dumpCheckGlobalTree("cells", false, v3Global.opt.dumpTreeLevel(__FILE__) >= 3);
 }
 
