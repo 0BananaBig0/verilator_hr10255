@@ -1,0 +1,233 @@
+<?xml version="1.0" ?>
+<!-- DESCRIPTION: Verilator output: XML representation of netlist -->
+<verilator_xml>
+  <files>
+    <file id="d" filename="/home/haorui/Desktop/verilator/note/misc/LibBlackbox.v" language="1800-2017"/>
+    <file id="c" filename="/home/haorui/Desktop/verilator/note/misc/s27_net_modified.v" language="1800-2017"/>
+    <file id="a" filename="&lt;built-in&gt;" language="1800-2017"/>
+    <file id="b" filename="&lt;command-line&gt;" language="1800-2017"/>
+  </files>
+  <module_files>
+    <file id="c" filename="/home/haorui/Desktop/verilator/note/misc/s27_net_modified.v" language="1800-2017"/>
+    <file id="d" filename="/home/haorui/Desktop/verilator/note/misc/LibBlackbox.v" language="1800-2017"/>
+  </module_files>
+  <cells>
+    <cell fl="c8" loc="c,8,8,8,11" name="s27" submodname="s27" hier="s27">
+      <cell fl="c13" loc="c,13,11,13,25" name="DFF_0_I1_Q_reg" submodname="DFFHQX1" hier="s27.DFF_0_I1_Q_reg"/>
+      <cell fl="c14" loc="c,14,11,14,25" name="DFF_1_I1_Q_reg" submodname="DFFHQX1" hier="s27.DFF_1_I1_Q_reg"/>
+      <cell fl="c15" loc="c,15,11,15,25" name="DFF_2_I1_Q_reg" submodname="DFFHQX1" hier="s27.DFF_2_I1_Q_reg"/>
+      <cell fl="c17" loc="c,17,11,17,25" name="DFF_3_I1_Q_reg" submodname="DFFHQX1" hier="s27.DFF_3_I1_Q_reg"/>
+      <cell fl="c27" loc="c,27,9,27,17" name="NOT_0_U1" submodname="INVX1" hier="s27.NOT_0_U1"/>
+      <cell fl="c28" loc="c,28,9,28,17" name="NOT_1_U1" submodname="INVX1" hier="s27.NOT_1_U1"/>
+      <cell fl="c29" loc="c,29,10,29,19" name="AND2_0_U1" submodname="AND2X1" hier="s27.AND2_0_U1"/>
+      <cell fl="c30" loc="c,30,9,30,17" name="OR2_0_U1" submodname="OR2X1" hier="s27.OR2_0_U1"/>
+      <cell fl="c31" loc="c,31,9,31,17" name="OR2_1_U1" submodname="OR2X1" hier="s27.OR2_1_U1"/>
+      <cell fl="c32" loc="c,32,11,32,21" name="NAND2_0_U1" submodname="NAND2X1" hier="s27.NAND2_0_U1"/>
+      <cell fl="c33" loc="c,33,10,33,19" name="NOR2_0_U1" submodname="NOR2X1" hier="s27.NOR2_0_U1"/>
+      <cell fl="c34" loc="c,34,10,34,19" name="NOR2_1_U1" submodname="NOR2X1" hier="s27.NOR2_1_U1"/>
+      <cell fl="c35" loc="c,35,10,35,19" name="NOR2_2_U1" submodname="NOR2X1" hier="s27.NOR2_2_U1"/>
+      <cell fl="c36" loc="c,36,10,36,19" name="NOR2_3_U1" submodname="NOR2X1" hier="s27.NOR2_3_U1"/>
+    </cell>
+  </cells>
+  <netlist>
+    <module fl="c8" loc="c,8,8,8,11" name="s27" origName="s27" topModule="1">
+      <var fl="c9" loc="c,9,9,9,12" name="VDD" dtype_id="1" dir="input" pinIndex="1" vartype="logic" origName="VDD"/>
+      <var fl="c9" loc="c,9,14,9,16" name="CK" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="CK"/>
+      <var fl="c9" loc="c,9,18,9,20" name="G0" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="G0"/>
+      <var fl="c9" loc="c,9,22,9,24" name="G1" dtype_id="1" dir="input" pinIndex="4" vartype="logic" origName="G1"/>
+      <var fl="c9" loc="c,9,26,9,28" name="G2" dtype_id="1" dir="input" pinIndex="6" vartype="logic" origName="G2"/>
+      <var fl="c9" loc="c,9,30,9,32" name="G3" dtype_id="1" dir="input" pinIndex="7" vartype="logic" origName="G3"/>
+      <var fl="c10" loc="c,10,10,10,13" name="G17" dtype_id="1" dir="output" pinIndex="5" vartype="logic" origName="G17"/>
+      <var fl="c11" loc="c,11,10,11,12" name="G5" dtype_id="1" vartype="logic" origName="G5"/>
+      <var fl="c11" loc="c,11,14,11,17" name="G10" dtype_id="1" vartype="logic" origName="G10"/>
+      <var fl="c11" loc="c,11,19,11,21" name="G6" dtype_id="1" vartype="logic" origName="G6"/>
+      <var fl="c11" loc="c,11,23,11,26" name="G11" dtype_id="1" vartype="logic" origName="G11"/>
+      <var fl="c11" loc="c,11,28,11,30" name="G7" dtype_id="1" vartype="logic" origName="G7"/>
+      <var fl="c11" loc="c,11,32,11,35" name="G13" dtype_id="1" vartype="logic" origName="G13"/>
+      <var fl="c11" loc="c,11,37,11,40" name="G14" dtype_id="1" vartype="logic" origName="G14"/>
+      <var fl="c11" loc="c,11,42,11,44" name="G8" dtype_id="1" vartype="logic" origName="G8"/>
+      <var fl="c11" loc="c,11,46,11,49" name="G15" dtype_id="1" vartype="logic" origName="G15"/>
+      <var fl="c11" loc="c,11,51,11,54" name="G12" dtype_id="1" vartype="logic" origName="G12"/>
+      <var fl="c11" loc="c,11,56,11,59" name="G16" dtype_id="1" vartype="logic" origName="G16"/>
+      <var fl="c11" loc="c,11,61,11,63" name="G9" dtype_id="1" vartype="logic" origName="G9"/>
+      <instance fl="c13" loc="c,13,11,13,25" name="DFF_0_I1_Q_reg" defName="DFFHQX1" origName="DFF_0_I1_Q_reg">
+        <port fl="c13" loc="c,13,29,13,30" name="D" direction="in" portIndex="1">
+          <varref fl="c13" loc="c,13,31,13,34" name="G10" dtype_id="1"/>
+        </port>
+        <port fl="c13" loc="c,13,38,13,40" name="CK" direction="in" portIndex="2">
+          <varref fl="c13" loc="c,13,41,13,43" name="CK" dtype_id="1"/>
+        </port>
+        <port fl="c13" loc="c,13,47,13,48" name="Q" direction="out" portIndex="3">
+          <varref fl="c13" loc="c,13,49,13,51" name="G5" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c14" loc="c,14,11,14,25" name="DFF_1_I1_Q_reg" defName="DFFHQX1" origName="DFF_1_I1_Q_reg">
+        <port fl="c14" loc="c,14,29,14,30" name="D" direction="in" portIndex="1">
+          <varref fl="c14" loc="c,14,31,14,34" name="G11" dtype_id="1"/>
+        </port>
+        <port fl="c14" loc="c,14,38,14,40" name="CK" direction="in" portIndex="2">
+          <varref fl="c14" loc="c,14,41,14,43" name="CK" dtype_id="1"/>
+        </port>
+        <port fl="c14" loc="c,14,47,14,48" name="Q" direction="out" portIndex="3">
+          <varref fl="c14" loc="c,14,49,14,51" name="G6" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c15" loc="c,15,11,15,25" name="DFF_2_I1_Q_reg" defName="DFFHQX1" origName="DFF_2_I1_Q_reg">
+        <port fl="c15" loc="c,15,29,15,30" name="D" direction="in" portIndex="1">
+          <varref fl="c15" loc="c,15,31,15,34" name="G13" dtype_id="1"/>
+        </port>
+        <port fl="c15" loc="c,15,38,15,40" name="CK" direction="in" portIndex="2">
+          <varref fl="c15" loc="c,15,41,15,43" name="CK" dtype_id="1"/>
+        </port>
+        <port fl="c15" loc="c,15,47,15,48" name="Q" direction="out" portIndex="3">
+          <varref fl="c15" loc="c,15,49,15,51" name="G7" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c17" loc="c,17,11,17,25" name="DFF_3_I1_Q_reg" defName="DFFHQX1" origName="DFF_3_I1_Q_reg">
+        <port fl="c17" loc="c,17,29,17,30" name="D" direction="in" portIndex="1">
+          <varref fl="c17" loc="c,17,31,17,33" name="G5" dtype_id="1"/>
+        </port>
+        <port fl="c17" loc="c,17,37,17,39" name="CK" direction="in" portIndex="2">
+          <varref fl="c17" loc="c,17,40,17,42" name="CK" dtype_id="1"/>
+        </port>
+        <port fl="c17" loc="c,17,46,17,47" name="Q" direction="out" portIndex="3"/>
+      </instance>
+      <instance fl="c27" loc="c,27,9,27,17" name="NOT_0_U1" defName="INVX1" origName="NOT_0_U1">
+        <port fl="c27" loc="c,27,21,27,22" name="A" direction="in" portIndex="1">
+          <varref fl="c27" loc="c,27,23,27,25" name="G0" dtype_id="1"/>
+        </port>
+        <port fl="c27" loc="c,27,29,27,30" name="Y" direction="out" portIndex="2">
+          <varref fl="c27" loc="c,27,31,27,34" name="G14" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c28" loc="c,28,9,28,17" name="NOT_1_U1" defName="INVX1" origName="NOT_1_U1">
+        <port fl="c28" loc="c,28,21,28,22" name="A" direction="in" portIndex="1">
+          <varref fl="c28" loc="c,28,23,28,26" name="G11" dtype_id="1"/>
+        </port>
+        <port fl="c28" loc="c,28,30,28,31" name="Y" direction="out" portIndex="2">
+          <varref fl="c28" loc="c,28,32,28,35" name="G17" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c29" loc="c,29,10,29,19" name="AND2_0_U1" defName="AND2X1" origName="AND2_0_U1">
+        <port fl="c29" loc="c,29,23,29,24" name="A" direction="in" portIndex="1">
+          <varref fl="c29" loc="c,29,25,29,27" name="G6" dtype_id="1"/>
+        </port>
+        <port fl="c29" loc="c,29,31,29,32" name="B" direction="in" portIndex="2">
+          <varref fl="c29" loc="c,29,33,29,36" name="G14" dtype_id="1"/>
+        </port>
+        <port fl="c29" loc="c,29,40,29,41" name="Y" direction="out" portIndex="3">
+          <varref fl="c29" loc="c,29,42,29,44" name="G8" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c30" loc="c,30,9,30,17" name="OR2_0_U1" defName="OR2X1" origName="OR2_0_U1">
+        <port fl="c30" loc="c,30,21,30,22" name="A" direction="in" portIndex="1">
+          <varref fl="c30" loc="c,30,23,30,26" name="G12" dtype_id="1"/>
+        </port>
+        <port fl="c30" loc="c,30,30,30,31" name="B" direction="in" portIndex="2">
+          <varref fl="c30" loc="c,30,32,30,34" name="G8" dtype_id="1"/>
+        </port>
+        <port fl="c30" loc="c,30,38,30,39" name="Y" direction="out" portIndex="3">
+          <varref fl="c30" loc="c,30,40,30,43" name="G15" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c31" loc="c,31,9,31,17" name="OR2_1_U1" defName="OR2X1" origName="OR2_1_U1">
+        <port fl="c31" loc="c,31,21,31,22" name="A" direction="in" portIndex="1">
+          <varref fl="c31" loc="c,31,23,31,25" name="G3" dtype_id="1"/>
+        </port>
+        <port fl="c31" loc="c,31,29,31,30" name="B" direction="in" portIndex="2">
+          <varref fl="c31" loc="c,31,31,31,33" name="G8" dtype_id="1"/>
+        </port>
+        <port fl="c31" loc="c,31,37,31,38" name="Y" direction="out" portIndex="3">
+          <varref fl="c31" loc="c,31,39,31,42" name="G16" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c32" loc="c,32,11,32,21" name="NAND2_0_U1" defName="NAND2X1" origName="NAND2_0_U1">
+        <port fl="c32" loc="c,32,25,32,26" name="A" direction="in" portIndex="1">
+          <varref fl="c32" loc="c,32,27,32,30" name="G15" dtype_id="1"/>
+        </port>
+        <port fl="c32" loc="c,32,34,32,35" name="B" direction="in" portIndex="2">
+          <varref fl="c32" loc="c,32,36,32,39" name="G16" dtype_id="1"/>
+        </port>
+        <port fl="c32" loc="c,32,43,32,44" name="Y" direction="out" portIndex="3">
+          <varref fl="c32" loc="c,32,45,32,47" name="G9" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c33" loc="c,33,10,33,19" name="NOR2_0_U1" defName="NOR2X1" origName="NOR2_0_U1">
+        <port fl="c33" loc="c,33,23,33,24" name="A" direction="in" portIndex="1">
+          <varref fl="c33" loc="c,33,25,33,28" name="G11" dtype_id="1"/>
+        </port>
+        <port fl="c33" loc="c,33,32,33,33" name="B" direction="in" portIndex="2">
+          <varref fl="c33" loc="c,33,34,33,37" name="G14" dtype_id="1"/>
+        </port>
+        <port fl="c33" loc="c,33,41,33,42" name="Y" direction="out" portIndex="3">
+          <varref fl="c33" loc="c,33,43,33,46" name="G10" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c34" loc="c,34,10,34,19" name="NOR2_1_U1" defName="NOR2X1" origName="NOR2_1_U1">
+        <port fl="c34" loc="c,34,23,34,24" name="A" direction="in" portIndex="1">
+          <varref fl="c34" loc="c,34,25,34,27" name="G9" dtype_id="1"/>
+        </port>
+        <port fl="c34" loc="c,34,31,34,32" name="B" direction="in" portIndex="2">
+          <varref fl="c34" loc="c,34,33,34,35" name="G5" dtype_id="1"/>
+        </port>
+        <port fl="c34" loc="c,34,39,34,40" name="Y" direction="out" portIndex="3">
+          <varref fl="c34" loc="c,34,41,34,44" name="G11" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c35" loc="c,35,10,35,19" name="NOR2_2_U1" defName="NOR2X1" origName="NOR2_2_U1">
+        <port fl="c35" loc="c,35,23,35,24" name="A" direction="in" portIndex="1">
+          <varref fl="c35" loc="c,35,25,35,27" name="G7" dtype_id="1"/>
+        </port>
+        <port fl="c35" loc="c,35,31,35,32" name="B" direction="in" portIndex="2">
+          <varref fl="c35" loc="c,35,33,35,35" name="G1" dtype_id="1"/>
+        </port>
+        <port fl="c35" loc="c,35,39,35,40" name="Y" direction="out" portIndex="3">
+          <varref fl="c35" loc="c,35,41,35,44" name="G12" dtype_id="1"/>
+        </port>
+      </instance>
+      <instance fl="c36" loc="c,36,10,36,19" name="NOR2_3_U1" defName="NOR2X1" origName="NOR2_3_U1">
+        <port fl="c36" loc="c,36,23,36,24" name="A" direction="in" portIndex="1">
+          <varref fl="c36" loc="c,36,25,36,28" name="G12" dtype_id="1"/>
+        </port>
+        <port fl="c36" loc="c,36,32,36,33" name="B" direction="in" portIndex="2">
+          <varref fl="c36" loc="c,36,34,36,36" name="G2" dtype_id="1"/>
+        </port>
+        <port fl="c36" loc="c,36,40,36,41" name="Y" direction="out" portIndex="3">
+          <varref fl="c36" loc="c,36,42,36,45" name="G13" dtype_id="1"/>
+        </port>
+      </instance>
+    </module>
+    <module fl="d68" loc="d,68,8,68,14" name="AND2X1" origName="AND2X1">
+      <var fl="d69" loc="d,69,8,69,9" name="Y" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Y"/>
+      <var fl="d70" loc="d,70,7,70,8" name="A" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="A"/>
+      <var fl="d70" loc="d,70,10,70,11" name="B" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="B"/>
+    </module>
+    <module fl="d563" loc="d,563,8,563,15" name="DFFHQX1" origName="DFFHQX1">
+      <var fl="d564" loc="d,564,8,564,9" name="Q" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Q"/>
+      <var fl="d565" loc="d,565,7,565,8" name="D" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="D"/>
+      <var fl="d565" loc="d,565,10,565,12" name="CK" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="CK"/>
+    </module>
+    <module fl="d803" loc="d,803,8,803,13" name="INVX1" origName="INVX1">
+      <var fl="d804" loc="d,804,8,804,9" name="Y" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Y"/>
+      <var fl="d805" loc="d,805,7,805,8" name="A" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="A"/>
+    </module>
+    <module fl="d928" loc="d,928,8,928,15" name="NAND2X1" origName="NAND2X1">
+      <var fl="d929" loc="d,929,8,929,9" name="Y" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Y"/>
+      <var fl="d930" loc="d,930,7,930,8" name="A" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="A"/>
+      <var fl="d930" loc="d,930,10,930,11" name="B" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="B"/>
+    </module>
+    <module fl="d1068" loc="d,1068,8,1068,14" name="NOR2X1" origName="NOR2X1">
+      <var fl="d1069" loc="d,1069,8,1069,9" name="Y" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Y"/>
+      <var fl="d1070" loc="d,1070,7,1070,8" name="A" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="A"/>
+      <var fl="d1070" loc="d,1070,10,1070,11" name="B" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="B"/>
+    </module>
+    <module fl="d1408" loc="d,1408,8,1408,13" name="OR2X1" origName="OR2X1">
+      <var fl="d1409" loc="d,1409,8,1409,9" name="Y" dtype_id="1" dir="output" pinIndex="1" vartype="logic" origName="Y"/>
+      <var fl="d1410" loc="d,1410,7,1410,8" name="A" dtype_id="1" dir="input" pinIndex="2" vartype="logic" origName="A"/>
+      <var fl="d1410" loc="d,1410,10,1410,11" name="B" dtype_id="1" dir="input" pinIndex="3" vartype="logic" origName="B"/>
+    </module>
+    <typetable fl="a0" loc="a,0,0,0,0">
+      <basicdtype fl="d1409" loc="d,1409,8,1409,9" id="1" name="logic"/>
+    </typetable>
+  </netlist>
+</verilator_xml>
