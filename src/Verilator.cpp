@@ -702,10 +702,6 @@ int main(int argc, char** argv, char** env) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    time_t randseed;
-    time(&randseed);
-    srand(static_cast<int>(randseed));
-
     // Post-constructor initialization of netlists
     v3Global.boot();
 
@@ -718,26 +714,9 @@ int main(int argc, char** argv, char** env) {
     const string argString = V3Options::argString(argc - 1, argv + 1);
     v3Global.opt.parseOpts(new FileLine(FileLine::commandLineFilename()), argc - 1, argv + 1);
 
-    // Validate settings (aka Boost.Program_options)
-    v3Global.opt.notify();
-    v3Global.rootp()->timeInit();
-
-    V3Error::abortIfErrors();
-
-    if (v3Global.opt.verilate()) {
-        verilate(argString);
-    } else {
-        UINFO(1, "Option --no-verilate: Skip Verilation\n");
-    }
-
-    if (v3Global.hierPlanp() && v3Global.opt.gmake()) {
-        execHierVerilation();  // execHierVerilation() takes care of --build too
-    } else if (v3Global.opt.build()) {
-        execBuildJob();
-    }
+    verilate(argString);
 
     // Explicitly release resources
     v3Global.shutdown();
 
-    UINFO(1, "Done, Exiting...\n");
 }
