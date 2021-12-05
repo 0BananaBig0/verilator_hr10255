@@ -250,6 +250,9 @@ public:
         blockIndent(2);
     }
     virtual ~V3OutXmlFile() override = default;
+    /**
+     * @brief 输出 xml 文件头部
+     */
     virtual void putsHeader() { puts("<?xml version=\"1.0\" ?>\n"); }
 };
 

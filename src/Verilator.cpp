@@ -198,12 +198,6 @@ static void process() {
         V3EmitXml::emitxml();
     }
 
-    // Statistics
-    if (v3Global.opt.stats()) {
-        V3Stats::statsFinalAll(v3Global.rootp());
-        V3Stats::statsReport();
-    }
-    if (v3Global.opt.debugEmitV()) V3EmitV::debugEmitV("final");
 }
 
 static void verilate(const string& argString) {

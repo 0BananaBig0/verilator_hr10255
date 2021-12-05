@@ -439,7 +439,7 @@ public:
 
 void V3EmitXml::emitxml() {
     UINFO(2, __FUNCTION__ << ": " << endl);
-    // All-in-one file
+    // xml 输出文件 (全部信息都在这一个文件中)
     const string filename = (v3Global.opt.xmlOutput().empty()
                                  ? v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".xml"
                                  : v3Global.opt.xmlOutput());
@@ -452,12 +452,18 @@ void V3EmitXml::emitxml() {
         std::stringstream sstr;
         FileLine::fileNameNumMapDumpXml(sstr);
         of.puts(sstr.str());
+#if 0
+    cout<<"content : " << endl << sstr.str() <<endl;
+#endif
     }
     {
         std::stringstream sstr;
         ModuleFilesXmlVisitor moduleFilesVisitor{v3Global.rootp(), sstr};
         HierCellsXmlVisitor cellsVisitor{v3Global.rootp(), sstr};
         of.puts(sstr.str());
+#if 0
+    cout<<"content : " << endl << sstr.str() <<endl;
+#endif  
     }
     EmitXmlFileVisitor visitor{v3Global.rootp(), &of};
     of.puts("</verilator_xml>\n");
