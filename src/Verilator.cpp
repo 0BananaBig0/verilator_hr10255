@@ -556,43 +556,6 @@ static void process() {
 }
 
 static void verilate(const string& argString) {
-    UINFO(1, "Option --verilate: Start Verilation\n");
-
-    // Can we skip doing everything if times are ok?
-    V3File::addSrcDepend(v3Global.opt.bin());
-    if (v3Global.opt.skipIdentical().isTrue()
-        && V3File::checkTimes(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
-                                  + "__verFiles.dat",
-                              argString)) {
-        UINFO(1, "--skip-identical: No change to any source files, exiting\n");
-        return;
-    }
-    // Undocumented debugging - cannot be a switch as then command line
-    // would mismatch forcing non-identicalness when we set it
-    if (!V3Os::getenvStr("VERILATOR_DEBUG_SKIP_IDENTICAL", "").empty()) {  // LCOV_EXCL_START
-        v3fatalSrc("VERILATOR_DEBUG_SKIP_IDENTICAL w/ --skip-identical: Changes found\n");
-    }  // LCOV_EXCL_STOP
-
-    //--FRONTEND------------------
-
-    // Cleanup
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.tree");
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.dot");
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.txt");
-
-    // Internal tests (after option parsing as need debug() setting,
-    // and after removing files as may make debug output)
-    AstBasicDTypeKwd::selfTest();
-    if (v3Global.opt.debugSelfTest()) {
-        VHashSha256::selfTest();
-        VSpellCheck::selfTest();
-        V3Graph::selfTest();
-        V3TSP::selfTest();
-        V3ScoreboardBase::selfTest();
-        V3Partition::selfTest();
-        V3Partition::selfTestNormalizeCosts();
-        V3Broken::selfTest();
-    }
 
     // Read first filename
     v3Global.readFiles();
@@ -607,44 +570,6 @@ static void verilate(const string& argString) {
 
     V3Error::abortIfErrors();
 
-    if (v3Global.opt.isWaiverOutput()) {
-        // Create waiver output, must be just before we exit on warnings
-        V3Waiver::write(v3Global.opt.waiverOutput());
-    }
-
-    V3Error::abortIfWarnings();
-
-    if (v3Global.hierPlanp()) {  // This run is for just write a makefile
-        UASSERT(v3Global.opt.hierarchical(), "hierarchical must be set");
-        UASSERT(!v3Global.opt.hierChild(), "This must not be a hierarhcical-child run");
-        UASSERT(v3Global.opt.hierBlocks().empty(), "hierarchical-block must not be set");
-        if (v3Global.opt.gmake()) {
-            v3Global.hierPlanp()->writeCommandArgsFiles(false);
-            V3EmitMk::emitHierVerilation(v3Global.hierPlanp());
-        }
-        if (v3Global.opt.cmake()) {
-            v3Global.hierPlanp()->writeCommandArgsFiles(true);
-            V3EmitCMake::emit();
-        }
-    }
-    if (v3Global.opt.makeDepend().isTrue()) {
-        string filename = v3Global.opt.makeDir() + "/" + v3Global.opt.prefix();
-        filename += v3Global.opt.hierTop() ? "__hierVer.d" : "__ver.d";
-        V3File::writeDepend(filename);
-    }
-    if (v3Global.opt.protectIds()) {
-        VIdProtect::writeMapFile(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
-                                 + "__idmap.xml");
-    }
-
-    if (v3Global.opt.skipIdentical().isTrue() || v3Global.opt.makeDepend().isTrue()) {
-        V3File::writeTimes(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
-                               + "__verFiles.dat",
-                           argString);
-    }
-
-    // Final writing shouldn't throw warnings, but...
-    V3Error::abortIfWarnings();
     // Cleanup memory for valgrind leak analysis
     v3Global.clear();
     FileLine::deleteAllRemaining();
