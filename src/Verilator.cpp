@@ -105,7 +105,6 @@
 
 V3Global v3Global;
 
-
 static void process() {
     // Sort modules by level so later algorithms don't need to care
     V3LinkLevel::modSortByLevel();
@@ -249,5 +248,4 @@ int main(int argc, char** argv, char** env) {
 
     // Explicitly release resources
     v3Global.shutdown();
-
 }
