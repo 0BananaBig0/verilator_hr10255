@@ -2498,10 +2498,11 @@ public:
 
 class AstPin final : public AstNode {
     // A pin on a cell
+    // 一个单元(cell)上的一个引脚
 private:
-    int m_pinNum;  // Pin number
-    string m_name;  // Pin name, or "" for number based interconnect
-    AstVar* m_modVarp = nullptr;  // Input/output this pin connects to on submodule.
+    int m_pinNum;  // 引脚数量
+    string m_name;  // 引脚名称, or "" for number based interconnect
+    AstVar* m_modVarp = nullptr;  // 输出/输入这个引脚连接到子模块上去 
     AstParamTypeDType* m_modPTypep = nullptr;  // Param type this pin connects to on submodule.
     bool m_param = false;  // Pin connects to parameter
     bool m_svImplicit = false;  // Pin is SystemVerilog .name'ed
@@ -2525,6 +2526,10 @@ public:
         BROKEN_RTN(m_modPTypep && !m_modPTypep->brokeExists());
         return nullptr;
     }
+    /**
+     * @brief 引脚名称
+     * @note  按编号递增
+     */
     virtual string name() const override { return m_name; }  // * = Pin name, ""=go by number
     virtual void name(const string& name) override { m_name = name; }
     virtual string prettyOperatorName() const override {
@@ -2534,7 +2539,14 @@ public:
                       + "port connection " + modVarp()->prettyNameQ())
                    : "port connection";
     }
+    /**
+     * @brief 暂不清楚
+     * @note  值得研究
+     */
     bool dotStar() const { return name() == ".*"; }  // Fake name for .* connections until linked
+    /**
+     * @brief 引脚号
+     */
     int pinNum() const { return m_pinNum; }
     void exprp(AstNode* nodep) { addOp1p(nodep); }
     // op1 = Expression connected to pin, nullptr if unconnected

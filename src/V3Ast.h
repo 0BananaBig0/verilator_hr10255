@@ -1504,7 +1504,8 @@ public:
     inline AstType type() const { return m_type; }
     /**
      * @brief 获取节点类型名称
-     * @note  以字符串的形式访问你
+     * @note   1- 以字符串的形式访问
+     *         2 - 这个类型需要重点注意
      */
     const char* typeName() const {
 #if 0
@@ -1597,6 +1598,9 @@ public:
     encodeName(const string& namein);  // Encode user name into internal C representation
     static string encodeNumber(vlsint64_t num);  // Encode number into internal C representation
     static string vcdName(const string& namein);  // Name for printing out to vcd files
+    /**
+     * @brief 获取"修整"过的名字
+     */
     string prettyName() const { return prettyName(name()); }
     string prettyNameQ() const { return prettyNameQ(name()); }
     string prettyTypeName() const;  // "VARREF" for error messages (NOT dtype's pretty name)
