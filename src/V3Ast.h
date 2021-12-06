@@ -71,10 +71,10 @@ using MTaskIdSet = std::set<int>;  // Set of mtaskIds for Var sorting
 #define VN_CAST(nodep, nodetypename) \
     (AstNode::privateCast<Ast##nodetypename, decltype(nodep)>(nodep))
 
-// (V)erilator (N)ode as: Assert node is of given type then cast to that type. Use this to
-// downcast instead of VN_CAST when you know the true type of the node. If 'nodep' is nullptr,
-// return nullptr. Pointer constness is preserved, i.e.: given a 'const AstNode*', a 'const
-// Ast<nodetypename>*' is returned.
+// (V)erilator (N)ode as: 根据给定的类型断言节点，然后将其转化为该类型。
+// 当您知道节点的真实类型时，使用此宏进行向下转换，而不是使用 VN_CAST。
+// 如果 'nodep' 是 nullptr ，则返回 nullptr 。
+// 指针的 const 属性将被保留，例如给定一个 'const AstNode*' ，然后一个 'Ast<nodetypename>*' 将会被返回。
 #define VN_AS(nodep, nodetypename) (AstNode::privateAs<Ast##nodetypename, decltype(nodep)>(nodep))
 
 // (V)erilator (N)ode deleted: Pointer to deleted AstNode (for assertions only)

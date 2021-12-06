@@ -9170,7 +9170,7 @@ public:
 // Top
 
 class AstNetlist final : public AstNode {
-    // All modules are under this single top node.
+    // 所有模块都位于这一个单独顶层节点
     // Parents:   none
     // Children:  MODULEs & CFILEs
 private:
@@ -9195,18 +9195,39 @@ public:
         BROKEN_RTN(m_topScopep && !m_topScopep->brokeExists());
         return nullptr;
     }
+    /**
+     * @brief 获取名称
+     */
     virtual string name() const override { return "$root"; }
+    /**
+     * @brief 暂不清楚
+     * @note  研究一下，应该有用
+     */
     virtual void dump(std::ostream& str) const override;
+    /**
+     * @brief 获取网表的所有模块
+     * @note  op1p() 将会以链表的形式返回整个网表
+     */
     AstNodeModule* modulesp() const {  // op1 = List of modules
         return VN_AS(op1p(), NodeModule);
     }
+    /**
+     * @brief 层次化结构的顶级模块
+     * @note  目前为止，所有模块都是按照 level 排列好的，所以链表的首部就是顶层模块
+     */
     AstNodeModule* topModulep() const {  // Top module in hierarchy
         return modulesp();  // First one in the list, for now
     }
+    /**
+     * @brief 添加一个模块
+     */
     void addModulep(AstNodeModule* modulep) { addOp1p(modulep); }
     AstNodeFile* filesp() const { return VN_AS(op2p(), NodeFile); }  // op2 = List of files
     void addFilesp(AstNodeFile* filep) { addOp2p(filep); }
     void addMiscsp(AstNode* nodep) { addOp3p(nodep); }
+    /**
+     * @brief 获取类型表
+     */
     AstTypeTable* typeTablep() { return m_typeTablep; }
     void changeRequest(bool specified) { m_changeRequest = specified; }
     bool changeRequest() const { return m_changeRequest; }
