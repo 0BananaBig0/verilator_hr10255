@@ -60,6 +60,13 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     }
     void outputTag(AstNode* nodep, const string& tagin) {
         string tag = tagin;
+#if 0
+    if (nodep->name() != "") {
+        cout << "name : " << nodep->name() <<endl;
+        //cout << "type : " << nodep->m_type();
+    }
+#endif
+
         if (tag == "") tag = VString::downcase(nodep->typeName());
         puts("<" + tag + " " + nodep->fileline()->xml());
         puts(" " + nodep->fileline()->xmlDetailedLocation());
@@ -105,6 +112,12 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputChildrenEnd(nodep, "contassign");
     }
     virtual void visit(AstCell* nodep) override {
+#if 1
+        if (nodep->name() != "") {
+            cout << "name : " << nodep->name() <<endl;
+            //cout << "type : " << nodep->m_type();
+        }
+#endif
         outputTag(nodep, "instance");  // IEEE: vpiInstance
         puts(" defName=");
         putsQuoted(nodep->modName());  // IEEE vpiDefName

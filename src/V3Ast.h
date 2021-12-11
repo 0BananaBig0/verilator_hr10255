@@ -1368,7 +1368,7 @@ class AstNode VL_NOT_FINAL {
     AstNode* m_op3p;  // Generic pointer 3
     AstNode* m_op4p;  // Generic pointer 4
     AstNode** m_iterpp;  // Pointer to node iterating on, change it if we replace this node.
-    const AstType m_type;  // Node sub-type identifier
+    const AstType m_type;  // 节点子类型标识符
     // ^ ASTNODE_PREFETCH depends on above ordering of members
 
     // AstType is 2 bytes, so we can stick another 6 bytes after it to utilize what would
