@@ -1283,6 +1283,9 @@ class AstNVisitor VL_NOT_FINAL : public AstNDeleter {
     friend class AstNode;
 
 public:
+    /**
+     * @brief 迭代器函数
+     */
     /// Call visit()s on nodep
     void iterate(AstNode* nodep);
     /// Call visit()s on nodep
@@ -1347,9 +1350,9 @@ public:
 };
 
 //######################################################################
-// AstNode -- Base type of all Ast types
+// AstNode -- 所有 Ast 类型的基本类型
 
-// Prefetch a node.
+// 预取一个节点
 // The if() makes it faster, even though prefetch won't fault on null pointers
 #define ASTNODE_PREFETCH(nodep) \
     do { \
@@ -3029,6 +3032,7 @@ public:
 
 //######################################################################
 // Inline AstNVisitor 方法
+
 
 inline void AstNVisitor::iterate(AstNode* nodep) { nodep->accept(*this); }
 inline void AstNVisitor::iterateNull(AstNode* nodep) {

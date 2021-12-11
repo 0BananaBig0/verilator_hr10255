@@ -791,11 +791,15 @@ void AstNode::operator delete(void* objp, size_t size) {
 #endif
 
 //======================================================================
-// Iterators
+// 迭代器
 
+/**
+ * @brief 访问节点的孩子
+ */
 void AstNode::iterateChildren(AstNVisitor& v) {
     // This is a very hot function
     // Optimization note: Grabbing m_op#p->m_nextp is a net loss
+    // gcc 内置指令 __builtin_prefetch ，用于优化时间复杂度以及空间复杂度
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
@@ -808,6 +812,7 @@ void AstNode::iterateChildren(AstNVisitor& v) {
 
 void AstNode::iterateChildrenConst(AstNVisitor& v) {
     // This is a very hot function
+    // gcc 内置指令 __builtin_prefetch ，用于优化时间复杂度以及空间复杂度
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
