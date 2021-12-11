@@ -23,7 +23,7 @@
 #endif
 
 //######################################################################
-// Standard defines for all AstNode final classes
+// 为所有 AstNode 定义的标准接口
 
 #define ASTNODE_NODE_FUNCS_NO_DTOR(name) \
     virtual void accept(AstNVisitor& v) override { v.visit(this); } \
@@ -2841,15 +2841,15 @@ public:
 };
 
 class AstCell final : public AstNode {
-    // A instantiation cell or interface call (don't know which until link)
+    // 一个实例化单元或者接口调用 (知道链接的时候才确定是哪个)
 private:
     FileLine* m_modNameFileline;  // Where module the cell instances token was
-    string m_name;  // Cell name
-    string m_origName;  // Original name before dot addition
-    string m_modName;  // Module the cell instances
-    AstNodeModule* m_modp = nullptr;  // [AfterLink] Pointer to module instanced
+    string m_name;  // 单元名称
+    string m_origName;  // 添加节点前的原始名称
+    string m_modName;  // 模块化单元实例
+    AstNodeModule* m_modp = nullptr;  // [AfterLink] 指向模块实例
     bool m_hasIfaceVar : 1;  // True if a Var has been created for this cell
-    bool m_recursive : 1;  // Self-recursive module
+    bool m_recursive : 1;  // 子递归模块
     bool m_trace : 1;  // Trace this cell
 public:
     AstCell(FileLine* fl, FileLine* mfl, const string& instName, const string& modName,
@@ -2875,16 +2875,30 @@ public:
     }
     virtual bool maybePointedTo() const override { return true; }
     // ACCESSORS
+    /**
+     * @brief 单元名称
+     */
     virtual string name() const override { return m_name; }  // * = Cell name
     virtual void name(const string& name) override { m_name = name; }
+    /**
+     * @brief 原始名称
+     */
     virtual string origName() const override { return m_origName; }  // * = Original name
     void origName(const string& name) { m_origName = name; }
+    /**
+     * @brief 实例名称
+     */
     string modName() const { return m_modName; }  // * = Instance name
     void modName(const string& name) { m_modName = name; }
     FileLine* modNameFileline() const { return m_modNameFileline; }
+    /**
+     * @brief 单元所有的端口
+     */
     AstPin* pinsp() const { return VN_AS(op1p(), Pin); }  // op1 = List of cell ports
-    // op2 = List of parameter #(##) values
-    AstPin* paramsp() const { return VN_AS(op2p(), Pin); }
+    /**
+     * @brief 暂时未知
+     */
+    AstPin* paramsp() const { return VN_AS(op2p(), Pin); } // op2 = List of parameter #(##) values
     // op3 = Range of arrayed instants (nullptr=not ranged)
     AstRange* rangep() const { return VN_AS(op3p(), Range); }
     // op4 = List of interface references
@@ -2899,6 +2913,9 @@ public:
     void trace(bool flag) { m_trace = flag; }
     bool isTrace() const { return m_trace; }
     void recursive(bool flag) { m_recursive = flag; }
+    /**
+     * @brief 是否是递归调用的
+     */
     bool recursive() const { return m_recursive; }
 };
 
