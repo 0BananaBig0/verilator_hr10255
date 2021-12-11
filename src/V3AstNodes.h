@@ -908,7 +908,7 @@ public:
      */
     virtual AstBasicDType* basicp() const override { return (AstBasicDType*)this; }
     /**
-     * @ 
+     * @
      */
     virtual AstNodeDType* skipRefp() const override { return (AstNodeDType*)this; }
     virtual AstNodeDType* skipRefToConstp() const override { return (AstNodeDType*)this; }
@@ -2516,7 +2516,7 @@ class AstPin final : public AstNode {
 private:
     int m_pinNum;  // 引脚数量
     string m_name;  // 引脚名称, or "" for number based interconnect
-    AstVar* m_modVarp = nullptr;  // 输出/输入这个引脚连接到子模块上去 
+    AstVar* m_modVarp = nullptr;  // 输出/输入这个引脚连接到子模块上去
     AstParamTypeDType* m_modPTypep = nullptr;  // Param type this pin connects to on submodule.
     bool m_param = false;  // Pin connects to parameter
     bool m_svImplicit = false;  // Pin is SystemVerilog .name'ed

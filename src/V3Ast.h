@@ -74,7 +74,8 @@ using MTaskIdSet = std::set<int>;  // Set of mtaskIds for Var sorting
 // (V)erilator (N)ode as: 根据给定的类型断言节点，然后将其转化为该类型。
 // 当您知道节点的真实类型时，使用此宏进行向下转换，而不是使用 VN_CAST。
 // 如果 'nodep' 是 nullptr ，则返回 nullptr 。
-// 指针的 const 属性将被保留，例如给定一个 'const AstNode*' ，然后一个 'Ast<nodetypename>*' 将会被返回。
+// 指针的 const 属性将被保留，例如给定一个 'const AstNode*' ，然后一个 'Ast<nodetypename>*'
+// 将会被返回。
 #define VN_AS(nodep, nodetypename) (AstNode::privateAs<Ast##nodetypename, decltype(nodep)>(nodep))
 
 // (V)erilator (N)ode deleted: Pointer to deleted AstNode (for assertions only)
@@ -1511,7 +1512,7 @@ public:
 #if 0
         std::cout << "typeName ： " << type().ascii() << std::endl;
 #endif
-        return type().ascii(); 
+        return type().ascii();
     }  // See also prettyTypeName
     AstNode* nextp() const { return m_nextp; }
     AstNode* backp() const { return m_backp; }
@@ -1840,7 +1841,7 @@ public:
     void dumpTreeFile(const string& filename, bool append = false, bool doDump = true,
                       bool doCheck = true);
     static void dumpTreeFileGdb(const AstNode* nodep, const char* filenamep = nullptr);
-    
+
     // METHODS - queries
     // Changes control flow, disable some optimizations
     virtual bool isBrancher() const { return false; }
