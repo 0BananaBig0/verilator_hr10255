@@ -798,7 +798,7 @@ public:
 };
 
 class AstBasicDType final : public AstNodeDType {
-    // Builtin atomic/vectored data type
+    // 内置 原子/向量 数据类型
     // Children: RANGE (converted to constant in V3Width)
 private:
     struct Members {
@@ -875,6 +875,10 @@ public:
     ASTNODE_NODE_FUNCS(BasicDType)
     virtual void dump(std::ostream& str) const override;
     // width/widthMin/numeric compared elsewhere
+    /**
+     * @brief   判断两个 AstBasicDType 数据类型是否一致
+     * @return  true 代表一致,false 代表不一致
+     */
     virtual bool same(const AstNode* samep) const override {
         const AstBasicDType* sp = static_cast<const AstBasicDType*>(samep);
         return m == sp->m;
@@ -899,7 +903,13 @@ public:
         }
     }
     // METHODS
+    /**
+     * @brief 获取基本数据类型
+     */
     virtual AstBasicDType* basicp() const override { return (AstBasicDType*)this; }
+    /**
+     * @ 
+     */
     virtual AstNodeDType* skipRefp() const override { return (AstNodeDType*)this; }
     virtual AstNodeDType* skipRefToConstp() const override { return (AstNodeDType*)this; }
     virtual AstNodeDType* skipRefToEnump() const override { return (AstNodeDType*)this; }
@@ -928,6 +938,7 @@ public:
         return !isDpiBitVec() && !isDpiLogicVec();
     }
     // Generally the lo/hi/left/right funcs should be used instead of nrange()
+    // 通常应使用l o/hi/left/right 函数而不是 nrange()
     const VNumRange& nrange() const { return m.m_nrange; }
     int hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
     int lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
@@ -946,6 +957,9 @@ public:
             rangep(nullptr);
         }
     }
+    /**
+     * @brief 是否是混合类型
+     */
     virtual bool isCompound() const override { return isString(); }
 };
 
