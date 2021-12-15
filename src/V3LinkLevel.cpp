@@ -41,7 +41,7 @@ struct CmpLevel {
 
 void V3LinkLevel::modSortByLevel() {
     // 按级别对模块进行排序，从根到最低的子级
-    
+
     // 如果我们添加了模块，请重新计算级别
     UINFO(2, "modSortByLevel()\n");
 
@@ -92,10 +92,10 @@ void V3LinkLevel::modSortByLevel() {
     // 重新排列网络列表的模块，使模块按级别排序
     stable_sort(mods.begin(), mods.end(), CmpLevel());  // Sort the vector
     UINFO(9, "modSortByLevel() sorted\n");  // Comment required for gcc4.6.3 / bug666
-    
+
     for (AstNodeModule* nodep : mods) {
         nodep->clearIter();  // 因为我们不需要迭代找到节点
-        nodep->unlinkFrBack(); // pointers, may have a stale m_iterp() needing cleanup
+        nodep->unlinkFrBack();  // pointers, may have a stale m_iterp() needing cleanup
     }
     UASSERT_OBJ(!v3Global.rootp()->modulesp(), v3Global.rootp(), "Unlink didn't work");
 

@@ -208,7 +208,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     }
     /**
      * @brief   访问 Ast 模块
-     * @note    1 - 与 RTL 有关 
+     * @note    1 - 与 RTL 有关
      *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
      */
     virtual void visit(AstNodeModule* nodep) override {
@@ -227,9 +227,10 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     }
     /**
      * @brief   访问 Ast 的 Var
-     * @note    1 - 与 RTL 有关 
+     * @note    1 - 与 RTL 有关
      *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
-     *          3 - 目前知道的是，var 其实是抽象层次的理解，向像 RTL 级别的 input，output 以及 wire ，都算是 var
+     *          3 - 目前知道的是，var 其实是抽象层次的理解，向像 RTL 级别的 input，output 以及 wire
+     * ，都算是 var
      */
     virtual void visit(AstVar* nodep) override {
         const AstVarType typ = nodep->varType();
@@ -238,13 +239,13 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputTag(nodep, "");
         // 判断节点是否为输入输出类型
         // Hint : 例如 input，output
-        if (nodep->isIO()) { 
+        if (nodep->isIO()) {
             puts(" dir=");
             putsQuoted(kw);
             if (nodep->pinNum() != 0) puts(" pinIndex=\"" + cvtToStr(nodep->pinNum()) + "\"");
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : typ == AstVarType::PORT ? "port" : "unknown");
-        // Hint : 例如 wire
+            // Hint : 例如 wire
         } else {
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : kw);
@@ -561,7 +562,7 @@ void V3EmitXml::emitxml() {
         of.puts(sstr.str());
 #if 0
     cout<<"content : " << endl << sstr.str() <<endl;
-#endif  
+#endif
     }
     EmitXmlFileVisitor visitor{v3Global.rootp(), &of};
     of.puts("</verilator_xml>\n");

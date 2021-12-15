@@ -197,7 +197,6 @@ static void process() {
         || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() && !v3Global.opt.dpiHdrOnly())) {
         V3EmitXml::emitxml();
     }
-
 }
 
 static void verilate(const string& argString) {
