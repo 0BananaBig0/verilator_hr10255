@@ -114,8 +114,8 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     virtual void visit(AstCell* nodep) override {
 #if 1
         if (nodep->name() != "") {
-            cout << "name : " << nodep->name() <<endl;
-            //cout << "type : " << nodep->m_type();
+            cout << "name : " << nodep->name() << endl;
+            // cout << "type : " << nodep->m_type();
         }
 #endif
         outputTag(nodep, "instance");  // IEEE: vpiInstance
