@@ -1,48 +1,43 @@
 |Logo|
 
 *******************
-Verilator Internals
+Verilator 内核
 *******************
 
 .. contents::
    :depth: 3
 
-Introduction
+介绍
 ============
 
-This file discusses internal and programming details for Verilator. It's
-a reference for developers and debugging problems.
+这个文件讨论 Verilator 的内核以及编程细节。它能给开发者一个参考以及调试问题。
+
+未翻译的部分都是目前与此毕设没有关系的部分，看是看了，但是没有太大的关系，再加上涉入不深，也没有资格翻译。
 
 See also the Verilator internals presentation at
 https://www.veripool.org.
 
 
-Code Flows
+代码流
 ==========
 
 
-Verilator Flow
+Verilator 流
 --------------
 
-The main flow of Verilator can be followed by reading the Verilator.cpp
-``process()`` function:
+Verilator 的主流程实际上可以使用 Verilator.cpp 中的 ``provess()`` 函数的流程来描述：
 
-1.  First, the files specified on the command line are read. Reading
-    involves preprocessing, then lexical analysis with Flex and parsing
-    with Bison. This produces an abstract syntax tree (AST)
-    representation of the design, which is what is visible in the .tree
-    files described below.
+1. 首先，读取命令行上指令的文件。读取包含预处理，然后使用 Flex 进行词法分析，使用 Bison
+   进行语法分析。这个过程会生成一个抽象语法树(Ast,一个电路设计的表现形式)，这个是可视化的，
+   .tree 文件的描述如下。
 
-2.  Verilator then makes a series of passes over the AST, progressively
-    refining and optimizing it.
+2.  然后，Verilator在AST上进行一系列传递，逐步细化和优化它。
 
-3.  Cells in the AST first linked, which will read and parse additional
-    files as above.
+3.  AST中的单元首先链接，它将如上所述读取和解析其他文件。
 
-4.  Functions, variable and other references are linked to their
-    definitions.
+4.  函数、变量和其他引用链接到它们的定义。
 
-5.  Parameters are resolved and the design is elaborated.
+5.  对参数进行了解析，并对设计进行了阐述。
 
 6.  Verilator then performs many additional edits and optimizations on
     the hierarchical design. This includes coverage, assertions, X
@@ -76,52 +71,35 @@ The main flow of Verilator can be followed by reading the Verilator.cpp
 11. Verilator finally writes the C++ modules.
 
 
-Key Classes Used in the Verilator Flow
+在 Verilator 流中的关键类
 --------------------------------------
 
 
 ``AstNode``
 ^^^^^^^^^^^
 
-The AST is represented at the top level by the class ``AstNode``. This
-abstract class has derived classes for the individual components (e.g.
-``AstGenerate`` for a generate block) or groups of components (e.g.
-``AstNodeFTask`` for functions and tasks, which in turn has ``AstFunc`` and
-``AstTask`` as derived classes). An important property of the ``AstNode``
-type hierarchy is that all non-final subclasses of ``AstNode`` (i.e.: those
-which themselves have subclasses) must be abstract as well, and be named
-with the prefix ``AstNode*``. The ``astgen`` (see below) script relies on
-this.
+最顶层的抽象语法树使用 ``AstNode`` 表示。这个抽象的基类是很多独立组件的基类(例如 ``AstGenerate`` 用于生成
+block),或者是一组组件的基类(例如 ``AstNodeFTask`` 用于函数和任务，然后 ``AstFunc`` 和 ``AstTask`` 是
+``AstNodeFTask`` 的派生类)。一个 ``AstNode`` 继承类型的重要特性是，如果不是最终 ``AstNode`` 子类 
+(也就是它们还有子类)，则必须是抽象类，并且以 ``AstNode*`` 的前缀进行命令。 ``astgen`` 脚本依靠依靠此特性实现。 
 
-Each ``AstNode`` has pointers to up to four children, accessed by the
-``op1p`` through ``op4p`` methods. These methods are then abstracted in a
-specific Ast\* node class to a more specific name. For example with the
-``AstIf`` node (for ``if`` statements), ``ifsp`` calls ``op2p`` to give the
-pointer to the AST for the "then" block, while ``elsesp`` calls ``op3p`` to
-give the pointer to the AST for the "else" block, or NULL if there is not
-one.
+每一个 ``AstNode`` (抽象说法， ``AstNode`` 不单纯指的是 ``AstNode``，也泛指其衍生类) 至多有四个指针指向
+其 children,通过 ``op1p`` 至 ``op4p`` 访问。然后这些方法在更加具体的 ``Ast*`` 节点中被抽象为更加具体的方法。
+例如对于 ``AstIf`` 节点 (针对 ``if``)语句， ``ifsp`` 调用  ``op2p``, 而 ``elsesp`` 调用 ``op3p``。
 
-``AstNode`` has the concept of a next and previous AST - for example the
-next and previous statements in a block. Pointers to the AST for these
-statements (if they exist) can be obtained using the ``back`` and ``next``
-methods.
+``AstNode`` 具有上一个以及下一个 Ast 的概念 —— 例如下一个和上一个语句在当前块中。指向这些 Ast 的指针(如果
+存在的话) 可以通过 ``back`` 和 ``next`` 方法获取。
 
-It is useful to remember that the derived class ``AstNetlist`` is at the
-top of the tree, so checking for this class is the standard way to see if
-you are at the top of the tree.
+记住 ``AstNode`` 的派生类 ``AstNetlist`` 位于树的顶部是非常有用的，通过检查这个类来判断你是否处于树的顶部
+是一个标准的方法。
 
-By convention, each function/method uses the variable ``nodep`` as a
-pointer to the ``AstNode`` currently being processed.
-
+按照惯例，每个 函数/方法 都使用 ``nodep`` 作为当前正在被处理的 ``AstNode`` 的指针。
 
 ``AstNVisitor``
 ^^^^^^^^^^^^^^^
 
-The passes are implemented by AST visitor classes. These are implemented by
-subclasses of the abstract class, ``AstNVisitor``. Each pass creates an
-instance of the visitor class, which in turn implements a method to perform
-the pass.
-
+pass 动作通过 Ast visitor 类实现。这可以通过继承抽象类 ``AstNVisitor`` 实现。每一个 pass 创建一个 visitor
+类的实例，这个类实现了一个方法去实现 pass 这一个动作。
 
 ``V3Graph``
 ^^^^^^^^^^^
@@ -498,17 +476,15 @@ code:
   parenthesis (only applies to functions; if/else has a following space).
 
 
-The ``astgen`` Script
+``astgen`` 脚本
 ---------------------
 
-Some of the code implementing passes is extremely repetitive, and must be
-implemented for each sub-class of ``AstNode``. However, while repetitive,
-there is more variability than can be handled in C++ macros.
+有些代码实现过程是非常重复的，必须为 ``AstNode`` 的每个子类实现。然而虽然是重复的，
+但是它的可变性已经超过了 C++ 宏定义所能处理的范围。
 
-In Verilator this is implemented by using a script, ``astgen`` to
-pre-process the C++ code. For example in ``V3Const.cpp`` this is used to
-implement the ``visit()`` functions for each binary operation using the
-``TREEOP`` macro.
+在 Verilator 中使用一个脚本去解决这个问题， 使用 ``astgen`` 去预处理 C++ 代码。 
+例如在 ``V3Const.cpp`` 中它被用来为每一个二元操作实现 ``visit()`` 函数(使用 
+``TREEOP`` 宏)。
 
 The original C source code is transformed into C code in the ``obj_opt``
 and ``obj_dbg`` sub-directories (the former for the optimized version of
@@ -516,18 +492,15 @@ Verilator, the latter for the debug version). So for example
 ``V3Const.cpp`` into ``V3Const__gen.cpp``.
 
 
-Visitor Functions -----------------
+Visitor 函数 -----------------
 
-Verilator uses the "Visitor" design pattern to implement its refinement and
-optimization passes. This allows separation of the pass algorithm from the
-AST on which it operates. Wikipedia provides an introduction to the concept
-at https://en.wikipedia.org/wiki/Visitor_pattern.
+Verilator 使用访问者模式去实现对 passes 的重定义以及优化。这允许 Ast 可以和操作 Ast 的算法
+分离。
 
-As noted above, all visitors are derived classes of ``AstNVisitor``. All
-derived classes of ``AstNode`` implement the ``accept`` method, which takes
-as argument a reference to an instance or a ``AstNVisitor`` derived class
-and applies the visit method of the ``AstNVisitor`` to the invoking AstNode
-instance (i.e. ``this``).
+正如上面所说，所有的 visitor 都是 ``AstNVisitor`` 的衍生类。所有 ``AstNode`` 的衍生类
+都回去实现一个 ``accept`` 方法，这个 ``accept`` 方法将会接收一个 ``AstNVisitor`` 衍生类
+的实例的引用作为它的一个参数，然后调用这个 ``AstNVisitor`` 衍生类实例的 ``vistor`` 方法。
+(``visit`` 方法传递的参数很有可能就是这个 ``AstNode`` 实例的 ``this`` 指针。) 
 
 One possible difficulty is that a call to ``accept`` may perform an edit
 which destroys the node it receives as argument. The
@@ -601,37 +574,32 @@ There are three ways data is passed between visitor functions.
    have to pass vup everywhere.)
 
 
-Iterators
+迭代器
 ---------
 
-``AstNVisitor`` provides a set of iterators to facilitate walking over
-the tree. Each operates on the current ``AstNVisitor`` class (as this)
-and takes an argument type ``AstNode*``.
+``AstNVisitor`` 提供了一系列迭代器为了便于遍历 Ast。每一个操作都会在 ``AstNVsitor``
+上进行，并将 ``AstNode*`` 作为其参数。
 
 ``iterate``
-   Applies the ``accept`` method of the ``AstNode`` to the visitor
-   function.
+   调用 ``AstNode`` 的 ``accpet`` 方法去触发访问函数。
 
 ``iterateAndNextIgnoreEdit``
-   Applies the ``accept`` method of each ``AstNode`` in a list (i.e.
-   connected by ``nextp`` and ``backp`` pointers).
+   调用在链表上的每一个 ``AstNode`` 的 ``accept`` 方法。
+   (通过 ``nextp`` 以及 ``backp`` 指针进行连接)
 
 ``iterateAndNextNull``
-   Applies the ``accept`` method of each ``AstNode`` in a list, only if
-   the provided node is non-NULL. If a node is edited by the call to
-   ``accept``, apply ``accept`` again, until the node does not change.
+   调用在链表上的每一个 ``AstNode`` 的 ``accept`` 方法，仅当节点的地址非空时。
+   如果一个节点被编辑了，那么再次调用 ``accpet`` 方法，直到这个节点不再改变。
 
 ``iterateListBackwards``
-   Applies the ``accept`` method of each ``AstNode`` in a list, starting
-   with the last one.
+   调用在链表上的每一个 ``AstNode`` 的 ``accept`` 方法，从最后一个开始。
 
 ``iterateChildren``
-   Applies the ``iterateAndNextNull`` method on each child ``op1p``
-   through ``op4p`` in turn.
+   调用 ``iterateAndNextNull`` 方法在每一个 children 上。(按照 ``op1p`` 到 ``op4p`` 的顺序。)
+
 
 ``iterateChildrenBackwards``
-   Applies the ``iterateListBackwards`` method on each child ``op1p``
-   through ``op4p`` in turn.
+   调用 ``iterateListBackwards`` 方法在每一个 children 上。(按照 ``op1p`` 到 ``op4p`` 的顺序。)
 
 
 Caution on Using Iterators When Child Changes
@@ -673,23 +641,19 @@ acceptSubtreeReturnEdits does not follow ``nextp()`` links.
    lp = acceptSubtreeReturnEdits(lp)
 
 
-Identifying Derived Classes
+确定衍生类
 ---------------------------
-
-A common requirement is to identify the specific ``AstNode`` class we
-are dealing with. For example a visitor might not implement separate
-``visit`` methods for ``AstIf`` and ``AstGenIf``, but just a single
-method for the base class:
+一个常见的需求是需要识别我们当前正在处理的具体的 ``AstNode`` 类。例如一个访问者
+可能不会同时为 ``AstIf`` 以及 ``AstGenIf`` 实现单独的 ``visit`` 方法，而仅
+仅为它们的基类实现 ``visit`` 方法(就像下面的这个示例一样)。
 
 ::
 
    void visit(AstNodeIf* nodep)
 
-However that method might want to specify additional code if it is
-called for ``AstGenIf``. Verilator does this by providing a ``VN_IS``
-method for each possible node type, which returns true if the node is of
-that type (or derived from that type). So our ``visit`` method could
-use:
+然而这个方法可能希望通过额外的几行代码来确定当前调用的是否是 ``AstGenIf``。
+Verilator 通过 ``VN_IS`` 提供这个功能(注意看用例的实现)，所以我们的
+``visit`` 函数可以这样实现：
 
 ::
 
@@ -697,12 +661,8 @@ use:
      <code specific to AstGenIf>
    }
 
-Additionally the ``VN_CAST`` method converts pointers similar to C++
-``dynamic_cast``. This either returns a pointer to the object cast to
-that type (if it is of class ``SOMETYPE``, or a derived class of
-``SOMETYPE``) or else NULL. (However, for true/false tests use ``VN_IS``
-as that is faster.)
-
+除此之外， ``VN_CAST`` 提供了类似于 C++ ``dynamic_cast`` 的功能。你可以使用
+``VN_IS`` 去验证它是否转换成功。
 
 .. _Testing:
 
