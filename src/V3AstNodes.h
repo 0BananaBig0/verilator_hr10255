@@ -2898,7 +2898,7 @@ public:
     /**
      * @brief 暂时未知
      */
-    AstPin* paramsp() const { return VN_AS(op2p(), Pin); } // op2 = List of parameter #(##) values
+    AstPin* paramsp() const { return VN_AS(op2p(), Pin); }  // op2 = List of parameter #(##) values
     // op3 = Range of arrayed instants (nullptr=not ranged)
     AstRange* rangep() const { return VN_AS(op3p(), Range); }
     // op4 = List of interface references

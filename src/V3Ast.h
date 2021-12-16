@@ -3034,7 +3034,6 @@ public:
 //######################################################################
 // Inline AstNVisitor 方法
 
-
 inline void AstNVisitor::iterate(AstNode* nodep) { nodep->accept(*this); }
 inline void AstNVisitor::iterateNull(AstNode* nodep) {
     if (VL_LIKELY(nodep)) nodep->accept(*this);
