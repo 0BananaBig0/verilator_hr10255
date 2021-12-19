@@ -39,7 +39,6 @@ verilator-config-version.cmake
 **/__pycache__/*
 **/_build/*
 **/obj_dir/*
-.vscode
 build/cmake_install.cmake
 build/CMakeCache.txt
 build/CPackConfig.cmake

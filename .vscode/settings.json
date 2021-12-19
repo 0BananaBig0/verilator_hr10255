@@ -1,0 +1,21 @@
+{
+    "code-runner.runInTerminal": true,
+    
+    "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3",
+    "code-runner.executorMap": {
+        "python": "python3 -u",
+    },
+    "files.associations": {
+        "*.doc": "bat",
+        "*.tcc": "cpp",
+        "bitset": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "v3ast__gen_visitor.h": "c",
+        "v3ast__gen_types.h": "c",
+        "v3astinlines.h": "c"
+    },
+    "commentTranslate.targetLanguage": "zh-CN",
+    "restructuredtext.confPath": ""
+}
