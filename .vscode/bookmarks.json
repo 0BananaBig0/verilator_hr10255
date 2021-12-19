@@ -1,0 +1,74 @@
+{
+	"files": [
+		{
+			"path": "src/V3Global.h",
+			"bookmarks": [
+				{
+					"line": 53,
+					"column": 0,
+					"label": "备忘者模式"
+				}
+			]
+		},
+		{
+			"path": "src/V3EmitXml.cpp",
+			"bookmarks": [
+				{
+					"line": 176,
+					"column": 0,
+					"label": "AstNetlist visit 范例"
+				},
+				{
+					"line": 411,
+					"column": 0,
+					"label": "xml vistor 开始访问遍历的地方"
+				}
+			]
+		},
+		{
+			"path": "src/V3Ast.h",
+			"bookmarks": [
+				{
+					"line": 1356,
+					"column": 0,
+					"label": "ASTNODE_PREFETCH : 预取一个节点"
+				},
+				{
+					"line": 1364,
+					"column": 0,
+					"label": "AstNode"
+				},
+				{
+					"line": 1415,
+					"column": 0,
+					"label": "AstNode 用户可以使用的变量，32 位整形"
+				},
+				{
+					"line": 1877,
+					"column": 0,
+					"label": "accept 函数"
+				}
+			]
+		},
+		{
+			"path": "src/cppcheck_filtered",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "cppcheck filter ，观察一下，跟 cppcheck 有关"
+				}
+			]
+		},
+		{
+			"path": "src/V3AstNodes.h",
+			"bookmarks": [
+				{
+					"line": 28,
+					"column": 0,
+					"label": "重点 : 找到 accept 函数了，其中一种 accpet 函数的实现"
+				}
+			]
+		}
+	]
+}
