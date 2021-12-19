@@ -24,7 +24,47 @@
             ],
             "miDebuggerPath": "/usr/bin/gdb",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(ripple_adder_nh)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "${workspaceFolder}/note/misc/ripple_adder/ripple_adder_nh.v"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/ripple_adder",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
+        },{
+            "name": "verilator(ripple_adder_h)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "${workspaceFolder}/note/misc/ripple_adder/ripple_adder_h.v", "${workspaceFolder}/note/misc/ripple_adder/full_adder.v"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/ripple_adder",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
         }
-        
     ]
 }

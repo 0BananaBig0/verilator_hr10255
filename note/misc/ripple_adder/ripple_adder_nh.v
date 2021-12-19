@@ -11,7 +11,7 @@ module ripple_adder(co, SUM, A, B, ci);
   assign c1=C[1];
   assign c2=C[2];
   assign c3=C[3];
-  /* wire[n-1:0] w1,w2,w3; */
+  wire[n-1:0] w1,w2,w3;
 
  
   xor(SUM[0], A[0], B[0] ,C[0]);

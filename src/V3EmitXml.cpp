@@ -484,6 +484,14 @@ private:
     virtual void visit(AstNodeModule* nodep) override {
         if (nodep->level() >= 0
             && nodep->level() <= 2) {  // ==2 because we don't add wrapper when in XML mode
+#if 1
+            std::cout << "<cells>\n";
+            std::cout << "<cell " << nodep->fileline()->xml() << " "
+                 << nodep->fileline()->xmlDetailedLocation()  //
+                 << " name=\"" << nodep->prettyName() << "\""
+                 << " submodname=\"" << nodep->prettyName() << "\""
+                 << " hier=\"" << nodep->prettyName() << "\"";
+#endif
             m_os << "<cells>\n";
             m_os << "<cell " << nodep->fileline()->xml() << " "
                  << nodep->fileline()->xmlDetailedLocation()  //
@@ -499,6 +507,14 @@ private:
                 m_os << "/>\n";
             }
             m_os << "</cells>\n";
+#if 1            
+            if (m_hasChildren) {
+                std::cout << "</cell>\n";
+            } else {
+                std::cout << "/>\n";
+            }
+            std::cout << "</cells>\n";   
+#endif
         }
     }
     virtual void visit(AstCell* nodep) override {
