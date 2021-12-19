@@ -502,17 +502,13 @@ Verilator 使用访问者模式去实现对 passes 的重定义以及优化。�
 的实例的引用作为它的一个参数，然后调用这个 ``AstNVisitor`` 衍生类实例的 ``vistor`` 方法。
 (``visit`` 方法传递的参数很有可能就是这个 ``AstNode`` 实例的 ``this`` 指针。) 
 
-One possible difficulty is that a call to ``accept`` may perform an edit
-which destroys the node it receives as argument. The
-``acceptSubtreeReturnEdits`` method of ``AstNode`` is provided to apply
-``accept`` and return the resulting node, even if the original node is
-destroyed (if it is not destroyed it will just return the original node).
+一个可能的困难是 ``accpet`` 可能具有 "编辑" ``AstNode`` 的操作，这可能导致被接收的 ``AstNode``
+参数被摧毁。 ``AstNode`` 的  ``acceptSubtreeReturnEdits`` 方法被提供来调用 ``accpet`` 发明后。
+它将返回结果节点即使原来的节点已经摧毁。(如果一个节点没有被摧毁，那么它就仅仅只会返回原始的节点。) 
 
-The behavior of the visitor classes is achieved by overloading the
-``visit`` function for the different ``AstNode`` derived classes. If a
-specific implementation is not found, the system will look in turn for
-overloaded implementations up the inheritance hierarchy. For example
-calling ``accept`` on ``AstIf`` will look in turn for:
+visitor 行为的实现是通过重载不同层次的 ``AstNode`` 衍生类的 ``visit`` 函数实现。如果在当前衍生类
+一个具体的 ``visit`` 函数的重载没有找到，那么操作系统(或者说 g++ 吧)将会去它的父类里去寻找一个函数的
+重载。例如调用 ``AstIf`` 的 ``accept`` 函数，它将按照以下顺序去查找 ``visit`` 函数：
 
 ::
 
@@ -521,32 +517,25 @@ calling ``accept`` on ``AstIf`` will look in turn for:
    void visit(AstNodeStmt* nodep)
    void visit(AstNode* nodep)
 
-There are three ways data is passed between visitor functions.
+这里有三种方式在 visitor 函数之间传递数据。
 
-1. A visitor-class member variable. This is generally for passing
-   "parent" information down to children. ``m_modp`` is a common
-   example. It's set to NULL in the constructor, where that node
-   (``AstModule`` visitor) sets it, then the children are iterated, then
-   it's cleared. Children under an ``AstModule`` will see it set, while
-   nodes elsewhere will see it clear. If there can be nested items (for
-   example an ``AstFor`` under an ``AstFor``) the variable needs to be
-   save-set-restored in the ``AstFor`` visitor, otherwise exiting the
-   lower for will lose the upper for's setting.
 
-2. User attributes. Each ``AstNode`` (**Note.** The AST node, not the
-   visitor) has five user attributes, which may be accessed as an
-   integer using the ``user1()`` through ``user5()`` methods, or as a
-   pointer (of type ``AstNUser``) using the ``user1p()`` through
-   ``user5p()`` methods (a common technique lifted from graph traversal
-   packages).
+1. 访问者成员变量，这是一种通用的方法将 "parent" 的信息下沉给它的 "children"。
+   ``m_nodep`` 就是一个常见的例子。它在构造函数里被设置为 NULL ，然后在 ``AstMoulde``
+   访问者遍历它的时候设置，然后几下来这个 children 就被遍历，然后又被清空。
+   在 ``AstModule`` 之下的 children 会看到它被设置，而其他地方则看到它是置空的。
+   如果存在嵌套项，例如一个 ``AstFor`` 嵌套一个 ``AstFor`` ，那么就需要保存并且恢复
+   储存在 ``AstFor`` 访问者里面的变量，否则当退出的时候下层会失去上层的设置。
 
-   A visitor first clears the one it wants to use by calling
-   ``AstNode::user#ClearTree()``, then it can mark any node's
-   ``user#()`` with whatever data it wants. Readers just call
-   ``nodep->user()``, but may need to cast appropriately, so you'll often
-   see ``VN_CAST(nodep->userp(), SOMETYPE)``. At the top of each visitor
-   are comments describing how the ``user()`` stuff applies to that
-   visitor class. For example:
+2. 用户属性。每个 ``AstNode`` (**注意** 是 AstNode ，而并非 AstNode 的访问者) 有5
+   个用户属性，它们可以通过 ``user1()`` 到 ``user5()`` 方法访问，或者作为一个指针
+   (类型为 ``AstNUser``)通过``user1p()`` 到 ``user5p()`` 访问。
+   (这是从图形遍历包中提出来的一种常见技术)
+
+   访问者首先清除用户属性通过 ``AstNode::user#ClearTree()`` ，接下来它可以通过标记
+   任意节点的 ``user#()`` 使用它想要的数据。读者只需要调用 ``nodep->user()`` 就可以
+   获取数据，但是可能需要合适的类型转化，所以你会经常看到 ``VN_CAST(nodep->userp(), SOMETYPE)``。
+   在每个访问者的顶部都有注释，描述了 ``user()`` 的内容该如何应用于访问者的类。例如：
 
    ::
 
@@ -554,16 +543,11 @@ There are three ways data is passed between visitor functions.
       // Cleared entire netlist
       //   AstModule::user1p()     // bool. True to inline this module
 
-   This says that at the ``AstNetlist`` ``user1ClearTree()`` is called.
-   Each :literal:`AstModule's `user1()` is used to indicate if we're
-   going to inline it.
+   这表示如果在 ``AstNetlist`` 处调用了 ``user1ClearTree()`` ,那么每一个遍历
+   ``AstModule`` 的访问者都可以通过 ``user1p()`` 节点去标志是否要将其内联。
 
-   These comments are important to make sure a ``user#()`` on a given
-   ``AstNode`` type is never being used for two different purposes.
-
-   Note that calling ``user#ClearTree`` is fast, it doesn't walk the
-   tree, so it's ok to call fairly often. For example, it's commonly
-   called on every module.
+   注意调用 ``user#ClearTree`` 是非常快速的，它不会真地遍历整个树，所以你可以经常
+   调用它。例如，技术在每一个 module 都会调用它。
 
 3. Parameters can be passed between the visitors in close to the
    "normal" function caller to callee way. This is the second ``vup``
