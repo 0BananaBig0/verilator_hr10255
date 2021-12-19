@@ -112,7 +112,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputChildrenEnd(nodep, "contassign");
     }
     virtual void visit(AstCell* nodep) override {
-#if 1
+#if 0
         if (nodep->name() != "") {
             cout << "name : " << nodep->name() << endl;
             // cout << "type : " << nodep->m_type();
@@ -484,7 +484,7 @@ private:
     virtual void visit(AstNodeModule* nodep) override {
         if (nodep->level() >= 0
             && nodep->level() <= 2) {  // ==2 because we don't add wrapper when in XML mode
-#if 1
+#if 0
             std::cout << "<cells>\n";
             std::cout << "<cell " << nodep->fileline()->xml() << " "
                  << nodep->fileline()->xmlDetailedLocation()  //
@@ -507,7 +507,7 @@ private:
                 m_os << "/>\n";
             }
             m_os << "</cells>\n";
-#if 1            
+#if 0            
             if (m_hasChildren) {
                 std::cout << "</cell>\n";
             } else {

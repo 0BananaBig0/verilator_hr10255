@@ -45,7 +45,8 @@
             ],
             "miDebuggerPath": "/usr/bin/gdb",
             "preLaunchTask": "build"
-        },{
+        },
+        {
             "name": "verilator(ripple_adder_h)",
             "type": "cppdbg",
             "request": "launch",
@@ -53,6 +54,90 @@
             "args": ["--xml-only", "${workspaceFolder}/note/misc/ripple_adder/ripple_adder_h.v", "${workspaceFolder}/note/misc/ripple_adder/full_adder.v"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}/note/misc/ripple_adder",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(case1)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "${workspaceFolder}/note/misc/case1/ripple_adder_oasys_2021_h.syn.v", "${workspaceFolder}/note/misc/case1/LibBlackbox.v", "--top-module", "ripple_adder"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/case1",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(case2)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "${workspaceFolder}/note/misc/case2/ripple_adder_oasys_2021_h.syn.v", "${workspaceFolder}/note/misc/case2/LibBlackbox.v", "--top-module", "ripple_adder"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/case2",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(case3)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "-Wno-implicit", "--language", "1364-2005", "-Wno-symrsvdword", "-Wno-litendian", "-Wno-assignin", "${workspaceFolder}/note/misc/case3/oasys_rtl_oasys_2021_h.syn.v", "${workspaceFolder}/note/misc/case3/LibBlackbox.v", "--top-module", "demo_chip"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/case3",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(case4)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "-Wno-implicit", "--language", "1364-2005", "${workspaceFolder}/note/misc/case4/openmsp430_oasys_2021_h.syn.v", "${workspaceFolder}/note/misc/case4/LibBlackbox.v", "--top-module", "openMSP430"],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/note/misc/case4",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
