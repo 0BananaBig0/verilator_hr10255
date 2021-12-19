@@ -77,7 +77,7 @@ TGT = ../../verilator_bin$(EXEEXT)
 #################
 ifeq ($(VL_DEBUG),)
 # Optimize
-CPPFLAGS += -O2
+CPPFLAGS += -O0
 else
 # Debug
 CPPFLAGS += @CFG_CXXFLAGS_DEBUG@ -DVL_DEBUG -D_GLIBCXX_DEBUG

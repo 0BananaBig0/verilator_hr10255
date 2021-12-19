@@ -36,7 +36,7 @@ while (1) {
               "TEST_OBJ_DIR=$Self->{obj_dir}",
               "CPPFLAGS_DRIVER=-D".uc($Self->{name}),
               ($opt_verbose ? "CPPFLAGS_DRIVER2=-DTEST_VERBOSE=1" : ""),
-              "OPT_FAST=-O2",
+              "OPT_FAST=-O0",
               "OPT_SLOW=-O0",
               "OPT_GLOBAL=-Os",
               ($param{make_flags}||""),
@@ -115,7 +115,7 @@ sub check_gcc_flags {
         print ":log: $line\n" if $Self->{verbose};
         if ($line =~ /$Self->{VM_PREFIX}\S*\.cpp/) {
             my $filetype = ($line =~ /Slow|Syms/) ? "slow" : "fast";
-            my $opt = ($line !~ /-O2/) ? "slow" : "fast";
+            my $opt = ($line !~ /-O0/) ? "slow" : "fast";
             print "$filetype, $opt, $line\n" if $Self->{verbose};
             if ($filetype ne $opt) {
                 error("${filetype} file compiled as if was ${opt}: $line");

@@ -384,7 +384,7 @@ AC_SUBST(CFG_CXXFLAGS_PARSER)
 
 # Flags for compiling the debug version of Verilator (in addition to above CFG_CXXFLAGS_SRC)
 if test "$CFG_ENABLE_COVERAGE" = "no"; then # Do not optimize for the coverage build
-_MY_CXX_CHECK_OPT(CFG_CXXFLAGS_DEBUG,-Og)
+_MY_CXX_CHECK_OPT(CFG_CXXFLAGS_DEBUG,-O0)
 fi
 _MY_CXX_CHECK_OPT(CFG_CXXFLAGS_DEBUG,-ggdb)
 _MY_CXX_CHECK_OPT(CFG_CXXFLAGS_DEBUG,-gz)
