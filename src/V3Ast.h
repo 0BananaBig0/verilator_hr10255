@@ -575,7 +575,12 @@ inline bool operator==(AstBasicDTypeKwd::en lhs, const AstBasicDTypeKwd& rhs) {
 
 class VDirection final {
 public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
+    enum en : uint8_t { NONE,        // 无
+                        INPUT,       // 输入
+                        OUTPUT,      // 输出
+                        INOUT,       // 输入输出
+                        REF,         // 引用
+                        CONSTREF };  // 常量引用
     enum en m_e;
     inline VDirection()
         : m_e{NONE} {}

@@ -73,5 +73,6 @@
     },
     "commentTranslate.targetLanguage": "zh-CN",
     "restructuredtext.confPath": "",
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "restructuredtext.pythonRecommendation.disabled": true
 }

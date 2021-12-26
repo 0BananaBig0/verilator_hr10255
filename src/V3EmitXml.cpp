@@ -473,7 +473,7 @@ private:
     // MEMBERS
     std::ostream& m_os;
     std::string m_hier;
-    bool m_hasChildren = false;
+    bool m_hasChildren = false;    // 是否存在孩子
 
     // METHODS
     VL_DEBUG_FUNC;  // Declare debug()
@@ -484,19 +484,9 @@ private:
     virtual void visit(AstNodeModule* nodep) override {
         if (nodep->level() >= 0
             && nodep->level() <= 2) {  // ==2 because we don't add wrapper when in XML mode
-#if 0
-            std::cout << "<cells>\n";
-            std::cout << "<cell " << nodep->fileline()->xml() << " "
-                 << nodep->fileline()->xmlDetailedLocation()  //
-                 << " name=\"" << nodep->prettyName() << "\""
-                 << " submodname=\"" << nodep->prettyName() << "\""
-                 << " hier=\"" << nodep->prettyName() << "\"";
-#endif
             m_os << "<cells>\n";
-            m_os << "<cell " << nodep->fileline()->xml() << " "
-                 << nodep->fileline()->xmlDetailedLocation()  //
+            m_os << "<cell " 
                  << " name=\"" << nodep->prettyName() << "\""
-                 << " submodname=\"" << nodep->prettyName() << "\""
                  << " hier=\"" << nodep->prettyName() << "\"";
             m_hier = nodep->prettyName() + ".";
             m_hasChildren = false;
@@ -507,24 +497,16 @@ private:
                 m_os << "/>\n";
             }
             m_os << "</cells>\n";
-#if 0            
-            if (m_hasChildren) {
-                std::cout << "</cell>\n";
-            } else {
-                std::cout << "/>\n";
-            }
-            std::cout << "</cells>\n";   
-#endif
         }
     }
     virtual void visit(AstCell* nodep) override {
         if (nodep->modp()->dead()) return;
         if (!m_hasChildren) m_os << ">\n";
-        m_os << "<cell " << nodep->fileline()->xml() << " "
-             << nodep->fileline()->xmlDetailedLocation() << " name=\"" << nodep->name() << "\""
+        m_os << "<cell "
+             << " name=\"" << nodep->name() << "\""
              << " submodname=\"" << nodep->modName() << "\""
              << " hier=\"" << m_hier + nodep->name() << "\"";
-        std::string hier = m_hier;
+        std::string hier = m_hier;     // 备忘者
         m_hier += nodep->name() + ".";
         m_hasChildren = false;
         iterateChildren(nodep->modp());
@@ -536,6 +518,7 @@ private:
         m_hier = hier;
         m_hasChildren = true;
     }
+
     //-----
     virtual void visit(AstNode* nodep) override { iterateChildren(nodep); }
 
@@ -559,27 +542,10 @@ void V3EmitXml::emitxml() {
                                  ? v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".xml"
                                  : v3Global.opt.xmlOutput());
     V3OutXmlFile of(filename);
-    of.putsHeader();
-    of.puts("<!-- DESCR"
-            "IPTION: Verilator output: XML representation of netlist -->\n");
-    of.puts("<verilator_xml>\n");
     {
         std::stringstream sstr;
-        FileLine::fileNameNumMapDumpXml(sstr);
-        of.puts(sstr.str());
-#if 0
-    cout<<"content : " << endl << sstr.str() <<endl;
-#endif
-    }
-    {
-        std::stringstream sstr;
-        ModuleFilesXmlVisitor moduleFilesVisitor{v3Global.rootp(), sstr};
         HierCellsXmlVisitor cellsVisitor{v3Global.rootp(), sstr};
         of.puts(sstr.str());
-#if 0
-    cout<<"content : " << endl << sstr.str() <<endl;
-#endif
     }
     EmitXmlFileVisitor visitor{v3Global.rootp(), &of};
-    of.puts("</verilator_xml>\n");
 }
