@@ -2078,7 +2078,17 @@ public:
         m_direction = flag;
         if (m_direction == VDirection::INOUT) m_tristate = true;
     }
+    /**
+     * @brief  获取 IO 的方向
+     * @return 引脚的方向
+     * @note   使用 isIO 来判断是否为 IO 类型
+     * @sa     VDirection
+     */
     VDirection direction() const { return m_direction; }
+    /**
+     * @brief  是否为 IO 类型
+     * @return true 则是 IO 类型
+     */
     bool isIO() const { return m_direction != VDirection::NONE; }
     void declDirection(const VDirection& flag) { m_declDirection = flag; }
     VDirection declDirection() const { return m_declDirection; }

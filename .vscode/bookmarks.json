@@ -14,12 +14,12 @@
 			"path": "src/V3EmitXml.cpp",
 			"bookmarks": [
 				{
-					"line": 176,
+					"line": 108,
 					"column": 0,
 					"label": "AstNetlist visit 范例"
 				},
 				{
-					"line": 411,
+					"line": 195,
 					"column": 0,
 					"label": "xml vistor 开始访问遍历的地方"
 				}
@@ -29,22 +29,22 @@
 			"path": "src/V3Ast.h",
 			"bookmarks": [
 				{
-					"line": 1356,
+					"line": 1361,
 					"column": 0,
 					"label": "ASTNODE_PREFETCH : 预取一个节点"
 				},
 				{
-					"line": 1364,
+					"line": 1369,
 					"column": 0,
 					"label": "AstNode"
 				},
 				{
-					"line": 1415,
+					"line": 1420,
 					"column": 0,
 					"label": "AstNode 用户可以使用的变量，32 位整形"
 				},
 				{
-					"line": 1877,
+					"line": 1882,
 					"column": 0,
 					"label": "accept 函数"
 				}

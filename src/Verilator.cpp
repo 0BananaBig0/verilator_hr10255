@@ -100,6 +100,7 @@
 #include "V3VariableOrder.h"
 #include "V3Waiver.h"
 #include "V3Width.h"
+#include "V3EmitNelists.h"
 
 #include <ctime>
 
@@ -196,6 +197,7 @@ static void process() {
         // Check XML when debugging to make sure no missing node types
         || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() && !v3Global.opt.dpiHdrOnly())) {
         V3EmitXml::emitxml();
+        // V3EmitNetLists::emitNetLists();
     }
 }
 
