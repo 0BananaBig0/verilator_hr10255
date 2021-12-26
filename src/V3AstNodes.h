@@ -2087,7 +2087,7 @@ public:
     VDirection direction() const { return m_direction; }
     /**
      * @brief  是否为 IO 类型
-     * @return true 则是 IO 类型 
+     * @return true 则是 IO 类型
      */
     bool isIO() const { return m_direction != VDirection::NONE; }
     void declDirection(const VDirection& flag) { m_declDirection = flag; }

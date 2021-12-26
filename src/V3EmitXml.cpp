@@ -58,7 +58,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     void outputTag(AstNode* nodep, const string& tagin) {
         string tag = tagin;
         if (tag == "") tag = VString::downcase(nodep->typeName());
-        puts("<" + tag );
+        puts("<" + tag);
         if (VN_IS(nodep, NodeDType)) {
             puts(" id=");
             outputId(nodep);
@@ -75,7 +75,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             puts(" dtype_id=");
             outputId(nodep->dtypep()->skipRefp());
         }
-
     }
     void outputChildrenEnd(AstNode* nodep, const string& tagin) {
         string tag = tagin;
@@ -177,7 +176,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
      * @note  所有没有重载的类型都会进入到这里
      */
     virtual void visit(AstNode* nodep) override {
-         outputTag(nodep, "");
+        outputTag(nodep, "");
         outputChildrenEnd(nodep, "");
     }
 
@@ -190,7 +189,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         if (nodep->dtypep()) {
             puts(" dtype_id=");
             outputId(nodep->dtypep()->skipRefp());
-        }        
+        }
     }
 
 public:
@@ -200,7 +199,6 @@ public:
     }
     virtual ~EmitXmlFileVisitor() override = default;
 };
-
 
 //######################################################################
 // EmitXml class functions
