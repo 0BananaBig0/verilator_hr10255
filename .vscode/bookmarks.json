@@ -14,19 +14,14 @@
 			"path": "src/V3EmitXml.cpp",
 			"bookmarks": [
 				{
-					"line": 176,
+					"line": 108,
 					"column": 0,
 					"label": "AstNetlist visit 范例"
 				},
 				{
-					"line": 411,
+					"line": 195,
 					"column": 0,
 					"label": "xml vistor 开始访问遍历的地方"
-				},
-				{
-					"line": 484,
-					"column": 0,
-					"label": "[MID] 根据节点的 level 就可以确认顶级模块"
 				}
 			]
 		},
