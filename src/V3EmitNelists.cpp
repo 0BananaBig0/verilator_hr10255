@@ -23,8 +23,9 @@ public:
 /** @brief 层次化网表访问者 */
 class HierCellsNetListsVisitor final : public AstNVisitor {
 private:
-    std::string  _curParentName;                                    // 当前模块的父亲
-    // MoudleInstanceMsg& _curParentMoudleInstanceMsg;                 // 当前模块的父亲实例 
+    std::string  _curMouldeParentName;                 // 当前模块父亲的名称
+    std::string  _curMouldeName;                       // 当前模块的名称
+    PortInstanceFormalMsg _portInstanceFormalTmp;      // 临时变量
                                                                     // (此成员是为了能够方便插入引脚信息 MoudleInstanceMsg::subMoudlePorts)
     std::vector<PortInstanceMsg> _curMoudlePortInstanceMsg;         // 当前模块的引脚实例信息
     std::unordered_map<std::string, MoudleInstanceMsg> _moudleMap;
@@ -33,7 +34,7 @@ private:
     
     virtual void visit(AstNodeModule* nodep) override;
     virtual void visit(AstCell* nodep) override;
-    // virtual void visit(AstPin* nodep) override;
+    virtual void visit(AstConcat* nodep) override;
 
 public:
     HierCellsNetListsVisitor(AstNetlist* nodep){
@@ -63,7 +64,9 @@ void HierCellsNetListsVisitor::visit(AstNodeModule* nodep) {
         moudleInstanceMsg.level = nodep->level();
         _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
 
-        _curParentName = moduleDefName;
+        // 此处的含义并不是同 AstCell 中的一样的，只是为了保持一致而已
+        _curMouldeParentName = moduleDefName;
+        _curMouldeName = moduleDefName;
         iterateChildren(nodep);
     }      
 }
@@ -77,7 +80,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
            const std::string& moduleDefName,
            const std::string& moudleInstanceName) -> void
     {
-        MoudleInstanceMsg& parentMoudleInstanceMsg = _moudleMap[_curParentName];
+        MoudleInstanceMsg& parentMoudleInstanceMsg = _moudleMap[_curMouldeParentName];
         parentMoudleInstanceMsg.subMoudleInstanceNames.push_back(moudleInstanceName);
         parentMoudleInstanceMsg.mouldeDefInstanceMap[moudleInstanceName] = moduleDefName;
     };
@@ -87,24 +90,34 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
      * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
      * 利用备忘者模式，使得每个子模块都能知道其对应的父亲
      */
-    MemoMaker<std::string> memoMaker1(_curParentName);
-    // MemoMaker<MoudleInstanceMsg> memoMaker2(_curParentMoudleInstanceMsg);
+    MemoMaker<std::string> memoMaker1(_curMouldeParentName);
+    MemoMaker<std::string> memoMaker2(_curMouldeName);
+    MemoMaker<PortInstanceFormalMsg> memoMaker3(_portInstanceFormalTmp);
 
     std::string moduleDefName = nodep->modName();
     std::string moudleInstanceName = nodep->prettyName();
 
-    insertSubmouldeInstance(_curParentName, moduleDefName, moudleInstanceName);
+    insertSubmouldeInstance(_curMouldeParentName, moduleDefName, moudleInstanceName);
 
     MoudleInstanceMsg moudleInstanceMsg;      
     moudleInstanceMsg.moduleDefName = moduleDefName;
     moudleInstanceMsg.level = nodep->modp()->level();
     _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
 
-    // _curParentMoudleInstanceMsg = _moudleMap[_curParentName];
-    _curParentName = moduleDefName;
-    
+    _curMouldeParentName = _curMouldeName;
+    _curMouldeName = moduleDefName;
+
     iterateChildren(nodep); 
 } 
+
+/**
+ * @note 进入此引脚的实例参数不止一个，目前这里不需要做任何处理
+ * @sa   PortInstanceMsg 
+ */
+void HierCellsNetListsVisitor::visit(AstConcat* nodep)
+{
+    iterateChildren(nodep); 
+}
 
 void V3EmitNetLists::emitNetLists(){
     HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
