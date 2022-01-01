@@ -4,7 +4,6 @@
 #include <iostream>
 #include <unordered_map>
 
-
 #include "V3Error.h"
 #include "V3Ast.h"
 
@@ -23,14 +22,13 @@ public:
 };
 
 static uint32_t IndexStrToIndexNum(const std::string& indexStr) {
-    static std::unordered_map<std::string, uint32_t> _map = {
-        {"h0", 0},  {"h1", 1},  {"h2", 2},  {"h3", 3},  {"h4", 4},  {"h5", 5},
-        {"h6", 6},  {"h7", 7},  {"h8", 8},  {"h9", 9},  {"ha", 10}, {"hb", 11},
-        {"hc", 12}, {"hd", 13}, {"he", 14}, {"hf", 15}
-    };
+    static std::unordered_map<std::string, uint32_t> _map
+        = {{"h0", 0},  {"h1", 1},  {"h2", 2},  {"h3", 3}, {"h4", 4},  {"h5", 5},
+           {"h6", 6},  {"h7", 7},  {"h8", 8},  {"h9", 9}, {"ha", 10}, {"hb", 11},
+           {"hc", 12}, {"hd", 13}, {"he", 14}, {"hf", 15}};
     // 例子 ： "8'h0" -> "h0"
     // 为什么 : 因为前面的8不是固定的，例如 "32'h0"
-    std::string tmp = indexStr.substr(indexStr.size()-2, 2);
+    std::string tmp = indexStr.substr(indexStr.size() - 2, 2);
     return _map[tmp];
 }
 
@@ -162,7 +160,7 @@ void HierCellsNetListsVisitor::visit(AstSel* nodep) {
 void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
     _portInstanceFormalTmp.portInstanceName = nodep->prettyName();
     iterateChildren(nodep);
-    if(_portInstanceFormalTmp.isArray == false){
+    if (_portInstanceFormalTmp.isArray == false) {
         _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
     }
 =======

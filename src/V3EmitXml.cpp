@@ -181,13 +181,13 @@ class EmitXmlFileVisitor final : public AstNVisitor {
 
     virtual void visit(AstSel* nodep) override {
         std::string tag = "sel";
-        puts("<" + tag );
+        puts("<" + tag);
         outputChildrenEnd(nodep, "");
     }
 
     virtual void visit(AstVarRef* nodep) override {
         std::string tag = "varref";
-        puts("<" + tag );
+        puts("<" + tag);
         puts(" name=");
         putsQuoted(nodep->prettyName());
         std::cout << nodep->prettyName() << std::endl;
@@ -196,17 +196,15 @@ class EmitXmlFileVisitor final : public AstNVisitor {
 
     virtual void visit(AstConcat* nodep) override {
         std::string tag = "concat";
-        puts("<" + tag );
+        puts("<" + tag);
         outputChildrenEnd(nodep, "");
     }
 
-    
-
     virtual void visit(AstConst* nodep) override {
         std::string tag = "const";
-        puts("<" + tag );
+        puts("<" + tag);
         puts(" name=");
-        std::cout << "\t " << nodep->num() << " : " << nodep->prettyName() <<std::endl;
+        std::cout << "\t " << nodep->num() << " : " << nodep->prettyName() << std::endl;
         putsQuoted(nodep->prettyName());
         outputChildrenEnd(nodep, "");
     }
