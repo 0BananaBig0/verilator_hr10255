@@ -167,7 +167,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         if (nodep->modVarp()->isIO()) {
             puts(" direction=\"" + nodep->modVarp()->direction().xmlKwd() + "\"");
         }
-        puts(" portIndex=\"" + cvtToStr(nodep->pinNum()) + "\"");  // IEEE: vpiPortIndex
         // Children includes vpiHighConn and vpiLowConn; we don't support port bits (yet?)
         outputChildrenEnd(nodep, "port");
     }
@@ -180,16 +179,34 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputChildrenEnd(nodep, "");
     }
 
-    virtual void visit(AstPort* nodep) override {
+    virtual void visit(AstSel* nodep) override {
+        std::string tag = "sel";
+        puts("<" + tag);
+        outputChildrenEnd(nodep, "");
+    }
 
-        puts("<" + std::string(nodep->typeName()));
+    virtual void visit(AstVarRef* nodep) override {
+        std::string tag = "varref";
+        puts("<" + tag);
         puts(" name=");
         putsQuoted(nodep->prettyName());
+        std::cout << nodep->prettyName() << std::endl;
+        outputChildrenEnd(nodep, "");
+    }
 
-        if (nodep->dtypep()) {
-            puts(" dtype_id=");
-            outputId(nodep->dtypep()->skipRefp());
-        }
+    virtual void visit(AstConcat* nodep) override {
+        std::string tag = "concat";
+        puts("<" + tag);
+        outputChildrenEnd(nodep, "");
+    }
+
+    virtual void visit(AstConst* nodep) override {
+        std::string tag = "const";
+        puts("<" + tag);
+        puts(" name=");
+        std::cout << "\t " << nodep->num() << " : " << nodep->prettyName() << std::endl;
+        putsQuoted(nodep->prettyName());
+        outputChildrenEnd(nodep, "");
     }
 
 public:
