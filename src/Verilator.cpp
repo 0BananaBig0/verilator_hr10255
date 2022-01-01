@@ -196,8 +196,8 @@ static void process() {
     if (v3Global.opt.xmlOnly()
         // Check XML when debugging to make sure no missing node types
         || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() && !v3Global.opt.dpiHdrOnly())) {
-         V3EmitXml::emitxml();
-        // V3EmitNetLists::emitNetLists();
+        // V3EmitXml::emitxml();
+         V3EmitNetLists::emitNetLists();
     }
 }
 
