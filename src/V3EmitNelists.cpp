@@ -102,11 +102,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
     /**
      * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
      * 利用备忘者模式，使得每个子模块都能知道其对应的父亲
-     */
     MemoMaker<std::string> memoMaker1(_curMouldeInstanceParentName);
-    MemoMaker<std::string> memoMaker2(_curMouldeInstanceName);
-    MemoMaker<PortInstanceFormalMsg> memoMaker3(_portInstanceFormalTmp);
-
     std::string moduleDefName = nodep->modName();
     std::string moudleInstanceName = nodep->origName();
 
@@ -116,38 +112,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
     moudleInstanceMsg.moduleDefName = moduleDefName;
     moudleInstanceMsg.level = nodep->modp()->level();
     _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
-
-    _curMouldeInstanceParentName = _curMouldeInstanceName;
-    _curMouldeInstanceName = moudleInstanceName;
-
-    iterateChildren(nodep);
-}
-
-void HierCellsNetListsVisitor::visit(AstPin* nodep) {
-    // 引脚实例 tmp 自动恢复默认值
-    MemoMaker<PortInstanceMsg> memoMaker1(_portInstanceMsgTmp);
-    MemoMaker<PortInstanceFormalMsg> memoMaker2(_portInstanceFormalTmp);
-    _portInstanceMsgTmp.portDefName = nodep->prettyName();
-    iterateChildren(nodep);
-    // 插入当前模块实例的一个端口信息
-    _moudleMap[_curMouldeInstanceParentName].subMoudlePorts[_curMouldeInstanceName].push_back(
-        _portInstanceMsgTmp);
-}
-
-/**
- * @note 进入此引脚的实例参数不止一个，目前这里不需要做任何处理
- * @sa   PortInstanceMsg
- */
-void HierCellsNetListsVisitor::visit(AstConcat* nodep) { 
-    // 手动还原 _portInstanceFormalTmp.portInstanceName 默认值
-    _portInstanceFormalTmp.portInstanceName = "anonymous";
-    iterateChildren(nodep); }
-
-/**
  * @note 1 - 当 _portInstanceFormalTmp.portInstanceName == "anonymous", 说明是匿名赋值
- */
-void HierCellsNetListsVisitor::visit(AstConst* nodep) {
-    // isFirst == true 代表操作 first，反之操作 second
     static bool isFirst = true;
 
     /**
@@ -200,6 +165,12 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
     if(_portInstanceFormalTmp.isArray == false){
         _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
     }
+=======
+    // _curParentMoudleInstanceMsg = _moudleMap[_curParentName];
+    _curParentName = moduleDefName;
+
+    iterateChildren(nodep);
+>>>>>>> master
 }
 
 void V3EmitNetLists::emitNetLists() {

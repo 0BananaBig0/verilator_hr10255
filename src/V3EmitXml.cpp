@@ -58,7 +58,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     void outputTag(AstNode* nodep, const string& tagin) {
         string tag = tagin;
         if (tag == "") tag = VString::downcase(nodep->typeName());
-        puts("<" + tag );
+        puts("<" + tag);
         if (VN_IS(nodep, NodeDType)) {
             puts(" id=");
             outputId(nodep);
@@ -75,7 +75,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             puts(" dtype_id=");
             outputId(nodep->dtypep()->skipRefp());
         }
-
     }
     void outputChildrenEnd(AstNode* nodep, const string& tagin) {
         string tag = tagin;
@@ -219,7 +218,6 @@ public:
     }
     virtual ~EmitXmlFileVisitor() override = default;
 };
-
 
 //######################################################################
 // EmitXml class functions
