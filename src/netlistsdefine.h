@@ -5,22 +5,18 @@
 #include <unordered_map>
 
 /** @brief 错误类型 */
-enum class ErrorType { 
-    UNKNOWN = -1,
-    FALSE,
-    TRUE
-};
+enum class ErrorType { UNKNOWN = -1, FALSE, TRUE };
 
 /** @brief 端口类型
  *  @sa    HDL RTL 级别的 moudle 设计
  */
 enum class PortType {
     UNKNOWN = -1,
-    INPUT,    // 输入
-    OUTPUT,   // 输出
-    INOUT,    // 输入输出
-    WIRE,     // 连线
-    TYPENUM   // 类型种数
+    INPUT,  // 输入
+    OUTPUT,  // 输出
+    INOUT,  // 输入输出
+    WIRE,  // 连线
+    TYPENUM  // 类型种数
 };
 
 /**
@@ -82,7 +78,10 @@ public:
     using SubMoudlePorts = std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 
 public:
+    std::string moduleDefName;  // 模块定义名称   (形参)
+    uint32_t level = 0;  // 模块的层级 (用于排序加速,目前其实并没用)
 
+<<<<<<< HEAD
     std::string moduleDefName;         // 模块定义名称   (形参)
     uint32_t level = 0;                // 模块的层级 (用于排序加速,目前其实并没用)
      
@@ -93,18 +92,29 @@ public:
     std::vector<PortMsg> wires;                     // 连线引脚
     std::vector<AssignStatementMsg> assigns;        // assign 语句
     /*********************************** 网表定义信息(END) *********************************************/
+=======
+    /*********************************** 网表定义信息(START)
+     * *********************************************/
+    std::vector<PortType> inputs;  // 输入引脚
+    std::vector<PortType> outputs;  // 输出引脚
+    std::vector<PortType> inouts;  // 输入输出引脚 (暂时未发现，作为保留字段)
+    std::vector<PortType> wires;  // 连线引脚
+    std::vector<PortInstanceMsg> assigns;  // assign 相关
+    /*********************************** 网表定义信息(END)
+     * *********************************************/
+>>>>>>> master
 
-    /*********************************** 网表实例信息(START) *********************************************/
-    std::vector<std::string> subMoudleInstanceNames;   // 子模块实例名称  (实参)
-    MouldeDefInstanceMap mouldeDefInstanceMap;         // 子模块实例映射表
-    SubMoudlePorts subMoudlePorts;                     // 子模块实例的引脚表
-    /*********************************** 网表实例信息(END) *********************************************/
+    /*********************************** 网表实例信息(START)
+     * *********************************************/
+    std::vector<std::string> subMoudleInstanceNames;  // 子模块实例名称  (实参)
+    MouldeDefInstanceMap mouldeDefInstanceMap;  // 子模块实例映射表
+    SubMoudlePorts subMoudlePorts;  // 子模块实例的引脚表
+    /*********************************** 网表实例信息(END)
+     * *********************************************/
 
 public:
     uint32_t inNum(bool onlyIn = false) const;
     uint32_t outNum(bool onlyOut = false) const;
     uint32_t inoutNum() const;
     uint32_t wireNum() const;
-
-
 };

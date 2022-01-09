@@ -61,8 +61,12 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     void outputTag(AstNode* nodep, const string& tagin) {
         string tag = tagin;
         if (tag == "") tag = VString::downcase(nodep->typeName());
+<<<<<<< HEAD
         puts("<" + tag + " " + nodep->fileline()->xml());
         puts(" " + nodep->fileline()->xmlDetailedLocation());
+=======
+        puts("<" + tag);
+>>>>>>> master
         if (VN_IS(nodep, NodeDType)) {
             puts(" id=");
             outputId(nodep);
@@ -286,6 +290,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         puts(" edgeType=\"" + cvtToStr(nodep->edgeType().ascii()) + "\"");  // IEEE vpiTopModule
         outputChildrenEnd(nodep, "");
     }
+<<<<<<< HEAD
     virtual void visit(AstModportVarRef* nodep) override {
         // Dump direction for Modport references
         const string kw = nodep->direction().xmlKwd();
@@ -392,6 +397,36 @@ class EmitXmlFileVisitor final : public AstNVisitor {
      */
     virtual void visit(AstNode* nodep) override {
         outputTag(nodep, "");
+=======
+
+    virtual void visit(AstSel* nodep) override {
+        std::string tag = "sel";
+        puts("<" + tag);
+        outputChildrenEnd(nodep, "");
+    }
+
+    virtual void visit(AstVarRef* nodep) override {
+        std::string tag = "varref";
+        puts("<" + tag);
+        puts(" name=");
+        putsQuoted(nodep->prettyName());
+        std::cout << nodep->prettyName() << std::endl;
+        outputChildrenEnd(nodep, "");
+    }
+
+    virtual void visit(AstConcat* nodep) override {
+        std::string tag = "concat";
+        puts("<" + tag);
+        outputChildrenEnd(nodep, "");
+    }
+
+    virtual void visit(AstConst* nodep) override {
+        std::string tag = "const";
+        puts("<" + tag);
+        puts(" name=");
+        std::cout << "\t " << nodep->num() << " : " << nodep->prettyName() << std::endl;
+        putsQuoted(nodep->prettyName());
+>>>>>>> master
         outputChildrenEnd(nodep, "");
     }
 
@@ -403,6 +438,7 @@ public:
     virtual ~EmitXmlFileVisitor() override = default;
 };
 
+<<<<<<< HEAD
 //######################################################################
 // List of module files xml visitor
 
@@ -519,6 +555,8 @@ public:
     virtual ~HierCellsXmlVisitor() override = default;
 };
 
+=======
+>>>>>>> master
 //######################################################################
 // EmitXml class functions
 
