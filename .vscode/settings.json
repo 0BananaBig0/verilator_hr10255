@@ -81,7 +81,7 @@
         "timer": "cpp"
     },
     "commentTranslate.targetLanguage": "zh-CN",
-    "restructuredtext.confPath": "",
     "C_Cpp.errorSquiggles": "Disabled",
-    "restructuredtext.pythonRecommendation.disabled": true
+    "restructuredtext.pythonRecommendation.disabled": true,
+    "restructuredtext.confPath": "${workspaceFolder}/docs-ch/guide"
 }

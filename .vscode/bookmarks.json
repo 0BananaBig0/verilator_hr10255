@@ -14,12 +14,12 @@
 			"path": "src/V3EmitXml.cpp",
 			"bookmarks": [
 				{
-					"line": 108,
+					"line": 430,
 					"column": 0,
 					"label": "AstNetlist visit 范例"
 				},
 				{
-					"line": 214,
+					"line": 536,
 					"column": 0,
 					"label": "xml vistor 开始访问遍历的地方"
 				}
@@ -67,6 +67,36 @@
 					"line": 28,
 					"column": 0,
 					"label": "重点 : 找到 accept 函数了，其中一种 accpet 函数的实现"
+				}
+			]
+		},
+		{
+			"path": "../../../../usr/include/c++/9/bits/stl_algo.h",
+			"bookmarks": [
+				{
+					"line": 98,
+					"column": 0,
+					"label": "[NOTE] 普通迭代器"
+				},
+				{
+					"line": 156,
+					"column": 0,
+					"label": "？？？"
+				},
+				{
+					"line": 4856,
+					"column": 0,
+					"label": "[NOTE] 随机访问迭代器"
+				}
+			]
+		},
+		{
+			"path": "../../../../usr/include/c++/9/bits/stl_iterator_base_types.h",
+			"bookmarks": [
+				{
+					"line": 79,
+					"column": 0,
+					"label": "[NOTE] 迭代器类型申明处"
 				}
 			]
 		}

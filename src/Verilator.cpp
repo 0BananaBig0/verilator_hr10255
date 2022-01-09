@@ -223,9 +223,39 @@ static void verilate(const string& argString) {
 
 //######################################################################
 
+#include <vector>
+#include <list>
+#include <algorithm>
+
+/**
+ * @brief C++ 子类向基类的默认提升
+ */
+void demo1()
+{
+    std::vector<uint32_t>   vec;
+    std::list<uint32_t>     lst;
+
+    for (uint32_t i=0; i<10; i++)
+    {
+        vec.push_back(i);
+        lst.push_back(i);
+    }
+
+    std::sort(vec.begin(), vec.end());
+    lst.sort();
+
+    std::find(vec.begin(), vec.end(), 5);
+    std::find(lst.begin(), lst.end(), 5);
+
+}
+
+//######################################################################
+
 int main(int argc, char** argv, char** env) {
     // General initialization
     std::ios::sync_with_stdio();
+
+    // demo1();
 
     // Post-constructor initialization of netlists
     v3Global.boot();
