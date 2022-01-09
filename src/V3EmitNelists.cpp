@@ -4,11 +4,8 @@
 #include <iostream>
 #include <exception>
 
-<<<<<<< HEAD
 #include <unordered_map>
 
-=======
->>>>>>> master
 #include "V3Error.h"
 #include "V3Ast.h"
 
@@ -160,7 +157,11 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
     /**
      * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
      * 利用备忘者模式，使得每个子模块都能知道其对应的父亲
+     */
     MemoMaker<std::string> memoMaker1(_curMouldeInstanceParentName);
+    MemoMaker<std::string> memoMaker2(_curMouldeInstanceName);
+    MemoMaker<PortInstanceFormalMsg> memoMaker3(_portInstanceFormalTmp);
+
     std::string moduleDefName = nodep->modName();
     std::string moudleInstanceName = nodep->origName();
 
@@ -170,7 +171,6 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
     moudleInstanceMsg.moduleDefName = moduleDefName;
     moudleInstanceMsg.level = nodep->modp()->level();
     _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
-<<<<<<< HEAD
 
     _curMouldeInstanceParentName = _curMouldeInstanceName;
     _curMouldeInstanceName = moudleInstanceName;
@@ -204,9 +204,6 @@ void HierCellsNetListsVisitor::visit(AstConcat* nodep) {
  */
 void HierCellsNetListsVisitor::visit(AstConst* nodep) {
     // isFirst == true 代表操作 first，反之操作 second
-=======
- * @note 1 - 当 _portInstanceFormalTmp.portInstanceName == "anonymous", 说明是匿名赋值
->>>>>>> master
     static bool isFirst = true;
 
     /**
@@ -330,7 +327,6 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
         _portInstanceFormalTmp.portInstanceName = nodep->prettyName();
     }
     iterateChildren(nodep);
-<<<<<<< HEAD
     if (_isAssignStatement){
         // nothing
         ;
@@ -338,17 +334,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
         if (_portInstanceFormalTmp.isArray == false) {
             _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
         }        
-=======
-    if (_portInstanceFormalTmp.isArray == false) {
-        _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
->>>>>>> master
     }
-=======
-    // _curParentMoudleInstanceMsg = _moudleMap[_curParentName];
-    _curParentName = moduleDefName;
-
-    iterateChildren(nodep);
->>>>>>> master
 }
 
 void V3EmitNetLists::emitNetLists() {

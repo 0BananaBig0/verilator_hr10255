@@ -45,9 +45,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     virtual void puts(const string& str) { ofp()->puts(str); }
     virtual void putsNoTracking(const string& str) { ofp()->putsNoTracking(str); }
     virtual void putsQuoted(const string& str) {
-        // Quote \ and " for use inside C programs
-        // Don't use to quote a filename for #include - #include doesn't \ escape.
-        // Duplicate in V3File - here so we can print to string
         putsNoTracking("\"");
         putsNoTracking(V3OutFormatter::quoteNameControls(str, V3OutFormatter::LA_XML));
         putsNoTracking("\"");
@@ -61,12 +58,7 @@ class EmitXmlFileVisitor final : public AstNVisitor {
     void outputTag(AstNode* nodep, const string& tagin) {
         string tag = tagin;
         if (tag == "") tag = VString::downcase(nodep->typeName());
-<<<<<<< HEAD
-        puts("<" + tag + " " + nodep->fileline()->xml());
-        puts(" " + nodep->fileline()->xmlDetailedLocation());
-=======
         puts("<" + tag);
->>>>>>> master
         if (VN_IS(nodep, NodeDType)) {
             puts(" id=");
             outputId(nodep);
@@ -79,16 +71,9 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             puts(" tag=");
             putsQuoted(nodep->tag());
         }
-        if (AstNodeDType* dtp = VN_CAST(nodep, NodeDType)) {
-            if (dtp->subDTypep()) {
-                puts(" sub_dtype_id=");
-                outputId(dtp->subDTypep()->skipRefp());
-            }
-        } else {
-            if (nodep->dtypep()) {
-                puts(" dtype_id=");
-                outputId(nodep->dtypep()->skipRefp());
-            }
+        if (nodep->dtypep()) {
+            puts(" dtype_id=");
+            outputId(nodep->dtypep()->skipRefp());
         }
     }
     void outputChildrenEnd(AstNode* nodep, const string& tagin) {
@@ -117,51 +102,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputChildrenEnd(nodep, "instance");
     }
     /**
-     * @brief 访问 if 语句
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstNodeIf* nodep) override {
-        outputTag(nodep, "if");
-        puts(">\n");
-        iterateAndNextNull(nodep->op1p());
-        puts("<begin>\n");
-        iterateAndNextNull(nodep->op2p());
-        puts("</begin>\n");
-        if (nodep->op3p()) {
-            puts("<begin>\n");
-            iterateAndNextNull(nodep->op3p());
-            puts("</begin>\n");
-        }
-        puts("</if>\n");
-    }
-    /**
-     * @brief 访问 while 语句
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstWhile* nodep) override {
-        outputTag(nodep, "while");
-        puts(">\n");
-        puts("<begin>\n");
-        iterateAndNextNull(nodep->op1p());
-        puts("</begin>\n");
-        if (nodep->op2p()) {
-            puts("<begin>\n");
-            iterateAndNextNull(nodep->op2p());
-            puts("</begin>\n");
-        }
-        if (nodep->op3p()) {
-            puts("<begin>\n");
-            iterateAndNextNull(nodep->op3p());
-            puts("</begin>\n");
-        }
-        if (nodep->op4p()) {
-            puts("<begin>\n");
-            iterateAndNextNull(nodep->op4p());
-            puts("</begin>\n");
-        }
-        puts("</while>\n");
-    }
-    /**
      * @brief  访问 Ast 网表
      * @note   与 RTL 有关
      */
@@ -171,35 +111,8 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         puts("</netlist>\n");
     }
     /**
-     * @brief  暂不清楚
-     * @note   暂不清楚，应该与 RTL 无关
-     */
-    virtual void visit(AstConstPool* nodep) override {
-        if (!v3Global.opt.xmlOnly()) {
-            puts("<constpool>\n");
-            iterateChildren(nodep);
-            puts("</constpool>\n");
-        }
-    }
-    /**
-     * @brief   访问 init 语句
-     * @note    与 RTL 无关
-     */
-    virtual void visit(AstInitArray* nodep) override {
-        puts("<initarray>\n");
-        const AstInitArray::KeyItemMap& map = nodep->map();
-        for (AstInitArray::KeyItemMap::const_iterator it = map.begin(); it != map.end(); ++it) {
-            puts("<inititem index=\"");
-            puts(cvtToStr(it->first));
-            puts("\">\n");
-            iterateChildren(it->second);
-            puts("</inititem>\n");
-        }
-        puts("</initarray>\n");
-    }
-    /**
      * @brief   访问 Ast 模块
-     * @note    1 - 与 RTL 有关 
+     * @note    1 - 与 RTL 有关
      *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
      */
     virtual void visit(AstNodeModule* nodep) override {
@@ -210,17 +123,14 @@ class EmitXmlFileVisitor final : public AstNVisitor {
             || nodep->level() == 2)  // ==2 because we don't add wrapper when in XML mode
             puts(" topModule=\"1\"");  // IEEE vpiTopModule
         if (nodep->modPublic()) puts(" public=\"true\"");
-#if 0
-        cout<< "AstNodeModule visit : "<<endl;
-        cout<< "origName : " << nodep->origName() << "\tlevel : " << nodep->level() <<endl;
-#endif
         outputChildrenEnd(nodep, "");
     }
     /**
      * @brief   访问 Ast 的 Var
-     * @note    1 - 与 RTL 有关 
+     * @note    1 - 与 RTL 有关
      *          2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
-     *          3 - 目前知道的是，var 其实是抽象层次的理解，向像 RTL 级别的 input，output 以及 wire ，都算是 var
+     *          3 - 目前知道的是，var 其实是抽象层次的理解，向像 RTL 级别的 input，output 以及 wire
+     * ，都算是 var
      */
     virtual void visit(AstVar* nodep) override {
         const AstVarType typ = nodep->varType();
@@ -229,38 +139,19 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         outputTag(nodep, "");
         // 判断节点是否为输入输出类型
         // Hint : 例如 input，output
-        if (nodep->isIO()) { 
+        if (nodep->isIO()) {
             puts(" dir=");
             putsQuoted(kw);
             if (nodep->pinNum() != 0) puts(" pinIndex=\"" + cvtToStr(nodep->pinNum()) + "\"");
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : typ == AstVarType::PORT ? "port" : "unknown");
-        // Hint : 例如 wire
+            // Hint : 例如 wire
         } else {
             puts(" vartype=");
             putsQuoted(!vt.empty() ? vt : kw);
         }
         puts(" origName=");
         putsQuoted(nodep->origName());
-        // Attributes
-        if (nodep->attrClocker() == VVarAttrClocker::CLOCKER_YES) {
-            puts(" clocker=\"true\"");
-        } else if (nodep->attrClocker() == VVarAttrClocker::CLOCKER_NO) {
-            puts(" clocker=\"false\"");
-        }
-        if (nodep->attrClockEn()) puts(" clock_enable=\"true\"");
-        if (nodep->attrIsolateAssign()) puts(" isolate_assignments=\"true\"");
-        if (nodep->isLatched()) puts(" latched=\"true\"");
-        if (nodep->isSigPublic()) puts(" public=\"true\"");
-        if (nodep->isSigUserRdPublic()) puts(" public_flat_rd=\"true\"");
-        if (nodep->isSigUserRWPublic()) puts(" public_flat_rw=\"true\"");
-        if (nodep->isGParam()) {
-            puts(" param=\"true\"");
-        } else if (nodep->isParam()) {
-            puts(" localparam=\"true\"");
-        }
-        if (nodep->attrScBv()) puts(" sc_bv=\"true\"");
-        if (nodep->attrSFormat()) puts(" sformat=\"true\"");
         outputChildrenEnd(nodep, "");
     }
 
@@ -276,128 +167,17 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         if (nodep->modVarp()->isIO()) {
             puts(" direction=\"" + nodep->modVarp()->direction().xmlKwd() + "\"");
         }
-        puts(" portIndex=\"" + cvtToStr(nodep->pinNum()) + "\"");  // IEEE: vpiPortIndex
         // Children includes vpiHighConn and vpiLowConn; we don't support port bits (yet?)
         outputChildrenEnd(nodep, "port");
     }
-    /**
-     * @brief 访问 Ast Sen
-     * @note  1 - 是于 RTL 有关的，但是其是时序电路才会用到，组合电路遇不见，目前没有使用
-     *        2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
-     */
-    virtual void visit(AstSenItem* nodep) override {
-        outputTag(nodep, "");
-        puts(" edgeType=\"" + cvtToStr(nodep->edgeType().ascii()) + "\"");  // IEEE vpiTopModule
-        outputChildrenEnd(nodep, "");
-    }
-<<<<<<< HEAD
-    virtual void visit(AstModportVarRef* nodep) override {
-        // Dump direction for Modport references
-        const string kw = nodep->direction().xmlKwd();
-        outputTag(nodep, "");
-        puts(" direction=");
-        putsQuoted(kw);
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstVarXRef* nodep) override {
-        outputTag(nodep, "");
-        puts(" dotted=");
-        putsQuoted(nodep->dotted());
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstNodeCCall* nodep) override {
-        outputTag(nodep, "");
-        puts(" func=");
-        putsQuoted(nodep->funcp()->name());
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 访问 Ast 基本数据类型
-     * @note  1 - 与 RTL 有关
-     *        2 - 需要更多的时间去剖析，在分析 Ast 的时候再把这个补齐
-     *        3 - 非常重要，需要搞清楚
-     */
-    virtual void visit(AstBasicDType* nodep) override {
-        outputTag(nodep, "basicdtype");
-        if (nodep->isRanged()) {
-            puts(" left=\"" + cvtToStr(nodep->left()) + "\"");
-            puts(" right=\"" + cvtToStr(nodep->right()) + "\"");
-        }
-        if (nodep->isSigned()) { puts(" signed=\"true\""); }
-        puts("/>\n");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  可能有关系，需要更复杂的输入测试做验证
-     */
-    virtual void visit(AstIfaceRefDType* nodep) override {
-        string mpn;
-        outputTag(nodep, "");
-        if (nodep->isModport()) mpn = nodep->modportName();
-        puts(" modportname=");
-        putsQuoted(mpn);
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstDisplay* nodep) override {
-        outputTag(nodep, "");
-        puts(" displaytype=");
-        putsQuoted(nodep->verilogKwd());
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstElabDisplay* nodep) override {
-        outputTag(nodep, "");
-        puts(" displaytype=");
-        putsQuoted(nodep->verilogKwd());
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstExtend* nodep) override {
-        outputTag(nodep, "");
-        puts(" width=");
-        putsQuoted(cvtToStr(nodep->width()));
-        puts(" widthminv=");
-        putsQuoted(cvtToStr(nodep->lhsp()->widthMinV()));
-        outputChildrenEnd(nodep, "");
-    }
-    /**
-     * @brief 暂不清楚
-     * @note  与 RTL 无关
-     */
-    virtual void visit(AstExtendS* nodep) override {
-        outputTag(nodep, "");
-        puts(" width=");
-        putsQuoted(cvtToStr(nodep->width()));
-        puts(" widthminv=");
-        putsQuoted(cvtToStr(nodep->lhsp()->widthMinV()));
-        outputChildrenEnd(nodep, "");
-    }
-
     /**
      * @brief 定义默认行为的 visit 行为
      * @note  所有没有重载的类型都会进入到这里
      */
     virtual void visit(AstNode* nodep) override {
         outputTag(nodep, "");
-=======
+        outputChildrenEnd(nodep, "");
+    }
 
     virtual void visit(AstSel* nodep) override {
         std::string tag = "sel";
@@ -426,7 +206,6 @@ class EmitXmlFileVisitor final : public AstNVisitor {
         puts(" name=");
         std::cout << "\t " << nodep->num() << " : " << nodep->prettyName() << std::endl;
         putsQuoted(nodep->prettyName());
->>>>>>> master
         outputChildrenEnd(nodep, "");
     }
 
@@ -438,156 +217,13 @@ public:
     virtual ~EmitXmlFileVisitor() override = default;
 };
 
-<<<<<<< HEAD
-//######################################################################
-// List of module files xml visitor
-
-class ModuleFilesXmlVisitor final : public AstNVisitor {
-private:
-    // MEMBERS
-    std::ostream& m_os;
-    std::set<std::string> m_modulesCovered;
-    std::deque<FileLine*> m_nodeModules;
-
-    // METHODS
-    VL_DEBUG_FUNC;  // Declare debug()
-
-    // VISITORS
-    virtual void visit(AstNetlist* nodep) override {
-        // Children are iterated backwards to ensure correct compilation order
-        iterateChildrenBackwards(nodep);
-    }
-    virtual void visit(AstNodeModule* nodep) override {
-        // Only list modules and interfaces
-        // Assumes modules and interfaces list is already sorted level wise
-        if (!nodep->dead() && (VN_IS(nodep, Module) || VN_IS(nodep, Iface))
-            && m_modulesCovered.insert(nodep->fileline()->filename()).second) {
-            m_nodeModules.push_front(nodep->fileline());
-        }
-    }
-    //-----
-    virtual void visit(AstNode*) override {
-        // All modules are present at root so no need to iterate on children
-    }
-
-public:
-    // CONSTRUCTORS
-    ModuleFilesXmlVisitor(AstNetlist* nodep, std::ostream& os)
-        : m_os(os) {  // Need () or GCC 4.8 false warning
-        // Operate on whole netlist
-        nodep->accept(*this);
-        // Xml output
-        m_os << "<module_files>\n";
-        for (const FileLine* ifp : m_nodeModules) {
-            m_os << "<file id=\"" << ifp->filenameLetters() << "\" filename=\"" << ifp->filename()
-                 << "\" language=\"" << ifp->language().ascii() << "\"/>\n";
-        }
-        m_os << "</module_files>\n";
-    }
-    virtual ~ModuleFilesXmlVisitor() override = default;
-};
-
-//######################################################################
-// Hierarchy of Cells visitor
-
-class HierCellsXmlVisitor final : public AstNVisitor {
-private:
-    // MEMBERS
-    std::ostream& m_os;
-    std::string m_hier;
-    bool m_hasChildren = false;
-
-    // METHODS
-    VL_DEBUG_FUNC;  // Declare debug()
-
-    // VISITORS
-    virtual void visit(AstConstPool*) override {}
-
-    virtual void visit(AstNodeModule* nodep) override {
-        if (nodep->level() >= 0
-            && nodep->level() <= 2) {  // ==2 because we don't add wrapper when in XML mode
-            m_os << "<cells>\n";
-            m_os << "<cell " << nodep->fileline()->xml() << " "
-                 << nodep->fileline()->xmlDetailedLocation()  //
-                 << " name=\"" << nodep->prettyName() << "\""
-                 << " submodname=\"" << nodep->prettyName() << "\""
-                 << " hier=\"" << nodep->prettyName() << "\"";
-            m_hier = nodep->prettyName() + ".";
-            m_hasChildren = false;
-            iterateChildren(nodep);
-            if (m_hasChildren) {
-                m_os << "</cell>\n";
-            } else {
-                m_os << "/>\n";
-            }
-            m_os << "</cells>\n";
-        }
-    }
-    virtual void visit(AstCell* nodep) override {
-        if (nodep->modp()->dead()) return;
-        if (!m_hasChildren) m_os << ">\n";
-        m_os << "<cell " << nodep->fileline()->xml() << " "
-             << nodep->fileline()->xmlDetailedLocation() << " name=\"" << nodep->name() << "\""
-             << " submodname=\"" << nodep->modName() << "\""
-             << " hier=\"" << m_hier + nodep->name() << "\"";
-        std::string hier = m_hier;
-        m_hier += nodep->name() + ".";
-        m_hasChildren = false;
-        iterateChildren(nodep->modp());
-        if (m_hasChildren) {
-            m_os << "</cell>\n";
-        } else {
-            m_os << "/>\n";
-        }
-        m_hier = hier;
-        m_hasChildren = true;
-    }
-    //-----
-    virtual void visit(AstNode* nodep) override { iterateChildren(nodep); }
-
-public:
-    // CONSTRUCTORS
-    HierCellsXmlVisitor(AstNetlist* nodep, std::ostream& os)
-        : m_os(os) {  // Need () or GCC 4.8 false warning
-        // Operate on whole netlist
-        nodep->accept(*this);
-    }
-    virtual ~HierCellsXmlVisitor() override = default;
-};
-
-=======
->>>>>>> master
 //######################################################################
 // EmitXml class functions
 
 void V3EmitXml::emitxml() {
-    UINFO(2, __FUNCTION__ << ": " << endl);
-    // xml 输出文件 (全部信息都在这一个文件中)
     const string filename = (v3Global.opt.xmlOutput().empty()
                                  ? v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".xml"
                                  : v3Global.opt.xmlOutput());
     V3OutXmlFile of(filename);
-    of.putsHeader();
-    of.puts("<!-- DESCR"
-            "IPTION: Verilator output: XML representation of netlist -->\n");
-    of.puts("<verilator_xml>\n");
-    {
-        std::stringstream sstr;
-        FileLine::fileNameNumMapDumpXml(sstr);
-        of.puts(sstr.str());
-#if 0
-    cout<<"content : " << endl << sstr.str() <<endl;
-#endif
-    }
-    {
-        std::stringstream sstr;
-        ModuleFilesXmlVisitor moduleFilesVisitor{v3Global.rootp(), sstr};
-        HierCellsXmlVisitor cellsVisitor{v3Global.rootp(), sstr};
-        of.puts(sstr.str());
-#if 0
-    cout<<"content : " << endl << sstr.str() <<endl;
-#endif  
-    }
     EmitXmlFileVisitor visitor{v3Global.rootp(), &of};
-    of.puts("</verilator_xml>\n");
 }
