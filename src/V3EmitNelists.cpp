@@ -3,12 +3,52 @@
 #include <cstdlib>
 #include <iostream>
 #include <exception>
-
 #include <unordered_map>
+#include <fstream>
 
 #include "V3Error.h"
 #include "V3Ast.h"
 
+/******************************** 内部使用(START) ****************************************/
+// 用于屏蔽实现的细节，比较耦合，可以不接触
+/**
+ * @brief 端口实例形参信息 (复杂)
+ * @note  1 - indexRange : uint32_t -> start， uint32_t -> len
+ *        2 - 仅供内部使用
+ */
+struct PortInstanceFormalComplexMsg {
+    /**
+     * @brief portInstanceName == "anonymous" 时即为常量赋值，也就是匿名赋值
+     */
+    std::string portInstanceName = "anonymous";  // 端口实例名称 (实参)
+    bool isArray = false;  // 是否是数组类型
+    std::pair<uint32_t, uint32_t> indexRange;  // 引脚范围
+    /**
+     * @brief 获取索引
+     * @note  仅当 isArray == true 时可以调用
+     */
+    std::vector<int> getIndexs();
+};
+
+/**
+ * @brief assign 语句信息 (复杂)
+ * @note  仅供内部使用
+ */
+struct AssignStatementComplexMsg {  
+    PortInstanceFormalComplexMsg lValue;  // 左值
+    PortInstanceFormalComplexMsg rValue;  // 右值
+};
+
+static uint32_t IndexStrToIndexNum(const std::string& indexStr) {
+    static std::unordered_map<std::string, uint32_t> _map
+        = {{"h0", 0},  {"h1", 1},  {"h2", 2},  {"h3", 3}, {"h4", 4},  {"h5", 5},
+           {"h6", 6},  {"h7", 7},  {"h8", 8},  {"h9", 9}, {"ha", 10}, {"hb", 11},
+           {"hc", 12}, {"hd", 13}, {"he", 14}, {"hf", 15}};
+    // 例子 ： "8'h0" -> "h0"
+    // 为什么 : 因为前面的8不是固定的，例如 "32'h0"
+    std::string tmp = indexStr.substr(indexStr.size() - 2, 2);
+    return _map[tmp];
+}
 
 /** @brief 简易版备忘录 */
 template <typename T> class MemoMaker {
@@ -24,33 +64,150 @@ public:
     MemoMaker& operator=(const MemoMaker&) = delete;
 };
 
-static uint32_t IndexStrToIndexNum(const std::string& indexStr) {
-    static std::unordered_map<std::string, uint32_t> _map
-        = {{"h0", 0},  {"h1", 1},  {"h2", 2},  {"h3", 3}, {"h4", 4},  {"h5", 5},
-           {"h6", 6},  {"h7", 7},  {"h8", 8},  {"h9", 9}, {"ha", 10}, {"hb", 11},
-           {"hc", 12}, {"hd", 13}, {"he", 14}, {"hf", 15}};
-    // 例子 ： "8'h0" -> "h0"
-    // 为什么 : 因为前面的8不是固定的，例如 "32'h0"
-    std::string tmp = indexStr.substr(indexStr.size() - 2, 2);
-    return _map[tmp];
+std::vector<int> PortInstanceFormalComplexMsg::getIndexs() {
+    if (!isArray) {
+        throw std::runtime_error(
+            "PortInstanceFormalComplexMsg::getIndexs() should be involed by array type");
+    }
+    std::vector<int> res;
+
+    for (int i = 0; i < indexRange.second; i++) {
+         res.push_back(i + indexRange.first); 
+    }
+
+    return res;
 }
+
+struct AssignStatus{
+public:
+    bool isAssignStatement = false;                        // 是否是 assign 语句
+    bool isAssignLvalue = false;                           // 是否是 assign 的左值,仅当 isAssignStatement == true 时有效
+    AssignStatementComplexMsg assignStatementComplexMsg;   // assign 语句信息临时存放处
+    bool isFrist = true;
+public:
+    /**
+     * @brief     处理左值以及右值的端口实例信息
+     * @param[in] portInstanceName : 一般指的是 nodep->prettyName()
+     * @return    true 代表当前处理的是 assign 语句
+     */
+    bool ProcessPortInstanceName(const std::string& portInstanceName)
+    {
+        if (!isAssignStatement){
+            return false;
+        }
+        if (isAssignLvalue){
+            assignStatementComplexMsg.lValue.portInstanceName = portInstanceName;
+            if (assignStatementComplexMsg.lValue.isArray == false){
+                isAssignLvalue = !isAssignLvalue;
+            }
+        }else{
+            assignStatementComplexMsg.rValue.portInstanceName = portInstanceName;
+            if (assignStatementComplexMsg.rValue.isArray == false){
+                isAssignLvalue = !isAssignLvalue;
+            }
+        }
+        return true;
+    }
+    /**
+     * @brief     处理左值以及右值是否是数组
+     * @return    true 代表当前处理的是 assign 语句
+     * @note      此函数应该在 visit(AstSel* nodep) 中调用
+     */
+    bool ProcessIsArray()
+    {
+        if (!isAssignStatement){
+            return false;
+        }
+        if (isAssignLvalue){
+            assignStatementComplexMsg.lValue.isArray = true;
+        }else{
+            assignStatementComplexMsg.rValue.isArray = true;
+        }
+
+        return true;
+    }
+    /**
+     * @brief      处理引脚的范围
+     * @param[in]  constStr : 一般指的是 nodep->prettyName()
+     * @return     true 代表当前处理的是 assign 语句
+     * @note       此函数应该在 visit(AstConst* nodep) 中调用
+     */
+    bool ProcessIndexRange(const std::string& constStr)
+    {
+        /**
+         * @brief     获取数组 len
+         * @param[in] constStr : 一般指的是 nodep->prettyName()
+         * @return    常量值的位宽
+         * @note      此函数应该在 visit(AstConst* nodep) 中调用
+         */
+        auto getArrayLen = [](const std::string& constStr) -> uint32_t {
+            uint32_t res = 0;
+            size_t pos = constStr.find("'");
+            std::string tmp = constStr.substr(0, pos);
+            res = std::atoi(tmp.c_str());
+            return res;
+        };
+
+        if (!isAssignStatement){
+            return false;
+        }
+
+        if (isAssignLvalue){
+            PortInstanceFormalComplexMsg& value = assignStatementComplexMsg.lValue;
+            if(value.portInstanceName == "anonymous"){
+                value.indexRange.first = IndexStrToIndexNum(constStr);
+                value.indexRange.second = getArrayLen(constStr);
+                isAssignLvalue = !isAssignLvalue;
+            }else{
+                 if (isFrist) {
+                    isFrist = !isFrist;
+                    value.indexRange.first = IndexStrToIndexNum(constStr);
+                } else {
+                    isFrist = !isFrist;
+                    value.indexRange.second = IndexStrToIndexNum(constStr);
+                    isAssignLvalue = !isAssignLvalue;
+                }               
+            }
+        }else{
+            PortInstanceFormalComplexMsg& value = assignStatementComplexMsg.rValue;
+            if(value.portInstanceName == "anonymous"){
+                value.indexRange.first = IndexStrToIndexNum(constStr);
+                value.indexRange.second = getArrayLen(constStr);
+                isAssignLvalue = !isAssignLvalue;
+            }else{
+                 if (isFrist) {
+                    isFrist = !isFrist;
+                    value.indexRange.first = IndexStrToIndexNum(constStr);
+                } else {
+                    isFrist = !isFrist;
+                    value.indexRange.second = IndexStrToIndexNum(constStr);
+                    isAssignLvalue = !isAssignLvalue;
+                }               
+            }
+        }
+        return true;     
+    }
+};
+/******************************** 内部使用(END) ****************************************/
+
 
 /** @brief 层次化网表访问者 */
 class HierCellsNetListsVisitor final : public AstNVisitor {
-private:
-    std::string _curMouldeInstanceParentName;                 // 当前模块实例父亲的名称
-    std::string _curMouldeInstanceName;                       // 当前模块实例的名称
-
-    bool _isAssignLvalue = true;                              // 当前处理的是否是 assign 语句的左值
-    bool _isAssignStatement = false;                          // 当前是否是 assign 语句 
-    AssignStatementMsg _assignStatementMsgTmp;                // assign语句信息临时变量
-
-    PortInstanceMsg _portInstanceMsgTmp;                      // 端口实例信息临时变量
-    PortInstanceFormalMsg _portInstanceFormalTmp;             // 端口实例形参信息
-                                                              // (此成员是为了能够方便插入引脚信息)
-
-    std::vector<PortInstanceMsg> _curMoudlePortInstanceMsg;   // 当前模块的引脚实例信息
+public:
+    // _moudleMap[_curMouldeInstanceParentName] -> 指向当前正在处理的模块
+    // _moudleMap[_curMouldeInstanceParentName][_curMouldeInstanceParentName] -> 指向当前正在处理的模块下的一个模块实例
     std::unordered_map<std::string, MoudleMsg> _moudleMap;
+private:
+    std::string _curMouldeInstanceParentName;  // 当前模块实例父亲的名称
+    std::string _curMouldeInstanceName;        // 当前模块实例的名称
+
+    AssignStatus              _assignStatus;           // assign 相关状态
+
+    PortInstanceMsg _portInstanceMsgTmp;  // 端口实例信息临时变量
+    PortInstanceFormalComplexMsg _portInstanceFormalComplexTmp;  // 端口实例形参信息 (复杂)
+
+    std::vector<PortInstanceMsg> _curMoudlePortInstanceMsg;  // 当前模块的引脚实例信息
+
 
 private:
     virtual void visit(AstNode* nodep) override { iterateChildren(nodep); }
@@ -69,14 +226,130 @@ public:
     HierCellsNetListsVisitor(AstNetlist* nodep) { nodep->accept(*this); }
     virtual ~HierCellsNetListsVisitor() override {
         std::cout << "HierCellsXmlVisitor 析构" << std::endl;
+        selfTest(this->_moudleMap, "/home/haorui/Desktop/verilator/note/misc/case4/test.v");
     };
+
+    /**
+     * @brief         自测
+     * @param[in]     hierCellsNetLists : HierCellsNetListsVisitor::_moudleMap
+     * @param[out]    filename : 文件名
+     * @note          观察输出文件的内容
+     */
+    void selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists, const std::string& filename);
 };
+
+
+/************************************************************** 自测函数(START) *****************************************************************/
+void HierCellsNetListsVisitor::selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists, const std::string& filename)
+{
+    std::ofstream ofs(filename);
+    for (const auto& moudleMsg : hierCellsNetLists){
+        /**
+         * @example module omsp_and_gate__0_1424(y, a, b);    
+         */
+        auto moudle = moudleMsg.second;
+        ofs << "module " << moudle.moduleDefName << "(";
+        for (auto output : moudle.outputs){
+            ofs << output.portDefName << ",";
+        }
+        for (auto input : moudle.inputs){
+            ofs << input.portDefName << ",";
+        }
+        for (auto inout : moudle.inouts){
+            ofs << inout.portDefName << ",";
+        }
+        ofs.seekp(ofs.tellp() - 1);
+        // ofs.seekp(ofs.cur - 1); // 顶掉一个 ","
+        ofs << ");" << std::endl;
+
+        /**
+         * @example 
+         *    output y;
+         *     input a;
+         *     input b;
+         */
+        for (auto output : moudle.outputs){
+            ofs << "\t output ";
+            if (output.isArray){
+                ofs << "[" << output.arraySize-1 << ":0]";
+            }
+            ofs << output.portDefName;
+            ofs << ";" << std::endl;
+        }        
+        for (auto input : moudle.inputs){
+            ofs << "\t input ";
+            if (input.isArray){
+                ofs << "[" << input.arraySize-1 << ":0]";
+            }
+            ofs << input.portDefName;
+            ofs << ";" << std::endl;
+        }    
+        for (auto inout : moudle.inouts){
+            ofs << "\t inout ";
+            if (inout.isArray){
+                ofs << "[" << inout.arraySize-1 << ":0]";
+            }
+            ofs << inout.portDefName;
+            ofs << ";" << std::endl;
+        }              
+        ofs << std::endl;
+
+        /**
+         * @example wire wdtnmies;
+         */
+        for (auto wire : moudle.wires){
+            ofs << "\t wire ";
+            if (wire.isArray){
+                ofs << "[" << wire.arraySize-1 << ":0]";
+            }
+            ofs << wire.portDefName;
+            ofs << ";" << std::endl;           
+        }
+        ofs << std::endl;
+
+        /**
+         * @example  
+         *          1 - assign per_dout[15] = 1'b0;
+         *          2 - assign per_dout[14] = per_dout[5];
+         */
+        
+        for (auto assign : moudle.assigns){
+            ofs << "\tassign ";
+            if (assign.lValue.portInstanceName != "anonymous"){
+                ofs << assign.lValue.portInstanceName;
+                if(assign.lValue.isArray){
+                    ofs << "[" << assign.lValue.index << "]";
+                }
+            }else{
+                throw std::runtime_error("assign left value can not be anonymous");
+            }
+            ofs << " = ";
+            if (assign.rValue.portInstanceName == "anonymous"){
+                ofs << "1'b" << assign.rValue.initialVal;
+            }else{
+                ofs << assign.rValue.portInstanceName;
+                if(assign.rValue.isArray){
+                    ofs << "[" << assign.rValue.index << "]";
+                }
+            }
+            ofs << ";" << std::endl;
+        }   
+        ofs << std::endl;
+
+        
+
+        ofs << "endmodule" << std::endl <<std::endl;     
+    }
+
+    
+}
+/************************************************************** 自测函数(END) *****************************************************************/
+
 
 /**
  * @brief moudle 语句的入口
  */
-void HierCellsNetListsVisitor::visit(AstModule* nodep)
-{
+void HierCellsNetListsVisitor::visit(AstModule* nodep) {
     /** @brief 是否是顶级模块
      *  @note  保留，未使用
      */
@@ -86,14 +359,29 @@ void HierCellsNetListsVisitor::visit(AstModule* nodep)
         return res;
     };
 
-    // 此处的含义并不是同 AstCell 中的一样的，只是为了保持一致而已
-    MoudleMsg moudleInstanceMsg;
-    std::string moduleDefName = nodep->prettyName();
-    moudleInstanceMsg.moduleDefName = moduleDefName;
-    moudleInstanceMsg.level = nodep->level();
-    _curMouldeInstanceParentName = moduleDefName;
-    _curMouldeInstanceName = moduleDefName;
-    _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
+    if(nodep->prettyName() == "@CONST-POOL@"){
+        return;
+    }
+
+    /**
+     * @brief      创建一个模块实例
+     * @param[in]  moduleDefName : 模块定义名称
+     * @param[in]  level : 模块的 level
+     */
+    auto createMoudleInstance
+    = [this](const std::string& moduleDefName, uint32_t level = -1) -> void
+    {
+
+        MoudleMsg moudleInstanceMsg;
+        moudleInstanceMsg.moduleDefName = moduleDefName;
+        moudleInstanceMsg.level = level;
+        _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
+    };
+
+    createMoudleInstance(nodep->prettyName(), nodep->level());
+
+    _curMouldeInstanceParentName = nodep->prettyName();
+    _curMouldeInstanceName = nodep->prettyName();
 
     iterateChildren(nodep);
 }
@@ -153,6 +441,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
         parentMoudleInstanceMsg.mouldeDefInstanceMap[moudleInstanceName] = moduleDefName;
     };
 
+
     if (nodep->modp()->dead()) return;
     /**
      * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
@@ -160,20 +449,16 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
      */
     MemoMaker<std::string> memoMaker1(_curMouldeInstanceParentName);
     MemoMaker<std::string> memoMaker2(_curMouldeInstanceName);
-    MemoMaker<PortInstanceFormalMsg> memoMaker3(_portInstanceFormalTmp);
+    MemoMaker<PortInstanceFormalComplexMsg> memoMaker3(_portInstanceFormalComplexTmp);
 
     std::string moduleDefName = nodep->modName();
     std::string moudleInstanceName = nodep->origName();
 
-    insertSubmouldeInstance(_curMouldeInstanceParentName, moduleDefName, moudleInstanceName);
-
-    MoudleMsg moudleInstanceMsg;
-    moudleInstanceMsg.moduleDefName = moduleDefName;
-    moudleInstanceMsg.level = nodep->modp()->level();
-    _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
+    insertSubmouldeInstance(_curMouldeInstanceParentName, nodep->modName(), nodep->origName());
 
     _curMouldeInstanceParentName = _curMouldeInstanceName;
     _curMouldeInstanceName = moudleInstanceName;
+    
 
     iterateChildren(nodep);
 }
@@ -181,7 +466,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
 void HierCellsNetListsVisitor::visit(AstPin* nodep) {
     // 引脚实例 tmp 自动恢复默认值
     MemoMaker<PortInstanceMsg> memoMaker1(_portInstanceMsgTmp);
-    MemoMaker<PortInstanceFormalMsg> memoMaker2(_portInstanceFormalTmp);
+    MemoMaker<PortInstanceFormalComplexMsg> memoMaker2(_portInstanceFormalComplexTmp);
     _portInstanceMsgTmp.portDefName = nodep->prettyName();
     iterateChildren(nodep);
     // 插入当前模块实例的一个端口信息
@@ -194,13 +479,13 @@ void HierCellsNetListsVisitor::visit(AstPin* nodep) {
  * @sa   PortInstanceMsg
  */
 void HierCellsNetListsVisitor::visit(AstConcat* nodep) {
-    // 手动还原 _portInstanceFormalTmp.portInstanceName 默认值
-    _portInstanceFormalTmp.portInstanceName = "anonymous";
+    // 手动还原 _portInstanceFormalComplexTmp.portInstanceName 默认值
+    _portInstanceFormalComplexTmp.portInstanceName = "anonymous";
     iterateChildren(nodep);
 }
 
 /**
- * @note 当 _portInstanceFormalTmp.portInstanceName == "anonymous", 说明是匿名赋值
+ * @note 当 _portInstanceFormalComplexTmp.portInstanceName == "anonymous", 说明是匿名赋值
  */
 void HierCellsNetListsVisitor::visit(AstConst* nodep) {
     // isFirst == true 代表操作 first，反之操作 second
@@ -220,56 +505,27 @@ void HierCellsNetListsVisitor::visit(AstConst* nodep) {
         return res;
     };
 
-
-    if (_isAssignStatement){
-        if(_isAssignLvalue){
-            if(_assignStatementMsgTmp.lValue.isArray == false && _assignStatementMsgTmp.lValue.portInstanceName == "anonymous"){
-                _assignStatementMsgTmp.lValue.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
-                _assignStatementMsgTmp.lValue.indexRange.second = getLen(nodep->prettyName());
-                _isAssignLvalue = !_isAssignLvalue;
-            }else{
-                if(isFirst){
-                    isFirst = !isFirst;
-                    _assignStatementMsgTmp.lValue.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
-                }else{
-                    isFirst = !isFirst;
-                    _assignStatementMsgTmp.lValue.indexRange.second = IndexStrToIndexNum(nodep->prettyName());
-                    _isAssignLvalue = !_isAssignLvalue;
-                }
-            }
-        }else{
-             if(_assignStatementMsgTmp.rValue.isArray == false && _assignStatementMsgTmp.rValue.portInstanceName == "anonymous"){
-                _assignStatementMsgTmp.rValue.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
-                _assignStatementMsgTmp.rValue.indexRange.second = getLen(nodep->prettyName());
-                _isAssignLvalue = !_isAssignLvalue;
-            }else{
-                if(isFirst){
-                    isFirst = !isFirst;
-                    _assignStatementMsgTmp.lValue.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
-                }else{
-                    isFirst = !isFirst;
-                    _assignStatementMsgTmp.rValue.indexRange.second = IndexStrToIndexNum(nodep->prettyName());
-                    _isAssignLvalue = !_isAssignLvalue;
-                }
-            }           
-        }
-    }else{
+    if (_assignStatus.isAssignStatement) {
+        _assignStatus.ProcessIndexRange(nodep->prettyName());
+    } else {
         // 匿名赋值到这里就已经结束了，手动压入端口实例形参信息临时变量
-        if (_portInstanceFormalTmp.portInstanceName == "anonymous") {
+        if (_portInstanceFormalComplexTmp.portInstanceName == "anonymous") {
             // 引脚实例 tmp 自动恢复默认值
-            MemoMaker<PortInstanceFormalMsg> memoMaker(_portInstanceFormalTmp);
+            MemoMaker<PortInstanceFormalComplexMsg> memoMaker(_portInstanceFormalComplexTmp);
             uint32_t len = getLen(nodep->prettyName());
-            _portInstanceFormalTmp.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
-            for (uint32_t i = 0; i < len; i++) {
-                _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
+            _portInstanceFormalComplexTmp.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
+            PortInstanceFormalMsg portInstanceFormalMsg;
+            portInstanceFormalMsg.initialVal = _portInstanceFormalComplexTmp.indexRange.first;
+            for (uint32_t i = 0; i < len; i++) {    
+                _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(portInstanceFormalMsg);
             }
         } else {
             if (isFirst) {
                 isFirst = !isFirst;
-                _portInstanceFormalTmp.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
+                _portInstanceFormalComplexTmp.indexRange.first = IndexStrToIndexNum(nodep->prettyName());
             } else {
                 isFirst = !isFirst;
-                _portInstanceFormalTmp.indexRange.second = IndexStrToIndexNum(nodep->prettyName());
+                _portInstanceFormalComplexTmp.indexRange.second = IndexStrToIndexNum(nodep->prettyName());
             }
         }
     }
@@ -279,61 +535,72 @@ void HierCellsNetListsVisitor::visit(AstConst* nodep) {
  * @note 进入此函数说明当前引脚实例的类型为 array
  */
 void HierCellsNetListsVisitor::visit(AstSel* nodep) {
-    MemoMaker<PortInstanceFormalMsg> memoMaker(_portInstanceFormalTmp);
+    MemoMaker<PortInstanceFormalComplexMsg> memoMaker(_portInstanceFormalComplexTmp);
 
-    if(_isAssignStatement){
-        if(_isAssignLvalue){
-            _assignStatementMsgTmp.lValue.isArray = true;
-        }else{
-            _assignStatementMsgTmp.rValue.isArray = true;
-        }
-    }else{
-        _portInstanceFormalTmp.isArray = true;
-        _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
+    if (_assignStatus.isAssignStatement) {
+        _assignStatus.ProcessIsArray();
+    } else {
+        _portInstanceFormalComplexTmp.isArray = true;
     }
     iterateChildren(nodep);
+    if (_assignStatus.isAssignStatement) {
+    } else {
+        //_portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalComplexTmp);
+        PortInstanceFormalMsg portInstanceFormalMsg;
+        portInstanceFormalMsg.portInstanceName = _portInstanceFormalComplexTmp.portInstanceName;
+        portInstanceFormalMsg.isArray = _portInstanceFormalComplexTmp.isArray;
+        auto indexs = _portInstanceFormalComplexTmp.getIndexs();
+        for (auto index : indexs)
+        {
+            portInstanceFormalMsg.index = index;
+            _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(portInstanceFormalMsg);
+        }  
+    }
 }
 
 /**
  * @note 进入此函数说明当前处理的是 assign 语句
  */
-void HierCellsNetListsVisitor::visit(AstNodeAssign* nodep) 
-{
-    MemoMaker<bool> memoMaker1(_isAssignStatement);
-    MemoMaker<AssignStatementMsg> memoMaker2(_assignStatementMsgTmp); 
-    MemoMaker<bool> memoMaker3(_isAssignLvalue);
-    _isAssignStatement = true;
+void HierCellsNetListsVisitor::visit(AstNodeAssign* nodep) {
+    MemoMaker<AssignStatus> memoMaker(_assignStatus);
+    _assignStatus.isAssignLvalue = false;
+    _assignStatus.isAssignStatement = true;
     iterateChildren(nodep);
-    _moudleMap[_curMouldeInstanceParentName].assigns.push_back(_assignStatementMsgTmp);    
+    AssignStatementMsg assignStatementMsg;
+    assignStatementMsg.lValue.portInstanceName = _assignStatus.assignStatementComplexMsg.lValue.portInstanceName;
+    assignStatementMsg.lValue.isArray = _assignStatus.assignStatementComplexMsg.lValue.isArray;
+    assignStatementMsg.rValue.portInstanceName = _assignStatus.assignStatementComplexMsg.rValue.portInstanceName;
+    assignStatementMsg.rValue.isArray = _assignStatus.assignStatementComplexMsg.rValue.isArray;
+    for (uint32_t i=0;
+        i<_assignStatus.assignStatementComplexMsg.lValue.indexRange.second;
+        i++)
+    {
+        assignStatementMsg.lValue.index = _assignStatus.assignStatementComplexMsg.lValue.indexRange.first + i;
+        assignStatementMsg.rValue.index = _assignStatus.assignStatementComplexMsg.rValue.indexRange.first + i;        
+        _moudleMap[_curMouldeInstanceParentName].assigns.push_back(assignStatementMsg);
+    }
 }
 
 void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
     // isFirst == true 代表操作 first，反之操作 second
-    static bool isFirst = true;  
+    static bool isFirst = true;
 
-    if(_isAssignStatement){
-        if(_isAssignLvalue){
-            _assignStatementMsgTmp.lValue.portInstanceName = nodep->prettyName();
-            if(_assignStatementMsgTmp.lValue.isArray == false){
-                _isAssignLvalue = !_isAssignLvalue;
-            }
-        }else{
-            _assignStatementMsgTmp.rValue.portInstanceName = nodep->prettyName();
-            if(_assignStatementMsgTmp.rValue.isArray == false){
-                _isAssignLvalue = !_isAssignLvalue;
-            }
-        }
-    }else{
-        _portInstanceFormalTmp.portInstanceName = nodep->prettyName();
+    if (_assignStatus.isAssignStatement){
+        _assignStatus.ProcessPortInstanceName(nodep->prettyName());
+    } else {
+        _portInstanceFormalComplexTmp.portInstanceName = nodep->prettyName();
     }
     iterateChildren(nodep);
-    if (_isAssignStatement){
+    if (_assignStatus.isAssignStatement) {
         // nothing
         ;
-    }else{
-        if (_portInstanceFormalTmp.isArray == false) {
-            _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalTmp);
-        }        
+    } else {
+        if (_portInstanceFormalComplexTmp.isArray == false) {
+            PortInstanceFormalMsg portInstanceFormalMsg;
+            portInstanceFormalMsg.portInstanceName = _portInstanceFormalComplexTmp.portInstanceName;
+            portInstanceFormalMsg.isArray = portInstanceFormalMsg.isArray;
+            _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(portInstanceFormalMsg);
+        }
     }
 }
 

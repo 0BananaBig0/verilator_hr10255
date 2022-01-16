@@ -34,33 +34,35 @@ struct PortMsg {
     uint32_t arraySize = 1;  // 数组大小
 };
 
+
+
 /**
- * @brief 端口实例形参信息
- * @note  1 - indexRange : uint32_t -> start， uint32_t -> len
+ * @brief 端口实例信息
+ * @note  若 portInstanceName == "anonymous" ，则代表其实直接赋值，
+ *        initialVal 即为默认值
  */
 struct PortInstanceFormalMsg {
-    /**
-     * @brief portInstanceName == "anonymous" 时即为常量赋值，也就是匿名赋值
-     */
     std::string portInstanceName = "anonymous";  // 端口实例名称 (实参)
-    bool isArray = false;  // 是否是数组类型
-    std::pair<uint32_t, uint32_t> indexRange;  // 引脚范围
-    /**
-     * @brief 获取索引
-     * @note  仅当 isArray == true 时可以调用
-     */
-    std::vector<int> getIndexs();
+    bool isArray = false;                        // 是否是数组类型
+    union{
+        uint32_t index;                          // 索引
+        uint32_t initialVal;                     // 初始值，在 portInstanceName == "anonymous" 下使用
+    };
+    
 };
 
 /** @brief 端口实例信息
  *  @note  只需要知道端口的形参以及实参即可
  * */
 struct PortInstanceMsg {
-    std::string portDefName;                                    // 端口定义名称 (形参)
-    std::vector<PortInstanceFormalMsg> portInstanceFormalMsgs;  // 端口实例组 (实参,参考 c++ 初始化列表)
+    std::string portDefName;                                         // 端口定义名称 (形参)
+    std::vector<PortInstanceFormalMsg> portInstanceFormalMsgs;       // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
-
+/**
+ * @brief assign 语句信息
+ * @note  实际上 assign 语句的含义就是端口直连,故使用 PortInstanceMsg 作为其信息存储
+ */
 struct AssignStatementMsg {  
     PortInstanceFormalMsg lValue;  // 左值
     PortInstanceFormalMsg rValue;  // 右值
@@ -98,6 +100,7 @@ public:
     std::vector<std::string> subMoudleInstanceNames;   // 子模块实例名称  (实参)
     MouldeDefInstanceMap mouldeDefInstanceMap;         // 子模块实例映射表
     SubMoudlePorts subMoudlePorts;                     // 子模块实例的引脚表
+    std::unordered_map<std::string, std::vector<PortInstanceMsg>> subMoudlePort1s;
     /*********************************** 网表实例信息(END) *********************************************/
 
 public:
