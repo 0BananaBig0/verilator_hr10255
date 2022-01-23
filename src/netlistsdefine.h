@@ -100,7 +100,6 @@ public:
     std::vector<std::string> subMoudleInstanceNames;   // 子模块实例名称  (实参)
     MouldeDefInstanceMap mouldeDefInstanceMap;         // 子模块实例映射表
     SubMoudlePorts subMoudlePorts;                     // 子模块实例的引脚表
-    std::unordered_map<std::string, std::vector<PortInstanceMsg>> subMoudlePort1s;
     /*********************************** 网表实例信息(END) *********************************************/
 
 public:

@@ -150,6 +150,27 @@
             ],
             "miDebuggerPath": "/usr/bin/gdb",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "verilator(test)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/verilator_bin_dbg",
+            "args": ["--xml-only", "-Wno-implicit", "--language", "1364-2005", "${workspaceFolder}/note/misc/case4/test.v", "${workspaceFolder}/note/misc/case4/LibBlackbox.v", "--top-module", "openMSP430"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/note/misc/case4",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "build"
         }
     ]
 }

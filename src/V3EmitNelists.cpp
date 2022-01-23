@@ -258,8 +258,7 @@ void HierCellsNetListsVisitor::selfTest(std::unordered_map<std::string, MoudleMs
         for (auto inout : moudle.inouts){
             ofs << inout.portDefName << ",";
         }
-        ofs.seekp(ofs.tellp() - 1);
-        // ofs.seekp(ofs.cur - 1); // 顶掉一个 ","
+        ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
         ofs << ");" << std::endl;
 
         /**
@@ -336,7 +335,40 @@ void HierCellsNetListsVisitor::selfTest(std::unordered_map<std::string, MoudleMs
         }   
         ofs << std::endl;
 
-        
+
+        /**
+         * @example  NAND2_X1_LVT i_0_0 (.A1(exec_cycle), .A2(inst_bw), .ZN(op_bit8_msk));
+         */
+        for(const auto& subMoudleInstanceName : moudle.subMoudleInstanceNames){
+            ofs << "\t" << moudle.mouldeDefInstanceMap[subMoudleInstanceName] << " " << subMoudleInstanceName << " ";
+            ofs << "(";
+            for(const auto& portInstanceMsg : moudle.subMoudlePorts[subMoudleInstanceName]){
+                ofs << "." << portInstanceMsg.portDefName << "(";
+                if(portInstanceMsg.portInstanceFormalMsgs.size() > 1){
+                    ofs << "{";
+                }
+                for(const auto& portInstanceFormalMsg : portInstanceMsg.portInstanceFormalMsgs){
+                    if(portInstanceFormalMsg.portInstanceName == "anonymous"){
+                        ofs << "1'b" << portInstanceFormalMsg.initialVal;
+                    }else{
+                        ofs << portInstanceFormalMsg.portInstanceName;
+                        if(portInstanceFormalMsg.isArray){
+                            ofs << "[" << portInstanceFormalMsg.index << "]";
+                        }
+                    }
+                    ofs << ",";
+                }
+                if (!portInstanceMsg.portInstanceFormalMsgs.empty()){
+                    ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
+                }
+                if(portInstanceMsg.portInstanceFormalMsgs.size() > 1){
+                    ofs << "}";
+                }
+                ofs << "),";
+            }
+            ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
+            ofs << ");" << std::endl;
+        }
 
         ofs << "endmodule" << std::endl <<std::endl;     
     }
@@ -359,10 +391,6 @@ void HierCellsNetListsVisitor::visit(AstModule* nodep) {
         return res;
     };
 
-    if(nodep->prettyName() == "@CONST-POOL@"){
-        return;
-    }
-
     /**
      * @brief      创建一个模块实例
      * @param[in]  moduleDefName : 模块定义名称
@@ -378,10 +406,14 @@ void HierCellsNetListsVisitor::visit(AstModule* nodep) {
         _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
     };
 
-    createMoudleInstance(nodep->prettyName(), nodep->level());
+    if(nodep->prettyName() == "@CONST-POOL@"){
+        return;
+    }
 
-    _curMouldeInstanceParentName = nodep->prettyName();
-    _curMouldeInstanceName = nodep->prettyName();
+    createMoudleInstance(nodep->origName(), nodep->level());
+
+    _curMouldeInstanceParentName = nodep->origName();
+    _curMouldeInstanceName = nodep->origName();
 
     iterateChildren(nodep);
 }
@@ -465,6 +497,7 @@ void HierCellsNetListsVisitor::visit(AstCell* nodep) {
 
 void HierCellsNetListsVisitor::visit(AstPin* nodep) {
     // 引脚实例 tmp 自动恢复默认值
+    _portInstanceMsgTmp.portInstanceFormalMsgs.clear();
     MemoMaker<PortInstanceMsg> memoMaker1(_portInstanceMsgTmp);
     MemoMaker<PortInstanceFormalComplexMsg> memoMaker2(_portInstanceFormalComplexTmp);
     _portInstanceMsgTmp.portDefName = nodep->prettyName();
@@ -545,7 +578,6 @@ void HierCellsNetListsVisitor::visit(AstSel* nodep) {
     iterateChildren(nodep);
     if (_assignStatus.isAssignStatement) {
     } else {
-        //_portInstanceMsgTmp.portInstanceFormalMsgs.push_back(_portInstanceFormalComplexTmp);
         PortInstanceFormalMsg portInstanceFormalMsg;
         portInstanceFormalMsg.portInstanceName = _portInstanceFormalComplexTmp.portInstanceName;
         portInstanceFormalMsg.isArray = _portInstanceFormalComplexTmp.isArray;
@@ -575,8 +607,16 @@ void HierCellsNetListsVisitor::visit(AstNodeAssign* nodep) {
         i<_assignStatus.assignStatementComplexMsg.lValue.indexRange.second;
         i++)
     {
-        assignStatementMsg.lValue.index = _assignStatus.assignStatementComplexMsg.lValue.indexRange.first + i;
-        assignStatementMsg.rValue.index = _assignStatus.assignStatementComplexMsg.rValue.indexRange.first + i;        
+        if(assignStatementMsg.lValue.portInstanceName != "anonymous"){
+            assignStatementMsg.lValue.index = _assignStatus.assignStatementComplexMsg.lValue.indexRange.first + i;
+        }else{
+            assignStatementMsg.lValue.index = _assignStatus.assignStatementComplexMsg.lValue.indexRange.second;
+        }
+        if(assignStatementMsg.rValue.portInstanceName != "anonymous"){
+            assignStatementMsg.rValue.index = _assignStatus.assignStatementComplexMsg.rValue.indexRange.first + i;    
+        }else{
+            assignStatementMsg.rValue.index = _assignStatus.assignStatementComplexMsg.rValue.indexRange.first;    
+        }
         _moudleMap[_curMouldeInstanceParentName].assigns.push_back(assignStatementMsg);
     }
 }
@@ -598,7 +638,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
         if (_portInstanceFormalComplexTmp.isArray == false) {
             PortInstanceFormalMsg portInstanceFormalMsg;
             portInstanceFormalMsg.portInstanceName = _portInstanceFormalComplexTmp.portInstanceName;
-            portInstanceFormalMsg.isArray = portInstanceFormalMsg.isArray;
+            portInstanceFormalMsg.isArray = _portInstanceFormalComplexTmp.isArray;
             _portInstanceMsgTmp.portInstanceFormalMsgs.push_back(portInstanceFormalMsg);
         }
     }
