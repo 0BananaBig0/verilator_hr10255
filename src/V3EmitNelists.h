@@ -4,5 +4,5 @@
 
 class V3EmitNetLists final {
 public:
-    static void emitNetLists();
+    static void emitNetLists(std::unordered_map<std::string, MoudleMsg>& hierCellsNetLists);
 };

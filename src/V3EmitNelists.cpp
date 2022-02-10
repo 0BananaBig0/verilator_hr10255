@@ -221,12 +221,14 @@ private:
     virtual void visit(AstNodeAssign* nodep) override;
     virtual void visit(AstConst* nodep) override;
     virtual void visit(AstSel* nodep) override;
-
+public:
+    /**
+     * @brief 获取层次化网表
+     */
+    std::unordered_map<std::string, MoudleMsg> GetHierCellsNetLists();
 public:
     HierCellsNetListsVisitor(AstNetlist* nodep) { nodep->accept(*this); }
     virtual ~HierCellsNetListsVisitor() override {
-        std::cout << "HierCellsXmlVisitor 析构" << std::endl;
-        selfTest(this->_moudleMap, "/home/haorui/Desktop/verilator/note/misc/case4/test.v");
     };
 
     /**
@@ -644,6 +646,12 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
     }
 }
 
-void V3EmitNetLists::emitNetLists() {
+std::unordered_map<std::string, MoudleMsg> HierCellsNetListsVisitor::GetHierCellsNetLists()
+{
+    return std::move(_moudleMap);
+}
+
+void V3EmitNetLists::emitNetLists(std::unordered_map<std::string, MoudleMsg>& hierCellsNetLists) {
     HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
+    hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
 }
