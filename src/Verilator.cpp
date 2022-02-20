@@ -197,8 +197,14 @@ static void process() {
         // Check XML when debugging to make sure no missing node types
         || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() && !v3Global.opt.dpiHdrOnly())) {
         // V3EmitXml::emitxml();
-        std::unordered_map<std::string, MoudleMsg> hierCellsNetLists;
-        V3EmitNetLists::emitNetLists(hierCellsNetLists);
+        // 1 - 创建层次化网表及层次化网表容器
+        std::unordered_map<std::string, MoudleMsg> hierCellsNetLists, plainCellsNetLists;
+        // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
+        V3EmitHierNetLists::emitHireNetLists(hierCellsNetLists);
+        V3EmitHierNetLists::printHireNetLists(hierCellsNetLists, "./hierCellsNetLists.v");
+        // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
+        V3EmitPlainNetLists::emitPlainNetLists(hierCellsNetLists, plainCellsNetLists);
+        V3EmitPlainNetLists::printPlainNetLists(plainCellsNetLists, "./plainCellsNetLists.v");
     }
 }
 

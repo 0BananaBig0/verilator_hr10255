@@ -82,11 +82,29 @@ public:
     using MouldeDefInstanceMap = std::unordered_map<std::string, std::string>;
     // (std::string -> subMoudleInstanceName) ， std::vector<PortInstanceMsg> -> 实例引脚表
     using SubMoudlePorts = std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
-
+// 拷贝构造测试失败
+// public:
+//     MoudleMsg() = default;
+//     MoudleMsg(MoudleMsg&) = default;
+//     MoudleMsg& operator=(MoudleMsg& moudleMsg) = default;
+//     MoudleMsg& operator=(MoudleMsg&& moudleMsg)
+//     {
+//         this->moduleDefName = moudleMsg.moduleDefName;
+//         this->inputs.swap(moudleMsg.inputs);
+//         this->outputs.swap(moudleMsg.outputs);
+//         this->inouts.swap(moudleMsg.inouts);
+//         this->wires.swap(moudleMsg.wires);
+//         this->assigns.swap(moudleMsg.assigns);
+//         this->level = moudleMsg.level;
+//         this->mouldeDefInstanceMap.swap(moudleMsg.mouldeDefInstanceMap);
+//         this->subMoudleInstanceNames.swap(moudleMsg.subMoudleInstanceNames);
+//         this->subMoudlePorts.swap(moudleMsg.subMoudlePorts);
+//         return *this;
+//     }
 public:
 
     std::string moduleDefName;         // 模块定义名称   (形参)
-    uint32_t level = 0;                // 模块的层级 (用于排序加速,目前其实并没用)
+    uint32_t level = 0;                // 模块的层级
      
     /*********************************** 网表定义信息(START) *********************************************/
     std::vector<PortMsg> inputs;                    // 输入引脚

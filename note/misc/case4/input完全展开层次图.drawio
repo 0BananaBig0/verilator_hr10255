@@ -1,0 +1,70 @@
+<mxfile host="65bd71144e">
+    <diagram id="u_RkFO07nyA1GicoJsF7" name="第 1 页">
+        <mxGraphModel dx="2607" dy="915" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="33" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="90" width="1720" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="层级" style="rounded=0;whiteSpace=wrap;html=1;" parent="33" vertex="1">
+                    <mxGeometry width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="模块名" style="rounded=0;whiteSpace=wrap;html=1;" parent="33" vertex="1">
+                    <mxGeometry x="110" width="1610" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="340" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCFFCC;" parent="45" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="45" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="" style="group" parent="45" vertex="1" connectable="0">
+                    <mxGeometry x="150" y="80" width="1500" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="AOI22_X1_LVT" style="html=1;" parent="27" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="DFFR_X1_LVT" style="html=1;" parent="27" vertex="1">
+                    <mxGeometry x="250" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="INV_X1_LVT" style="html=1;" parent="27" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="OAI211_X1_LVT" style="html=1;" parent="27" vertex="1">
+                    <mxGeometry x="760" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="OR3_X1_LVT" style="html=1;" parent="27" vertex="1">
+                    <mxGeometry x="1010" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="..." style="html=1;" parent="27" vertex="1">
+                    <mxGeometry x="1270" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="150" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="1" style="rounded=0;whiteSpace=wrap;html=1;" parent="40" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="40" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="openMSP430" style="html=1;container=1;" parent="40" vertex="1">
+                    <mxGeometry x="190" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="omsp_watchdog" style="html=1;fillColor=#FFCCCC;" parent="40" vertex="1">
+                    <mxGeometry x="450" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="omsp_and_gate___05F_05F2_33" style="html=1;fillColor=#FFE6CC;" parent="40" vertex="1">
+                    <mxGeometry x="730" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="omsp_scan_mux___05F_05F2_71" style="html=1;fillColor=#66CCFF;strokeColor=#0e8088;" parent="40" vertex="1">
+                    <mxGeometry x="1020" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

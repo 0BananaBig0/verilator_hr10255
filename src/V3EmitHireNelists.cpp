@@ -229,6 +229,7 @@ public:
 public:
     HierCellsNetListsVisitor(AstNetlist* nodep) { nodep->accept(*this); }
     virtual ~HierCellsNetListsVisitor() override {
+        // selfTest(_moudleMap, "/home/haorui/Desktop/verilator/note/misc/case4/test.v");
     };
 
     /**
@@ -237,7 +238,7 @@ public:
      * @param[out]    filename : 文件名
      * @note          观察输出文件的内容
      */
-    void selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists, const std::string& filename);
+    static void selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists, const std::string& filename);
 };
 
 
@@ -260,7 +261,7 @@ void HierCellsNetListsVisitor::selfTest(std::unordered_map<std::string, MoudleMs
         for (auto inout : moudle.inouts){
             ofs << inout.portDefName << ",";
         }
-        ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
+        ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
         ofs << ");" << std::endl;
 
         /**
@@ -361,14 +362,14 @@ void HierCellsNetListsVisitor::selfTest(std::unordered_map<std::string, MoudleMs
                     ofs << ",";
                 }
                 if (!portInstanceMsg.portInstanceFormalMsgs.empty()){
-                    ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
+                    ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
                 }
                 if(portInstanceMsg.portInstanceFormalMsgs.size() > 1){
                     ofs << "}";
                 }
                 ofs << "),";
             }
-            ofs.seekp(ofs.tellp() - 1); // 顶掉一个 ","
+            ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
             ofs << ");" << std::endl;
         }
 
@@ -648,10 +649,15 @@ void HierCellsNetListsVisitor::visit(AstVarRef* nodep) {
 
 std::unordered_map<std::string, MoudleMsg> HierCellsNetListsVisitor::GetHierCellsNetLists()
 {
-    return std::move(_moudleMap);
+    return _moudleMap;
+    // return std::move(_moudleMap);
 }
 
-void V3EmitNetLists::emitNetLists(std::unordered_map<std::string, MoudleMsg>& hierCellsNetLists) {
+void V3EmitHierNetLists::emitHireNetLists(std::unordered_map<std::string, MoudleMsg>& hierCellsNetLists) {
     HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
     hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
+}
+
+void V3EmitHierNetLists::printHireNetLists(std::unordered_map<std::string, MoudleMsg>& hierCellsNetLists ,std::string filename) {
+    HierCellsNetListsVisitor::selfTest(hierCellsNetLists, filename);
 }
