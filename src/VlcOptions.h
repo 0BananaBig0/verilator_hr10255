@@ -32,8 +32,8 @@
 using VlStringSet = std::set<std::string>;
 
 class VlcOptions final {
-    // MEMBERS (general options)
-    // clang-format off
+  // MEMBERS (general options)
+  // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
     int m_annotateMin = 10;     // main switch: --annotate-min I<count>
@@ -42,35 +42,35 @@ class VlcOptions final {
     bool m_unlink = false;      // main switch: --unlink
     string m_writeFile;         // main switch: --write
     string m_writeInfoFile;     // main switch: --write-info
-    // clang-format on
+  // clang-format on
 
 private:
-    // METHODS
-    static void showVersion(bool verbose);
+  // METHODS
+  static void showVersion(bool verbose);
 
 public:
-    // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+  // CONSTRUCTORS
+  VlcOptions() = default;
+  ~VlcOptions() = default;
 
-    // METHODS
-    void parseOptsList(int argc, char** argv);
-    void addReadFile(const string& filename);
+  // METHODS
+  void parseOptsList(int argc, char **argv);
+  void addReadFile(const string &filename);
 
-    // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
+  // ACCESSORS (options)
+  const VlStringSet &readFiles() const { return m_readFiles; }
+  string annotateOut() const { return m_annotateOut; }
+  bool annotateAll() const { return m_annotateAll; }
+  int annotateMin() const { return m_annotateMin; }
+  bool rank() const { return m_rank; }
+  bool unlink() const { return m_unlink; }
+  string writeFile() const { return m_writeFile; }
+  string writeInfoFile() const { return m_writeInfoFile; }
 
-    // METHODS (from main)
-    static string version();
+  // METHODS (from main)
+  static string version();
 };
 
 //######################################################################
 
-#endif  // guard
+#endif // guard

@@ -24,7 +24,8 @@
 #include <memory>
 #include <string>
 
-// Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
+// Not to include V3Option.h here so that VlcMain or other executables can use
+// this file easily.
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 class VOptionBool;
 #endif
@@ -53,105 +54,111 @@ class VOptionBool;
 
 class V3OptionParser final {
 public:
-    // TYPES
-    class ActionIfs;
-    // Functor to register options to V3OptionParser
-    class AppendHelper;
-    struct Impl;
+  // TYPES
+  class ActionIfs;
+  // Functor to register options to V3OptionParser
+  class AppendHelper;
+  struct Impl;
 
 private:
-    // MEMBERS
-    std::unique_ptr<Impl> m_pimpl;
+  // MEMBERS
+  std::unique_ptr<Impl> m_pimpl;
 
-    // METHODS
-    ActionIfs* find(const char* optp);
-    template <class ACT, class ARG> ActionIfs& add(const string& opt, ARG arg);
-    static bool hasPrefixNo(const char* strp);  // Returns true if strp starts with "-no"
+  // METHODS
+  ActionIfs *find(const char *optp);
+  template <class ACT, class ARG> ActionIfs &add(const string &opt, ARG arg);
+  static bool
+  hasPrefixNo(const char *strp); // Returns true if strp starts with "-no"
 
 public:
-    // METHODS
-    // Returns how many args are consumed. 0 means not match
-    int parse(int idx, int argc, char* argv[]);
-    // Find the most similar option
-    string getSuggestion(const char* str) const;
-    void addSuggestionCandidate(const string& s);
-    // Call this function after all options are registered.
-    void finalize();
+  // METHODS
+  // Returns how many args are consumed. 0 means not match
+  int parse(int idx, int argc, char *argv[]);
+  // Find the most similar option
+  string getSuggestion(const char *str) const;
+  void addSuggestionCandidate(const string &s);
+  // Call this function after all options are registered.
+  void finalize();
 
-    // CONSTRUCTORS
-    V3OptionParser();
-    ~V3OptionParser();
+  // CONSTRUCTORS
+  V3OptionParser();
+  ~V3OptionParser();
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
 public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowd
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
-    // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
-    // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual void undocumented() = 0;
+  virtual ~ActionIfs() = default;
+  virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
+  virtual bool isOnOffAllowed() const = 0; // true if "-no-opt" is allowd
+  virtual bool
+  isPartialMatchAllowed() const = 0; // true if "-Wno-" matches "-Wno-fatal"
+  virtual bool isUndocumented() const = 0; // Will not be suggested in typo
+  // Set a value or run callback
+  virtual void exec(const char *optp, const char *valp) = 0;
+  // Mark this option undocumented. (Exclude this option from suggestion list).
+  virtual void undocumented() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
 public:
-    // TYPES
-    // Tag to specify which operator() to call
-    struct Set {};  // For ActionSet
-    struct OnOff {};  // For ActionOnOff
-    struct CbCall {};  // For ActionCbCall
-    struct CbOnOff {};  // For ActionOnOff
-    struct CbVal {};  // For ActionCbVal
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
+  // TYPES
+  // Tag to specify which operator() to call
+  struct Set {};               // For ActionSet
+  struct OnOff {};             // For ActionOnOff
+  struct CbCall {};            // For ActionCbCall
+  struct CbOnOff {};           // For ActionOnOff
+  struct CbVal {};             // For ActionCbVal
+  struct CbPartialMatch {};    // For ActionCbPartialMatch
+  struct CbPartialMatchVal {}; // For ActionCbPartialMatchVal
 
 private:
-    // MEMBERS
-    V3OptionParser& m_parser;  // The actual option registory
+  // MEMBERS
+  V3OptionParser &m_parser; // The actual option registory
 
 public:
-    // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const;
+  // METHODS
+  ActionIfs &operator()(const char *optp, Set, bool *) const;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const;
+  ActionIfs &operator()(const char *optp, Set, VOptionBool *) const;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const;
-    ActionIfs& operator()(const char* optp, Set, string*) const;
+  ActionIfs &operator()(const char *optp, Set, int *) const;
+  ActionIfs &operator()(const char *optp, Set, string *) const;
 
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const;
+  ActionIfs &operator()(const char *optp, OnOff, bool *) const;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const;
+  ActionIfs &operator()(const char *optp, OnOff, VOptionBool *) const;
 #endif
 
-    ActionIfs& operator()(const char* optp, CbCall, std::function<void(void)>) const;
-    ActionIfs& operator()(const char* optp, CbOnOff, std::function<void(bool)>) const;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(const char*)>) const;
+  ActionIfs &operator()(const char *optp, CbCall,
+                        std::function<void(void)>) const;
+  ActionIfs &operator()(const char *optp, CbOnOff,
+                        std::function<void(bool)>) const;
+  ActionIfs &operator()(const char *optp, CbVal,
+                        std::function<void(int)>) const;
+  ActionIfs &operator()(const char *optp, CbVal,
+                        std::function<void(const char *)>) const;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const;
+  ActionIfs &operator()(const char *optp, CbPartialMatch,
+                        std::function<void(const char *)>) const;
+  ActionIfs &operator()(const char *optp, CbPartialMatchVal,
+                        std::function<void(const char *, const char *)>) const;
 
-    // CONSTRUCTORS
-    explicit AppendHelper(V3OptionParser& parser)
-        : m_parser(parser) {}
+  // CONSTRUCTORS
+  explicit AppendHelper(V3OptionParser &parser) : m_parser(parser) {}
 };
 
-#define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
-        = V3OptionParser::AppendHelper::CbPartialMatchVal {}
+#define V3OPTION_PARSER_DECL_TAGS                                              \
+  const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{};         \
+  const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{};     \
+  const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{};   \
+  const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
+  const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};     \
+  const auto CbPartialMatch VL_ATTR_UNUSED =                                   \
+      V3OptionParser::AppendHelper::CbPartialMatch{};                          \
+  const auto CbPartialMatchVal VL_ATTR_UNUSED =                                \
+      V3OptionParser::AppendHelper::CbPartialMatchVal {}
 
 //######################################################################
 
-#endif  // guard
+#endif // guard

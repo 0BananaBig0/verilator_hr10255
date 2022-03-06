@@ -14,24 +14,25 @@
 #include <Vt_order_dpi_export_1.h>
 #include <Vt_order_dpi_export_1__Dpi.h>
 
-int main(int argc, char* argv[]) {
-    Vt_order_dpi_export_1* const tb = new Vt_order_dpi_export_1;
-    tb->contextp()->commandArgs(argc, argv);
-    bool clk = true;
+int main(int argc, char *argv[]) {
+  Vt_order_dpi_export_1 *const tb = new Vt_order_dpi_export_1;
+  tb->contextp()->commandArgs(argc, argv);
+  bool clk = true;
 
-    while (!tb->contextp()->gotFinish()) {
-        // Timeout
-        if (tb->contextp()->time() > 100000) break;
-        // Toggle and set clock
-        svSetScope(svGetScopeFromName("TOP.testbench"));
-        clk = !clk;
-        set_clk(clk);
-        // Eval
-        tb->eval();
-        // Advance time
-        tb->contextp()->timeInc(500);
-    }
+  while (!tb->contextp()->gotFinish()) {
+    // Timeout
+    if (tb->contextp()->time() > 100000)
+      break;
+    // Toggle and set clock
+    svSetScope(svGetScopeFromName("TOP.testbench"));
+    clk = !clk;
+    set_clk(clk);
+    // Eval
+    tb->eval();
+    // Advance time
+    tb->contextp()->timeInc(500);
+  }
 
-    delete tb;
-    return 0;
+  delete tb;
+  return 0;
 }

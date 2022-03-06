@@ -20,20 +20,20 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3EmitC final {
 public:
-    static void emitcConstPool();
-    static void emitcHeaders();
-    static void emitcImp();
-    static void emitcInlines();
-    static void emitcModel();
-    static void emitcSyms(bool dpiHdrOnly = false);
-    static void emitcFiles();
+  static void emitcConstPool();
+  static void emitcHeaders();
+  static void emitcImp();
+  static void emitcInlines();
+  static void emitcModel();
+  static void emitcSyms(bool dpiHdrOnly = false);
+  static void emitcFiles();
 };
 
-#endif  // Guard
+#endif // Guard

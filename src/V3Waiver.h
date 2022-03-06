@@ -19,17 +19,18 @@
 
 #include "V3Error.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class V3Waiver final {
-    // TYPES
-    using WaiverList = std::vector<std::string>;
-    static WaiverList s_waiverList;
+  // TYPES
+  using WaiverList = std::vector<std::string>;
+  static WaiverList s_waiverList;
 
 public:
-    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& str);
-    static void write(const std::string& filename);
+  static void addEntry(V3ErrorCode errorCode, const string &filename,
+                       const std::string &str);
+  static void write(const std::string &filename);
 };
 
-#endif  // Guard
+#endif // Guard

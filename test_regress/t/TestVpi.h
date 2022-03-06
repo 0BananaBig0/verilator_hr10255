@@ -16,38 +16,34 @@
 //======================================================================
 
 class TestVpiHandle {
-    /// For testing, etc, wrap vpiHandle in an auto-releasing class
-    vpiHandle m_handle;  // No = as no C++11
-    bool m_freeit;  // No = as no C++11
+  /// For testing, etc, wrap vpiHandle in an auto-releasing class
+  vpiHandle m_handle; // No = as no C++11
+  bool m_freeit;      // No = as no C++11
 
 public:
-    TestVpiHandle()
-        : m_handle(NULL)
-        , m_freeit(true) {}
-    TestVpiHandle(vpiHandle h)
-        : m_handle(h)
-        , m_freeit(true) {}
-    ~TestVpiHandle() { release(); }
-    operator vpiHandle() const { return m_handle; }
-    inline TestVpiHandle& operator=(vpiHandle h) {
-        release();
-        m_handle = h;
-        return *this;
-    }
-    void release() {
-        if (m_handle && m_freeit) {
-            // Below not VL_DO_DANGLING so is portable
+  TestVpiHandle() : m_handle(NULL), m_freeit(true) {}
+  TestVpiHandle(vpiHandle h) : m_handle(h), m_freeit(true) {}
+  ~TestVpiHandle() { release(); }
+  operator vpiHandle() const { return m_handle; }
+  inline TestVpiHandle &operator=(vpiHandle h) {
+    release();
+    m_handle = h;
+    return *this;
+  }
+  void release() {
+    if (m_handle && m_freeit) {
+      // Below not VL_DO_DANGLING so is portable
 #ifdef IVERILOG
-            vpi_free_object(m_handle);
+      vpi_free_object(m_handle);
 #else
-            vpi_release_handle(m_handle);
+      vpi_release_handle(m_handle);
 #endif
-            m_handle = NULL;
-        }
+      m_handle = NULL;
     }
-    // Freed by another action e.g. vpi_scan; so empty and don't free again
-    void freed() {
-        m_handle = NULL;
-        m_freeit = false;
-    }
+  }
+  // Freed by another action e.g. vpi_scan; so empty and don't free again
+  void freed() {
+    m_handle = NULL;
+    m_freeit = false;
+  }
 };

@@ -24,7 +24,7 @@
 
 class V3VariableOrder final {
 public:
-    static void orderAll();
+  static void orderAll();
 };
 
-#endif  // Guard
+#endif // Guard

@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Begin final {
 public:
-    static void debeginAll(AstNetlist* nodep);
+  static void debeginAll(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

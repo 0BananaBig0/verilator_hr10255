@@ -6,24 +6,24 @@
 
 #include VM_PREFIX_INCLUDE
 
-VM_PREFIX* tb = nullptr;
+VM_PREFIX *tb = nullptr;
 bool pass = true;
 
 double sc_time_stamp() { return 0; }
 
 #ifdef SYSTEMC_VERSION
-int sc_main(int, char**)
+int sc_main(int, char **)
 #else
 int main()
 #endif
 {
-    Verilated::debug(0);
-    tb = new VM_PREFIX("tb");
+  Verilated::debug(0);
+  tb = new VM_PREFIX("tb");
 
-    tb->final();
-    VL_DO_DANGLING(delete tb, tb);
+  tb->final();
+  VL_DO_DANGLING(delete tb, tb);
 
-    // Just a constructor test
-    VL_PRINTF("*-* All Finished *-*\n");
-    return 0;
+  // Just a constructor test
+  VL_PRINTF("*-* All Finished *-*\n");
+  return 0;
 }

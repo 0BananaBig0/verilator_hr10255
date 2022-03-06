@@ -20,24 +20,24 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Width final {
 public:
-    static int debug();
-    static void width(AstNetlist* nodep);
-    static AstNode* widthParamsEdit(AstNode* nodep);
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep);
-    // Final step... Mark all widths as equal
-    static void widthCommit(AstNetlist* nodep);
+  static int debug();
+  static void width(AstNetlist *nodep);
+  static AstNode *widthParamsEdit(AstNode *nodep);
+  static AstNode *widthGenerateParamsEdit(AstNode *nodep);
+  // Final step... Mark all widths as equal
+  static void widthCommit(AstNetlist *nodep);
 
-    // For use only in WidthVisitor
-    // Replace AstSelBit, etc with AstSel/AstArraySel
-    // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep);
+  // For use only in WidthVisitor
+  // Replace AstSelBit, etc with AstSel/AstArraySel
+  // Returns replacement node if nodep was deleted, or null if none.
+  static AstNode *widthSelNoIterEdit(AstNode *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

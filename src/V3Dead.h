@@ -20,21 +20,21 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Dead final {
 public:
-    // Modules, no vars/dtypes
-    static void deadifyModules(AstNetlist* nodep);
-    // Modules, Data types
-    static void deadifyDTypes(AstNetlist* nodep);
-    static void deadifyDTypesScoped(AstNetlist* nodep);
-    // Everything that's possible
-    static void deadifyAll(AstNetlist* nodep);
-    static void deadifyAllScoped(AstNetlist* nodep);
+  // Modules, no vars/dtypes
+  static void deadifyModules(AstNetlist *nodep);
+  // Modules, Data types
+  static void deadifyDTypes(AstNetlist *nodep);
+  static void deadifyDTypesScoped(AstNetlist *nodep);
+  // Everything that's possible
+  static void deadifyAll(AstNetlist *nodep);
+  static void deadifyAllScoped(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

@@ -14,16 +14,17 @@
 
 #include <Vt_const_bitoptree_bug3096.h>
 
-int main(int argc, char* argv[]) {
-    Vt_const_bitoptree_bug3096* const tb = new Vt_const_bitoptree_bug3096;
+int main(int argc, char *argv[]) {
+  Vt_const_bitoptree_bug3096 *const tb = new Vt_const_bitoptree_bug3096;
 
-    tb->instr_i = 0x08c0006f;
-    tb->eval();
+  tb->instr_i = 0x08c0006f;
+  tb->eval();
 
-    std::cout << "tb->illegal_instr_o: " << static_cast<int>(tb->illegal_instr_o) << std::endl
-              << std::flush;
-    assert(tb->illegal_instr_o == 0);
+  std::cout << "tb->illegal_instr_o: " << static_cast<int>(tb->illegal_instr_o)
+            << std::endl
+            << std::flush;
+  assert(tb->illegal_instr_o == 0);
 
-    delete tb;
-    return 0;
+  delete tb;
+  return 0;
 }

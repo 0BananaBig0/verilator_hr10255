@@ -34,123 +34,143 @@ class FileLine;
 //######################################################################
 
 class VOptionBool final {
-    // Class to track options that are either not specified (and default
-    // true/false), versus user setting the option to true or false
+  // Class to track options that are either not specified (and default
+  // true/false), versus user setting the option to true or false
 public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
-    inline VOptionBool()
-        : m_e{OPT_DEFAULT_FALSE} {}
-    // cppcheck-suppress noExplicitConstructor
-    inline VOptionBool(en _e)
-        : m_e{_e} {}
-    explicit inline VOptionBool(int _e)
-        : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    operator en() const { return m_e; }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
+  enum en : uint8_t {
+    OPT_DEFAULT_FALSE = 0,
+    OPT_DEFAULT_TRUE,
+    OPT_TRUE,
+    OPT_FALSE
+  };
+  enum en m_e;
+  inline VOptionBool() : m_e{OPT_DEFAULT_FALSE} {}
+  // cppcheck-suppress noExplicitConstructor
+  inline VOptionBool(en _e) : m_e{_e} {}
+  explicit inline VOptionBool(int _e)
+      : m_e(static_cast<en>(_e)) {} // Need () or GCC 4.8 false warning
+  operator en() const { return m_e; }
+  bool isDefault() const {
+    return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE;
+  }
+  bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+  bool isSetTrue() const { return m_e == OPT_TRUE; }
+  bool isSetFalse() const { return m_e == OPT_FALSE; }
+  void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
-inline bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+inline bool operator==(const VOptionBool &lhs, const VOptionBool &rhs) {
+  return lhs.m_e == rhs.m_e;
 }
-inline bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-inline bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+inline bool operator==(const VOptionBool &lhs, VOptionBool::en rhs) {
+  return lhs.m_e == rhs;
+}
+inline bool operator==(VOptionBool::en lhs, const VOptionBool &rhs) {
+  return lhs == rhs.m_e;
+}
 
 //######################################################################
 
 class VTimescale final {
 public:
-    enum en : uint8_t {
-        // clang-format off
+  enum en : uint8_t {
+    // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
         TS_100US = 6, TS_10US = 7, TS_1US = 8,
         TS_100NS = 9, TS_10NS = 10, TS_1NS = 11,
         TS_100PS = 12, TS_10PS = 13, TS_1PS = 14,
         TS_100FS = 15, TS_10FS = 16, TS_1FS = 17,
-        // clang-format on
-        NONE = 18,
-        _ENUM_END
-    };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
-    // CONSTRUCTOR
-    inline VTimescale()
-        : m_e{NONE} {}
-    // cppcheck-suppress noExplicitConstructor
-    inline VTimescale(en _e)
-        : m_e{_e} {}
-    explicit inline VTimescale(int _e)
-        : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
-        badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
-            m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
-        }
-        if (multiplier() != value) {
-            m_e = NONE;
-            badr = true;
-        }
+    // clang-format on
+    NONE = 18,
+    _ENUM_END
+  };
+  enum : uint8_t { TS_DEFAULT = TS_1PS };
+  enum en m_e;
+  // CONSTRUCTOR
+  inline VTimescale() : m_e{NONE} {}
+  // cppcheck-suppress noExplicitConstructor
+  inline VTimescale(en _e) : m_e{_e} {}
+  explicit inline VTimescale(int _e)
+      : m_e(static_cast<en>(_e)) {} // Need () or GCC 4.8 false warning
+  // Construct from string
+  VTimescale(const string &value, bool &badr);
+  VTimescale(double value, bool &badr) {
+    badr = false;
+    for (int i = TS_100S; i < _ENUM_END; ++i) {
+      m_e = static_cast<en>(i);
+      if (multiplier() == value)
+        break;
     }
-    bool isNone() const { return m_e == NONE; }
-    // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
-                             bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
-            = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
-               "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+    if (multiplier() != value) {
+      m_e = NONE;
+      badr = true;
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
-            = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
-               1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
-    }
+  }
+  bool isNone() const { return m_e == NONE; }
+  // Parse a "unit/precision" string into two VTimescales, with error checking
+  static void parseSlashed(FileLine *fl, const char *textp, VTimescale &unitr,
+                           VTimescale &precr, bool allowEmpty = false);
+  const char *ascii() const {
+    static const char *const names[] = {
+        "100s", "10s",   "1s",    "100ms", "10ms", "1ms",   "100us",
+        "10us", "1us",   "100ns", "10ns",  "1ns",  "100ps", "10ps",
+        "1ps",  "100fs", "10fs",  "1fs",   "NONE"};
+    return names[m_e];
+  }
+  int powerOfTen() const { return 2 - static_cast<int>(m_e); }
+  double multiplier() const {
+    static const double values[] = {
+        100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
+        1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
+    return values[m_e];
+  }
 };
-inline bool operator==(const VTimescale& lhs, const VTimescale& rhs) { return lhs.m_e == rhs.m_e; }
-inline bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-inline bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+inline bool operator==(const VTimescale &lhs, const VTimescale &rhs) {
+  return lhs.m_e == rhs.m_e;
+}
+inline bool operator==(const VTimescale &lhs, VTimescale::en rhs) {
+  return lhs.m_e == rhs;
+}
+inline bool operator==(VTimescale::en lhs, const VTimescale &rhs) {
+  return lhs == rhs.m_e;
+}
 // Comparisons are based on time, not enum values, so seconds > milliseconds
-inline bool operator<(const VTimescale& lhs, const VTimescale& rhs) { return lhs.m_e > rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+inline bool operator<(const VTimescale &lhs, const VTimescale &rhs) {
+  return lhs.m_e > rhs.m_e;
+}
+inline std::ostream &operator<<(std::ostream &os, const VTimescale &rhs) {
+  return os << rhs.ascii();
 }
 
 //######################################################################
 
 class TraceFormat final {
 public:
-    enum en : uint8_t { VCD = 0, FST } m_e;
-    // cppcheck-suppress noExplicitConstructor
-    inline TraceFormat(en _e = VCD)
-        : m_e{_e} {}
-    explicit inline TraceFormat(int _e)
-        : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    operator en() const { return m_e; }
-    bool fst() const { return m_e == FST; }
-    string classBase() const {
-        static const char* const names[] = {"VerilatedVcd", "VerilatedFst"};
-        return names[m_e];
-    }
-    string sourceName() const {
-        static const char* const names[] = {"verilated_vcd", "verilated_fst"};
-        return names[m_e];
-    }
+  enum en : uint8_t { VCD = 0, FST } m_e;
+  // cppcheck-suppress noExplicitConstructor
+  inline TraceFormat(en _e = VCD) : m_e{_e} {}
+  explicit inline TraceFormat(int _e)
+      : m_e(static_cast<en>(_e)) {} // Need () or GCC 4.8 false warning
+  operator en() const { return m_e; }
+  bool fst() const { return m_e == FST; }
+  string classBase() const {
+    static const char *const names[] = {"VerilatedVcd", "VerilatedFst"};
+    return names[m_e];
+  }
+  string sourceName() const {
+    static const char *const names[] = {"verilated_vcd", "verilated_fst"};
+    return names[m_e];
+  }
 };
-inline bool operator==(const TraceFormat& lhs, const TraceFormat& rhs) {
-    return lhs.m_e == rhs.m_e;
+inline bool operator==(const TraceFormat &lhs, const TraceFormat &rhs) {
+  return lhs.m_e == rhs.m_e;
 }
-inline bool operator==(const TraceFormat& lhs, TraceFormat::en rhs) { return lhs.m_e == rhs; }
-inline bool operator==(TraceFormat::en lhs, const TraceFormat& rhs) { return lhs == rhs.m_e; }
+inline bool operator==(const TraceFormat &lhs, TraceFormat::en rhs) {
+  return lhs.m_e == rhs;
+}
+inline bool operator==(TraceFormat::en lhs, const TraceFormat &rhs) {
+  return lhs == rhs.m_e;
+}
 
 using V3StringList = std::vector<std::string>;
 using V3StringSet = std::set<std::string>;
@@ -160,25 +180,26 @@ using V3StringSet = std::set<std::string>;
 // Information given by --hierarchical-block option
 class V3HierarchicalBlockOption final {
 public:
-    // key:parameter name, value:value (as string)
-    using ParamStrMap = std::map<const std::string, std::string>;
+  // key:parameter name, value:value (as string)
+  using ParamStrMap = std::map<const std::string, std::string>;
 
 private:
-    string m_origName;  // module name
-    // module name after uniquified
-    // same as m_origName for non-parameterized module
-    string m_mangledName;
-    // overriding parameter values specified by -G option
-    ParamStrMap m_parameters;
+  string m_origName; // module name
+  // module name after uniquified
+  // same as m_origName for non-parameterized module
+  string m_mangledName;
+  // overriding parameter values specified by -G option
+  ParamStrMap m_parameters;
 
 public:
-    explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+  explicit V3HierarchicalBlockOption(const string &optstring);
+  const string &origName() const { return m_origName; }
+  const string &mangledName() const { return m_mangledName; }
+  const ParamStrMap params() const { return m_parameters; }
 };
 
-using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
+using V3HierBlockOptSet =
+    std::map<const std::string, V3HierarchicalBlockOption>;
 
 //######################################################################
 // V3Options - Command line options
@@ -186,13 +207,13 @@ using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>
 class V3Options final {
 public:
 private:
-    // TYPES
-    using DebugSrcMap = std::map<const std::string, int>;
+  // TYPES
+  using DebugSrcMap = std::map<const std::string, int>;
 
-    // MEMBERS (general options)
-    V3OptionsImp* m_impp;  // Slow hidden options
+  // MEMBERS (general options)
+  V3OptionsImp *m_impp; // Slow hidden options
 
-    // clang-format off
+  // clang-format off
     V3StringSet m_cppFiles;     // argument: C++ files to link against
     V3StringList m_cFlags;      // argument: user CFLAGS
     V3StringList m_ldLibs;      // argument: user LDFLAGS
@@ -360,291 +381,304 @@ private:
     bool        m_oSubst;       // main switch: -Ou: substitute expression temp values
     bool        m_oSubstConst;  // main switch: -Ok: final constant substitution
     bool        m_oTable;       // main switch: -Oa: lookup table creation
-    // clang-format on
+  // clang-format on
 
-    bool m_available = false;  // Set to true at the end of option parsing
+  bool m_available = false; // Set to true at the end of option parsing
 
 private:
-    // METHODS
-    void addArg(const string& arg);
-    void addDefine(const string& defline, bool allowPlus);
-    void addFuture(const string& flag);
-    void addIncDirUser(const string& incdir);  // User requested
-    void addIncDirFallback(const string& incdir);  // Low priority if not found otherwise
-    void addParameter(const string& paramline, bool allowPlus);
-    void addLangExt(const string& langext, const V3LangCode& lc);
-    void addLibExtV(const string& libext);
-    void optimize(int level);
-    void showVersion(bool verbose);
-    void coverage(bool flag) { m_coverageLine = m_coverageToggle = m_coverageUser = flag; }
-    static bool suffixed(const string& sw, const char* arg);
-    static string parseFileArg(const string& optdir, const string& relfilename);
-    string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+  // METHODS
+  void addArg(const string &arg);
+  void addDefine(const string &defline, bool allowPlus);
+  void addFuture(const string &flag);
+  void addIncDirUser(const string &incdir); // User requested
+  void addIncDirFallback(
+      const string &incdir); // Low priority if not found otherwise
+  void addParameter(const string &paramline, bool allowPlus);
+  void addLangExt(const string &langext, const V3LangCode &lc);
+  void addLibExtV(const string &libext);
+  void optimize(int level);
+  void showVersion(bool verbose);
+  void coverage(bool flag) {
+    m_coverageLine = m_coverageToggle = m_coverageUser = flag;
+  }
+  static bool suffixed(const string &sw, const char *arg);
+  static string parseFileArg(const string &optdir, const string &relfilename);
+  string filePathCheckOneDir(const string &modname, const string &dirname);
+  static int stripOptionsForChildRun(const string &opt, bool forTop);
 
-    // CONSTRUCTORS
-    VL_UNCOPYABLE(V3Options);
+  // CONSTRUCTORS
+  VL_UNCOPYABLE(V3Options);
 
 public:
-    V3Options();
-    ~V3Options();
-    void setDebugMode(int level);
-    void setDebugSrcLevel(const string& srcfile, int level);
-    int debugSrcLevel(const string& srcfile_path, int default_level = V3Error::debugDefault());
-    void setDumpTreeLevel(const string& srcfile, int level);
-    int dumpTreeLevel(const string& srcfile_path);
+  V3Options();
+  ~V3Options();
+  void setDebugMode(int level);
+  void setDebugSrcLevel(const string &srcfile, int level);
+  int debugSrcLevel(const string &srcfile_path,
+                    int default_level = V3Error::debugDefault());
+  void setDumpTreeLevel(const string &srcfile, int level);
+  int dumpTreeLevel(const string &srcfile_path);
 
-    // METHODS
-    void addCppFile(const string& filename);
-    void addCFlags(const string& filename);
-    void addLdLibs(const string& filename);
-    void addMakeFlags(const string& filename);
-    void addLibraryFile(const string& filename);
-    void addClocker(const string& signame);
-    void addNoClocker(const string& signame);
-    void addVFile(const string& filename);
-    void addForceInc(const string& filename);
-    void notify();
-    bool available() const { return m_available; }
+  // METHODS
+  void addCppFile(const string &filename);
+  void addCFlags(const string &filename);
+  void addLdLibs(const string &filename);
+  void addMakeFlags(const string &filename);
+  void addLibraryFile(const string &filename);
+  void addClocker(const string &signame);
+  void addNoClocker(const string &signame);
+  void addVFile(const string &filename);
+  void addForceInc(const string &filename);
+  void notify();
+  bool available() const { return m_available; }
 
-    // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool underlineZero() const { return m_underlineZero; }
-    string bin() const { return m_bin; }
-    string flags() const { return m_flags; }
-    bool systemC() const { return m_systemC; }
-    bool savable() const { return m_savable; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool structsPacked() const { return m_structsPacked; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    bool cdc() const { return m_cdc; }
-    bool cmake() const { return m_cmake; }
-    bool context() const { return m_context; }
-    bool coverage() const { return m_coverageLine || m_coverageToggle || m_coverageUser; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const { return m_debugEmitV; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugExitUvm() const { return m_debugExitUvm; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugProtect() const { return m_debugProtect; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool decoration() const { return m_decoration; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
-    bool dumpDefines() const { return m_dumpDefines; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool gmake() const { return m_gmake; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool mergeConstPool() const { return m_mergeConstPool; }
-    bool orderClockDly() const { return m_orderClockDly; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScBigUint() const { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool ppComments() const { return m_ppComments; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profThreads() const { return m_profThreads; }
-    bool protectIds() const { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    bool lintOnly() const { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietExit() const { return m_quietExit; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool xmlOnly() const { return m_xmlOnly; }
+  // ACCESSORS (options)
+  bool preprocOnly() const { return m_preprocOnly; }
+  bool makePhony() const { return m_makePhony; }
+  bool preprocNoLine() const { return m_preprocNoLine; }
+  bool underlineZero() const { return m_underlineZero; }
+  string bin() const { return m_bin; }
+  string flags() const { return m_flags; }
+  bool systemC() const { return m_systemC; }
+  bool savable() const { return m_savable; }
+  bool stats() const { return m_stats; }
+  bool statsVars() const { return m_statsVars; }
+  bool structsPacked() const { return m_structsPacked; }
+  bool assertOn() const {
+    return m_assert;
+  } // assertOn as __FILE__ may be defined
+  bool autoflush() const { return m_autoflush; }
+  bool bboxSys() const { return m_bboxSys; }
+  bool bboxUnsup() const { return m_bboxUnsup; }
+  bool build() const { return m_build; }
+  bool cdc() const { return m_cdc; }
+  bool cmake() const { return m_cmake; }
+  bool context() const { return m_context; }
+  bool coverage() const {
+    return m_coverageLine || m_coverageToggle || m_coverageUser;
+  }
+  bool coverageLine() const { return m_coverageLine; }
+  bool coverageToggle() const { return m_coverageToggle; }
+  bool coverageUnderscore() const { return m_coverageUnderscore; }
+  bool coverageUser() const { return m_coverageUser; }
+  bool debugCheck() const { return m_debugCheck; }
+  bool debugCollision() const { return m_debugCollision; }
+  bool debugEmitV() const { return m_debugEmitV; }
+  bool debugExitParse() const { return m_debugExitParse; }
+  bool debugExitUvm() const { return m_debugExitUvm; }
+  bool debugLeak() const { return m_debugLeak; }
+  bool debugNondeterminism() const { return m_debugNondeterminism; }
+  bool debugPartition() const { return m_debugPartition; }
+  bool debugProtect() const { return m_debugProtect; }
+  bool debugSelfTest() const { return m_debugSelfTest; }
+  bool decoration() const { return m_decoration; }
+  bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+  bool dumpDefines() const { return m_dumpDefines; }
+  bool exe() const { return m_exe; }
+  bool flatten() const { return m_flatten; }
+  bool gmake() const { return m_gmake; }
+  bool threadsDpiPure() const { return m_threadsDpiPure; }
+  bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
+  bool threadsCoarsen() const { return m_threadsCoarsen; }
+  bool trace() const { return m_trace; }
+  bool traceCoverage() const { return m_traceCoverage; }
+  bool traceParams() const { return m_traceParams; }
+  bool traceStructs() const { return m_traceStructs; }
+  bool traceUnderscore() const { return m_traceUnderscore; }
+  bool main() const { return m_main; }
+  bool mergeConstPool() const { return m_mergeConstPool; }
+  bool orderClockDly() const { return m_orderClockDly; }
+  bool outFormatOk() const { return m_outFormatOk; }
+  bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
+  bool pedantic() const { return m_pedantic; }
+  bool pinsScUint() const { return m_pinsScUint; }
+  bool pinsScBigUint() const { return m_pinsScBigUint; }
+  bool pinsUint8() const { return m_pinsUint8; }
+  bool ppComments() const { return m_ppComments; }
+  bool profC() const { return m_profC; }
+  bool profCFuncs() const { return m_profCFuncs; }
+  bool profThreads() const { return m_profThreads; }
+  bool protectIds() const { return m_protectIds; }
+  bool allPublic() const { return m_public; }
+  bool publicFlatRW() const { return m_publicFlatRW; }
+  bool lintOnly() const { return m_lintOnly; }
+  bool ignc() const { return m_ignc; }
+  bool quietExit() const { return m_quietExit; }
+  bool reportUnoptflat() const { return m_reportUnoptflat; }
+  bool verilate() const { return m_verilate; }
+  bool vpi() const { return m_vpi; }
+  bool xInitialEdge() const { return m_xInitialEdge; }
+  bool xmlOnly() const { return m_xmlOnly; }
 
-    int buildJobs() const { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int dumpTree() const { return m_dumpTree; }
-    bool dumpTreeAddrids() const { return m_dumpTreeAddrids; }
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int pinsBv() const { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    int threads() const { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
-    VTimescale timeComputePrec(const VTimescale& flag) const;
-    VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    TraceFormat traceFormat() const { return m_traceFormat; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
-    int traceThreads() const { return m_traceThreads; }
-    bool trueTraceThreads() const {
-        return traceThreads() == 0 ? 0 : traceThreads() - traceFormat().fst();
+  int buildJobs() const { return m_buildJobs; }
+  int convergeLimit() const { return m_convergeLimit; }
+  int coverageMaxWidth() const { return m_coverageMaxWidth; }
+  int dumpTree() const { return m_dumpTree; }
+  bool dumpTreeAddrids() const { return m_dumpTreeAddrids; }
+  int expandLimit() const { return m_expandLimit; }
+  int gateStmts() const { return m_gateStmts; }
+  int ifDepth() const { return m_ifDepth; }
+  int inlineMult() const { return m_inlineMult; }
+  int instrCountDpi() const { return m_instrCountDpi; }
+  VOptionBool makeDepend() const { return m_makeDepend; }
+  int maxNumWidth() const { return m_maxNumWidth; }
+  int moduleRecursionDepth() const { return m_moduleRecursion; }
+  int outputSplit() const { return m_outputSplit; }
+  int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
+  int outputSplitCTrace() const { return m_outputSplitCTrace; }
+  int pinsBv() const { return m_pinsBv; }
+  int reloopLimit() const { return m_reloopLimit; }
+  VOptionBool skipIdentical() const { return m_skipIdentical; }
+  int threads() const { return m_threads; }
+  int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
+  bool mtasks() const { return (m_threads > 1); }
+  VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
+  VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
+  VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
+  VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+  VTimescale timeComputePrec(const VTimescale &flag) const;
+  VTimescale timeComputeUnit(const VTimescale &flag) const;
+  int traceDepth() const { return m_traceDepth; }
+  TraceFormat traceFormat() const { return m_traceFormat; }
+  int traceMaxArray() const { return m_traceMaxArray; }
+  int traceMaxWidth() const { return m_traceMaxWidth; }
+  int traceThreads() const { return m_traceThreads; }
+  bool trueTraceThreads() const {
+    return traceThreads() == 0 ? 0 : traceThreads() - traceFormat().fst();
+  }
+  int unrollCount() const { return m_unrollCount; }
+  int unrollStmts() const { return m_unrollStmts; }
+
+  int compLimitBlocks() const { return m_compLimitBlocks; }
+  int compLimitMembers() const { return m_compLimitMembers; }
+  int compLimitParens() const { return m_compLimitParens; }
+
+  string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
+  string l2Name() const { return m_l2Name; }
+  string makeDir() const { return m_makeDir; }
+  string modPrefix() const { return m_modPrefix; }
+  string pipeFilter() const { return m_pipeFilter; }
+  string prefix() const { return m_prefix; }
+  string protectKeyDefaulted(); // Set default key if not set by user
+  string protectLib() const { return m_protectLib; }
+  string protectLibName(bool shared) {
+    string libName = "lib" + protectLib();
+    if (shared) {
+      libName += ".so";
+    } else {
+      libName += ".a";
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollStmts() const { return m_unrollStmts; }
+    return libName;
+  }
+  string topModule() const { return m_topModule; }
+  string unusedRegexp() const { return m_unusedRegexp; }
+  string waiverOutput() const { return m_waiverOutput; }
+  bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
+  string xAssign() const { return m_xAssign; }
+  string xInitial() const { return m_xInitial; }
+  string xmlOutput() const { return m_xmlOutput; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+  const V3StringSet &cppFiles() const { return m_cppFiles; }
+  const V3StringList &cFlags() const { return m_cFlags; }
+  const V3StringList &ldLibs() const { return m_ldLibs; }
+  const V3StringList &makeFlags() const { return m_makeFlags; }
+  const V3StringSet &libraryFiles() const { return m_libraryFiles; }
+  const V3StringList &vFiles() const { return m_vFiles; }
+  const V3StringList &forceIncs() const { return m_forceIncs; }
 
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    string l2Name() const { return m_l2Name; }
-    string makeDir() const { return m_makeDir; }
-    string modPrefix() const { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const { return m_prefix; }
-    string protectKeyDefaulted();  // Set default key if not set by user
-    string protectLib() const { return m_protectLib; }
-    string protectLibName(bool shared) {
-        string libName = "lib" + protectLib();
-        if (shared) {
-            libName += ".so";
-        } else {
-            libName += ".a";
-        }
-        return libName;
-    }
-    string topModule() const { return m_topModule; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
-    string xmlOutput() const { return m_xmlOutput; }
+  bool hasParameter(const string &name);
+  string parameter(const string &name);
+  void checkParameters();
 
-    const V3StringSet& cppFiles() const { return m_cppFiles; }
-    const V3StringList& cFlags() const { return m_cFlags; }
-    const V3StringList& ldLibs() const { return m_ldLibs; }
-    const V3StringList& makeFlags() const { return m_makeFlags; }
-    const V3StringSet& libraryFiles() const { return m_libraryFiles; }
-    const V3StringList& vFiles() const { return m_vFiles; }
-    const V3StringList& forceIncs() const { return m_forceIncs; }
+  bool isFuture(const string &flag) const;
+  bool isLibraryFile(const string &filename) const;
+  bool isClocker(const string &signame) const;
+  bool isNoClocker(const string &signame) const;
 
-    bool hasParameter(const string& name);
-    string parameter(const string& name);
-    void checkParameters();
+  // ACCESSORS (optimization options)
+  bool oAcycSimp() const { return m_oAcycSimp; }
+  bool oAssemble() const { return m_oAssemble; }
+  bool oCase() const { return m_oCase; }
+  bool oCombine() const { return m_oCombine; }
+  bool oConst() const { return m_oConst; }
+  bool oConstBitOpTree() const { return m_oConstBitOpTree; }
+  bool oDedupe() const { return m_oDedupe; }
+  bool oExpand() const { return m_oExpand; }
+  bool oGate() const { return m_oGate; }
+  bool oInline() const { return m_oInline; }
+  bool oLife() const { return m_oLife; }
+  bool oLifePost() const { return m_oLifePost; }
+  bool oLocalize() const { return m_oLocalize; }
+  bool oMergeCond() const { return m_oMergeCond; }
+  bool oReloop() const { return m_oReloop; }
+  bool oReorder() const { return m_oReorder; }
+  bool oSplit() const { return m_oSplit; }
+  bool oSubst() const { return m_oSubst; }
+  bool oSubstConst() const { return m_oSubstConst; }
+  bool oTable() const { return m_oTable; }
 
-    bool isFuture(const string& flag) const;
-    bool isLibraryFile(const string& filename) const;
-    bool isClocker(const string& signame) const;
-    bool isNoClocker(const string& signame) const;
+  string traceClassBase() const { return m_traceFormat.classBase(); }
+  string traceClassLang() const {
+    return m_traceFormat.classBase() + (systemC() ? "Sc" : "C");
+  }
+  string traceSourceBase() const { return m_traceFormat.sourceName(); }
+  string traceSourceLang() const {
+    return m_traceFormat.sourceName() + (systemC() ? "_sc" : "_c");
+  }
 
-    // ACCESSORS (optimization options)
-    bool oAcycSimp() const { return m_oAcycSimp; }
-    bool oAssemble() const { return m_oAssemble; }
-    bool oCase() const { return m_oCase; }
-    bool oCombine() const { return m_oCombine; }
-    bool oConst() const { return m_oConst; }
-    bool oConstBitOpTree() const { return m_oConstBitOpTree; }
-    bool oDedupe() const { return m_oDedupe; }
-    bool oExpand() const { return m_oExpand; }
-    bool oGate() const { return m_oGate; }
-    bool oInline() const { return m_oInline; }
-    bool oLife() const { return m_oLife; }
-    bool oLifePost() const { return m_oLifePost; }
-    bool oLocalize() const { return m_oLocalize; }
-    bool oMergeCond() const { return m_oMergeCond; }
-    bool oReloop() const { return m_oReloop; }
-    bool oReorder() const { return m_oReorder; }
-    bool oSplit() const { return m_oSplit; }
-    bool oSubst() const { return m_oSubst; }
-    bool oSubstConst() const { return m_oSubstConst; }
-    bool oTable() const { return m_oTable; }
+  bool hierarchical() const { return m_hierarchical; }
+  bool hierChild() const { return m_hierChild; }
+  bool hierTop() const { return !m_hierChild && !m_hierBlocks.empty(); }
+  const V3HierBlockOptSet &hierBlocks() const { return m_hierBlocks; }
+  // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
+  // Returns makeDir() unless top module of hierarchical verilation.
+  string hierTopDataDir() const {
+    return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+  }
 
-    string traceClassBase() const { return m_traceFormat.classBase(); }
-    string traceClassLang() const { return m_traceFormat.classBase() + (systemC() ? "Sc" : "C"); }
-    string traceSourceBase() const { return m_traceFormat.sourceName(); }
-    string traceSourceLang() const {
-        return m_traceFormat.sourceName() + (systemC() ? "_sc" : "_c");
-    }
+  // METHODS (from main)
+  static string version();
+  static string
+  argString(int argc,
+            char **argv); ///< Return list of arguments as simple string
+  string
+  allArgsString() const; ///< Return all passed arguments as simple string
+  // Return options for child hierarchical blocks when forTop==false, otherwise
+  // returns args for the top module.
+  string allArgsStringForHierBlock(bool forTop) const;
+  void bin(const string &flag) { m_bin = flag; }
+  void parseOpts(FileLine *fl, int argc, char **argv);
+  void parseOptsList(FileLine *fl, const string &optdir, int argc, char **argv);
+  void parseOptsFile(FileLine *fl, const string &filename, bool rel);
 
-    bool hierarchical() const { return m_hierarchical; }
-    bool hierChild() const { return m_hierChild; }
-    bool hierTop() const { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
-    // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
-    // Returns makeDir() unless top module of hierarchical verilation.
-    string hierTopDataDir() const {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
-    }
+  // METHODS (environment)
+  // Most of these may be built into the executable with --enable-defenv,
+  // see the README.  If adding new variables, also see src/Makefile_obj.in
+  // Also add to V3Options::showVersion()
+  static string getenvBuiltins(const string &var);
+  static string getenvMAKE();
+  static string getenvPERL();
+  static string getenvSYSTEMC();
+  static string getenvSYSTEMC_ARCH();
+  static string getenvSYSTEMC_INCLUDE();
+  static string getenvSYSTEMC_LIBDIR();
+  static string getenvVERILATOR_ROOT();
+  static bool systemCSystemWide();
+  static bool systemCFound(); // SystemC installed, or environment points to it
 
-    // METHODS (from main)
-    static string version();
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const;  ///< Return all passed arguments as simple string
-    // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
-    // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void bin(const string& flag) { m_bin = flag; }
-    void parseOpts(FileLine* fl, int argc, char** argv);
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv);
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel);
+  // METHODS (file utilities using these options)
+  string fileExists(const string &filename);
+  string filePath(FileLine *fl, const string &modname, const string &lastpath,
+                  const string &errmsg);
+  void filePathLookedMsg(FileLine *fl, const string &modname);
+  V3LangCode fileLanguage(const string &filename);
+  static bool fileStatNormal(const string &filename);
+  static void fileNfsFlush(const string &filename);
 
-    // METHODS (environment)
-    // Most of these may be built into the executable with --enable-defenv,
-    // see the README.  If adding new variables, also see src/Makefile_obj.in
-    // Also add to V3Options::showVersion()
-    static string getenvBuiltins(const string& var);
-    static string getenvMAKE();
-    static string getenvPERL();
-    static string getenvSYSTEMC();
-    static string getenvSYSTEMC_ARCH();
-    static string getenvSYSTEMC_INCLUDE();
-    static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
-    static bool systemCSystemWide();
-    static bool systemCFound();  // SystemC installed, or environment points to it
-
-    // METHODS (file utilities using these options)
-    string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
-                    const string& errmsg);
-    void filePathLookedMsg(FileLine* fl, const string& modname);
-    V3LangCode fileLanguage(const string& filename);
-    static bool fileStatNormal(const string& filename);
-    static void fileNfsFlush(const string& filename);
-
-    // METHODS (other OS)
-    static void throwSigsegv();
+  // METHODS (other OS)
+  static void throwSigsegv();
 };
 
 //######################################################################
 
-#endif  // guard
+#endif // guard

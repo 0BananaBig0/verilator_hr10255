@@ -20,15 +20,15 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3CoverageJoin final {
 public:
-    // CONSTRUCTORS
-    static void coverageJoin(AstNetlist* rootp);
+  // CONSTRUCTORS
+  static void coverageJoin(AstNetlist *rootp);
 };
 
-#endif  // Guard
+#endif // Guard

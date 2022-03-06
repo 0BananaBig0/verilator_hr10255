@@ -24,7 +24,7 @@
 
 class V3EmitCMake final {
 public:
-    static void emit();
+  static void emit();
 };
 
-#endif  // Guard
+#endif // Guard

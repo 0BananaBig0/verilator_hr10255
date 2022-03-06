@@ -14,26 +14,28 @@
 #include <Vt_order_dpi_export_5.h>
 #include <Vt_order_dpi_export_5__Dpi.h>
 
-int main(int argc, char* argv[]) {
-    Vt_order_dpi_export_5* const tb = new Vt_order_dpi_export_5;
-    tb->contextp()->commandArgs(argc, argv);
-    bool clk = true;
+int main(int argc, char *argv[]) {
+  Vt_order_dpi_export_5 *const tb = new Vt_order_dpi_export_5;
+  tb->contextp()->commandArgs(argc, argv);
+  bool clk = true;
 
-    while (!tb->contextp()->gotFinish()) {
-        // Timeout
-        if (tb->contextp()->time() > 100000) break;
-        // Toggle and set main clock
-        clk = !clk;
-        tb->clk = clk;
-        // Reset counter at falling clock edge, once it reached value 4
-        svSetScope(svGetScopeFromName("TOP.testbench"));
-        if (get_cnt() == 4 && !clk) set_cnt(0);
-        // Eval
-        tb->eval();
-        // Advance time
-        tb->contextp()->timeInc(500);
-    }
+  while (!tb->contextp()->gotFinish()) {
+    // Timeout
+    if (tb->contextp()->time() > 100000)
+      break;
+    // Toggle and set main clock
+    clk = !clk;
+    tb->clk = clk;
+    // Reset counter at falling clock edge, once it reached value 4
+    svSetScope(svGetScopeFromName("TOP.testbench"));
+    if (get_cnt() == 4 && !clk)
+      set_cnt(0);
+    // Eval
+    tb->eval();
+    // Advance time
+    tb->contextp()->timeInc(500);
+  }
 
-    delete tb;
-    return 0;
+  delete tb;
+  return 0;
 }

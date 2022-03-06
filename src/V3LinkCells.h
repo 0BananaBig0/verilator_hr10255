@@ -20,8 +20,8 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 class VInFilter;
 class V3ParseSym;
@@ -30,7 +30,8 @@ class V3ParseSym;
 
 class V3LinkCells final {
 public:
-    static void link(AstNetlist* nodep, VInFilter* filterp, V3ParseSym* parseSymp);
+  static void link(AstNetlist *nodep, VInFilter *filterp,
+                   V3ParseSym *parseSymp);
 };
 
-#endif  // Guard
+#endif // Guard

@@ -20,15 +20,15 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Case final {
 public:
-    static void caseAll(AstNetlist* nodep);
-    static void caseLint(AstNodeCase* nodep);
+  static void caseAll(AstNetlist *nodep);
+  static void caseLint(AstNodeCase *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

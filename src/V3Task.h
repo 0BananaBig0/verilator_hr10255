@@ -20,27 +20,31 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 #include <vector>
 
 //============================================================================
 
-using V3TaskConnect = std::pair<AstVar*, AstArg*>;  // [port, pin-connects-to]
-using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
+using V3TaskConnect = std::pair<AstVar *, AstArg *>; // [port, pin-connects-to]
+using V3TaskConnects =
+    std::vector<V3TaskConnect>; // [ [port, pin-connects-to] ... ]
 
 //============================================================================
 
 class V3Task final {
 public:
-    static void taskAll(AstNetlist* nodep);
-    /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp);
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix, const string& frPrefix = "");
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp);
-    static const char* dpiTemporaryVarSuffix();
+  static void taskAll(AstNetlist *nodep);
+  /// Return vector of [port, pin-connects-to]  (SLOW)
+  static V3TaskConnects taskConnects(AstNodeFTaskRef *nodep,
+                                     AstNode *taskStmtsp);
+  static string assignInternalToDpi(AstVar *portp, bool isPtr,
+                                    const string &frSuffix,
+                                    const string &toSuffix,
+                                    const string &frPrefix = "");
+  static string assignDpiToInternal(const string &lhsName, AstVar *rhsp);
+  static const char *dpiTemporaryVarSuffix();
 };
 
-#endif  // Guard
+#endif // Guard

@@ -20,18 +20,19 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Inst final {
 public:
-    static void instAll(AstNetlist* nodep);
-    static void dearrayAll(AstNetlist* nodep);
-    static AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
-                                          bool alwaysCvt = false);
-    static void checkOutputShort(AstPin* nodep);
+  static void instAll(AstNetlist *nodep);
+  static void dearrayAll(AstNetlist *nodep);
+  static AstAssignW *pinReconnectSimple(AstPin *pinp, AstCell *cellp,
+                                        bool forTristate,
+                                        bool alwaysCvt = false);
+  static void checkOutputShort(AstPin *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

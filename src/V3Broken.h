@@ -28,11 +28,11 @@ class AstNetlist;
 
 class V3Broken final {
 public:
-    static void brokenAll(AstNetlist* nodep);
-    static bool isLinkable(const AstNode* nodep);
-    static void addNewed(const AstNode* nodep);
-    static void deleted(const AstNode* nodep);
-    static void selfTest();
+  static void brokenAll(AstNetlist *nodep);
+  static bool isLinkable(const AstNode *nodep);
+  static void addNewed(const AstNode *nodep);
+  static void deleted(const AstNode *nodep);
+  static void selfTest();
 };
 
-#endif  // Guard
+#endif // Guard

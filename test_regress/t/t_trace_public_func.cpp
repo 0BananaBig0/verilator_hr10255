@@ -26,29 +26,29 @@ double sc_time_stamp() { return (double)main_time; }
 
 const unsigned long long dt_2 = 3;
 
-int main(int argc, char** argv, char** env) {
-    std::unique_ptr<VM_PREFIX> top{new VM_PREFIX("top")};
+int main(int argc, char **argv, char **env) {
+  std::unique_ptr<VM_PREFIX> top{new VM_PREFIX("top")};
 
-    Verilated::debug(0);
-    Verilated::traceEverOn(true);
+  Verilated::debug(0);
+  Verilated::traceEverOn(true);
 
-    std::unique_ptr<VerilatedVcdC> tfp{new VerilatedVcdC};
-    top->trace(tfp.get(), 99);
-    tfp->open(VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd");
+  std::unique_ptr<VerilatedVcdC> tfp{new VerilatedVcdC};
+  top->trace(tfp.get(), 99);
+  tfp->open(VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd");
 
-    while (main_time <= 20) {
-        top->CLK = (main_time / dt_2) % 2;
-        top->eval();
+  while (main_time <= 20) {
+    top->CLK = (main_time / dt_2) % 2;
+    top->eval();
 
-        top->t->glbl->setGSR(main_time < 7);
+    top->t->glbl->setGSR(main_time < 7);
 
-        tfp->dump((unsigned int)(main_time));
-        ++main_time;
-    }
-    tfp->close();
-    top->final();
-    tfp.reset();
-    top.reset();
-    printf("*-* All Finished *-*\n");
-    return 0;
+    tfp->dump((unsigned int)(main_time));
+    ++main_time;
+  }
+  tfp->close();
+  top->final();
+  tfp.reset();
+  top.reset();
+  printf("*-* All Finished *-*\n");
+  return 0;
 }

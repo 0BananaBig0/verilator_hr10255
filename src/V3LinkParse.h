@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3LinkParse final {
 public:
-    static void linkParse(AstNetlist* rootp);
+  static void linkParse(AstNetlist *rootp);
 };
 
-#endif  // Guard
+#endif // Guard

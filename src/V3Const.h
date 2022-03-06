@@ -20,29 +20,29 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Const final {
 public:
-    static AstNode* constifyParamsEdit(AstNode* nodep);
-    static AstNode* constifyGenerateParamsEdit(AstNode* nodep);
-    // Only do constant pushing, without removing dead logic
-    static void constifyAllLive(AstNetlist* nodep);
-    // Everything that's possible
-    static void constifyAll(AstNetlist* nodep);
-    // Also, warn
-    static void constifyAllLint(AstNetlist* nodep);
-    // C++ datatypes
-    static void constifyCpp(AstNetlist* nodep);
-    // Only the current node and lower
-    // Return new node that may have replaced nodep
-    static AstNode* constifyEdit(AstNode* nodep);
-    // Only the current node and lower, with special SenTree optimization
-    // Return new node that may have replaced nodep
-    static AstNode* constifyExpensiveEdit(AstNode* nodep);
+  static AstNode *constifyParamsEdit(AstNode *nodep);
+  static AstNode *constifyGenerateParamsEdit(AstNode *nodep);
+  // Only do constant pushing, without removing dead logic
+  static void constifyAllLive(AstNetlist *nodep);
+  // Everything that's possible
+  static void constifyAll(AstNetlist *nodep);
+  // Also, warn
+  static void constifyAllLint(AstNetlist *nodep);
+  // C++ datatypes
+  static void constifyCpp(AstNetlist *nodep);
+  // Only the current node and lower
+  // Return new node that may have replaced nodep
+  static AstNode *constifyEdit(AstNode *nodep);
+  // Only the current node and lower, with special SenTree optimization
+  // Return new node that may have replaced nodep
+  static AstNode *constifyExpensiveEdit(AstNode *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

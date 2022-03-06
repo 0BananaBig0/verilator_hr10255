@@ -20,33 +20,34 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
-/// Unroller with saved state, so caller can determine when pushDelete's are executed.
+/// Unroller with saved state, so caller can determine when pushDelete's are
+/// executed.
 
 class UnrollVisitor;
 
 class UnrollStateful final {
-    // MEMBERS
-    UnrollVisitor* m_unrollerp;
-    VL_UNCOPYABLE(UnrollStateful);
+  // MEMBERS
+  UnrollVisitor *m_unrollerp;
+  VL_UNCOPYABLE(UnrollStateful);
 
 public:
-    // CONSTRUCTORS
-    UnrollStateful();
-    ~UnrollStateful();
-    // METHODS
-    void unrollGen(AstNodeFor* nodep, const string& beginName);
-    void unrollAll(AstNetlist* nodep);
+  // CONSTRUCTORS
+  UnrollStateful();
+  ~UnrollStateful();
+  // METHODS
+  void unrollGen(AstNodeFor *nodep, const string &beginName);
+  void unrollAll(AstNetlist *nodep);
 };
 
 //============================================================================
 
 class V3Unroll final {
 public:
-    static void unrollAll(AstNetlist* nodep);
+  static void unrollAll(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

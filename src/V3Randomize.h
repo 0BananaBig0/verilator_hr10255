@@ -24,9 +24,9 @@
 
 class V3Randomize final {
 public:
-    static void randomizeNetlist(AstNetlist* nodep);
+  static void randomizeNetlist(AstNetlist *nodep);
 
-    static AstFunc* newRandomizeFunc(AstClass* nodep);
+  static AstFunc *newRandomizeFunc(AstClass *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

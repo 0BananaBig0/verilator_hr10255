@@ -21,8 +21,8 @@
 ///
 //=============================================================================
 
-#include "verilatedos.h"
 #include "verilated_fst_sc.h"
+#include "verilatedos.h"
 
 //======================================================================
 //======================================================================
@@ -30,13 +30,15 @@
 //--------------------------------------------------
 // SystemC 2.1.v1
 // cppcheck-suppress unusedFunction
-void VerilatedFstSc::write_comment(const std::string&) {}
-void VerilatedFstSc::trace(const unsigned int&, const std::string&, const char**) {}
+void VerilatedFstSc::write_comment(const std::string &) {}
+void VerilatedFstSc::trace(const unsigned int &, const std::string &,
+                           const char **) {}
 
-#define DECL_TRACE_METHOD_A(tp) \
-    void VerilatedFstSc::trace(const tp& object, const std::string& name) {}
-#define DECL_TRACE_METHOD_B(tp) \
-    void VerilatedFstSc::trace(const tp& object, const std::string& name, int width) {}
+#define DECL_TRACE_METHOD_A(tp)                                                \
+  void VerilatedFstSc::trace(const tp &object, const std::string &name) {}
+#define DECL_TRACE_METHOD_B(tp)                                                \
+  void VerilatedFstSc::trace(const tp &object, const std::string &name,        \
+                             int width) {}
 
 // clang-format off
 #if (SYSTEMC_VERSION >= 20171012)

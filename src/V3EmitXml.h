@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3EmitXml final {
 public:
-    static void emitxml();
+  static void emitxml();
 };
 
-#endif  // Guard
+#endif // Guard

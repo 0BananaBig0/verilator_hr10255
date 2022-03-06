@@ -42,4 +42,4 @@
 
 // clang-format on
 
-#endif  // Guard
+#endif // Guard

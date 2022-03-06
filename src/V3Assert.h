@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3Assert final {
 public:
-    static void assertAll(AstNetlist* nodep);
+  static void assertAll(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

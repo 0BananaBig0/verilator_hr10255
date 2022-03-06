@@ -17,9 +17,9 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Global.h"
 #include "V3EmitC.h"
 #include "V3EmitCBase.h"
+#include "V3Global.h"
 #include "V3Stats.h"
 
 #include <map>
@@ -27,32 +27,33 @@
 //######################################################################
 
 class EmitCInlines final : EmitCBaseVisitor {
-    // STATE
+  // STATE
 
-    // METHODS
+  // METHODS
 
-    // VISITORS
-    virtual void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
-            v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
-        iterateChildren(nodep);
-    }
-    virtual void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
-        iterateChildren(nodep);
-    }
+  // VISITORS
+  virtual void visit(AstCNew *nodep) override {
+    if (v3Global.opt.savable())
+      v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
+    iterateChildren(nodep);
+  }
+  virtual void visit(AstDumpCtl *nodep) override {
+    if (v3Global.opt.trace())
+      v3Global.needTraceDumper(true);
+    iterateChildren(nodep);
+  }
 
-    //---------------------------------------
-    virtual void visit(AstNode* nodep) override { iterateChildren(nodep); }
+  //---------------------------------------
+  virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
 public:
-    explicit EmitCInlines(AstNetlist* nodep) { iterate(nodep); }
+  explicit EmitCInlines(AstNetlist *nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // EmitC class functions
 
 void V3EmitC::emitcInlines() {
-    UINFO(2, __FUNCTION__ << ": " << endl);
-    EmitCInlines(v3Global.rootp());
+  UINFO(2, __FUNCTION__ << ": " << endl);
+  EmitCInlines(v3Global.rootp());
 }

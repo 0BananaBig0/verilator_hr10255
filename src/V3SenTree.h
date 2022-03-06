@@ -32,91 +32,96 @@
 // And provide functions to find/add a new one
 
 class SenTreeSet final {
-    // Hash table of sensitive blocks.
+  // Hash table of sensitive blocks.
 private:
-    // TYPES
-    struct HashSenTree {
-        size_t operator()(const AstSenTree* kp) const {
-            return V3Hasher::uncachedHash(kp).value();
-        }
-    };
+  // TYPES
+  struct HashSenTree {
+    size_t operator()(const AstSenTree *kp) const {
+      return V3Hasher::uncachedHash(kp).value();
+    }
+  };
 
-    struct EqSenTree {
-        bool operator()(const AstSenTree* ap, const AstSenTree* bp) const {
-            return ap->sameTree(bp);
-        }
-    };
+  struct EqSenTree {
+    bool operator()(const AstSenTree *ap, const AstSenTree *bp) const {
+      return ap->sameTree(bp);
+    }
+  };
 
-    // MEMBERS
-    using Set = std::unordered_set<AstSenTree*, HashSenTree, EqSenTree>;
-    Set m_trees;  // Set of sensitive blocks, for folding.
+  // MEMBERS
+  using Set = std::unordered_set<AstSenTree *, HashSenTree, EqSenTree>;
+  Set m_trees; // Set of sensitive blocks, for folding.
 
 public:
-    // CONSTRUCTORS
-    SenTreeSet() = default;
+  // CONSTRUCTORS
+  SenTreeSet() = default;
 
-    // METHODS
-    void add(AstSenTree* nodep) { m_trees.insert(nodep); }
+  // METHODS
+  void add(AstSenTree *nodep) { m_trees.insert(nodep); }
 
-    AstSenTree* find(AstSenTree* likep) {
-        AstSenTree* resultp = nullptr;
-        const auto it = m_trees.find(likep);
-        if (it != m_trees.end()) resultp = *it;
-        return resultp;
-    }
+  AstSenTree *find(AstSenTree *likep) {
+    AstSenTree *resultp = nullptr;
+    const auto it = m_trees.find(likep);
+    if (it != m_trees.end())
+      resultp = *it;
+    return resultp;
+  }
 
-    void clear() { m_trees.clear(); }
+  void clear() { m_trees.clear(); }
 
 private:
-    VL_UNCOPYABLE(SenTreeSet);
+  VL_UNCOPYABLE(SenTreeSet);
 };
 
 class SenTreeFinder final {
 private:
-    // STATE
-    AstTopScope* const m_topScopep;  // Top scope to add global SenTrees to
-    SenTreeSet m_trees;  // Set of global SenTrees
+  // STATE
+  AstTopScope *const m_topScopep; // Top scope to add global SenTrees to
+  SenTreeSet m_trees;             // Set of global SenTrees
 
-    VL_UNCOPYABLE(SenTreeFinder);
+  VL_UNCOPYABLE(SenTreeFinder);
 
 public:
-    // CONSTRUCTORS
-    SenTreeFinder()
-        : SenTreeFinder(v3Global.rootp()) {}
+  // CONSTRUCTORS
+  SenTreeFinder() : SenTreeFinder(v3Global.rootp()) {}
 
-    explicit SenTreeFinder(AstNetlist* netlistp)
-        : m_topScopep{netlistp->topScopep()} {
-        // Gather existing global SenTrees
-        for (AstNode* nodep = m_topScopep->senTreesp(); nodep; nodep = nodep->nextp()) {
-            m_trees.add(VN_AS(nodep, SenTree));
-        }
+  explicit SenTreeFinder(AstNetlist *netlistp)
+      : m_topScopep{netlistp->topScopep()} {
+    // Gather existing global SenTrees
+    for (AstNode *nodep = m_topScopep->senTreesp(); nodep;
+         nodep = nodep->nextp()) {
+      m_trees.add(VN_AS(nodep, SenTree));
     }
+  }
 
-    // METHODS
+  // METHODS
 
-    // Return a global AstSenTree that matches given SenTree.
-    // If no such global AstSenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getSenTree(AstSenTree* senTreep) {
-        AstSenTree* treep = m_trees.find(senTreep);
-        if (!treep) {
-            // Not found, form a new one
-            treep = senTreep->cloneTree(false);
-            m_topScopep->addSenTreep(treep);
-            UINFO(8, "    New SENTREE " << treep << endl);
-            m_trees.add(treep);
-        }
-        return treep;
+  // Return a global AstSenTree that matches given SenTree.
+  // If no such global AstSenTree exists create one and add it to the stored
+  // AstTopScope.
+  AstSenTree *getSenTree(AstSenTree *senTreep) {
+    AstSenTree *treep = m_trees.find(senTreep);
+    if (!treep) {
+      // Not found, form a new one
+      treep = senTreep->cloneTree(false);
+      m_topScopep->addSenTreep(treep);
+      UINFO(8, "    New SENTREE " << treep << endl);
+      m_trees.add(treep);
     }
+    return treep;
+  }
 
-    // Return the global combinational AstSenTree.
-    // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getComb() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstSenTree* const combp = new AstSenTree{fl, new AstSenItem{fl, AstSenItem::Combo()}};
-        AstSenTree* const resultp = getSenTree(combp);
-        VL_DO_DANGLING(combp->deleteTree(), combp);  // getSenTree clones, so can delete
-        return resultp;
-    }
+  // Return the global combinational AstSenTree.
+  // If no such global SenTree exists create one and add it to the stored
+  // AstTopScope.
+  AstSenTree *getComb() {
+    FileLine *const fl = m_topScopep->fileline();
+    AstSenTree *const combp =
+        new AstSenTree{fl, new AstSenItem{fl, AstSenItem::Combo()}};
+    AstSenTree *const resultp = getSenTree(combp);
+    VL_DO_DANGLING(combp->deleteTree(),
+                   combp); // getSenTree clones, so can delete
+    return resultp;
+  }
 };
 
-#endif  // Guard
+#endif // Guard

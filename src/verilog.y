@@ -25,21 +25,21 @@
 #include "V3Ast.h"
 #include "V3Global.h"
 #include "V3Config.h"
-#include "V3ParseImp.h"  // Defines YYTYPE; before including bison header
+#include "V3ParseImp.h" // Defines YYTYPE; before including bison header
 
 #include <cstdlib>
 #include <cstdarg>
 #include <stack>
 
-#define YYERROR_VERBOSE 1  // For prior to Bison 3.6
-#define YYINITDEPTH 10000  // Older bisons ignore YYMAXDEPTH
+#define YYERROR_VERBOSE 1 // For prior to Bison 3.6
+#define YYINITDEPTH 10000 // Older bisons ignore YYMAXDEPTH
 #define YYMAXDEPTH 10000
 
 // Pick up new lexer
 #define yylex PARSEP->tokenToBison
 #define BBUNSUP(fl, msg) (fl)->v3warn(E_UNSUPPORTED, msg)
-#define GATEUNSUP(fl, tok) \
-    { BBUNSUP((fl), "Unsupported: Verilog 1995 gate primitive: " << (tok)); }
+#define GATEUNSUP(fl, tok)                                                     \
+  { BBUNSUP((fl), "Unsupported: Verilog 1995 gate primitive: " << (tok)); }
 
 //======================================================================
 // Statics (for here only)
@@ -50,146 +50,158 @@
 
 class V3ParseGrammar {
 public:
-    bool m_impliedDecl = false;  // Allow implied wire declarations
-    AstVarType m_varDecl;  // Type for next signal declaration (reg/wire/etc)
-    bool m_varDeclTyped = false;  // Var got reg/wire for dedup check
-    VDirection m_varIO;  // Direction for next signal declaration (reg/wire/etc)
-    VLifetime m_varLifetime;  // Static/Automatic for next signal
-    AstVar* m_varAttrp = nullptr;  // Current variable for attribute adding
-    AstRange* m_gateRangep = nullptr;  // Current range for gate declarations
-    AstCase* m_caseAttrp = nullptr;  // Current case statement for attribute adding
-    AstNodeDType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
-    AstNodeDType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
-    AstNodeModule* m_modp = nullptr;  // Last module for timeunits
-    bool m_pinAnsi = false;  // In ANSI port list
-    FileLine* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
-    string m_instModule;  // Name of module referenced for instantiations
-    AstPin* m_instParamp = nullptr;  // Parameters for instantiations
-    bool m_tracingParse = true;  // Tracing disable for parser
+  bool m_impliedDecl = false; // Allow implied wire declarations
+  AstVarType m_varDecl;       // Type for next signal declaration (reg/wire/etc)
+  bool m_varDeclTyped = false; // Var got reg/wire for dedup check
+  VDirection m_varIO; // Direction for next signal declaration (reg/wire/etc)
+  VLifetime m_varLifetime;          // Static/Automatic for next signal
+  AstVar *m_varAttrp = nullptr;     // Current variable for attribute adding
+  AstRange *m_gateRangep = nullptr; // Current range for gate declarations
+  AstCase *m_caseAttrp = nullptr; // Current case statement for attribute adding
+  AstNodeDType *m_varDTypep =
+      nullptr; // Pointer to data type for next signal declaration
+  AstNodeDType *m_memDTypep =
+      nullptr; // Pointer to data type for next member declaration
+  AstNodeModule *m_modp = nullptr; // Last module for timeunits
+  bool m_pinAnsi = false;          // In ANSI port list
+  FileLine *m_instModuleFl =
+      nullptr;         // Fileline of module referenced for instantiations
+  string m_instModule; // Name of module referenced for instantiations
+  AstPin *m_instParamp = nullptr; // Parameters for instantiations
+  bool m_tracingParse = true;     // Tracing disable for parser
 
-    int m_pinNum = -1;  // Pin number currently parsing
-    std::stack<int> m_pinStack;  // Queue of pin numbers being parsed
+  int m_pinNum = -1;          // Pin number currently parsing
+  std::stack<int> m_pinStack; // Queue of pin numbers being parsed
 
-    static int s_modTypeImpNum;  // Implicit type number, incremented each module
+  static int s_modTypeImpNum; // Implicit type number, incremented each module
 
-    // CONSTRUCTORS
-    V3ParseGrammar() {
-        m_varDecl = AstVarType::UNKNOWN;
-        m_varIO = VDirection::NONE;
-    }
-    static V3ParseGrammar* singletonp() {
-        static V3ParseGrammar singleton;
-        return &singleton;
-    }
+  // CONSTRUCTORS
+  V3ParseGrammar() {
+    m_varDecl = AstVarType::UNKNOWN;
+    m_varIO = VDirection::NONE;
+  }
+  static V3ParseGrammar *singletonp() {
+    static V3ParseGrammar singleton;
+    return &singleton;
+  }
 
-    // METHODS
-    AstNode* argWrapList(AstNode* nodep);
-    bool allTracingOn(FileLine* fl) {
-        return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+  // METHODS
+  AstNode *argWrapList(AstNode *nodep);
+  bool allTracingOn(FileLine *fl) {
+    return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+  }
+  AstRange *scrubRange(AstNodeRange *rangep);
+  AstNodeDType *createArray(AstNodeDType *basep, AstNodeRange *rangep,
+                            bool isPacked);
+  AstVar *createVariable(FileLine *fileline, const string &name,
+                         AstNodeRange *arrayp, AstNode *attrsp);
+  AstNode *createSupplyExpr(FileLine *fileline, const string &name, int value);
+  AstText *createTextQuoted(FileLine *fileline, const string &text) {
+    string newtext = deQuote(fileline, text);
+    return new AstText(fileline, newtext);
+  }
+  AstDisplay *createDisplayError(FileLine *fileline) {
+    AstDisplay *nodep = new AstDisplay(fileline, AstDisplayType::DT_ERROR, "",
+                                       nullptr, nullptr);
+    nodep->addNext(new AstStop(fileline, true));
+    return nodep;
+  }
+  AstNode *createGatePin(AstNode *exprp) {
+    AstRange *const rangep = m_gateRangep;
+    if (!rangep) {
+      return exprp;
+    } else {
+      return new AstGatePin(rangep->fileline(), exprp, rangep->cloneTree(true));
     }
-    AstRange* scrubRange(AstNodeRange* rangep);
-    AstNodeDType* createArray(AstNodeDType* basep, AstNodeRange* rangep, bool isPacked);
-    AstVar* createVariable(FileLine* fileline, const string& name, AstNodeRange* arrayp,
-                           AstNode* attrsp);
-    AstNode* createSupplyExpr(FileLine* fileline, const string& name, int value);
-    AstText* createTextQuoted(FileLine* fileline, const string& text) {
-        string newtext = deQuote(fileline, text);
-        return new AstText(fileline, newtext);
+  }
+  AstNode *createTypedef(FileLine *fl, const string &name, AstNode *attrsp,
+                         AstNodeDType *basep, AstNodeRange *rangep) {
+    AstNode *const nodep =
+        new AstTypedef{fl, name, attrsp, VFlagChildDType{},
+                       GRAMMARP->createArray(basep, rangep, false)};
+    SYMP->reinsert(nodep);
+    PARSEP->tagNodep(nodep);
+    return nodep;
+  }
+  AstNode *createTypedefFwd(FileLine *fl, const string &name) {
+    AstNode *const nodep = new AstTypedefFwd{fl, name};
+    SYMP->reinsert(nodep);
+    PARSEP->tagNodep(nodep);
+    return nodep;
+  }
+  void endLabel(FileLine *fl, AstNode *nodep, string *endnamep) {
+    endLabel(fl, nodep->prettyName(), endnamep);
+  }
+  void endLabel(FileLine *fl, const string &name, string *endnamep) {
+    if (fl && endnamep && *endnamep != "" && name != *endnamep &&
+        name != AstNode::prettyName(*endnamep)) {
+      fl->v3warn(ENDLABEL, "End label '" << *endnamep
+                                         << "' does not match begin label '"
+                                         << name << "'");
     }
-    AstDisplay* createDisplayError(FileLine* fileline) {
-        AstDisplay* nodep
-            = new AstDisplay(fileline, AstDisplayType::DT_ERROR, "", nullptr, nullptr);
-        nodep->addNext(new AstStop(fileline, true));
-        return nodep;
+  }
+  void setVarDecl(AstVarType type) { m_varDecl = type; }
+  void setDType(AstNodeDType *dtypep) {
+    if (m_varDTypep)
+      VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
+    m_varDTypep = dtypep;
+  }
+  void pinPush() {
+    m_pinStack.push(m_pinNum);
+    m_pinNum = 1;
+  }
+  void pinPop(FileLine *fl) {
+    if (VL_UNCOVERABLE(m_pinStack.empty())) {
+      fl->v3fatalSrc("Underflow of pin stack");
     }
-    AstNode* createGatePin(AstNode* exprp) {
-        AstRange* const rangep = m_gateRangep;
-        if (!rangep) {
-            return exprp;
-        } else {
-            return new AstGatePin(rangep->fileline(), exprp, rangep->cloneTree(true));
+    m_pinNum = m_pinStack.top();
+    m_pinStack.pop();
+  }
+  AstNodeDType *addRange(AstBasicDType *dtypep, AstNodeRange *rangesp,
+                         bool isPacked) {
+    // If dtypep isn't basic, don't use this, call createArray() instead
+    if (!rangesp) {
+      return dtypep;
+    } else {
+      // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
+      // then [1:1] becomes the basicdtype range; everything else is arraying
+      // the final [5:5][4:4] will be passed in another call to createArray
+      AstNodeRange *rangearraysp = nullptr;
+      if (dtypep->isRanged()) {
+        rangearraysp = rangesp; // Already a range; everything is an array
+      } else {
+        AstNodeRange *finalp = rangesp;
+        while (finalp->nextp())
+          finalp = VN_CAST(finalp->nextp(), Range);
+        if (finalp != rangesp) {
+          finalp->unlinkFrBack();
+          rangearraysp = rangesp;
         }
-    }
-    AstNode* createTypedef(FileLine* fl, const string& name, AstNode* attrsp, AstNodeDType* basep,
-                           AstNodeRange* rangep) {
-        AstNode* const nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
-                                              GRAMMARP->createArray(basep, rangep, false)};
-        SYMP->reinsert(nodep);
-        PARSEP->tagNodep(nodep);
-        return nodep;
-    }
-    AstNode* createTypedefFwd(FileLine* fl, const string& name) {
-        AstNode* const nodep = new AstTypedefFwd{fl, name};
-        SYMP->reinsert(nodep);
-        PARSEP->tagNodep(nodep);
-        return nodep;
-    }
-    void endLabel(FileLine* fl, AstNode* nodep, string* endnamep) {
-        endLabel(fl, nodep->prettyName(), endnamep);
-    }
-    void endLabel(FileLine* fl, const string& name, string* endnamep) {
-        if (fl && endnamep && *endnamep != "" && name != *endnamep
-            && name != AstNode::prettyName(*endnamep)) {
-            fl->v3warn(ENDLABEL, "End label '" << *endnamep << "' does not match begin label '"
-                                               << name << "'");
+        if (AstRange *const finalRangep =
+                VN_CAST(finalp, Range)) { // not an UnsizedRange
+          if (dtypep->implicit()) {
+            // It's no longer implicit but a wire logic type
+            AstBasicDType *const newp = new AstBasicDType{
+                dtypep->fileline(), AstBasicDTypeKwd::LOGIC, dtypep->numeric(),
+                dtypep->width(), dtypep->widthMin()};
+            VL_DO_DANGLING(dtypep->deleteTree(), dtypep);
+            dtypep = newp;
+          }
+          dtypep->rangep(finalRangep);
         }
+      }
+      return createArray(dtypep, rangearraysp, isPacked);
     }
-    void setVarDecl(AstVarType type) { m_varDecl = type; }
-    void setDType(AstNodeDType* dtypep) {
-        if (m_varDTypep) VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
-        m_varDTypep = dtypep;
+  }
+  string deQuote(FileLine *fileline, string text);
+  void checkDpiVer(FileLine *fileline, const string &str) {
+    if (str != "DPI-C" && !v3Global.opt.bboxSys()) {
+      fileline->v3error("Unsupported DPI type '" << str << "': Use 'DPI-C'");
     }
-    void pinPush() {
-        m_pinStack.push(m_pinNum);
-        m_pinNum = 1;
-    }
-    void pinPop(FileLine* fl) {
-        if (VL_UNCOVERABLE(m_pinStack.empty())) { fl->v3fatalSrc("Underflow of pin stack"); }
-        m_pinNum = m_pinStack.top();
-        m_pinStack.pop();
-    }
-    AstNodeDType* addRange(AstBasicDType* dtypep, AstNodeRange* rangesp, bool isPacked) {
-        // If dtypep isn't basic, don't use this, call createArray() instead
-        if (!rangesp) {
-            return dtypep;
-        } else {
-            // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
-            // then [1:1] becomes the basicdtype range; everything else is arraying
-            // the final [5:5][4:4] will be passed in another call to createArray
-            AstNodeRange* rangearraysp = nullptr;
-            if (dtypep->isRanged()) {
-                rangearraysp = rangesp;  // Already a range; everything is an array
-            } else {
-                AstNodeRange* finalp = rangesp;
-                while (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
-                if (finalp != rangesp) {
-                    finalp->unlinkFrBack();
-                    rangearraysp = rangesp;
-                }
-                if (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
-                    if (dtypep->implicit()) {
-                        // It's no longer implicit but a wire logic type
-                        AstBasicDType* const newp = new AstBasicDType{
-                            dtypep->fileline(), AstBasicDTypeKwd::LOGIC, dtypep->numeric(),
-                            dtypep->width(), dtypep->widthMin()};
-                        VL_DO_DANGLING(dtypep->deleteTree(), dtypep);
-                        dtypep = newp;
-                    }
-                    dtypep->rangep(finalRangep);
-                }
-            }
-            return createArray(dtypep, rangearraysp, isPacked);
-        }
-    }
-    string deQuote(FileLine* fileline, string text);
-    void checkDpiVer(FileLine* fileline, const string& str) {
-        if (str != "DPI-C" && !v3Global.opt.bboxSys()) {
-            fileline->v3error("Unsupported DPI type '" << str << "': Use 'DPI-C'");
-        }
-    }
+  }
 };
 
-const AstBasicDTypeKwd LOGIC = AstBasicDTypeKwd::LOGIC;  // Shorthand "LOGIC"
+const AstBasicDTypeKwd LOGIC = AstBasicDTypeKwd::LOGIC; // Shorthand "LOGIC"
 const AstBasicDTypeKwd LOGIC_IMPLICIT = AstBasicDTypeKwd::LOGIC_IMPLICIT;
 
 int V3ParseGrammar::s_modTypeImpNum = 0;
@@ -197,86 +209,94 @@ int V3ParseGrammar::s_modTypeImpNum = 0;
 //======================================================================
 // Macro functions
 
-#define CRELINE() \
-    (PARSEP->copyOrSameFileLine())  // Only use in empty rules, so lines point at beginnings
+#define CRELINE()                                                              \
+  (PARSEP->copyOrSameFileLine()) // Only use in empty rules, so lines point at
+                                 // beginnings
 #define FILELINE_OR_CRE(nodep) ((nodep) ? (nodep)->fileline() : CRELINE())
 
-#define VARRESET_LIST(decl) \
-    { \
-        GRAMMARP->m_pinNum = 1; \
-        GRAMMARP->m_pinAnsi = false; \
-        VARRESET(); \
-        VARDECL(decl); \
-    }  // Start of pinlist
-#define VARRESET_NONLIST(decl) \
-    { \
-        GRAMMARP->m_pinNum = 0; \
-        GRAMMARP->m_pinAnsi = false; \
-        VARRESET(); \
-        VARDECL(decl); \
-    }  // Not in a pinlist
-#define VARRESET() \
-    { \
-        VARDECL(UNKNOWN); \
-        VARIO(NONE); \
-        VARDTYPE_NDECL(nullptr); \
-        GRAMMARP->m_varLifetime = VLifetime::NONE; \
-        GRAMMARP->m_varDeclTyped = false; \
-    }
-#define VARDECL(type) \
-    { GRAMMARP->setVarDecl(AstVarType::type); }
-#define VARIO(type) \
-    { GRAMMARP->m_varIO = VDirection::type; }
-#define VARLIFE(flag) \
-    { GRAMMARP->m_varLifetime = flag; }
-#define VARDTYPE(dtypep) \
-    { \
-        GRAMMARP->setDType(dtypep); \
-        GRAMMARP->m_varDeclTyped = true; \
-    }
-#define VARDTYPE_NDECL(dtypep) \
-    { GRAMMARP->setDType(dtypep); }  // Port that is range or signed only (not a decl)
+#define VARRESET_LIST(decl)                                                    \
+  {                                                                            \
+    GRAMMARP->m_pinNum = 1;                                                    \
+    GRAMMARP->m_pinAnsi = false;                                               \
+    VARRESET();                                                                \
+    VARDECL(decl);                                                             \
+  } // Start of pinlist
+#define VARRESET_NONLIST(decl)                                                 \
+  {                                                                            \
+    GRAMMARP->m_pinNum = 0;                                                    \
+    GRAMMARP->m_pinAnsi = false;                                               \
+    VARRESET();                                                                \
+    VARDECL(decl);                                                             \
+  } // Not in a pinlist
+#define VARRESET()                                                             \
+  {                                                                            \
+    VARDECL(UNKNOWN);                                                          \
+    VARIO(NONE);                                                               \
+    VARDTYPE_NDECL(nullptr);                                                   \
+    GRAMMARP->m_varLifetime = VLifetime::NONE;                                 \
+    GRAMMARP->m_varDeclTyped = false;                                          \
+  }
+#define VARDECL(type)                                                          \
+  { GRAMMARP->setVarDecl(AstVarType::type); }
+#define VARIO(type)                                                            \
+  { GRAMMARP->m_varIO = VDirection::type; }
+#define VARLIFE(flag)                                                          \
+  { GRAMMARP->m_varLifetime = flag; }
+#define VARDTYPE(dtypep)                                                       \
+  {                                                                            \
+    GRAMMARP->setDType(dtypep);                                                \
+    GRAMMARP->m_varDeclTyped = true;                                           \
+  }
+#define VARDTYPE_NDECL(dtypep)                                                 \
+  {                                                                            \
+    GRAMMARP->setDType(dtypep);                                                \
+  } // Port that is range or signed only (not a decl)
 
-#define VARDONEA(fl, name, array, attrs) GRAMMARP->createVariable((fl), (name), (array), (attrs))
-#define VARDONEP(portp, array, attrs) \
-    GRAMMARP->createVariable((portp)->fileline(), (portp)->name(), (array), (attrs))
+#define VARDONEA(fl, name, array, attrs)                                       \
+  GRAMMARP->createVariable((fl), (name), (array), (attrs))
+#define VARDONEP(portp, array, attrs)                                          \
+  GRAMMARP->createVariable((portp)->fileline(), (portp)->name(), (array),      \
+                           (attrs))
 #define PINNUMINC() (GRAMMARP->m_pinNum++)
 
-#define GATERANGE(rangep) \
-    { GRAMMARP->m_gateRangep = rangep; }
+#define GATERANGE(rangep)                                                      \
+  { GRAMMARP->m_gateRangep = rangep; }
 
-#define INSTPREP(modfl, modname, paramsp) \
-    { \
-        GRAMMARP->m_impliedDecl = true; \
-        GRAMMARP->m_instModuleFl = modfl; \
-        GRAMMARP->m_instModule = modname; \
-        GRAMMARP->m_instParamp = paramsp; \
-    }
+#define INSTPREP(modfl, modname, paramsp)                                      \
+  {                                                                            \
+    GRAMMARP->m_impliedDecl = true;                                            \
+    GRAMMARP->m_instModuleFl = modfl;                                          \
+    GRAMMARP->m_instModule = modname;                                          \
+    GRAMMARP->m_instParamp = paramsp;                                          \
+  }
 
-#define DEL(nodep) \
-    { \
-        if (nodep) nodep->deleteTree(); \
-    }
+#define DEL(nodep)                                                             \
+  {                                                                            \
+    if (nodep)                                                                 \
+      nodep->deleteTree();                                                     \
+  }
 
-static void ERRSVKWD(FileLine* fileline, const string& tokname) {
-    static int toldonce = 0;
-    fileline->v3error(
-        std::string{"Unexpected '"} + tokname + "': '" + tokname
-        + "' is a SystemVerilog keyword misused as an identifier."
-        + (!toldonce++ ? "\n" + V3Error::warnMore()
-                             + "... Suggest modify the Verilog-2001 code to avoid SV keywords,"
-                             + " or use `begin_keywords or --language."
-                       : ""));
+static void ERRSVKWD(FileLine *fileline, const string &tokname) {
+  static int toldonce = 0;
+  fileline->v3error(std::string{"Unexpected '"} + tokname + "': '" + tokname +
+                    "' is a SystemVerilog keyword misused as an identifier." +
+                    (!toldonce++ ? "\n" + V3Error::warnMore() +
+                                       "... Suggest modify the Verilog-2001 "
+                                       "code to avoid SV keywords," +
+                                       " or use `begin_keywords or --language."
+                                 : ""));
 }
 
-static void UNSUPREAL(FileLine* fileline) {
-    fileline->v3warn(SHORTREAL,
-                     "Unsupported: shortreal being promoted to real (suggest use real instead)");
+static void UNSUPREAL(FileLine *fileline) {
+  fileline->v3warn(SHORTREAL, "Unsupported: shortreal being promoted to real "
+                              "(suggest use real instead)");
 }
 
 //======================================================================
 
-void yyerror(const char* errmsg) { PARSEP->bisonLastFileline()->v3error(errmsg); }
+void yyerror(const char *errmsg) {
+  PARSEP->bisonLastFileline()->v3error(errmsg);
+}
 
 //======================================================================
 

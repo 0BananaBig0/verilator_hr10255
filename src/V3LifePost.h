@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3LifePost final {
 public:
-    static void lifepostAll(AstNetlist* nodep);
+  static void lifepostAll(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

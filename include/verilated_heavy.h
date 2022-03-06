@@ -28,4 +28,4 @@
 
 #include "verilated.h"
 
-#endif  // Guard
+#endif // Guard

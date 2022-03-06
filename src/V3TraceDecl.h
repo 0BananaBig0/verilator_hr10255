@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3TraceDecl final {
 public:
-    static void traceDeclAll(AstNetlist* nodep);
+  static void traceDeclAll(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

@@ -20,17 +20,17 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3CCtors final {
 public:
-    static void cctorsAll();
+  static void cctorsAll();
 
 private:
-    static void evalAsserts();
+  static void evalAsserts();
 };
 
-#endif  // Guard
+#endif // Guard

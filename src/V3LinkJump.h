@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3LinkJump final {
 public:
-    static void linkJump(AstNetlist* nodep);
+  static void linkJump(AstNetlist *nodep);
 };
 
-#endif  // Guard
+#endif // Guard

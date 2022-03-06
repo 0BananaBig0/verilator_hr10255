@@ -5,25 +5,25 @@
 
 #include VM_PREFIX_INCLUDE
 
-VM_PREFIX* tb = nullptr;
+VM_PREFIX *tb = nullptr;
 
 double sc_time_stamp() { return 0; }
 
 int main() {
-    Verilated::debug(0);
-    tb = new VM_PREFIX("tb");
+  Verilated::debug(0);
+  tb = new VM_PREFIX("tb");
 
-    VL_PRINTF("*-* All Finished *-*\n");
-    tb->final();
-    VL_DO_DANGLING(delete tb, tb);
-    return 0;
+  VL_PRINTF("*-* All Finished *-*\n");
+  tb->final();
+  VL_DO_DANGLING(delete tb, tb);
+  return 0;
 }
 
-int sc_main(int argc, char* argv[]) {
-    tb = new VM_PREFIX("tb");
+int sc_main(int argc, char *argv[]) {
+  tb = new VM_PREFIX("tb");
 
-    VL_PRINTF("*-* All Finished *-*\n");
-    tb->final();
-    VL_DO_DANGLING(delete tb, tb);
-    return 0;
+  VL_PRINTF("*-* All Finished *-*\n");
+  tb->final();
+  VL_DO_DANGLING(delete tb, tb);
+  return 0;
 }

@@ -39,14 +39,16 @@
 // This class is thread safe (though most of SystemC is not).
 class VlScBvExposer final : public sc_bv_base {
 public:
-    static const vluint32_t* sp_datap(const sc_bv_base& base) VL_MT_SAFE {
-        return static_cast<const VlScBvExposer*>(&base)->sp_datatp();
-    }
-    const vluint32_t* sp_datatp() const { return reinterpret_cast<vluint32_t*>(m_data); }
-    // Above reads this protected element in sc_bv_base:
-    //   sc_digit* m_data; // data array
+  static const vluint32_t *sp_datap(const sc_bv_base &base) VL_MT_SAFE {
+    return static_cast<const VlScBvExposer *>(&base)->sp_datatp();
+  }
+  const vluint32_t *sp_datatp() const {
+    return reinterpret_cast<vluint32_t *>(m_data);
+  }
+  // Above reads this protected element in sc_bv_base:
+  //   sc_digit* m_data; // data array
 };
 
 //=========================================================================
 
-#endif  // Guard
+#endif // Guard

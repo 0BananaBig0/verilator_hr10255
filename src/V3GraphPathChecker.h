@@ -30,34 +30,35 @@
 /// The graph (or at least, the subset the algorithm sees through
 /// edgeFuncp) must not change during the lifetime of the checker.
 class GraphPathChecker final : GraphAlg<const V3Graph> {
-    // Count "generations" which increases on operations that scan through
-    // the graph. Each node is marked with the last generation that scanned
-    // it, to enable asserting there are no cycles, and to avoid recursing
-    // through the same node twice while searching for a path.
-    vluint64_t m_generation = 0;
+  // Count "generations" which increases on operations that scan through
+  // the graph. Each node is marked with the last generation that scanned
+  // it, to enable asserting there are no cycles, and to avoid recursing
+  // through the same node twice while searching for a path.
+  vluint64_t m_generation = 0;
 
 public:
-    // CONSTRUCTORS
-    explicit GraphPathChecker(const V3Graph* graphp,
-                              V3EdgeFuncP edgeFuncp = V3GraphEdge::followAlwaysTrue);
-    ~GraphPathChecker();
+  // CONSTRUCTORS
+  explicit GraphPathChecker(
+      const V3Graph *graphp,
+      V3EdgeFuncP edgeFuncp = V3GraphEdge::followAlwaysTrue);
+  ~GraphPathChecker();
 
-    // METHODS
-    bool pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top);
+  // METHODS
+  bool pathExistsFrom(const V3GraphVertex *fromp, const V3GraphVertex *top);
 
-    // If have edges A->B, B->C, and A->C then A->C is considered a
-    // "transitive" edge (implied by A->B and B->C) and it could be safely
-    // removed. Detect such an edge.
-    bool isTransitiveEdge(const V3GraphEdge* edgep);
+  // If have edges A->B, B->C, and A->C then A->C is considered a
+  // "transitive" edge (implied by A->B and B->C) and it could be safely
+  // removed. Detect such an edge.
+  bool isTransitiveEdge(const V3GraphEdge *edgep);
 
 private:
-    bool pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                            unsigned* costp = nullptr);
-    void initHalfCriticalPaths(GraphWay way, bool checkOnly);
-    void incGeneration() { ++m_generation; }
+  bool pathExistsInternal(const V3GraphVertex *ap, const V3GraphVertex *bp,
+                          unsigned *costp = nullptr);
+  void initHalfCriticalPaths(GraphWay way, bool checkOnly);
+  void incGeneration() { ++m_generation; }
 
-    VL_DEBUG_FUNC;  // Declare debug()
-    VL_UNCOPYABLE(GraphPathChecker);
+  VL_DEBUG_FUNC; // Declare debug()
+  VL_UNCOPYABLE(GraphPathChecker);
 };
 
-#endif  // Guard
+#endif // Guard

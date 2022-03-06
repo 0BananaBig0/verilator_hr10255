@@ -30,16 +30,16 @@ class VSpellCheck;
 //============================================================================
 
 class V3PreShell final {
-    // Static class for calling preprocessor
+  // Static class for calling preprocessor
 public:
-    static void boot(char** env);
-    static bool preproc(FileLine* fl, const string& modname, VInFilter* filterp,
-                        V3ParseImp* parsep, const string& errmsg);
-    static void preprocInclude(FileLine* fl, const string& modname);
-    static void defineCmdLine(const string& name, const string& value);
-    static void undef(const string& name);
-    static void dumpDefines(std::ostream& os);
-    static void candidateDefines(VSpellCheck* spellerp);
+  static void boot(char **env);
+  static bool preproc(FileLine *fl, const string &modname, VInFilter *filterp,
+                      V3ParseImp *parsep, const string &errmsg);
+  static void preprocInclude(FileLine *fl, const string &modname);
+  static void defineCmdLine(const string &name, const string &value);
+  static void undef(const string &name);
+  static void dumpDefines(std::ostream &os);
+  static void candidateDefines(VSpellCheck *spellerp);
 };
 
-#endif  // Guard
+#endif // Guard

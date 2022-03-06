@@ -20,22 +20,22 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3LinkLevel final {
 private:
-    using ModVec = std::vector<AstNodeModule*>;
+  using ModVec = std::vector<AstNodeModule *>;
 
-    static void timescaling(const ModVec& mods);
-    static void wrapTopCell(AstNetlist* rootp);
-    static void wrapTopPackages(AstNetlist* rootp);
+  static void timescaling(const ModVec &mods);
+  static void wrapTopCell(AstNetlist *rootp);
+  static void wrapTopPackages(AstNetlist *rootp);
 
 public:
-    static void modSortByLevel();
-    static void wrapTop(AstNetlist* rootp);
+  static void modSortByLevel();
+  static void wrapTop(AstNetlist *rootp);
 };
 
-#endif  // Guard
+#endif // Guard

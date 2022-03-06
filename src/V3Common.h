@@ -24,7 +24,7 @@
 
 class V3Common final {
 public:
-    static void commonAll();
+  static void commonAll();
 };
 
-#endif  // Guard
+#endif // Guard

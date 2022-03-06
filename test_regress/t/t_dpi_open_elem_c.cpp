@@ -9,10 +9,10 @@
 //
 //*************************************************************************
 
+#include "svdpi.h"
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include "svdpi.h"
 
 #include "TestCheck.h"
 
@@ -37,17 +37,20 @@ extern "C" {
 // If get ncsim: *F,NOFDPI: Function {foo} not found in default libdpi.
 // Then probably forgot to list a function here.
 
-void dpii_bit_elem_p0_u1(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q);
-void dpii_bit_elem_p0_u2(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q);
-void dpii_bit_elem_p0_u3(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q);
-void dpii_logic_elem_p0_u1(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_bit_elem_p0_u1(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q);
+void dpii_bit_elem_p0_u2(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q);
+void dpii_bit_elem_p0_u3(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q);
+void dpii_logic_elem_p0_u1(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q);
-void dpii_logic_elem_p0_u2(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_logic_elem_p0_u2(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q);
-void dpii_logic_elem_p0_u3(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_logic_elem_p0_u3(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q);
 
 extern int dpii_failure();
@@ -61,112 +64,118 @@ void dpii_unused(const svOpenArrayHandle u) {}
 
 //======================================================================
 
-static void _dpii_bit_elem_ux(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+static void _dpii_bit_elem_ux(int p, int u, const svOpenArrayHandle i,
+                              const svOpenArrayHandle o,
                               const svOpenArrayHandle q) {
-    int dim = svDimensions(i);
+  int dim = svDimensions(i);
 #ifndef NC
-    // NC always returns zero and warns
-    TEST_CHECK_HEX_EQ(dim, u);
+  // NC always returns zero and warns
+  TEST_CHECK_HEX_EQ(dim, u);
 #endif
 
-    for (int a = svLow(i, 1); a <= svHigh(i, 1); ++a) {
-        fflush(stdout);
-        if (dim == 1) {
-            svBit v = svGetBitArrElem(i, a);
-            svBit v2 = svGetBitArrElem1(i, a);
-            TEST_CHECK_HEX_EQ(v, v2);
-            svPutBitArrElem(o, v ? 0 : 1, a);
-            svPutBitArrElem1(q, v ? 0 : 1, a);
-        } else {
-            for (int b = svLow(i, 2); b <= svHigh(i, 2); ++b) {
-                if (dim == 2) {
-                    svBit v = svGetBitArrElem(i, a, b);
-                    svBit v2 = svGetBitArrElem2(i, a, b);
-                    TEST_CHECK_HEX_EQ(v, v2);
-                    svPutBitArrElem(o, v ? 0 : 1, a, b);
-                    svPutBitArrElem2(q, v ? 0 : 1, a, b);
-                } else {
-                    for (int c = svLow(i, 3); c <= svHigh(i, 3); ++c) {
-                        if (dim == 3) {
-                            svBit v = svGetBitArrElem(i, a, b, c);
-                            svBit v2 = svGetBitArrElem3(i, a, b, c);
-                            TEST_CHECK_HEX_EQ(v, v2);
-                            svPutBitArrElem(o, v ? 0 : 1, a, b, c);
-                            svPutBitArrElem3(q, v ? 0 : 1, a, b, c);
-                        }
-                    }
-                }
-            }
-        }
-    }
+  for (int a = svLow(i, 1); a <= svHigh(i, 1); ++a) {
     fflush(stdout);
+    if (dim == 1) {
+      svBit v = svGetBitArrElem(i, a);
+      svBit v2 = svGetBitArrElem1(i, a);
+      TEST_CHECK_HEX_EQ(v, v2);
+      svPutBitArrElem(o, v ? 0 : 1, a);
+      svPutBitArrElem1(q, v ? 0 : 1, a);
+    } else {
+      for (int b = svLow(i, 2); b <= svHigh(i, 2); ++b) {
+        if (dim == 2) {
+          svBit v = svGetBitArrElem(i, a, b);
+          svBit v2 = svGetBitArrElem2(i, a, b);
+          TEST_CHECK_HEX_EQ(v, v2);
+          svPutBitArrElem(o, v ? 0 : 1, a, b);
+          svPutBitArrElem2(q, v ? 0 : 1, a, b);
+        } else {
+          for (int c = svLow(i, 3); c <= svHigh(i, 3); ++c) {
+            if (dim == 3) {
+              svBit v = svGetBitArrElem(i, a, b, c);
+              svBit v2 = svGetBitArrElem3(i, a, b, c);
+              TEST_CHECK_HEX_EQ(v, v2);
+              svPutBitArrElem(o, v ? 0 : 1, a, b, c);
+              svPutBitArrElem3(q, v ? 0 : 1, a, b, c);
+            }
+          }
+        }
+      }
+    }
+  }
+  fflush(stdout);
 }
-void dpii_bit_elem_p0_u1(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q) {
-    _dpii_bit_elem_ux(p, u, i, o, q);
+void dpii_bit_elem_p0_u1(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q) {
+  _dpii_bit_elem_ux(p, u, i, o, q);
 }
-void dpii_bit_elem_p0_u2(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q) {
-    _dpii_bit_elem_ux(p, u, i, o, q);
+void dpii_bit_elem_p0_u2(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q) {
+  _dpii_bit_elem_ux(p, u, i, o, q);
 }
-void dpii_bit_elem_p0_u3(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
-                         const svOpenArrayHandle q) {
-    _dpii_bit_elem_ux(p, u, i, o, q);
+void dpii_bit_elem_p0_u3(int p, int u, const svOpenArrayHandle i,
+                         const svOpenArrayHandle o, const svOpenArrayHandle q) {
+  _dpii_bit_elem_ux(p, u, i, o, q);
 }
 
 //======================================================================
 
-static void _dpii_logic_elem_ux(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+static void _dpii_logic_elem_ux(int p, int u, const svOpenArrayHandle i,
+                                const svOpenArrayHandle o,
                                 const svOpenArrayHandle q) {
-    int dim = svDimensions(i);
+  int dim = svDimensions(i);
 #ifndef NC
-    // NC always returns zero and warns
-    TEST_CHECK_HEX_EQ(dim, u);
+  // NC always returns zero and warns
+  TEST_CHECK_HEX_EQ(dim, u);
 #endif
-    int sizeInputOfArray = svSizeOfArray(i);
-    // svSizeOfArray(i) undeterministic as not in C representation
-    if (sizeInputOfArray) {}
+  int sizeInputOfArray = svSizeOfArray(i);
+  // svSizeOfArray(i) undeterministic as not in C representation
+  if (sizeInputOfArray) {
+  }
 
-    for (int a = svLow(i, 1); a <= svHigh(i, 1); ++a) {
-        if (dim == 1) {
-            svLogic v = svGetLogicArrElem(i, a);
-            svLogic v2 = svGetLogicArrElem1(i, a);
-            TEST_CHECK_HEX_EQ(v, v2);
-            svPutLogicArrElem(o, v ? 0 : 1, a);
-            svPutLogicArrElem1(q, v ? 0 : 1, a);
+  for (int a = svLow(i, 1); a <= svHigh(i, 1); ++a) {
+    if (dim == 1) {
+      svLogic v = svGetLogicArrElem(i, a);
+      svLogic v2 = svGetLogicArrElem1(i, a);
+      TEST_CHECK_HEX_EQ(v, v2);
+      svPutLogicArrElem(o, v ? 0 : 1, a);
+      svPutLogicArrElem1(q, v ? 0 : 1, a);
+    } else {
+      for (int b = svLow(i, 2); b <= svHigh(i, 2); ++b) {
+        if (dim == 2) {
+          svLogic v = svGetLogicArrElem(i, a, b);
+          svLogic v2 = svGetLogicArrElem2(i, a, b);
+          TEST_CHECK_HEX_EQ(v, v2);
+          svPutLogicArrElem(o, v ? 0 : 1, a, b);
+          svPutLogicArrElem2(q, v ? 0 : 1, a, b);
         } else {
-            for (int b = svLow(i, 2); b <= svHigh(i, 2); ++b) {
-                if (dim == 2) {
-                    svLogic v = svGetLogicArrElem(i, a, b);
-                    svLogic v2 = svGetLogicArrElem2(i, a, b);
-                    TEST_CHECK_HEX_EQ(v, v2);
-                    svPutLogicArrElem(o, v ? 0 : 1, a, b);
-                    svPutLogicArrElem2(q, v ? 0 : 1, a, b);
-                } else {
-                    for (int c = svLow(i, 3); c <= svHigh(i, 3); ++c) {
-                        if (dim == 3) {
-                            svLogic v = svGetLogicArrElem(i, a, b, c);
-                            svLogic v2 = svGetLogicArrElem3(i, a, b, c);
-                            TEST_CHECK_HEX_EQ(v, v2);
-                            svPutLogicArrElem(o, v ? 0 : 1, a, b, c);
-                            svPutLogicArrElem3(q, v ? 0 : 1, a, b, c);
-                        }
-                    }
-                }
+          for (int c = svLow(i, 3); c <= svHigh(i, 3); ++c) {
+            if (dim == 3) {
+              svLogic v = svGetLogicArrElem(i, a, b, c);
+              svLogic v2 = svGetLogicArrElem3(i, a, b, c);
+              TEST_CHECK_HEX_EQ(v, v2);
+              svPutLogicArrElem(o, v ? 0 : 1, a, b, c);
+              svPutLogicArrElem3(q, v ? 0 : 1, a, b, c);
             }
+          }
         }
+      }
     }
-    fflush(stdout);
+  }
+  fflush(stdout);
 }
-void dpii_logic_elem_p0_u1(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_logic_elem_p0_u1(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q) {
-    _dpii_logic_elem_ux(p, u, i, o, q);
+  _dpii_logic_elem_ux(p, u, i, o, q);
 }
-void dpii_logic_elem_p0_u2(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_logic_elem_p0_u2(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q) {
-    _dpii_logic_elem_ux(p, u, i, o, q);
+  _dpii_logic_elem_ux(p, u, i, o, q);
 }
-void dpii_logic_elem_p0_u3(int p, int u, const svOpenArrayHandle i, const svOpenArrayHandle o,
+void dpii_logic_elem_p0_u3(int p, int u, const svOpenArrayHandle i,
+                           const svOpenArrayHandle o,
                            const svOpenArrayHandle q) {
-    _dpii_logic_elem_ux(p, u, i, o, q);
+  _dpii_logic_elem_ux(p, u, i, o, q);
 }

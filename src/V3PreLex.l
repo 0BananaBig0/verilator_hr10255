@@ -34,32 +34,37 @@
 
 /* clang-format on */
 
-V3PreLex* V3PreLex::s_currentLexp = nullptr;  // Current lexing point
+V3PreLex *V3PreLex::s_currentLexp = nullptr; // Current lexing point
 
 #define LEXP V3PreLex::s_currentLexp
 
-#define YY_INPUT(buf, result, max_size) \
-    do { result = LEXP->inputToLex(buf, max_size); } while (false)
+#define YY_INPUT(buf, result, max_size)                                        \
+  do {                                                                         \
+    result = LEXP->inputToLex(buf, max_size);                                  \
+  } while (false)
 
 // Accessors, because flex keeps changing the type of yyleng
-char* yyourtext() { return yytext; }
+char *yyourtext() { return yytext; }
 size_t yyourleng() { return yyleng; }
-void yyourtext(const char* textp, size_t size) {
-    yytext = (char*)textp;
-    yyleng = size;
+void yyourtext(const char *textp, size_t size) {
+  yytext = (char *)textp;
+  yyleng = size;
 }
 
 // FL_FWD only tracks columns; preproc uses linenoInc() to track lines, so
 // insertion of a \n does not mess up line count
 #define FL_FWDC (LEXP->curFilelinep()->forwardToken(yytext, yyleng, false))
-// Use this to break between tokens whereever not return'ing a token (e.g. skipping inside lexer)
+// Use this to break between tokens whereever not return'ing a token (e.g.
+// skipping inside lexer)
 #define FL_BRK (LEXP->curFilelinep()->startToken())
 
 static void linenoInc() { LEXP->linenoInc(); }
 static bool pedantic() { return LEXP->m_pedantic; }
-static void yyerror(char* msg) { LEXP->curFilelinep()->v3error(msg); }
-static void yyerrorf(const char* msg) { LEXP->curFilelinep()->v3error(msg); }
-static void appendDefValue(const char* t, size_t l) { LEXP->appendDefValue(t, l); }
+static void yyerror(char *msg) { LEXP->curFilelinep()->v3error(msg); }
+static void yyerrorf(const char *msg) { LEXP->curFilelinep()->v3error(msg); }
+static void appendDefValue(const char *t, size_t l) {
+  LEXP->appendDefValue(t, l);
+}
 
 /* clang-format off */
 /**********************************************************************/
@@ -436,285 +441,300 @@ bom             [\357\273\277]
 // clang-format on
 
 void V3PreLex::pushStateDefArg(int level) {
-    // Enter define substitution argument state
-    yy_push_state(ARGMODE);
-    m_parenLevel = level;
-    m_defValue = "";
+  // Enter define substitution argument state
+  yy_push_state(ARGMODE);
+  m_parenLevel = level;
+  m_defValue = "";
 }
 
 void V3PreLex::pushStateDefForm() {
-    // Enter define formal arguments state
-    yy_push_state(DEFFPAR);  // First is an optional ( to begin args
-    m_parenLevel = 0;
-    m_defValue = "";
+  // Enter define formal arguments state
+  yy_push_state(DEFFPAR); // First is an optional ( to begin args
+  m_parenLevel = 0;
+  m_defValue = "";
 }
 
 void V3PreLex::pushStateDefValue() {
-    // Enter define value state
-    yy_push_state(DEFVAL);
-    m_parenLevel = 0;
-    m_defValue = "";
+  // Enter define value state
+  yy_push_state(DEFVAL);
+  m_parenLevel = 0;
+  m_defValue = "";
 }
 
 void V3PreLex::pushStateIncFilename() {
-    // Enter include <> filename state
-    yy_push_state(INCMODE);
-    yymore();
+  // Enter include <> filename state
+  yy_push_state(INCMODE);
+  yymore();
 }
 
 void V3PreLex::debug(int level) {
-    yy_flex_debug = level;  // Use --debugi-V3PreShell, if level<5 this level is 0
+  yy_flex_debug = level; // Use --debugi-V3PreShell, if level<5 this level is 0
 }
 int V3PreLex::debug() {
-    return yy_flex_debug; }
+  return yy_flex_debug; }
 
 int V3PreLex::lex() {
-    V3PreLex::s_currentLexp = this;  // Tell parser where to get/put data
-    // Remember token start location, may be updated by the lexer later
-    m_tokFilelinep = curFilelinep();
-    return yylex();
+  V3PreLex::s_currentLexp = this; // Tell parser where to get/put data
+  // Remember token start location, may be updated by the lexer later
+  m_tokFilelinep = curFilelinep();
+  return yylex();
 }
 
 size_t V3PreLex::inputToLex(char* buf, size_t max_size) {
-    // We need a custom YY_INPUT because we can't use flex buffers.
-    // Flex buffers are limited to 2GB, and we can't chop into 2G pieces
-    // because buffers can't end in the middle of tokens.
-    // Note if we switched streams here (which we don't) "buf" would be
-    // become a stale invalid pointer.
-    //
-    VPreStream* streamp = curStreamp();
-    if (debug() >= 10) {
-        cout << "-  pp:inputToLex ITL s=" << max_size << " bs=" << streamp->m_buffers.size()
-             << endl;
-        dumpStack();
-    }
-    // For testing, use really small chunks
-    // if (max_size > 13) max_size=13;
+  // We need a custom YY_INPUT because we can't use flex buffers.
+  // Flex buffers are limited to 2GB, and we can't chop into 2G pieces
+  // because buffers can't end in the middle of tokens.
+  // Note if we switched streams here (which we don't) "buf" would be
+  // become a stale invalid pointer.
+  //
+  VPreStream *streamp = curStreamp();
+  if (debug() >= 10) {
+    cout << "-  pp:inputToLex ITL s=" << max_size
+         << " bs=" << streamp->m_buffers.size() << endl;
+    dumpStack();
+  }
+  // For testing, use really small chunks
+  // if (max_size > 13) max_size=13;
 again:
-    size_t got = 0;
-    // Get from this stream
-    while (got < max_size  // Haven't got enough
-           && !streamp->m_buffers.empty()) {  // And something buffered
-        string front = curStreamp()->m_buffers.front();
-        streamp->m_buffers.pop_front();
-        size_t len = front.length();
-        if (len > (max_size - got)) {  // Front string too big
-            len = (max_size - got);
-            string remainder = front.substr(len);
-            front = front.substr(0, len);
-            streamp->m_buffers.push_front(remainder);  // Put back remainder for next time
-        }
-        strncpy(buf + got, front.c_str(), len);
-        got += len;
+  size_t got = 0;
+  // Get from this stream
+  while (got < max_size                    // Haven't got enough
+         && !streamp->m_buffers.empty()) { // And something buffered
+    string front = curStreamp()->m_buffers.front();
+    streamp->m_buffers.pop_front();
+    size_t len = front.length();
+    if (len > (max_size - got)) { // Front string too big
+      len = (max_size - got);
+      string remainder = front.substr(len);
+      front = front.substr(0, len);
+      streamp->m_buffers.push_front(
+          remainder); // Put back remainder for next time
     }
-    if (!got) {  // end of stream; try "above" file
-        bool again = false;
-        string forceOut = endOfStream(again /*ref*/);
-        streamp = curStreamp();  // May have been updated
-        if (forceOut != "") {
-            if (forceOut.length() > max_size) {  // LCOV_EXCL_LINE
-                yyerrorf("Output buffer too small for a `line");  // LCOV_EXCL_LINE
-            } else {
-                got = forceOut.length();
-                strncpy(buf, forceOut.c_str(), got);
-            }
-        } else {
-            if (streamp->m_eof) {
-                if (yy_flex_debug) cout << "-  EOF\n";
-            }
-            got = 0;  // 0=EOF/EOS - although got was already 0.
-            if (again) goto again;
-        }
+    strncpy(buf + got, front.c_str(), len);
+    got += len;
+  }
+  if (!got) { // end of stream; try "above" file
+    bool again = false;
+    string forceOut = endOfStream(again /*ref*/);
+    streamp = curStreamp(); // May have been updated
+    if (forceOut != "") {
+      if (forceOut.length() > max_size) {                // LCOV_EXCL_LINE
+        yyerrorf("Output buffer too small for a `line"); // LCOV_EXCL_LINE
+      } else {
+        got = forceOut.length();
+        strncpy(buf, forceOut.c_str(), got);
+      }
+    } else {
+      if (streamp->m_eof) {
+        if (yy_flex_debug)
+          cout << "-  EOF\n";
+      }
+      got = 0; // 0=EOF/EOS - although got was already 0.
+      if (again)
+        goto again;
     }
-    if (debug() >= 10) {
-        cout << "-  pp::inputToLex  got=" << got << " '" << std::string{buf, got} << "'" << endl;
-    }
-    return got;
+  }
+  if (debug() >= 10) {
+    cout << "-  pp::inputToLex  got=" << got << " '" << std::string{buf, got}
+         << "'" << endl;
+  }
+  return got;
 }
 
 string V3PreLex::endOfStream(bool& againr) {
-    // Switch to file or next unputString
-    againr = false;
-    if (yy_flex_debug) {
-        cout << "-EOS state=" << curStreamp()->m_termState << " at " << curFilelinep() << endl;
+  // Switch to file or next unputString
+  againr = false;
+  if (yy_flex_debug) {
+    cout << "-EOS state=" << curStreamp()->m_termState << " at "
+         << curFilelinep() << endl;
+  }
+  if (curStreamp()->m_eof)
+    return ""; // Don't delete the final "EOF" stream
+  bool exited_file = curStreamp()->m_file;
+  if (!exited_file) {
+    // Midpoint of stream, just change buffers
+    delete curStreamp();
+    m_streampStack.pop(); // Must work as size>1; EOF is entry 0
+    againr = true;
+    return "";
+  }
+  // Multiple steps because we need FLEX to see ending \n and EOS to end
+  // any illegal states, like an unterminated `protected region
+  else if (!curStreamp()->m_termState) {
+    // First shutdown phase for a file
+    // Terminate all files with a newline.  This prevents problems if
+    // the user had a define without a terminating newline,
+    // otherwise the resumed file's next line would get tacked on.
+    // Also makes it likely the `line that changes files comes out
+    // immediately.
+    curStreamp()->m_termState = 1;
+    return "\n"; // Exit old file
+  } else if (curStreamp()->m_termState == 1) {
+    // Now the EOF - can't be sent with other characters
+    curStreamp()->m_termState = 2;
+    return ""; // End of file
+  } else if (curStreamp()->m_termState == 2) {
+    // Now ending `line
+    curStreamp()->m_termState = 3;
+    return curFilelinep()->lineDirectiveStrg(2); // Exit old file
+  } else {
+    // Final shutdown phase for a stream, we can finally change the
+    // current fileline to the new stream
+    curStreamp()->m_termState = 0;
+    FileLine *const filelinep = curFilelinep();
+    delete curStreamp();
+    m_streampStack.pop(); // Must work as size>1; EOF is entry 0
+    if (curStreamp()->m_eof) {
+      // EOF doesn't have a "real" fileline, but a linenumber of 0 from init
+      // time Inherit whatever we last parsed so it's more obvious.
+      curFilelinep(filelinep);
     }
-    if (curStreamp()->m_eof) return "";  // Don't delete the final "EOF" stream
-    bool exited_file = curStreamp()->m_file;
-    if (!exited_file) {
-        // Midpoint of stream, just change buffers
-        delete curStreamp();
-        m_streampStack.pop();  // Must work as size>1; EOF is entry 0
-        againr = true;
-        return "";
-    }
-    // Multiple steps because we need FLEX to see ending \n and EOS to end
-    // any illegal states, like an unterminated `protected region
-    else if (!curStreamp()->m_termState) {
-        // First shutdown phase for a file
-        // Terminate all files with a newline.  This prevents problems if
-        // the user had a define without a terminating newline,
-        // otherwise the resumed file's next line would get tacked on.
-        // Also makes it likely the `line that changes files comes out
-        // immediately.
-        curStreamp()->m_termState = 1;
-        return "\n";  // Exit old file
-    } else if (curStreamp()->m_termState == 1) {
-        // Now the EOF - can't be sent with other characters
-        curStreamp()->m_termState = 2;
-        return "";  // End of file
-    } else if (curStreamp()->m_termState == 2) {
-        // Now ending `line
-        curStreamp()->m_termState = 3;
-        return curFilelinep()->lineDirectiveStrg(2);  // Exit old file
+    // The caller parser remembered the start location for the text we are
+    // parsing, but we've discovered there was a file switch along the way, so
+    // update it.
+    m_tokFilelinep = curFilelinep();
+    //
+    if (curStreamp()->m_eof) {
+      return "";
     } else {
-        // Final shutdown phase for a stream, we can finally change the
-        // current fileline to the new stream
-        curStreamp()->m_termState = 0;
-        FileLine* const filelinep = curFilelinep();
-        delete curStreamp();
-        m_streampStack.pop();  // Must work as size>1; EOF is entry 0
-        if (curStreamp()->m_eof) {
-            // EOF doesn't have a "real" fileline, but a linenumber of 0 from init time
-            // Inherit whatever we last parsed so it's more obvious.
-            curFilelinep(filelinep);
-        }
-        // The caller parser remembered the start location for the text we are parsing,
-        // but we've discovered there was a file switch along the way, so update it.
-        m_tokFilelinep = curFilelinep();
-        //
-        if (curStreamp()->m_eof) {
-            return "";
-        } else {
-            return curFilelinep()->lineDirectiveStrg(0);  // Reenter resumed file
-        }
+      return curFilelinep()->lineDirectiveStrg(0); // Reenter resumed file
     }
+  }
 }
 
 void V3PreLex::initFirstBuffer(FileLine* filelinep) {
-    // Called from constructor to make first buffer
-    // yy_create_buffer also sets yy_fill_buffer=1 so reads from YY_INPUT
-    VPreStream* const streamp = new VPreStream{filelinep, this};
-    streamp->m_eof = true;
-    m_streampStack.push(streamp);
-    //
-    m_bufferState = yy_create_buffer(nullptr, YY_BUF_SIZE);
-    yy_switch_to_buffer(m_bufferState);
-    yyrestart(nullptr);
+  // Called from constructor to make first buffer
+  // yy_create_buffer also sets yy_fill_buffer=1 so reads from YY_INPUT
+  VPreStream *const streamp = new VPreStream{filelinep, this};
+  streamp->m_eof = true;
+  m_streampStack.push(streamp);
+  //
+  m_bufferState = yy_create_buffer(nullptr, YY_BUF_SIZE);
+  yy_switch_to_buffer(m_bufferState);
+  yyrestart(nullptr);
 }
 
 void V3PreLex::scanNewFile(FileLine* filelinep) {
-    // Called on new open file.  scanBytesBack will be called next.
-    if (streamDepth() > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
-        // The recursive `include in VPreProcImp should trigger first
-        yyerrorf("Recursive `define or other nested inclusion");
-        curStreamp()->m_eof = true;  // Fake it to stop recursion
-    } else {
-        VPreStream* const streamp = new VPreStream{filelinep, this};
-        m_tokFilelinep = curFilelinep();
-        streamp->m_file = true;
-        scanSwitchStream(streamp);
-    }
+  // Called on new open file.  scanBytesBack will be called next.
+  if (streamDepth() > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
+    // The recursive `include in VPreProcImp should trigger first
+    yyerrorf("Recursive `define or other nested inclusion");
+    curStreamp()->m_eof = true; // Fake it to stop recursion
+  } else {
+    VPreStream *const streamp = new VPreStream{filelinep, this};
+    m_tokFilelinep = curFilelinep();
+    streamp->m_file = true;
+    scanSwitchStream(streamp);
+  }
 }
 
 void V3PreLex::scanBytes(const string& str) {
-    // Note buffers also appended in ::scanBytesBack
-    // Not "m_buffers.push_front(string{strp,len})" as we need a `define
-    // to take effect immediately, in the middle of the current buffer
-    // Also we don't use scan_bytes that would set yy_fill_buffer
-    // which would force Flex to bypass our YY_INPUT routine.
-    if (streamDepth() > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
-        // More streams if recursive `define with complex insertion
-        // More buffers mostly if something internal goes funky
-        yyerrorf("Recursive `define or other nested inclusion");
-        curStreamp()->m_eof = true;  // Fake it to stop recursion
-    } else {
-        VPreStream* const streamp = new VPreStream{curFilelinep(), this};
-        streamp->m_buffers.push_front(str);
-        scanSwitchStream(streamp);
-    }
+  // Note buffers also appended in ::scanBytesBack
+  // Not "m_buffers.push_front(string{strp,len})" as we need a `define
+  // to take effect immediately, in the middle of the current buffer
+  // Also we don't use scan_bytes that would set yy_fill_buffer
+  // which would force Flex to bypass our YY_INPUT routine.
+  if (streamDepth() > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
+    // More streams if recursive `define with complex insertion
+    // More buffers mostly if something internal goes funky
+    yyerrorf("Recursive `define or other nested inclusion");
+    curStreamp()->m_eof = true; // Fake it to stop recursion
+  } else {
+    VPreStream *const streamp = new VPreStream{curFilelinep(), this};
+    streamp->m_buffers.push_front(str);
+    scanSwitchStream(streamp);
+  }
 }
 
 void V3PreLex::scanSwitchStream(VPreStream* streamp) {
-    curStreamp()->m_buffers.push_front(currentUnreadChars());
-    m_streampStack.push(streamp);
-    yyrestart(nullptr);
+  curStreamp()->m_buffers.push_front(currentUnreadChars());
+  m_streampStack.push(streamp);
+  yyrestart(nullptr);
 }
 
 void V3PreLex::scanBytesBack(const string& str) {
-    // Initial creation, that will pull from YY_INPUT==inputToLex
-    // Note buffers also appended in ::scanBytes
-    if (VL_UNCOVERABLE(curStreamp()->m_eof)) yyerrorf("scanBytesBack not under scanNewFile");
-    curStreamp()->m_buffers.push_back(str);
+  // Initial creation, that will pull from YY_INPUT==inputToLex
+  // Note buffers also appended in ::scanBytes
+  if (VL_UNCOVERABLE(curStreamp()->m_eof))
+    yyerrorf("scanBytesBack not under scanNewFile");
+  curStreamp()->m_buffers.push_back(str);
 }
 
 string V3PreLex::currentUnreadChars() {
-    // WARNING - Peeking at internals
-    ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
-    if (left > 0) {  // left may be -1 at EOS
-        *(yy_c_buf_p) = (yy_hold_char);
-        return std::string(yy_c_buf_p, left);  // () narrowing conversion
-    } else {
-        return "";
-    }
+  // WARNING - Peeking at internals
+  ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
+  if (left > 0) { // left may be -1 at EOS
+    *(yy_c_buf_p) = (yy_hold_char);
+    return std::string(yy_c_buf_p, left); // () narrowing conversion
+  } else {
+    return "";
+  }
 }
 
 YY_BUFFER_STATE V3PreLex::currentBuffer() {
-    return YY_CURRENT_BUFFER;
+  return YY_CURRENT_BUFFER;
 }
 
 int V3PreLex::currentStartState() const {
-    return YY_START;
+  return YY_START;
 }
 
 void V3PreLex::lineDirective(const char* textp) {
-    curFilelinep()->lineDirective(textp, m_enterExit /*ref*/);
-    // Make sure we have a dependency on whatever file was specified
-    V3File::addSrcDepend(curFilelinep()->filename());
+  curFilelinep()->lineDirective(textp, m_enterExit /*ref*/);
+  // Make sure we have a dependency on whatever file was specified
+  V3File::addSrcDepend(curFilelinep()->filename());
 }
 
 void V3PreLex::warnBackslashSpace() {
-    // Make fileline highlight the specific backslash and space
-    curFilelinep()->v3warn(
-        BSSPACE, "Backslash followed by whitespace, perhaps the whitespace is accidental?");
+  // Make fileline highlight the specific backslash and space
+  curFilelinep()->v3warn(BSSPACE, "Backslash followed by whitespace, perhaps "
+                                  "the whitespace is accidental?");
 }
 
 void V3PreLex::dumpSummary() {
-    cout << "-  pp::dumpSummary  curBuf=" << cvtToHex(currentBuffer());
-#ifdef FLEX_DEBUG  // Else peeking at internals may cause portability issues
-    ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
-    cout << " left=" << std::dec << left;
+  cout << "-  pp::dumpSummary  curBuf=" << cvtToHex(currentBuffer());
+#ifdef FLEX_DEBUG // Else peeking at internals may cause portability issues
+  ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
+  cout << " left=" << std::dec << left;
 #endif
-    cout << endl;
+  cout << endl;
 }
 
 void V3PreLex::dumpStack() {
-    // For debug use
-    dumpSummary();
-    std::stack<VPreStream*> tmpstack = LEXP->m_streampStack;
-    while (!tmpstack.empty()) {
-        const VPreStream* const streamp = tmpstack.top();
-        cout << "-    bufferStack[" << cvtToHex(streamp) << "]: "
-             << " at=" << streamp->m_curFilelinep << " nBuf=" << streamp->m_buffers.size()
-             << " size0=" << (streamp->m_buffers.empty() ? 0 : streamp->m_buffers.front().length())
-             << (streamp->m_eof ? " [EOF]" : "") << (streamp->m_file ? " [FILE]" : "") << endl;
-        tmpstack.pop();
-    }
+  // For debug use
+  dumpSummary();
+  std::stack<VPreStream *> tmpstack = LEXP->m_streampStack;
+  while (!tmpstack.empty()) {
+    const VPreStream *const streamp = tmpstack.top();
+    cout << "-    bufferStack[" << cvtToHex(streamp) << "]: "
+         << " at=" << streamp->m_curFilelinep
+         << " nBuf=" << streamp->m_buffers.size() << " size0="
+         << (streamp->m_buffers.empty() ? 0
+                                        : streamp->m_buffers.front().length())
+         << (streamp->m_eof ? " [EOF]" : "")
+         << (streamp->m_file ? " [FILE]" : "") << endl;
+    tmpstack.pop();
+  }
 }
 
 string V3PreLex::cleanDbgStrg(const string& in) {
-    string out = in;
-    string::size_type pos;
-    while ((pos = out.find('\n')) != string::npos) { out.replace(pos, 1, "\\n"); }
-    while ((pos = out.find('\r')) != string::npos) { out.replace(pos, 1, "\\r"); }
-    return out;
+  string out = in;
+  string::size_type pos;
+  while ((pos = out.find('\n')) != string::npos) {
+    out.replace(pos, 1, "\\n");
+  }
+  while ((pos = out.find('\r')) != string::npos) {
+    out.replace(pos, 1, "\\r");
+  }
+  return out;
 }
 
 void V3PreLex::unused() {
-    if (VL_UNCOVERABLE(false)) {  // LCOV_EXCL_START
-        // Prevent unused warnings
-        yy_top_state();
-        yyerror((char*)"");
-    }  // LCOV_EXCL_STOP
+  if (VL_UNCOVERABLE(false)) { // LCOV_EXCL_START
+    // Prevent unused warnings
+    yy_top_state();
+    yyerror((char *)"");
+  } // LCOV_EXCL_STOP
 }
 
 /*###################################################################

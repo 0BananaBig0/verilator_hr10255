@@ -20,18 +20,19 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3EmitV final {
 public:
-    static void verilogForTree(AstNode* nodep, std::ostream& os = std::cout);
-    static void verilogPrefixedTree(AstNode* nodep, std::ostream& os, const string& prefix,
-                                    int flWidth, AstSenTree* domainp, bool user3mark);
-    static void emitvFiles();
-    static void debugEmitV(const string& stage);
+  static void verilogForTree(AstNode *nodep, std::ostream &os = std::cout);
+  static void verilogPrefixedTree(AstNode *nodep, std::ostream &os,
+                                  const string &prefix, int flWidth,
+                                  AstSenTree *domainp, bool user3mark);
+  static void emitvFiles();
+  static void debugEmitV(const string &stage);
 };
 
-#endif  // Guard
+#endif // Guard

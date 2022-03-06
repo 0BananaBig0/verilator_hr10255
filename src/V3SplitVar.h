@@ -1,6 +1,7 @@
 // -*- mode: C++; c-file-style: "cc-mode" -*-
 //*************************************************************************
-// DESCRIPTION: Verilator: Break variables into separate words to avoid UNOPTFLAT
+// DESCRIPTION: Verilator: Break variables into separate words to avoid
+// UNOPTFLAT
 //
 // Code available from: https://verilator.org
 //
@@ -24,12 +25,12 @@ class AstVar;
 
 class V3SplitVar final {
 public:
-    // Split variables marked with split_var metacomment.
-    static void splitVariable(AstNetlist* nodep);
+  // Split variables marked with split_var metacomment.
+  static void splitVariable(AstNetlist *nodep);
 
-    // Return true if the variable can be split.
-    // This check is not perfect.
-    static bool canSplitVar(const AstVar* varp);
+  // Return true if the variable can be split.
+  // This check is not perfect.
+  static bool canSplitVar(const AstVar *varp);
 };
 
-#endif  // Guard
+#endif // Guard

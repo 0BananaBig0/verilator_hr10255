@@ -29,27 +29,27 @@ namespace V3TSP {
 
 class TspStateBase VL_NOT_FINAL {
 public:
-    // This is the cost function that the TSP sort will minimize.
-    // All costs in V3TSP are int, chosen to match the type of
-    // V3GraphEdge::weight() which will reflect each edge's cost.
-    virtual int cost(const TspStateBase* otherp) const = 0;
+  // This is the cost function that the TSP sort will minimize.
+  // All costs in V3TSP are int, chosen to match the type of
+  // V3GraphEdge::weight() which will reflect each edge's cost.
+  virtual int cost(const TspStateBase *otherp) const = 0;
 
-    // This operator< must place a meaningless, arbitrary, but
-    // stable order on all TspStateBase's. It's used only to
-    // key maps so that iteration is stable, without relying
-    // on pointer values that could lead to nondeterminism.
-    virtual bool operator<(const TspStateBase& otherp) const = 0;
+  // This operator< must place a meaningless, arbitrary, but
+  // stable order on all TspStateBase's. It's used only to
+  // key maps so that iteration is stable, without relying
+  // on pointer values that could lead to nondeterminism.
+  virtual bool operator<(const TspStateBase &otherp) const = 0;
 
-    virtual ~TspStateBase() = default;
+  virtual ~TspStateBase() = default;
 };
 
-using StateVec = std::vector<const TspStateBase*>;
+using StateVec = std::vector<const TspStateBase *>;
 
 // Given an unsorted set of TspState's, sort them to minimize
 // the transition cost for walking the sorted list.
-void tspSort(const StateVec& states, StateVec* resultp);
+void tspSort(const StateVec &states, StateVec *resultp);
 
 void selfTest();
-}  // namespace V3TSP
+} // namespace V3TSP
 
-#endif  // Guard
+#endif // Guard

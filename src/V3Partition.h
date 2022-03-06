@@ -26,7 +26,7 @@
 #include <list>
 
 class LogicMTask;
-using Vx2MTaskMap = std::unordered_map<const MTaskMoveVertex*, LogicMTask*>;
+using Vx2MTaskMap = std::unordered_map<const MTaskMoveVertex *, LogicMTask *>;
 
 //*************************************************************************
 /// V3Partition takes the fine-grained logic graph from V3Order and
@@ -35,39 +35,39 @@ using Vx2MTaskMap = std::unordered_map<const MTaskMoveVertex*, LogicMTask*>;
 /// graph.
 
 class V3Partition final {
-    // MEMBERS
-    V3Graph* m_fineDepsGraphp;  // Fine-grained dependency graph
+  // MEMBERS
+  V3Graph *m_fineDepsGraphp; // Fine-grained dependency graph
 public:
-    // CONSTRUCTORS
-    explicit V3Partition(V3Graph* fineDepsGraphp)
-        : m_fineDepsGraphp{fineDepsGraphp} {}
-    ~V3Partition() = default;
+  // CONSTRUCTORS
+  explicit V3Partition(V3Graph *fineDepsGraphp)
+      : m_fineDepsGraphp{fineDepsGraphp} {}
+  ~V3Partition() = default;
 
-    // METHODS
+  // METHODS
 
-    // Fill in the provided empty graph with AbstractLogicMTask's and their
-    // interdependencies.
-    void go(V3Graph* mtasksp);
+  // Fill in the provided empty graph with AbstractLogicMTask's and their
+  // interdependencies.
+  void go(V3Graph *mtasksp);
 
-    static void selfTest();
-    static void selfTestNormalizeCosts();
+  static void selfTest();
+  static void selfTestNormalizeCosts();
 
-    // Print out a hash of the shape of graphp.  Only needed to debug the
-    // origin of some nondeterminism; otherwise this is pretty useless.
-    static void hashGraphDebug(const V3Graph* graphp, const char* debugName);
+  // Print out a hash of the shape of graphp.  Only needed to debug the
+  // origin of some nondeterminism; otherwise this is pretty useless.
+  static void hashGraphDebug(const V3Graph *graphp, const char *debugName);
 
-    // Print debug stats about graphp whose nodes must be AbstractMTask's.
-    static void debugMTaskGraphStats(const V3Graph* graphp, const string& stage);
+  // Print debug stats about graphp whose nodes must be AbstractMTask's.
+  static void debugMTaskGraphStats(const V3Graph *graphp, const string &stage);
 
-    // Operate on the final ExecMTask graph, immediately prior to code
-    // generation time.
-    static void finalize();
+  // Operate on the final ExecMTask graph, immediately prior to code
+  // generation time.
+  static void finalize();
 
 private:
-    static void setupMTaskDeps(V3Graph* mtasksp, const Vx2MTaskMap* vx2mtaskp);
+  static void setupMTaskDeps(V3Graph *mtasksp, const Vx2MTaskMap *vx2mtaskp);
 
-    VL_DEBUG_FUNC;  // Declare debug()
-    VL_UNCOPYABLE(V3Partition);
+  VL_DEBUG_FUNC; // Declare debug()
+  VL_UNCOPYABLE(V3Partition);
 };
 
 //*************************************************************************
@@ -75,21 +75,22 @@ private:
 
 class PartPtrIdMap final {
 private:
-    // TYPES
-    // MEMBERS
-    mutable vluint64_t m_nextId = 0;
-    mutable std::unordered_map<const void*, vluint64_t> m_id;
+  // TYPES
+  // MEMBERS
+  mutable vluint64_t m_nextId = 0;
+  mutable std::unordered_map<const void *, vluint64_t> m_id;
 
 public:
-    // CONSTRUCTORS
-    PartPtrIdMap() = default;
-    // METHODS
-    vluint64_t findId(const void* ptrp) const {
-        const auto it = m_id.find(ptrp);
-        if (it != m_id.end()) return it->second;
-        m_id[ptrp] = m_nextId;
-        return m_nextId++;
-    }
+  // CONSTRUCTORS
+  PartPtrIdMap() = default;
+  // METHODS
+  vluint64_t findId(const void *ptrp) const {
+    const auto it = m_id.find(ptrp);
+    if (it != m_id.end())
+      return it->second;
+    m_id[ptrp] = m_nextId;
+    return m_nextId++;
+  }
 };
 
-#endif  // Guard
+#endif // Guard

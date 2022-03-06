@@ -20,15 +20,15 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Error.h"
 #include "V3Ast.h"
+#include "V3Error.h"
 
 //============================================================================
 
 class V3LinkLValue final {
 public:
-    static void linkLValue(AstNetlist* nodep);
-    static void linkLValueSet(AstNode* nodep);
+  static void linkLValue(AstNetlist *nodep);
+  static void linkLValueSet(AstNode *nodep);
 };
 
-#endif  // Guard
+#endif // Guard
