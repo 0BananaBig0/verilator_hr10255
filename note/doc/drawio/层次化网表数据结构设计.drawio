@@ -1,0 +1,73 @@
+<mxfile host="65bd71144e">
+    <diagram id="57mzfE0f4WBjgJhVs0qX" name="层次化网表数据结构的设计方案">
+        <mxGraphModel dx="1626" dy="549" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="层次化网表数据结构" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="170" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" style="edgeStyle=none;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" style="edgeStyle=none;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=none;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="3" target="11">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="网表引脚定义信息" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-20" y="290" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="4" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="4" target="18">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=none;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="4" target="17">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" style="edgeStyle=none;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="4" target="19">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="子模块实例模块信息" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="690" y="290" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="in" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-240" y="480" width="70" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="out" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-130" y="480" width="70" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="inout" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry y="480" width="70" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="wire" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="480" width="70" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="assign" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="240" y="480" width="70" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="子模块定义名称" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="500" y="480" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="子模块实例名称" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="690" y="480" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="子模块引脚实例信息" style="html=1;" vertex="1" parent="1">
+                    <mxGeometry x="880" y="480" width="110" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -1,0 +1,228 @@
+<mxfile host="65bd71144e">
+    <diagram id="ZkBl2Ku2CDcp6CCFm5hu" name="测试用例平面化网表结构图">
+        <mxGraphModel dx="1549" dy="549" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-0"/>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-1" parent="Crhh-lLYLwlhfF82r9U6-0"/>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-2" value="" style="group" parent="Crhh-lLYLwlhfF82r9U6-1" vertex="1" connectable="0">
+                    <mxGeometry x="-370" y="90" width="1720" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-3" value="层级" style="rounded=0;whiteSpace=wrap;html=1;" parent="Crhh-lLYLwlhfF82r9U6-2" vertex="1">
+                    <mxGeometry width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-4" value="模块名" style="rounded=0;whiteSpace=wrap;html=1;" parent="Crhh-lLYLwlhfF82r9U6-2" vertex="1">
+                    <mxGeometry x="110" width="1610" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-5" value="" style="group" parent="Crhh-lLYLwlhfF82r9U6-1" vertex="1" connectable="0">
+                    <mxGeometry x="-370" y="340" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-6" value="2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCFFCC;" parent="Crhh-lLYLwlhfF82r9U6-5" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-7" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="Crhh-lLYLwlhfF82r9U6-5" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-8" value="" style="group" parent="Crhh-lLYLwlhfF82r9U6-5" vertex="1" connectable="0">
+                    <mxGeometry x="150" y="80" width="1500" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-9" value="AOI22_X1_LVT" style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-10" value="DFFR_X1_LVT" style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry x="250" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-11" value="INV_X1_LVT" style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-12" value="OAI211_X1_LVT" style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry x="760" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-13" value="OR3_X1_LVT" style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry x="1010" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-14" value="..." style="html=1;" parent="Crhh-lLYLwlhfF82r9U6-8" vertex="1">
+                    <mxGeometry x="1270" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-15" value="" style="group" parent="Crhh-lLYLwlhfF82r9U6-1" vertex="1" connectable="0">
+                    <mxGeometry x="-370" y="150" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-16" value="1" style="rounded=0;whiteSpace=wrap;html=1;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-17" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-18" value="openMSP430" style="html=1;container=1;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry x="190" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-19" value="omsp_watchdog" style="html=1;fillColor=#FFCCCC;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry x="450" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-20" value="omsp_and_gate___05F_05F2_33" style="html=1;fillColor=#FFE6CC;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry x="730" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="Crhh-lLYLwlhfF82r9U6-21" value="omsp_scan_mux___05F_05F2_71" style="html=1;fillColor=#66CCFF;strokeColor=#0e8088;" parent="Crhh-lLYLwlhfF82r9U6-15" vertex="1">
+                    <mxGeometry x="1020" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="KP3hQLHAU-utDsUsATBJ" name="测试用例层次化网表结构图">
+        <mxGraphModel dx="1549" dy="549" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="150" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="" style="group" parent="2" vertex="1" connectable="0">
+                    <mxGeometry width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="1" style="rounded=0;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="openMSP430" style="html=1;container=1;" parent="3" vertex="1">
+                    <mxGeometry x="230" y="60" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="90" width="1720" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="层级" style="rounded=0;whiteSpace=wrap;html=1;" parent="7" vertex="1">
+                    <mxGeometry width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="模块名" style="rounded=0;whiteSpace=wrap;html=1;" parent="7" vertex="1">
+                    <mxGeometry x="110" width="1610" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="340" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="" style="group" parent="10" vertex="1" connectable="0">
+                    <mxGeometry width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="2" style="rounded=0;whiteSpace=wrap;html=1;" parent="11" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="11" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="" style="group" parent="11" vertex="1" connectable="0">
+                    <mxGeometry x="190" y="80" width="1490" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="omsp_watchdog" style="html=1;" parent="14" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="omsp_execution_unit" style="html=1;" parent="14" vertex="1">
+                    <mxGeometry x="240" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="omsp_clock_module" style="html=1;" parent="14" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="omsp_dbg" style="html=1;" parent="14" vertex="1">
+                    <mxGeometry x="750" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="omsp_multiplier" style="html=1;" parent="14" vertex="1">
+                    <mxGeometry x="1000" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="..." style="html=1;" parent="14" vertex="1">
+                    <mxGeometry x="1260" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="530" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="group" parent="21" vertex="1" connectable="0">
+                    <mxGeometry width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="3" style="rounded=0;whiteSpace=wrap;html=1;" parent="22" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="22" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="" style="group" parent="22" vertex="1" connectable="0">
+                    <mxGeometry x="140" y="80" width="1500" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="omsp_and_gate___05F_05F2_33" style="html=1;" parent="25" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="omsp_and_gate___05F_05F0_1424" style="html=1;" parent="25" vertex="1">
+                    <mxGeometry x="250" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="omsp_sync_cell___05F_05F2_27" style="html=1;" parent="25" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="omsp_clock_gate" style="html=1;" parent="25" vertex="1">
+                    <mxGeometry x="750" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="omsp_and_gate___05F_05F2_29" style="html=1;" parent="25" vertex="1">
+                    <mxGeometry x="1000" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="..." style="html=1;" parent="25" vertex="1">
+                    <mxGeometry x="1270" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="910" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="5" style="rounded=0;whiteSpace=wrap;html=1;" parent="32" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="32" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="" style="group" parent="32" vertex="1" connectable="0">
+                    <mxGeometry x="150" y="80" width="1500" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="AOI22_X1_LVT" style="html=1;" parent="35" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="DFFR_X1_LVT" style="html=1;" parent="35" vertex="1">
+                    <mxGeometry x="250" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="INV_X1_LVT" style="html=1;" parent="35" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="OAI211_X1_LVT" style="html=1;" parent="35" vertex="1">
+                    <mxGeometry x="760" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="OR3_X1_LVT" style="html=1;" parent="35" vertex="1">
+                    <mxGeometry x="1010" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="41" value="..." style="html=1;" parent="35" vertex="1">
+                    <mxGeometry x="1270" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="-270" y="720" width="1720" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="43" value="4" style="rounded=0;whiteSpace=wrap;html=1;" parent="42" vertex="1">
+                    <mxGeometry width="120" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="42" vertex="1">
+                    <mxGeometry x="110" width="1610" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="" style="group" parent="42" vertex="1" connectable="0">
+                    <mxGeometry x="160" y="60" width="1500" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="omsp_scan_mux___05F_05F2_71" style="html=1;" parent="45" vertex="1">
+                    <mxGeometry width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="omsp_scan_mux___05F_05F1_9" style="html=1;" parent="45" vertex="1">
+                    <mxGeometry x="250" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="omsp_scan_mux___05F_05F1_7" style="html=1;" parent="45" vertex="1">
+                    <mxGeometry x="500" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="49" value="omsp_scan_mux" style="html=1;" parent="45" vertex="1">
+                    <mxGeometry x="750" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="omsp_sync_cell" style="html=1;" parent="45" vertex="1">
+                    <mxGeometry x="1010" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" value="..." style="html=1;" parent="45" vertex="1">
+                    <mxGeometry x="1270" width="230" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -82,25 +82,6 @@ public:
     using MouldeDefInstanceMap = std::unordered_map<std::string, std::string>;
     // (std::string -> subMoudleInstanceName) ， std::vector<PortInstanceMsg> -> 实例引脚表
     using SubMoudlePorts = std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
-// 拷贝构造测试失败
-// public:
-//     MoudleMsg() = default;
-//     MoudleMsg(MoudleMsg&) = default;
-//     MoudleMsg& operator=(MoudleMsg& moudleMsg) = default;
-//     MoudleMsg& operator=(MoudleMsg&& moudleMsg)
-//     {
-//         this->moduleDefName = moudleMsg.moduleDefName;
-//         this->inputs.swap(moudleMsg.inputs);
-//         this->outputs.swap(moudleMsg.outputs);
-//         this->inouts.swap(moudleMsg.inouts);
-//         this->wires.swap(moudleMsg.wires);
-//         this->assigns.swap(moudleMsg.assigns);
-//         this->level = moudleMsg.level;
-//         this->mouldeDefInstanceMap.swap(moudleMsg.mouldeDefInstanceMap);
-//         this->subMoudleInstanceNames.swap(moudleMsg.subMoudleInstanceNames);
-//         this->subMoudlePorts.swap(moudleMsg.subMoudlePorts);
-//         return *this;
-//     }
 public:
 
     std::string moduleDefName;         // 模块定义名称   (形参)
@@ -109,7 +90,7 @@ public:
     /*********************************** 网表定义信息(START) *********************************************/
     std::vector<PortMsg> inputs;                    // 输入引脚
     std::vector<PortMsg> outputs;                   // 输出引脚
-    std::vector<PortMsg> inouts;                    // 输入输出引脚 (暂时未发现，作为保留字段)
+    std::vector<PortMsg> inouts;                    // 输入输出引脚
     std::vector<PortMsg> wires;                     // 连线引脚
     std::vector<AssignStatementMsg> assigns;        // assign 语句
     /*********************************** 网表定义信息(END) *********************************************/
@@ -125,6 +106,4 @@ public:
     uint32_t outNum(bool onlyOut = false) const;
     uint32_t inoutNum() const;
     uint32_t wireNum() const;
-
-
 };
