@@ -76,14 +76,14 @@ module ripple_adder_twelve(co, SUM, A, B, ci);
    input [n-1:0]B;
    input ci;
 
-   wire [3:0]C;
+   wire [2:0]C;
 
    assign C[0] = ci;
-   assign co = C[2];
+   assign co = c_no_defined;
 
    ripple_adder U0(.co(C[1]), .SUM(SUM[3:0]), .A(A[3:0]), .B(B[3:0]), .ci(C[0]));
    ripple_adder U1(.co(C[2]), .SUM(SUM[7:4]), .A(A[7:4]), .B(B[7:4]), .ci(C[1]));
-   ripple_adder U2(.co(C[3]), .SUM(SUM[11:8]), .A(A[11:8]), .B(B[11:8]), .ci(C[2]));
+   ripple_adder U2(.co(c_no_defined), .SUM(SUM[11:8]), .A(A[11:8]), .B(B[11:8]), .ci(C[2]));
 endmodule
 
 module top(co, cco, SUM, A, B, ci);

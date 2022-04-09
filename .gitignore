@@ -10,8 +10,10 @@
 *.log
 *.1
 doxy
-*.xml
+hierCellsNetLists.v
+plainCellsNetLists.v
 .cache
+*.xml
 note/misc/case5
 .*.swp
 *.tmp

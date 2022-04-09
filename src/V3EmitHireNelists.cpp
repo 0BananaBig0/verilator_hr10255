@@ -186,7 +186,7 @@ struct AssignStatus
       {
         return false;
       }
-
+      // isAssignLvalue = true, process lValue of assign statement;
       if(isAssignLvalue)
       {
         PortInstanceFormalComplexMsg &value = assignStatementComplexMsg.lValue;
@@ -198,11 +198,15 @@ struct AssignStatus
         }
         else
         {
+          // isFirst = true, obtain the starting point of lValue of assign
+          // statement which is a array
           if(isFrist)
           {
             isFrist = !isFrist;
             value.indexRange.first = IndexStrToIndexNum(constStr);
           }
+          // isFirst = false, obtain the end point of lValue of assign
+          // statement which is a array
           else
           {
             isFrist = !isFrist;
@@ -211,6 +215,7 @@ struct AssignStatus
           }
         }
       }
+      // isAssignLvalue = false, process rValue of assign statement;
       else
       {
         PortInstanceFormalComplexMsg &value = assignStatementComplexMsg.rValue;
