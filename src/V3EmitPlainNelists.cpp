@@ -749,7 +749,8 @@ PlainMoudle(MoudleMsg &moudleMsg,
               portInstanceFormalMsg.portInstanceName =
                 subMoudleInstanceName + "_" +
                 portInstanceFormalMsg.portInstanceName;
-              std::cout << "originPortInstanceFormalMsg.portInstanceName is "
+              std::cout << "originPortInstanceFormalMsg."
+                           "portInstanceName is "
                         << originPortInstanceFormalMsg.portInstanceName
                         << std::endl;
             }

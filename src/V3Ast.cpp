@@ -856,10 +856,13 @@ void AstNode::iterateChildren(AstNVisitor &v) {
   // This is a very hot function
   // Optimization note: Grabbing m_op#p->m_nextp is a net loss
   // gcc 内置指令 __builtin_prefetch ，用于优化时间复杂度以及空间复杂度
+  // prefetch some content to buffer.
   ASTNODE_PREFETCH(m_op1p);
   ASTNODE_PREFETCH(m_op2p);
   ASTNODE_PREFETCH(m_op3p);
   ASTNODE_PREFETCH(m_op4p);
+  //We have got the information we need from the current node. 
+  //Then judge whether there are children nodes, if it has, access these children and get data
   if (m_op1p)
     m_op1p->iterateAndNext(v);
   if (m_op2p)
@@ -895,10 +898,12 @@ void AstNode::iterateAndNext(AstNVisitor &v) {
   // iterated; there's no lower level reason yet though the back must exist.
   AstNode *nodep = this;
 #ifdef VL_DEBUG // Otherwise too hot of a function for debug
+                // Branch prediction optimization
   UASSERT_OBJ(!(nodep && !nodep->m_backp), nodep,
               "iterateAndNext node has no back");
 #endif
   if (nodep)
+    // Fetch data to cache in advance
     ASTNODE_PREFETCH(nodep->m_nextp);
   while (nodep) { // effectively: if (!this) return;  // Callers rely on this
     if (nodep->m_nextp)
@@ -910,6 +915,9 @@ void AstNode::iterateAndNext(AstNVisitor &v) {
     // iterateAndNext may miss edits"); Optimization note: Doing PREFETCH_RW on
     // m_iterpp is a net even cppcheck-suppress nullPointer
     niterp->m_iterpp = &niterp;
+    // Accept function is a virtual function. Use the virtual accept function 
+    // so that the execution can step into different derived calsses and the 
+    // this pointer can point to member of derived classes
     niterp->accept(v);
     // accept may do a replaceNode and change niterp on us...
     // niterp maybe nullptr, so need cast if printing

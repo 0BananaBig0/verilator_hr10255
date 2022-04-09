@@ -48,9 +48,9 @@ struct PortInstanceFormalMsg
     bool isArray = false;                       // 是否是数组类型
     union
     {
-        uint32_t index; // 索引
-        uint32_t
-          initialVal; // 初始值，在 portInstanceName == "anonymous" 下使用
+        uint32_t index;      // 索引
+        uint32_t initialVal; // 初始值，在 portInstanceName ==
+                             // "anonymous" 下使用
     };
 };
 
@@ -86,10 +86,11 @@ struct AssignStatementMsg
 struct MoudleMsg
 {
   public:
-    // std::string -> subMoudleInstanceName, std::string -> subModuleDefName
+    // std::string -> subMoudleInstanceName, std::string ->
+    // subModuleDefName
     using MouldeDefInstanceMap = std::unordered_map<std::string, std::string>;
-    // (std::string -> subMoudleInstanceName) ， std::vector<PortInstanceMsg>
-    // -> 实例引脚表
+    // (std::string -> subMoudleInstanceName) ，
+    // std::vector<PortInstanceMsg> -> 实例引脚表
     using SubMoudlePorts =
       std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 

@@ -223,6 +223,7 @@ static void verilate(const string &argString) {
   v3Global.readFiles();
 
   // Link, etc, if needed
+  // had been modified by haorui, and we need to know about it.
   if (!v3Global.opt.preprocOnly()) { //
     process();
   }

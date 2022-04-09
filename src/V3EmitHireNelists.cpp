@@ -20,7 +20,8 @@
 struct PortInstanceFormalComplexMsg
 {
     /**
-     * @brief portInstanceName == "anonymous" 时即为常量赋值，也就是匿名赋值
+     * @brief portInstanceName == "anonymous"
+     * 时即为常量赋值，也就是匿名赋值
      */
     std::string portInstanceName = "anonymous"; // 端口实例名称 (实参)
     bool isArray = false;                       // 是否是数组类型
@@ -44,6 +45,9 @@ struct AssignStatementComplexMsg
 
 static uint32_t IndexStrToIndexNum(const std::string &indexStr)
 {
+  // problem1 : It is slower than stoi().
+  // problem2 : If the input is bigger than 15, it will has some
+  // problems.
   static std::unordered_map<std::string, uint32_t> _map = {
     { "h0", 0 },  { "h1", 1 },  { "h2", 2 },  { "h3", 3 },
     { "h4", 4 },  { "h5", 5 },  { "h6", 6 },  { "h7", 7 },
@@ -92,8 +96,8 @@ struct AssignStatus
 {
   public:
     bool isAssignStatement = false; // 是否是 assign 语句
-    bool isAssignLvalue =
-      false; // 是否是 assign 的左值,仅当 isAssignStatement == true 时有效
+    bool isAssignLvalue = false;    // 是否是 assign 的左值,仅当
+                                    // isAssignStatement == true 时有效
     AssignStatementComplexMsg
       assignStatementComplexMsg; // assign 语句信息临时存放处
     bool isFrist = true;
@@ -110,11 +114,15 @@ struct AssignStatus
       {
         return false;
       }
+      // First, process assignlValue(corresponding to if statement),
+      // Second,process assignrValue(corresponding to else statement)
       if(isAssignLvalue)
       {
         assignStatementComplexMsg.lValue.portInstanceName = portInstanceName;
         if(assignStatementComplexMsg.lValue.isArray == false)
         {
+          // Make the next call of ProcessPortInstanceName to process
+          // assignrValue.
           isAssignLvalue = !isAssignLvalue;
         }
       }
@@ -164,6 +172,7 @@ struct AssignStatus
        * @return    常量值的位宽
        * @note      此函数应该在 visit(AstConst* nodep) 中调用
        */
+      // constStr = "n'hxxx";
       auto getArrayLen = [](const std::string &constStr) -> uint32_t
       {
         uint32_t res = 0;
@@ -255,6 +264,11 @@ class HierCellsNetListsVisitor final : public AstNVisitor
       _curMoudlePortInstanceMsg; // 当前模块的引脚实例信息
 
   private:
+    // All information we can get from this Ast tree by using the
+    // polymorphic preperties to call different visit function. And
+    // AstNetlist is the first node of the Ast tree. Becaus we have no
+    // information needed to get from it, we only iterate over it to
+    // access its children nodes.
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
     virtual void visit(AstModule *nodep) override;
@@ -274,6 +288,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     std::unordered_map<std::string, MoudleMsg> GetHierCellsNetLists();
 
   public:
+    // AstNetlist is ConElement
     HierCellsNetListsVisitor(AstNetlist *nodep) { nodep->accept(*this); }
     virtual ~HierCellsNetListsVisitor() override{
       // selfTest(_moudleMap,
@@ -282,7 +297,8 @@ class HierCellsNetListsVisitor final : public AstNVisitor
 
     /**
      * @brief         自测
-     * @param[in]     hierCellsNetLists : HierCellsNetListsVisitor::_moudleMap
+     * @param[in]     hierCellsNetLists :
+     * HierCellsNetListsVisitor::_moudleMap
      * @param[out]    filename : 文件名
      * @note          观察输出文件的内容
      */
@@ -290,171 +306,6 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists,
              const std::string &filename);
 };
-
-/************************************************************** 自测函数(START)
- * *****************************************************************/
-void HierCellsNetListsVisitor::selfTest(
-  std::unordered_map<std::string, MoudleMsg> hierCellsNetLists,
-  const std::string &filename)
-{
-  std::ofstream ofs(filename);
-  for(const auto &moudleMsg: hierCellsNetLists)
-  {
-    /**
-     * @example module omsp_and_gate__0_1424(y, a, b);
-     */
-    auto moudle = moudleMsg.second;
-    ofs << "module " << moudle.moduleDefName << "(";
-    for(auto output: moudle.outputs) { ofs << output.portDefName << ","; }
-    for(auto input: moudle.inputs) { ofs << input.portDefName << ","; }
-    for(auto inout: moudle.inouts) { ofs << inout.portDefName << ","; }
-    ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
-    ofs << ");" << std::endl;
-
-    /**
-     * @example
-     *    output y;
-     *     input a;
-     *     input b;
-     */
-    for(auto output: moudle.outputs)
-    {
-      ofs << "\t output ";
-      if(output.isArray)
-      {
-        ofs << "[" << output.arraySize - 1 << ":0]";
-      }
-      ofs << output.portDefName;
-      ofs << ";" << std::endl;
-    }
-    for(auto input: moudle.inputs)
-    {
-      ofs << "\t input ";
-      if(input.isArray)
-      {
-        ofs << "[" << input.arraySize - 1 << ":0]";
-      }
-      ofs << input.portDefName;
-      ofs << ";" << std::endl;
-    }
-    for(auto inout: moudle.inouts)
-    {
-      ofs << "\t inout ";
-      if(inout.isArray)
-      {
-        ofs << "[" << inout.arraySize - 1 << ":0]";
-      }
-      ofs << inout.portDefName;
-      ofs << ";" << std::endl;
-    }
-    ofs << std::endl;
-
-    /**
-     * @example wire wdtnmies;
-     */
-    for(auto wire: moudle.wires)
-    {
-      ofs << "\t wire ";
-      if(wire.isArray)
-      {
-        ofs << "[" << wire.arraySize - 1 << ":0]";
-      }
-      ofs << wire.portDefName;
-      ofs << ";" << std::endl;
-    }
-    ofs << std::endl;
-
-    /**
-     * @example
-     *          1 - assign per_dout[15] = 1'b0;
-     *          2 - assign per_dout[14] = per_dout[5];
-     */
-
-    for(auto assign: moudle.assigns)
-    {
-      ofs << "\tassign ";
-      if(assign.lValue.portInstanceName != "anonymous")
-      {
-        ofs << assign.lValue.portInstanceName;
-        if(assign.lValue.isArray)
-        {
-          ofs << "[" << assign.lValue.index << "]";
-        }
-      }
-      else
-      {
-        throw std::runtime_error("assign left value can not be anonymous");
-      }
-      ofs << " = ";
-      if(assign.rValue.portInstanceName == "anonymous")
-      {
-        ofs << "1'b" << assign.rValue.initialVal;
-      }
-      else
-      {
-        ofs << assign.rValue.portInstanceName;
-        if(assign.rValue.isArray)
-        {
-          ofs << "[" << assign.rValue.index << "]";
-        }
-      }
-      ofs << ";" << std::endl;
-    }
-    ofs << std::endl;
-
-    /**
-     * @example  NAND2_X1_LVT i_0_0 (.A1(exec_cycle), .A2(inst_bw),
-     * .ZN(op_bit8_msk));
-     */
-    for(const auto &subMoudleInstanceName: moudle.subMoudleInstanceNames)
-    {
-      ofs << "\t" << moudle.mouldeDefInstanceMap[subMoudleInstanceName] << " "
-          << subMoudleInstanceName << " ";
-      ofs << "(";
-      for(const auto &portInstanceMsg:
-          moudle.subMoudlePorts[subMoudleInstanceName])
-      {
-        ofs << "." << portInstanceMsg.portDefName << "(";
-        if(portInstanceMsg.portInstanceFormalMsgs.size() > 1)
-        {
-          ofs << "{";
-        }
-        for(const auto &portInstanceFormalMsg:
-            portInstanceMsg.portInstanceFormalMsgs)
-        {
-          if(portInstanceFormalMsg.portInstanceName == "anonymous")
-          {
-            ofs << "1'b" << portInstanceFormalMsg.initialVal;
-          }
-          else
-          {
-            ofs << portInstanceFormalMsg.portInstanceName;
-            if(portInstanceFormalMsg.isArray)
-            {
-              ofs << "[" << portInstanceFormalMsg.index << "]";
-            }
-          }
-          ofs << ",";
-        }
-        if(!portInstanceMsg.portInstanceFormalMsgs.empty())
-        {
-          ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
-        }
-        if(portInstanceMsg.portInstanceFormalMsgs.size() > 1)
-        {
-          ofs << "}";
-        }
-        ofs << "),";
-      }
-      ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
-      ofs << ");" << std::endl;
-    }
-
-    ofs << "endmodule" << std::endl << std::endl;
-  }
-}
-/************************************************************** 自测函数(END)
- * *****************************************************************/
 
 /**
  * @brief moudle 语句的入口
@@ -631,8 +482,8 @@ void HierCellsNetListsVisitor::visit(AstConcat *nodep)
 }
 
 /**
- * @note 当 _portInstanceFormalComplexTmp.portInstanceName == "anonymous",
- * 说明是匿名赋值
+ * @note 当 _portInstanceFormalComplexTmp.portInstanceName ==
+ * "anonymous", 说明是匿名赋值
  */
 void HierCellsNetListsVisitor::visit(AstConst *nodep)
 {
@@ -820,6 +671,7 @@ HierCellsNetListsVisitor::GetHierCellsNetLists()
 void V3EmitHierNetLists::emitHireNetLists(
   std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists)
 {
+  // v3Global will return a AstNetlist*
   HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
   hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
 }
@@ -830,3 +682,170 @@ void V3EmitHierNetLists::printHireNetLists(
 {
   HierCellsNetListsVisitor::selfTest(hierCellsNetLists, filename);
 }
+
+/**************************************************************
+ * 自测函数(START)
+ * *****************************************************************/
+void HierCellsNetListsVisitor::selfTest(
+  std::unordered_map<std::string, MoudleMsg> hierCellsNetLists,
+  const std::string &filename)
+{
+  std::ofstream ofs(filename);
+  for(const auto &moudleMsg: hierCellsNetLists)
+  {
+    /**
+     * @example module omsp_and_gate__0_1424(y, a, b);
+     */
+    auto moudle = moudleMsg.second;
+    ofs << "module " << moudle.moduleDefName << "(";
+    for(auto output: moudle.outputs) { ofs << output.portDefName << ","; }
+    for(auto input: moudle.inputs) { ofs << input.portDefName << ","; }
+    for(auto inout: moudle.inouts) { ofs << inout.portDefName << ","; }
+    ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
+    ofs << ");" << std::endl;
+
+    /**
+     * @example
+     *    output y;
+     *     input a;
+     *     input b;
+     */
+    for(auto output: moudle.outputs)
+    {
+      ofs << "\t output ";
+      if(output.isArray)
+      {
+        ofs << "[" << output.arraySize - 1 << ":0]";
+      }
+      ofs << output.portDefName;
+      ofs << ";" << std::endl;
+    }
+    for(auto input: moudle.inputs)
+    {
+      ofs << "\t input ";
+      if(input.isArray)
+      {
+        ofs << "[" << input.arraySize - 1 << ":0]";
+      }
+      ofs << input.portDefName;
+      ofs << ";" << std::endl;
+    }
+    for(auto inout: moudle.inouts)
+    {
+      ofs << "\t inout ";
+      if(inout.isArray)
+      {
+        ofs << "[" << inout.arraySize - 1 << ":0]";
+      }
+      ofs << inout.portDefName;
+      ofs << ";" << std::endl;
+    }
+    ofs << std::endl;
+
+    /**
+     * @example wire wdtnmies;
+     */
+    for(auto wire: moudle.wires)
+    {
+      ofs << "\t wire ";
+      if(wire.isArray)
+      {
+        ofs << "[" << wire.arraySize - 1 << ":0]";
+      }
+      ofs << wire.portDefName;
+      ofs << ";" << std::endl;
+    }
+    ofs << std::endl;
+
+    /**
+     * @example
+     *          1 - assign per_dout[15] = 1'b0;
+     *          2 - assign per_dout[14] = per_dout[5];
+     */
+
+    for(auto assign: moudle.assigns)
+    {
+      ofs << "\tassign ";
+      if(assign.lValue.portInstanceName != "anonymous")
+      {
+        ofs << assign.lValue.portInstanceName;
+        if(assign.lValue.isArray)
+        {
+          ofs << "[" << assign.lValue.index << "]";
+        }
+      }
+      else
+      {
+        throw std::runtime_error("assign left value can not be anonymous");
+      }
+      ofs << " = ";
+      if(assign.rValue.portInstanceName == "anonymous")
+      {
+        ofs << "1'b" << assign.rValue.initialVal;
+      }
+      else
+      {
+        ofs << assign.rValue.portInstanceName;
+        if(assign.rValue.isArray)
+        {
+          ofs << "[" << assign.rValue.index << "]";
+        }
+      }
+      ofs << ";" << std::endl;
+    }
+    ofs << std::endl;
+
+    /**
+     * @example  NAND2_X1_LVT i_0_0 (.A1(exec_cycle), .A2(inst_bw),
+     * .ZN(op_bit8_msk));
+     */
+    for(const auto &subMoudleInstanceName: moudle.subMoudleInstanceNames)
+    {
+      ofs << "\t" << moudle.mouldeDefInstanceMap[subMoudleInstanceName] << " "
+          << subMoudleInstanceName << " ";
+      ofs << "(";
+      for(const auto &portInstanceMsg:
+          moudle.subMoudlePorts[subMoudleInstanceName])
+      {
+        ofs << "." << portInstanceMsg.portDefName << "(";
+        if(portInstanceMsg.portInstanceFormalMsgs.size() > 1)
+        {
+          ofs << "{";
+        }
+        for(const auto &portInstanceFormalMsg:
+            portInstanceMsg.portInstanceFormalMsgs)
+        {
+          if(portInstanceFormalMsg.portInstanceName == "anonymous")
+          {
+            ofs << "1'b" << portInstanceFormalMsg.initialVal;
+          }
+          else
+          {
+            ofs << portInstanceFormalMsg.portInstanceName;
+            if(portInstanceFormalMsg.isArray)
+            {
+              ofs << "[" << portInstanceFormalMsg.index << "]";
+            }
+          }
+          ofs << ",";
+        }
+        if(!portInstanceMsg.portInstanceFormalMsgs.empty())
+        {
+          ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
+        }
+        if(portInstanceMsg.portInstanceFormalMsgs.size() > 1)
+        {
+          ofs << "}";
+        }
+        ofs << "),";
+      }
+      ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
+      ofs << ");" << std::endl;
+    }
+
+    ofs << "endmodule" << std::endl << std::endl;
+  }
+}
+/**************************************************************
+ * 自测函数(END)
+ * *****************************************************************/
