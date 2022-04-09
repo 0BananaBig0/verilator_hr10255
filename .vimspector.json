@@ -1,0 +1,32 @@
+{
+  "configurations": {
+    "cpp:launch": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "name": "cpp:launch",
+        "stopAtEntry": true,
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceRoot}/bin/verilator_bin_dbg",
+        "args": ["--xml-only","${workspaceRoot}/note/misc/case6/ripple_adder_oasys_2021_h.syn.v" , "${workspaceRoot}/note/misc/LibBlackbox.v"],
+        "cwd": "${workspaceRoot}",
+        "environment": [],
+        "externalConsole": true,
+        "MIMode": "gdb",
+        "breakpointers": {
+          "exception": {
+            "cpp_throw": "Y",
+            "cpp_catch": "Y"
+          }
+        },
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      }
+    }
+  }
+}
