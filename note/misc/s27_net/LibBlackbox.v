@@ -1893,6 +1893,16 @@ output Y;
 input A, B;
 endmodule
 
+module XNOR3X2 (Y, A, B, C);
+output Y;
+input A, B, C;
+endmodule
+
+module XNOR3X4 (Y, A, B, C);
+output Y;
+input A, B, C;
+endmodule
+
 module XOR2XL (Y, A, B);
 output Y;
 input A, B;

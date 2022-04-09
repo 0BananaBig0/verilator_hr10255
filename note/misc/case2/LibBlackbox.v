@@ -1,4195 +1,2822 @@
-module PLL(BYPASS, DIVF0, DIVF1, DIVF2,DIVF3, DIVF4, DIVF5, DIVF6,DIVF7, DIVQ0, DIVQ1, DIVQ2,
-   DIVR0, DIVR1, DIVR2, DIVR3,DIVR4, DIVR5, FB, FSE,LOCK, PLLOUT, RANGE0, RANGE1,RANGE2, REF, RESET);
-  input BYPASS;
-  input DIVF0;
-  input DIVF1;
-  input DIVF2;
-  input DIVF3;
-  input DIVF4;
-  input DIVF5;
-  input DIVF6;
-  input DIVF7;
-  input DIVQ0;
-  input DIVQ1;
-  input DIVQ2;
-  input DIVR0;
-  input DIVR1;
-  input DIVR2;
-  input DIVR3;
-  input DIVR4;
-  input DIVR5;
-  input FB;
-  input FSE;
-  input RANGE0;
-  input RANGE1;
-  input RANGE2;
-  input REF;
-  input RESET;
-  output LOCK;
-  output PLLOUT;
-endmodule
+`celldefine
 
-module PADBID(C, I, OEN, PAD);
-  input I;
-  input OEN;
-  inout PAD;
-  output C;
+module PLL (LOCK, PLLOUT, BYPASS, DIVF0, DIVF1, DIVF2, DIVF3, DIVF4, DIVF5, DIVF6, DIVF7, DIVQ0, DIVQ1, DIVQ2, DIVR0, DIVR1, DIVR2, DIVR3, DIVR4, DIVR5, FB, FSE, RANGE0, RANGE1, RANGE2, REF, RESET);
+output LOCK, PLLOUT;
+input BYPASS, DIVF0, DIVF1, DIVF2, DIVF3, DIVF4, DIVF5, DIVF6, DIVF7, DIVQ0, DIVQ1, DIVQ2, DIVR0, DIVR1, DIVR2, DIVR3, DIVR4, DIVR5, FB, FSE, RANGE0, RANGE1, RANGE2, REF, RESET;
 endmodule
 
-module PADCLK(C, PAD);
-  input PAD;
-  output C;
+module PADBID (C, I, OEN, PAD);
+output C;
+input I, OEN, PAD;
 endmodule
 
-module AON_BUF_X1(A, Z);
-  input A;
-  output Z;
+module PADCLK (C, PAD);
+output C;
+input PAD;
 endmodule
 
-module AON_BUF_X2(A, Z);
-  input A;
-  output Z;
+module AON_BUF_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AON_BUF_X4(A, Z);
-  input A;
-  output Z;
+module AON_BUF_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AON_INV_X1(A, Z);
-  input A;
-  output Z;
+module AON_BUF_X4 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AON_INV_X2(A, Z);
-  input A;
-  output Z;
+module AON_INV_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AON_INV_X4(A, Z);
-  input A;
-  output Z;
+module AON_INV_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module HEADER_OE_X1(SLEEP, SLEEPOUT);
-  input SLEEP;
-  output SLEEPOUT;
+module AON_INV_X4 (Z, A);
+output Z;
+input A;
 endmodule
 
-module HEADER_OE_X2(SLEEP, SLEEPOUT);
-  input SLEEP;
-  output SLEEPOUT;
+module HEADER_OE_X1 (SLEEPOUT, SLEEP);
+output SLEEPOUT;
+input SLEEP;
 endmodule
 
-module HEADER_OE_X4(SLEEP, SLEEPOUT);
-  input SLEEP;
-  output SLEEPOUT;
+module HEADER_OE_X2 (SLEEPOUT, SLEEP);
+output SLEEPOUT;
+input SLEEP;
 endmodule
 
-module HEADER_X1(SLEEP);
-  input SLEEP;
+module HEADER_OE_X4 (SLEEPOUT, SLEEP);
+output SLEEPOUT;
+input SLEEP;
 endmodule
 
-module HEADER_X2(SLEEP);
-  input SLEEP;
+module HEADER_X1 (SLEEP);
+input SLEEP;
 endmodule
 
-module HEADER_X4(SLEEP);
-  input SLEEP;
+module HEADER_X2 (SLEEP);
+input SLEEP;
 endmodule
 
-module ISO_FENCE0N_X1(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module HEADER_X4 (SLEEP);
+input SLEEP;
 endmodule
 
-module ISO_FENCE0N_X2(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0N_X1 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE0N_X4(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0N_X2 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE0_X1(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0N_X4 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE0_X2(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0_X1 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE0_X4(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0_X2 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1N_X1(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE0_X4 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1N_X2(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE1N_X1 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1N_X4(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE1N_X2 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1_X1(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE1N_X4 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1_X2(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE1_X1 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module ISO_FENCE1_X4(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module ISO_FENCE1_X2 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module LS_HLEN_X1(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module ISO_FENCE1_X4 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module LS_HLEN_X2(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module LS_HLEN_X1 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_HLEN_X4(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module LS_HLEN_X2 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_HL_X1(A, Z);
-  input A;
-  output Z;
+module LS_HLEN_X4 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_HL_X2(A, Z);
-  input A;
-  output Z;
+module LS_HL_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module LS_HL_X4(A, Z);
-  input A;
-  output Z;
+module LS_HL_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module LS_LHEN_X1(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module LS_HL_X4 (Z, A);
+output Z;
+input A;
 endmodule
 
-module LS_LHEN_X2(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module LS_LHEN_X1 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_LHEN_X4(A, ISOLN, Z);
-  input A;
-  input ISOLN;
-  output Z;
+module LS_LHEN_X2 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_LH_X1(A, Z);
-  input A;
-  output Z;
+module LS_LHEN_X4 (Z, A, ISOLN);
+output Z;
+input A, ISOLN;
 endmodule
 
-module LS_LH_X2(A, Z);
-  input A;
-  output Z;
+module LS_LH_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module LS_LH_X4(A, Z);
-  input A;
-  output Z;
+module LS_LH_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND2_X1_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module LS_LH_X4 (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND2_X2_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module MemGen_16_10 (rd_data[15:0], chip_en, wr_en, addr[9:0], wr_data[15:0], clock, rd_en);
+output[15:0] rd_data;
+input chip_en, wr_en, clock, rd_en;
+input[9:0] addr;
+input[15:0] wr_data;
 endmodule
 
-module AND2_X4_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AND2_X1 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND3_X1_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AND2_X2 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND3_X2_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AND2_X4 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND3_X4_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AND2_X1_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND4_X1_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AND2_X2_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND4_X2_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AND2_X4_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AND4_X4_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AND2_X1_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module ANTENNA_X1_HVT(A);
-  input A;
+module AND2_X2_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI211_X1_HVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AND2_X4_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI211_X2_HVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AND2_X1_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI211_X4_HVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AND2_X2_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI21_X1_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AND2_X4_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI21_X2_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AND3_X1 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI21_X4_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AND3_X2 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI221_X1_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X4 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI221_X2_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X1_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI221_X4_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X2_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI222_X1_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X4_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI222_X2_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X1_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI222_X4_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AND3_X2_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI22_X1_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module AND3_X4_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI22_X2_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module AND3_X1_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module AOI22_X4_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module AND3_X2_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module BUF_X16_HVT(A, Z);
-  input A;
-  output Z;
+module AND3_X4_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module BUF_X1_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X1 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module BUF_X2_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X2 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module BUF_X32_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X4 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module BUF_X4_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X1_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module BUF_X8_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X2_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module CLKBUF_X1_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X4_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module CLKBUF_X2_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X1_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module CLKBUF_X3_HVT(A, Z);
-  input A;
-  output Z;
+module AND4_X2_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
-
-/* module "CLKGATETST_X1_HVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X1_HVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module AND4_X4_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-/* module "CLKGATETST_X2_HVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X2_HVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module AND4_X1_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
-
-/* module "CLKGATETST_X4_HVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X4_HVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module AND4_X2_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-/* module "CLKGATETST_X8_HVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X8_HVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module AND4_X4_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
-
-/* module "CLKGATE_X1_HVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X1_HVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module ANTENNA_X1 (A);
+input A;
 endmodule
 
-/* module "CLKGATE_X2_HVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X2_HVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module ANTENNA_X1_LVT (A);
+input A;
 endmodule
-
-/* module "CLKGATE_X4_HVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X4_HVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module ANTENNA_X1_SVT (A);
+input A;
 endmodule
 
-/* module "CLKGATE_X8_HVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X8_HVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module ANTENNA_X1_HVT (A);
+input A;
 endmodule
 
-module DFFRS_X1_HVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module AOI211_X1 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFFRS_X2_HVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module AOI211_X2 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFFR_X1_HVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module AOI211_X4 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFFR_X2_HVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module AOI211_X1_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFFS_X1_HVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module AOI211_X2_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFFS_X2_HVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module AOI211_X4_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFF_X1_HVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module AOI211_X1_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DFF_X2_HVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module AOI211_X2_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DLH_X1_HVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module AOI211_X4_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DLH_X2_HVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module AOI211_X1_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DLL_X1_HVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module AOI211_X2_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module DLL_X2_HVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module AOI211_X4_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module FA_X1_HVT(A, B, CI, CO,S);
-  input A;
-  input B;
-  input CI;
-  output CO;
-  output S;
+module AOI21_X1 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X16_HVT();
+module AOI21_X2 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X1_HVT( );
+module AOI21_X4 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X2_HVT( );
+module AOI21_X1_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X32_HVT( );
+module AOI21_X2_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X4_HVT( );
+module AOI21_X4_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module FILLCELL_X8_HVT( );
+module AOI21_X1_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module HA_X1_HVT(A, B, CO, S);
-  input A;
-  input B;
-  output CO;
-  output S;
+module AOI21_X2_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module INV_X16_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI21_X4_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module INV_X1_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI21_X1_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module INV_X2_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI21_X2_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module INV_X32_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI21_X4_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module INV_X4_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI221_X1 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module INV_X8_HVT(A, ZN);
-  input A;
-  output ZN;
+module AOI221_X2 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module LOGIC0_X1_HVT(Z);
-  output Z;
+module AOI221_X4 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module LOGIC1_X1_HVT(Z);
-  output Z;
+module AOI221_X1_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module MUX2_X1_HVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module AOI221_X2_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module MUX2_X2_HVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module AOI221_X4_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND2_X1_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI221_X1_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND2_X2_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI221_X2_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND2_X4_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI221_X4_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND3_X1_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI221_X1_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND3_X2_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI221_X2_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND3_X4_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI221_X4_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module NAND4_X1_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X1 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NAND4_X2_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X2 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NAND4_X4_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X4 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR2_X1_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI222_X1_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR2_X2_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI222_X2_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR2_X4_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module AOI222_X4_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR3_X1_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI222_X1_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR3_X2_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI222_X2_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR3_X4_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module AOI222_X4_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR4_X1_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X1_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR4_X2_HVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X2_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module NOR4_X4_HVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module AOI222_X4_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module OAI211_X1_HVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X1 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI211_X2_HVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X2 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI211_X4_HVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X4 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI21_X1_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AOI22_X1_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI21_X2_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AOI22_X2_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI21_X4_HVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module AOI22_X4_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI221_X1_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X1_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI221_X2_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X2_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI221_X4_HVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X4_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI222_X1_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X1_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI222_X2_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X2_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI222_X4_HVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module AOI22_X4_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module OAI22_X1_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module BUF_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OAI22_X2_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module BUF_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OAI22_X4_HVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module BUF_X4 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OAI33_X1_HVT(A1, A2, A3, B1,B2, B3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input B1;
-  input B2;
-  input B3;
-  output ZN;
+module BUF_X8 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR2_X1_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module BUF_X16 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR2_X2_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module BUF_X32 (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR2_X4_HVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module BUF_X1_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR3_X1_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module BUF_X2_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR3_X2_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module BUF_X4_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR3_X4_HVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module BUF_X8_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR4_X1_HVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module BUF_X16_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR4_X2_HVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module BUF_X32_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module OR4_X4_HVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module BUF_X1_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFRS_X1_HVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module BUF_X2_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFRS_X2_HVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module BUF_X4_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFR_X1_HVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module BUF_X8_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFR_X2_HVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module BUF_X16_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFS_X1_HVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module BUF_X32_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFFS_X2_HVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module BUF_X1_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFF_X1_HVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module BUF_X2_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module SDFF_X2_HVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module BUF_X4_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module TBUF_X16_HVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module BUF_X8_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module TBUF_X1_HVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module BUF_X16_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module TBUF_X2_HVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module BUF_X32_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module TBUF_X4_HVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module CLKBUF_X1 (Z, A);
+output Z;
+input A;
 endmodule
 
-module TBUF_X8_HVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module CLKBUF_X2 (Z, A);
+output Z;
+input A;
 endmodule
 
-module TINV_X1_HVT(EN, I, ZN);
-  input EN;
-  input I;
-  output ZN;
+module CLKBUF_X3 (Z, A);
+output Z;
+input A;
 endmodule
 
-module TLAT_X1_HVT(D, G, OE, Q);
-  input D;
-  input G;
-  input OE;
-  output Q;
+module CLKBUF_X1_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module XNOR2_X1_HVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module CLKBUF_X2_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module XNOR2_X2_HVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module CLKBUF_X3_LVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module XOR2_X1_HVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module CLKBUF_X1_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module XOR2_X2_HVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module CLKBUF_X2_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND2_X1_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module CLKBUF_X3_SVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND2_X2_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module CLKBUF_X1_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND2_X4_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module CLKBUF_X2_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND3_X1_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module CLKBUF_X3_HVT (Z, A);
+output Z;
+input A;
 endmodule
 
-module AND3_X2_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module CLKGATETST_X1 (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AND3_X4_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module CLKGATETST_X2 (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AND4_X1_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module CLKGATETST_X4 (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AND4_X2_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module CLKGATETST_X8 (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AND4_X4_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module CLKGATETST_X1_LVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module ANTENNA_X1_LVT(A);
-  input A;
+module CLKGATETST_X2_LVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI211_X1_LVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X4_LVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI211_X2_LVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X8_LVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI211_X4_LVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X1_SVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI21_X1_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATETST_X2_SVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI21_X2_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATETST_X4_SVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI21_X4_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATETST_X8_SVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI221_X1_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X1_HVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI221_X2_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X2_HVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI221_X4_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X4_HVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI222_X1_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATETST_X8_HVT (GCK, CK, E, SE);
+output GCK;
+input CK, E, SE;
 endmodule
 
-module AOI222_X2_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATE_X1 (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module AOI222_X4_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module CLKGATE_X2 (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module AOI22_X1_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATE_X4 (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module AOI22_X2_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATE_X8 (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module AOI22_X4_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module CLKGATE_X1_LVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X16_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X2_LVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X1_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X4_LVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X2_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X8_LVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X32_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X1_SVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X4_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X2_SVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module BUF_X8_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X4_SVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module CLKBUF_X1_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X8_SVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module CLKBUF_X2_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X1_HVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-module CLKBUF_X3_LVT(A, Z);
-  input A;
-  output Z;
+module CLKGATE_X2_HVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
-
-/* module "CLKGATETST_X1_LVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X1_LVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module CLKGATE_X4_HVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
 
-/* module "CLKGATETST_X2_LVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X2_LVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module CLKGATE_X8_HVT (GCK, CK, E);
+output GCK;
+input CK, E;
 endmodule
-
-/* module "CLKGATETST_X4_LVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X4_LVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module DFFRS_X1 (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-/* module "CLKGATETST_X8_LVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X8_LVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module DFFRS_X2 (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
-
-/* module "CLKGATE_X1_LVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X1_LVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module DFFRS_X1_LVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-/* module "CLKGATE_X2_LVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X2_LVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module DFFRS_X2_LVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-/* module "CLKGATE_X4_LVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X4_LVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module DFFRS_X1_SVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
-
-/* module "CLKGATE_X8_LVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X8_LVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module DFFRS_X2_SVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-module DFFRS_X1_LVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module DFFRS_X1_HVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-module DFFRS_X2_LVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module DFFRS_X2_HVT (Q, QN, CK, D, RN, SN);
+output Q, QN;
+input CK, D, RN, SN;
 endmodule
 
-module DFFR_X1_LVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module DFFR_X1 (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DFFR_X2_LVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module DFFR_X2 (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DFFS_X1_LVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module DFFR_X1_LVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DFFS_X2_LVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module DFFR_X2_LVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DFF_X1_LVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module DFFR_X1_SVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DFF_X2_LVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module DFFR_X2_SVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DLH_X1_LVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module DFFR_X1_HVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DLH_X2_LVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module DFFR_X2_HVT (Q, QN, CK, D, RN);
+output Q, QN;
+input CK, D, RN;
 endmodule
 
-module DLL_X1_LVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module DFFS_X1 (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module DLL_X2_LVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module DFFS_X2 (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FA_X1_LVT(A, B, CI, CO,S);
-  input A;
-  input B;
-  input CI;
-  output CO;
-  output S;
+module DFFS_X1_LVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X16_LVT();
+module DFFS_X2_LVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X1_LVT( );
+module DFFS_X1_SVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X2_LVT( );
+module DFFS_X2_SVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X32_LVT( );
+module DFFS_X1_HVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X4_LVT( );
+module DFFS_X2_HVT (Q, QN, CK, D, SN);
+output Q, QN;
+input CK, D, SN;
 endmodule
 
-module FILLCELL_X8_LVT( );
+module DFF_X1 (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module HA_X1_LVT(A, B, CO, S);
-  input A;
-  input B;
-  output CO;
-  output S;
+module DFF_X2 (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X16_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X1_LVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X1_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X2_LVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X2_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X1_SVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X32_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X2_SVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X4_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X1_HVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module INV_X8_LVT(A, ZN);
-  input A;
-  output ZN;
+module DFF_X2_HVT (Q, QN, CK, D);
+output Q, QN;
+input CK, D;
 endmodule
 
-module LOGIC0_X1_LVT(Z);
-  output Z;
+module DLH_X1 (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module LOGIC1_X1_LVT(Z);
-  output Z;
+module DLH_X2 (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module MUX2_X1_LVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module DLH_X1_LVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module MUX2_X2_LVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module DLH_X2_LVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module NAND2_X1_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLH_X1_SVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module NAND2_X2_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLH_X2_SVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module NAND2_X4_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLH_X1_HVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module NAND3_X1_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module DLH_X2_HVT (Q, D, G);
+output Q;
+input D, G;
 endmodule
 
-module NAND3_X2_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module DLL_X1 (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NAND3_X4_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module DLL_X2 (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NAND4_X1_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module DLL_X1_LVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NAND4_X2_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module DLL_X2_LVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NAND4_X4_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module DLL_X1_SVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NOR2_X1_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLL_X2_SVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NOR2_X2_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLL_X1_HVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NOR2_X4_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module DLL_X2_HVT (Q, D, GN);
+output Q;
+input D, GN;
 endmodule
 
-module NOR3_X1_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FA_X1 (CO, S, A, B, CI);
+output CO, S;
+input A, B, CI;
 endmodule
 
-module NOR3_X2_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FA_X1_LVT (CO, S, A, B, CI);
+output CO, S;
+input A, B, CI;
 endmodule
 
-module NOR3_X4_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FA_X1_SVT (CO, S, A, B, CI);
+output CO, S;
+input A, B, CI;
 endmodule
 
-module NOR4_X1_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module FA_X1_HVT (CO, S, A, B, CI);
+output CO, S;
+input A, B, CI;
 endmodule
 
-module NOR4_X2_LVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module FILLCELL_X1 ();
 endmodule
 
-module NOR4_X4_LVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module FILLCELL_X2 ();
 endmodule
 
-module OAI211_X1_LVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X4 ();
 endmodule
 
-module OAI211_X2_LVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X8 ();
 endmodule
 
-module OAI211_X4_LVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X16 ();
 endmodule
 
-module OAI21_X1_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X32 ();
 endmodule
 
-module OAI21_X2_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X1_LVT ();
 endmodule
 
-module OAI21_X4_LVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X2_LVT ();
 endmodule
 
-module OAI221_X1_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X4_LVT ();
 endmodule
 
-module OAI221_X2_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X8_LVT ();
 endmodule
 
-module OAI221_X4_LVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X16_LVT ();
 endmodule
 
-module OAI222_X1_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X32_LVT ();
 endmodule
 
-module OAI222_X2_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X1_SVT ();
 endmodule
 
-module OAI222_X4_LVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module FILLCELL_X2_SVT ();
 endmodule
 
-module OAI22_X1_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X4_SVT ();
 endmodule
 
-module OAI22_X2_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X8_SVT ();
 endmodule
 
-module OAI22_X4_LVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module FILLCELL_X16_SVT ();
 endmodule
 
-module OAI33_X1_LVT(A1, A2, A3, B1,B2, B3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input B1;
-  input B2;
-  input B3;
-  output ZN;
+module FILLCELL_X32_SVT ();
 endmodule
 
-module OR2_X1_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module FILLCELL_X1_HVT ();
 endmodule
 
-module OR2_X2_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module FILLCELL_X2_HVT ();
 endmodule
 
-module OR2_X4_LVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module FILLCELL_X4_HVT ();
 endmodule
 
-module OR3_X1_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FILLCELL_X8_HVT ();
 endmodule
 
-module OR3_X2_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FILLCELL_X16_HVT ();
 endmodule
 
-module OR3_X4_LVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module FILLCELL_X32_HVT ();
 endmodule
 
-module OR4_X1_LVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module HA_X1 (CO, S, A, B);
+output CO, S;
+input A, B;
 endmodule
 
-module OR4_X2_LVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module HA_X1_LVT (CO, S, A, B);
+output CO, S;
+input A, B;
 endmodule
 
-module OR4_X4_LVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module HA_X1_SVT (CO, S, A, B);
+output CO, S;
+input A, B;
 endmodule
 
-module SDFFRS_X1_LVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module HA_X1_HVT (CO, S, A, B);
+output CO, S;
+input A, B;
 endmodule
 
-module SDFFRS_X2_LVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module INV_X1 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFFR_X1_LVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module INV_X2 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFFR_X2_LVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module INV_X4 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFFS_X1_LVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module INV_X8 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFFS_X2_LVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module INV_X16 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFF_X1_LVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module INV_X32 (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module SDFF_X2_LVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module INV_X1_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TBUF_X16_LVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module INV_X2_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TBUF_X1_LVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module INV_X4_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TBUF_X2_LVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module INV_X8_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TBUF_X4_LVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module INV_X16_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TBUF_X8_LVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module INV_X32_LVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TINV_X1_LVT(EN, I, ZN);
-  input EN;
-  input I;
-  output ZN;
+module INV_X1_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module TLAT_X1_LVT(D, G, OE, Q);
-  input D;
-  input G;
-  input OE;
-  output Q;
+module INV_X2_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module XNOR2_X1_LVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module INV_X4_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module XNOR2_X2_LVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module INV_X8_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module XOR2_X1_LVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module INV_X16_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module XOR2_X2_LVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module INV_X32_SVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND2_X1_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module INV_X1_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND2_X2_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module INV_X2_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND2_X4_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module INV_X4_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND3_X1_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module INV_X8_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND3_X2_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module INV_X16_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND3_X4_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module INV_X32_HVT (ZN, A);
+output ZN;
+input A;
 endmodule
 
-module AND4_X1_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module LOGIC0_X1 (Z);
+output Z;
 endmodule
 
-module AND4_X2_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module LOGIC0_X1_LVT (Z);
+output Z;
 endmodule
 
-module AND4_X4_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module LOGIC0_X1_SVT (Z);
+output Z;
 endmodule
 
-module ANTENNA_X1_SVT(A);
-  input A;
+module LOGIC0_X1_HVT (Z);
+output Z;
 endmodule
 
-module AOI211_X1_SVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module LOGIC1_X1 (Z);
+output Z;
 endmodule
 
-module AOI211_X2_SVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module LOGIC1_X1_LVT (Z);
+output Z;
 endmodule
 
-module AOI211_X4_SVT(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module LOGIC1_X1_SVT (Z);
+output Z;
 endmodule
 
-module AOI21_X1_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module LOGIC1_X1_HVT (Z);
+output Z;
 endmodule
 
-module AOI21_X2_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module MUX2_X1 (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI21_X4_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module MUX2_X2 (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI221_X1_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X1_LVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI221_X2_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X2_LVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI221_X4_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X1_SVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI222_X1_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X2_SVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI222_X2_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X1_HVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI222_X4_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module MUX2_X2_HVT (Z, A, B, S);
+output Z;
+input A, B, S;
 endmodule
 
-module AOI22_X1_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module NAND2_X1 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI22_X2_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module NAND2_X2 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module AOI22_X4_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module NAND2_X4 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X16_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X1_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X1_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X2_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X2_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X4_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X32_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X1_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X4_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X2_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X8_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X4_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X1_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X1_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X2_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X2_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X3_SVT(A, Z);
-  input A;
-  output Z;
+module NAND2_X4_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-/* module "CLKGATETST_X1_SVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X1_SVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module NAND3_X1 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATETST_X2_SVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X2_SVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module NAND3_X2 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATETST_X4_SVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X4_SVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module NAND3_X4 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATETST_X8_SVT_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X8_SVT(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module NAND3_X1_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATE_X1_SVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X1_SVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module NAND3_X2_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATE_X2_SVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X2_SVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module NAND3_X4_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATE_X4_SVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X4_SVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module NAND3_X1_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATE_X8_SVT_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X8_SVT(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module NAND3_X2_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFRS_X1_SVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module NAND3_X4_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFRS_X2_SVT(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module NAND3_X1_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFR_X1_SVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module NAND3_X2_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFR_X2_SVT(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module NAND3_X4_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFS_X1_SVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module NAND4_X1 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DFFS_X2_SVT(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module NAND4_X2 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DFF_X1_SVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module NAND4_X4 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DFF_X2_SVT(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module NAND4_X1_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLH_X1_SVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module NAND4_X2_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLH_X2_SVT(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module NAND4_X4_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLL_X1_SVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module NAND4_X1_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLL_X2_SVT(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module NAND4_X2_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FA_X1_SVT(A, B, CI, CO,S);
-  input A;
-  input B;
-  input CI;
-  output CO;
-  output S;
+module NAND4_X4_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X16_SVT();
+module NAND4_X1_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X1_SVT( );
+module NAND4_X2_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X2_SVT( );
+module NAND4_X4_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X32_SVT( );
+module NOR2_X1 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module FILLCELL_X4_SVT( );
+module NOR2_X2 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module FILLCELL_X8_SVT( );
+module NOR2_X4 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module HA_X1_SVT(A, B, CO, S);
-  input A;
-  input B;
-  output CO;
-  output S;
+module NOR2_X1_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X16_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X2_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X1_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X4_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X2_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X1_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X32_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X2_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X4_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X4_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module INV_X8_SVT(A, ZN);
-  input A;
-  output ZN;
+module NOR2_X1_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module LOGIC0_X1_SVT(Z);
-  output Z;
+module NOR2_X2_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module LOGIC1_X1_SVT(Z);
-  output Z;
+module NOR2_X4_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module MUX2_X1_SVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module NOR3_X1 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module MUX2_X2_SVT(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module NOR3_X2 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND2_X1_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR3_X4 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND2_X2_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR3_X1_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND2_X4_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR3_X2_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND3_X1_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR3_X4_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND3_X2_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR3_X1_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND3_X4_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR3_X2_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND4_X1_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR3_X4_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND4_X2_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR3_X1_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NAND4_X4_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR3_X2_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NOR2_X1_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR3_X4_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module NOR2_X2_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR4_X1 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR2_X4_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module NOR4_X2 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR3_X1_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR4_X4 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR3_X2_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR4_X1_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR3_X4_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module NOR4_X2_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR4_X1_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR4_X4_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR4_X2_SVT(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR4_X1_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module NOR4_X4_SVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module NOR4_X2_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module OAI211_X1_SVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module NOR4_X4_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module OAI211_X2_SVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module NOR4_X1_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module OAI211_X4_SVT(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module NOR4_X2_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module OAI21_X1_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module NOR4_X4_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module OAI21_X2_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module OAI211_X1 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI21_X4_SVT(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module OAI211_X2 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI221_X1_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211_X4 (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI221_X2_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211_X1_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI221_X4_SVT(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211_X2_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI222_X1_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211_X4_LVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI222_X2_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211_X1_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI222_X4_SVT(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI211OAI211_X2_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI22_X1_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OAI211_X4_SVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI22_X2_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OAI211_X1_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI22_X4_SVT(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OAI211_X2_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OAI33_X1_SVT(A1, A2, A3, B1,B2, B3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input B1;
-  input B2;
-  input B3;
-  output ZN;
+module OAI211_X4_HVT (ZN, A, B, C1, C2);
+output ZN;
+input A, B, C1, C2;
 endmodule
 
-module OR2_X1_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI21_X1 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR2_X2_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI21_X2 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR2_X4_SVT(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI21_X4 (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR3_X1_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI21_X1_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR3_X2_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI21_X2_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR3_X4_SVT(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI21_X4_LVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR4_X1_SVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI21_X1_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR4_X2_SVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI21_X2_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module OR4_X4_SVT(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI21_X4_SVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module SDFFRS_X1_SVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module OAI21_X1_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module SDFFRS_X2_SVT(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module OAI21_X2_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module SDFFR_X1_SVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module OAI21_X4_HVT (ZN, A, B1, B2);
+output ZN;
+input A, B1, B2;
 endmodule
 
-module SDFFR_X2_SVT(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module OAI221_X1 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module SDFFS_X1_SVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module OAI221_X2 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module SDFFS_X2_SVT(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module OAI221_X4 (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module SDFF_X1_SVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module OAI221_X1_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module SDFF_X2_SVT(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module OAI221_X2_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TBUF_X16_SVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module OAI221_X4_LVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TBUF_X1_SVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module OAI221_X1_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TBUF_X2_SVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module OAI221_X2_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TBUF_X4_SVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module OAI221_X4_SVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TBUF_X8_SVT(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module OAI221_X1_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TINV_X1_SVT(EN, I, ZN);
-  input EN;
-  input I;
-  output ZN;
+module OAI221_X2_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module TLAT_X1_SVT(D, G, OE, Q);
-  input D;
-  input G;
-  input OE;
-  output Q;
+module OAI221_X4_HVT (ZN, A, B1, B2, C1, C2);
+output ZN;
+input A, B1, B2, C1, C2;
 endmodule
 
-module XNOR2_X1_SVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module OAI222_X1 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module XNOR2_X2_SVT(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module OAI222_X2 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module XOR2_X1_SVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module OAI222_X4 (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module XOR2_X2_SVT(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module OAI222_X1_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND2_X1(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI222_X2_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND2_X2(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI222_X4_LVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND2_X4(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module OAI222_X1_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND3_X1(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI222_X2_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND3_X2(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI222_X4_SVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND3_X4(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module OAI222_X1_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND4_X1(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI222_X2_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND4_X2(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI222_X4_HVT (ZN, A1, A2, B1, B2, C1, C2);
+output ZN;
+input A1, A2, B1, B2, C1, C2;
 endmodule
 
-module AND4_X4(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module OAI22_X1 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module ANTENNA_X1(A);
-  input A;
+module OAI22_X2 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI211_X1(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X4 (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI211_X2(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X1_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI211_X4(A, B, C1, C2,ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X2_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI21_X1(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module OAI22_X4_LVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI21_X2(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module OAI22_X1_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI21_X4(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module OAI22_X2_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI221_X1(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X4_SVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI221_X2(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X1_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI221_X4(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X2_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI222_X1(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI22_X4_HVT (ZN, A1, A2, B1, B2);
+output ZN;
+input A1, A2, B1, B2;
 endmodule
 
-module AOI222_X2(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI33_X1 (ZN, A1, A2, A3, B1, B2, B3);
+output ZN;
+input A1, A2, A3, B1, B2, B3;
 endmodule
 
-module AOI222_X4(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module OAI33_X1_LVT (ZN, A1, A2, A3, B1, B2, B3);
+output ZN;
+input A1, A2, A3, B1, B2, B3;
 endmodule
 
-module AOI22_X1(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OAI33_X1_SVT (ZN, A1, A2, A3, B1, B2, B3);
+output ZN;
+input A1, A2, A3, B1, B2, B3;
 endmodule
 
-module AOI22_X2(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OAI33_X1_HVT (ZN, A1, A2, A3, B1, B2, B3);
+output ZN;
+input A1, A2, A3, B1, B2, B3;
 endmodule
 
-module AOI22_X4(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module OR2_X1 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X16(A, Z);
-  input A;
-  output Z;
+module OR2_X2 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X1(A, Z);
-  input A;
-  output Z;
+module OR2_X4 (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X2(A, Z);
-  input A;
-  output Z;
+module OR2_X1_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X32(A, Z);
-  input A;
-  output Z;
+module OR2_X2_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X4(A, Z);
-  input A;
-  output Z;
+module OR2_X4_LVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module BUF_X8(A, Z);
-  input A;
-  output Z;
+module OR2_X1_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X1(A, Z);
-  input A;
-  output Z;
+module OR2_X2_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X2(A, Z);
-  input A;
-  output Z;
+module OR2_X4_SVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-module CLKBUF_X3(A, Z);
-  input A;
-  output Z;
+module OR2_X1_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-/* module "CLKGATETST_X1_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X1(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module OR2_X2_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
-
-/* module "CLKGATETST_X2_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X2(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module OR2_X4_HVT (ZN, A1, A2);
+output ZN;
+input A1, A2;
 endmodule
 
-/* module "CLKGATETST_X4_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
-
-module CLKGATETST_X4(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module OR3_X1 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATETST_X8_$_IQ"(CK, E, SE, IQ);
- *   input CK;
- *   input E;
- *   input SE;
- *   output IQ;
- * endmodule */
 
-module CLKGATETST_X8(CK, E, GCK, SE);
-    input CK;
-    input E;
-    input SE;
-    output GCK;
+module OR3_X2 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATE_X1_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X1(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module OR3_X4 (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
-
-/* module "CLKGATE_X2_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
 
-module CLKGATE_X2(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module OR3_X1_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATE_X4_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
-
-module CLKGATE_X4(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module OR3_X2_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-/* module "CLKGATE_X8_$_IQ"(CK, E, IQ);
- *     input CK;
- *     input E;
- *     output IQ;
- * endmodule */
+module OR3_X4_LVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
+endmodule
 
-module CLKGATE_X8(CK, E, GCK);
-  input CK;
-  input E;
-  output GCK;
+module OR3_X1_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFRS_X1(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module OR3_X2_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFRS_X2(CK, D, Q, QN,RN, SN);
-  input CK;
-  input D;
-  input RN;
-  input SN;
-  output Q;
-  output QN;
+module OR3_X4_SVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFR_X1(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module OR3_X1_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFR_X2(CK, D, Q, QN,RN);
-  input CK;
-  input D;
-  input RN;
-  output Q;
-  output QN;
+module OR3_X2_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFS_X1(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module OR3_X4_HVT (ZN, A1, A2, A3);
+output ZN;
+input A1, A2, A3;
 endmodule
 
-module DFFS_X2(CK, D, Q, QN, SN);
-  input CK;
-  input D;
-  input SN;
-  output Q;
-  output QN;
+module OR4_X1 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DFF_X1(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module OR4_X2 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DFF_X2(CK, D, Q, QN);
-  input CK;
-  input D;
-  output Q;
-  output QN;
+module OR4_X4 (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLH_X1(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module OR4_X1_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLH_X2(D, G, Q);
-  input D;
-  input G;
-  output Q;
+module OR4_X2_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLL_X1(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module OR4_X4_LVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module DLL_X2(D, GN, Q);
-  input D;
-  input GN;
-  output Q;
+module OR4_X1_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FA_X1(A, B, CI, CO,S);
-  input A;
-  input B;
-  input CI;
-  output CO;
-  output S;
+module OR4_X2_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X16();
+module OR4_X4_SVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X1( );
+module OR4_X1_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X2( );
+module OR4_X2_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X32( );
+module OR4_X4_HVT (ZN, A1, A2, A3, A4);
+output ZN;
+input A1, A2, A3, A4;
 endmodule
 
-module FILLCELL_X4( );
+module SDFFRS_X1 (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module FILLCELL_X8( );
+module SDFFRS_X2 (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module HA_X1(A, B, CO, S);
-  input A;
-  input B;
-  output CO;
-  output S;
+module SDFFRS_X1_LVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X16(A, ZN);
-  input A;
-  output ZN;
+module SDFFRS_X2_LVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X1(A, ZN);
-  input A;
-  output ZN;
+module SDFFRS_X1_SVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X2(A, ZN);
-  input A;
-  output ZN;
+module SDFFRS_X2_SVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X32(A, ZN);
-  input A;
-  output ZN;
+module SDFFRS_X1_HVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X4(A, ZN);
-  input A;
-  output ZN;
+module SDFFRS_X2_HVT (Q, QN, CK, D, RN, SE, SI, SN);
+output Q, QN;
+input CK, D, RN, SE, SI, SN;
 endmodule
 
-module INV_X8(A, ZN);
-  input A;
-  output ZN;
+module SDFFR_X1 (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module LOGIC0_X1(Z);
-  output Z;
+module SDFFR_X2 (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module LOGIC1_X1(Z);
-  output Z;
+module SDFFR_X1_LVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module MUX2_X1(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module SDFFR_X2_LVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module MUX2_X2(A, B, S, Z);
-  input A;
-  input B;
-  input S;
-  output Z;
+module SDFFR_X1_SVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module NAND2_X1(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFFR_X2_SVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module NAND2_X2(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFFR_X1_HVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module NAND2_X4(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFFR_X2_HVT (Q, QN, CK, D, RN, SE, SI);
+output Q, QN;
+input CK, D, RN, SE, SI;
 endmodule
 
-module NAND3_X1(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFFS_X1 (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NAND3_X2(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFFS_X2 (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NAND3_X4(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFFS_X1_LVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NAND4_X1(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFFS_X2_LVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NAND4_X2(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFFS_X1_SVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NAND4_X4(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFFS_X2_SVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NOR2_X1(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFFS_X1_HVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NOR2_X2(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFFS_X2_HVT (Q, QN, CK, D, SE, SI, SN);
+output Q, QN;
+input CK, D, SE, SI, SN;
 endmodule
 
-module NOR2_X4(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module SDFF_X1 (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR3_X1(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFF_X2 (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR3_X2(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFF_X1_LVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR3_X4(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module SDFF_X2_LVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR4_X1(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFF_X1_SVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR4_X2(A1, A2, A3, A4,ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFF_X2_SVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module NOR4_X4(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module SDFF_X1_HVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module OAI211_X1(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module SDFF_X2_HVT (Q, QN, CK, D, SE, SI);
+output Q, QN;
+input CK, D, SE, SI;
 endmodule
 
-module OAI211_X2(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X1 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI211_X4(A, B, C1, C2, ZN);
-  input A;
-  input B;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X2 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI21_X1(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X4 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI21_X2(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X8 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI21_X4(A, B1, B2, ZN);
-  input A;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X16 (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI221_X1(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X1_LVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI221_X2(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X2_LVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI221_X4(A, B1, B2, C1,C2, ZN);
-  input A;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X4_LVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI222_X1(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X8_LVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI222_X2(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X16_LVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI222_X4(A1, A2, B1, B2,C1, C2, ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  input C1;
-  input C2;
-  output ZN;
+module TBUF_X1_SVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI22_X1(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X2_SVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI22_X2(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X4_SVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI22_X4(A1, A2, B1, B2,ZN);
-  input A1;
-  input A2;
-  input B1;
-  input B2;
-  output ZN;
+module TBUF_X8_SVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OAI33_X1(A1, A2, A3, B1,B2, B3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input B1;
-  input B2;
-  input B3;
-  output ZN;
+module TBUF_X16_SVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR2_X1(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module TBUF_X1_HVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR2_X2(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module TBUF_X2_HVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR2_X4(A1, A2, ZN);
-  input A1;
-  input A2;
-  output ZN;
+module TBUF_X4_HVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR3_X1(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module TBUF_X8_HVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR3_X2(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module TBUF_X16_HVT (Z, A, EN);
+output Z;
+input A, EN;
 endmodule
 
-module OR3_X4(A1, A2, A3, ZN);
-  input A1;
-  input A2;
-  input A3;
-  output ZN;
+module TINV_X1 (ZN, EN, I);
+output ZN;
+input EN, I;
 endmodule
 
-module OR4_X1(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module TINV_X1_LVT (ZN, EN, I);
+output ZN;
+input EN, I;
 endmodule
 
-module OR4_X2(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module TINV_X1_SVT (ZN, EN, I);
+output ZN;
+input EN, I;
 endmodule
 
-module OR4_X4(A1, A2, A3, A4, ZN);
-  input A1;
-  input A2;
-  input A3;
-  input A4;
-  output ZN;
+module TINV_X1_HVT (ZN, EN, I);
+output ZN;
+input EN, I;
 endmodule
 
-module SDFFRS_X1(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module TLAT_X1 (Q, D, G, OE);
+output Q;
+input D, G, OE;
 endmodule
 
-module SDFFRS_X2(CK, D, Q, QN,RN, SE, SI, SN);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module TLAT_X1_LVT (Q, D, G, OE);
+output Q;
+input D, G, OE;
 endmodule
 
-module SDFFR_X1(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module TLAT_X1_SVT (Q, D, G, OE);
+output Q;
+input D, G, OE;
 endmodule
 
-module SDFFR_X2(CK, D, Q, QN,RN, SE, SI);
-  input CK;
-  input D;
-  input RN;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module TLAT_X1_HVT (Q, D, G, OE);
+output Q;
+input D, G, OE;
 endmodule
 
-module SDFFS_X1(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module XNOR2_X1 (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module SDFFS_X2(CK, D, Q, QN, SE, SI, SN);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  input SN;
-  output Q;
-  output QN;
+module XNOR2_X2 (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module SDFF_X1(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module XNOR2_X1_LVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module SDFF_X2(CK, D, Q, QN,SE, SI);
-  input CK;
-  input D;
-  input SE;
-  input SI;
-  output Q;
-  output QN;
+module XNOR2_X2_LVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module TBUF_X16(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module XNOR2_X1_SVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module TBUF_X1(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module XNOR2_X2_SVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module TBUF_X2(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module XNOR2_X1_HVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module TBUF_X4(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module XNOR2_X2_HVT (ZN, A, B);
+output ZN;
+input A, B;
 endmodule
 
-module TBUF_X8(A, EN, Z);
-  input A;
-  input EN;
-  output Z;
+module XOR2_X1 (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module TINV_X1(EN, I, ZN);
-  input EN;
-  input I;
-  output ZN;
+module XOR2_X2 (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module TLAT_X1(D, G, OE, Q);
-  input D;
-  input G;
-  input OE;
-  output Q;
+module XOR2_X1_LVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module XNOR2_X1(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module XOR2_X2_LVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module XNOR2_X2(A, B, ZN);
-  input A;
-  input B;
-  output ZN;
+module XOR2_X1_SVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module XOR2_X1(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module XOR2_X2_SVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module XOR2_X2(A, B, Z);
-  input A;
-  input B;
-  output Z;
+module XOR2_X1_HVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
 
-module MemGen_16_10(chip_en, wr_en, addr, wr_data, clock, rd_en, rd_data);
-	input chip_en;
-	input wr_en;
-  input[9:0] addr;
-  input[15:0] wr_data;
-  input clock;
-  input rd_en;
-  output[15:0] rd_data;
+module XOR2_X2_HVT (Z, A, B);
+output Z;
+input A, B;
 endmodule
+
+`endcelldefine
