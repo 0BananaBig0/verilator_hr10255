@@ -145,4 +145,5 @@ module top(co, cco, SUM, A, B, ci);
   ripple_adder U6(.co(C[8]), .SUM(SUM[29:26]), .A(A[22:19]), .B({B[3],B[2],B[1],cc}), .ci(C[0]));
   SDFF_X1_LVT U7(.D(), .SE(1'b0), .SI(1'b1), .CK(1'b1), .QN(), .Q());
   ripple_adder U8(.co(), .SUM(), .A({2'b0,ci,1'b0}), .B({1'b0,ci,1'b1,1'b1}), .ci());
+  ripple_adder_twelve U9(.co(), .SUM(), .A({2'b00,ci,ci,2'b00,ci,ci,2'b00,ci,ci}), .B(),.ci());
 endmodule
