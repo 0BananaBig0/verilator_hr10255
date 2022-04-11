@@ -594,47 +594,47 @@ static bool IsStdCell(const std::string &moduleName)
 }
 
 static void
-PlainMoudle(MoudleMsg &moudleMsg,
-            std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists)
+PlainModule(ModuleMsg &moduleMsg,
+            std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
 {
   /**
-   * @brief       moudleMsg 初始化拷贝
-   * @param[in]   moudleMsg : 原值
+   * @brief       moduleMsg 初始化拷贝
+   * @param[in]   moduleMsg : 原值
    * @return      拷贝对象
    * @sa          参见具体使用处
    */
-  auto initMoudleMsgCopy = [](const MoudleMsg &moudleMsg) -> MoudleMsg
+  auto initModuleMsgCopy = [](const ModuleMsg &moduleMsg) -> ModuleMsg
   {
-    MoudleMsg result;
-    result.moduleDefName = moudleMsg.moduleDefName;
-    result.inputs = moudleMsg.inputs;
-    result.outputs = moudleMsg.outputs;
-    result.inouts = moudleMsg.inouts;
-    result.wires = moudleMsg.wires;
-    result.assigns = moudleMsg.assigns;
+    ModuleMsg result;
+    result.moduleDefName = moduleMsg.moduleDefName;
+    result.inputs = moduleMsg.inputs;
+    result.outputs = moduleMsg.outputs;
+    result.inouts = moduleMsg.inouts;
+    result.wires = moduleMsg.wires;
+    result.assigns = moduleMsg.assigns;
     return result;
   };
 
-  MoudleMsg result = initMoudleMsgCopy(moudleMsg);
+  ModuleMsg result = initModuleMsgCopy(moduleMsg);
 
-  for(const auto &subMoudleInstanceName: moudleMsg.subMoudleInstanceNames)
+  for(const auto &subModuleInstanceName: moduleMsg.subModuleInstanceNames)
   {
-    const std::string subMoudleDefName =
-      moudleMsg.mouldeDefInstanceMap[subMoudleInstanceName];
+    const std::string subModuleDefName =
+      moduleMsg.moduleDefInstanceMap[subModuleInstanceName];
     // 1 - 判断子模块是否是标准单元
     // Hint : 标准单元不需要展开，直接拷贝走就可以了
-    if(IsStdCell(subMoudleDefName))
+    if(IsStdCell(subModuleDefName))
     {
-      result.subMoudleInstanceNames.push_back(subMoudleInstanceName);
-      result.mouldeDefInstanceMap[subMoudleInstanceName] =
-        moudleMsg.mouldeDefInstanceMap[subMoudleInstanceName];
-      result.subMoudlePorts[subMoudleInstanceName] =
-        moudleMsg.subMoudlePorts[subMoudleInstanceName];
+      result.subModuleInstanceNames.push_back(subModuleInstanceName);
+      result.moduleDefInstanceMap[subModuleInstanceName] =
+        moduleMsg.moduleDefInstanceMap[subModuleInstanceName];
+      result.subModulePorts[subModuleInstanceName] =
+        moduleMsg.subModulePorts[subModuleInstanceName];
       continue;
     }
     // 2 - 展开非标准单元的子模块
     // Hint : 本质上是 const 的,但是这样我操作 map 就很麻烦了，下同
-    /* const */ MoudleMsg &subMoudleMsg = hierCellsNetLists[subMoudleDefName];
+    /* const */ ModuleMsg &subModuleMsg = hierCellsNetLists[subModuleDefName];
     /**
      * @brief 简单的 hash 算子
      * @note  这个是还要优化的
@@ -650,41 +650,41 @@ PlainMoudle(MoudleMsg &moudleMsg,
 
     // 2.1 - 往父模块中插入子模块的 wire
     // Hint : 为了确保唯一性，加上子模块的实例名称
-    for(auto originPortMsg: subMoudleMsg.wires)
+    for(auto originPortMsg: subModuleMsg.wires)
     {
       PortMsg portMsg = originPortMsg;
       portMsg.portDefName =
-        subMoudleInstanceName + "_" + originPortMsg.portDefName;
+        subModuleInstanceName + "_" + originPortMsg.portDefName;
       result.wires.push_back(portMsg);
     }
 
     // 2.2 - 做子模块的 in, out, inout 到父模块的映射
     std::unordered_map<std::string, std::vector<PortInstanceFormalMsg>>
       portsDefInstanceMap;
-    auto &subMoudlePorts = moudleMsg.subMoudlePorts[subMoudleInstanceName];
-    for(auto &subMoudlePort: subMoudlePorts)
+    auto &subModulePorts = moduleMsg.subModulePorts[subModuleInstanceName];
+    for(auto &subModulePort: subModulePorts)
     {
-      portsDefInstanceMap[subMoudlePort.portDefName] =
-        subMoudlePort.portInstanceFormalMsgs;
+      portsDefInstanceMap[subModulePort.portDefName] =
+        subModulePort.portInstanceFormalMsgs;
     }
 
     // 3 - 将子模块中的标准单元实例搬移到 result 中去
-    for(const auto &originSubSubMoudleInstanceName:
-        subMoudleMsg.subMoudleInstanceNames)
+    for(const auto &originSubSubModuleInstanceName:
+        subModuleMsg.subModuleInstanceNames)
     {
       // 3.1 - 插入新的标准单元实例名称
-      std::string subSubMoudleInstanceName =
-        subMoudleInstanceName + originSubSubMoudleInstanceName;
-      result.subMoudleInstanceNames.push_back(subSubMoudleInstanceName);
+      std::string subSubModuleInstanceName =
+        subModuleInstanceName + originSubSubModuleInstanceName;
+      result.subModuleInstanceNames.push_back(subSubModuleInstanceName);
 
       // 3.2 - 记录新的标准单元实例的类型
-      result.mouldeDefInstanceMap[subSubMoudleInstanceName] =
-        subMoudleMsg.mouldeDefInstanceMap[originSubSubMoudleInstanceName];
+      result.moduleDefInstanceMap[subSubModuleInstanceName] =
+        subModuleMsg.moduleDefInstanceMap[originSubSubModuleInstanceName];
 
       // 3.3 - 将原来的标准单元的形参替换为新的映射关系
       {
         const auto &originSubPortInstanceMsgs =
-          subMoudleMsg.subMoudlePorts[originSubSubMoudleInstanceName];
+          subModuleMsg.subModulePorts[originSubSubModuleInstanceName];
         std::vector<PortInstanceMsg> subPortInstanceMsgs;
         for(const auto &originPortInstanceMsg: originSubPortInstanceMsgs)
         {
@@ -694,8 +694,8 @@ PlainMoudle(MoudleMsg &moudleMsg,
           portInstanceMsg.portDefName = originPortInstanceMsg.portDefName;
 
           // 3.3.2 修改引脚实例名称，分情况讨论
-          auto &subMoudlePorts =
-            moudleMsg.subMoudlePorts[subMoudleInstanceName];
+          auto &subModulePorts =
+            moduleMsg.subModulePorts[subModuleInstanceName];
           for(auto &originPortInstanceFormalMsg:
               originPortInstanceMsg.portInstanceFormalMsgs)
           {
@@ -747,7 +747,7 @@ PlainMoudle(MoudleMsg &moudleMsg,
             {
               portInstanceFormalMsg = originPortInstanceFormalMsg;
               portInstanceFormalMsg.portInstanceName =
-                subMoudleInstanceName + "_" +
+                subModuleInstanceName + "_" +
                 portInstanceFormalMsg.portInstanceName;
               std::cout << "originPortInstanceFormalMsg."
                            "portInstanceName is "
@@ -759,12 +759,12 @@ PlainMoudle(MoudleMsg &moudleMsg,
           }
           subPortInstanceMsgs.push_back(portInstanceMsg);
         }
-        result.subMoudlePorts[subSubMoudleInstanceName] = subPortInstanceMsgs;
+        result.subModulePorts[subSubModuleInstanceName] = subPortInstanceMsgs;
       }
     }
   }
 
-  moudleMsg = result;
+  moduleMsg = result;
 
   return;
 }
@@ -776,26 +776,26 @@ class NetListsPlain final
 {
   public:
     NetListsPlain(
-      std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists);
+      std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists);
     NetListsPlain() = default;
 
   public:
     /**
      * @brief 获取扁平化的网表
      */
-    std::unordered_map<std::string, MoudleMsg> GetPlainNetLists();
+    std::unordered_map<std::string, ModuleMsg> GetPlainNetLists();
 
   private:
-    std::unordered_map<std::string, MoudleMsg> _plainCellsNetLists;
+    std::unordered_map<std::string, ModuleMsg> _plainCellsNetLists;
 };
 
 NetListsPlain::NetListsPlain(
-  std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists)
+  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
 {
   std::vector<std::string> moduleDefNameOrderByLevel;
-  for(const auto &moulde: hierCellsNetLists)
+  for(const auto &module: hierCellsNetLists)
   {
-    moduleDefNameOrderByLevel.push_back(moulde.second.moduleDefName);
+    moduleDefNameOrderByLevel.push_back(module.second.moduleDefName);
   }
   std::sort(
     moduleDefNameOrderByLevel.begin(), moduleDefNameOrderByLevel.end(),
@@ -810,20 +810,20 @@ NetListsPlain::NetListsPlain(
     {
       continue;
     }
-    MoudleMsg &moudleMsg = hierCellsNetLists[moduleDefName];
-    PlainMoudle(moudleMsg, hierCellsNetLists);
+    ModuleMsg &moduleMsg = hierCellsNetLists[moduleDefName];
+    PlainModule(moduleMsg, hierCellsNetLists);
   }
   _plainCellsNetLists = hierCellsNetLists;
 }
 
-std::unordered_map<std::string, MoudleMsg> NetListsPlain::GetPlainNetLists()
+std::unordered_map<std::string, ModuleMsg> NetListsPlain::GetPlainNetLists()
 {
   return std::move(_plainCellsNetLists);
 }
 
 void V3EmitPlainNetLists::emitPlainNetLists(
-  std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists,
-  std::unordered_map<std::string, MoudleMsg> &plainCellsNetLists)
+  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
+  std::unordered_map<std::string, ModuleMsg> &plainCellsNetLists)
 {
   auto tmp = hierCellsNetLists;
   NetListsPlain netListsPlain(tmp);

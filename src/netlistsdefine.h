@@ -13,7 +13,7 @@ enum class ErrorType
 };
 
 /** @brief 端口类型
- *  @sa    HDL RTL 级别的 moudle 设计
+ *  @sa    HDL RTL 级别的 module 设计
  */
 enum class PortType
 {
@@ -83,15 +83,15 @@ struct AssignStatementMsg
  *        3 - 需要知道使用到的子模块的引脚及其实例
  * (由于传入本身就不保证顺序，所以这里不保证)\ 4 - 模块的引脚信息
  */
-struct MoudleMsg
+struct ModuleMsg
 {
   public:
-    // std::string -> subMoudleInstanceName, std::string ->
+    // std::string -> subModuleInstanceName, std::string ->
     // subModuleDefName
-    using MouldeDefInstanceMap = std::unordered_map<std::string, std::string>;
-    // (std::string -> subMoudleInstanceName) ，
+    using ModuleDefInstanceMap = std::unordered_map<std::string, std::string>;
+    // (std::string -> subModuleInstanceName) ，
     // std::vector<PortInstanceMsg> -> 实例引脚表
-    using SubMoudlePorts =
+    using SubModulePorts =
       std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 
   public:
@@ -110,9 +110,9 @@ struct MoudleMsg
 
     /*********************************** 网表实例信息(START)
      * *********************************************/
-    std::vector<std::string> subMoudleInstanceNames; // 子模块实例名称  (实参)
-    MouldeDefInstanceMap mouldeDefInstanceMap; // 子模块实例映射表
-    SubMoudlePorts subMoudlePorts;             // 子模块实例的引脚表
+    std::vector<std::string> subModuleInstanceNames; // 子模块实例名称  (实参)
+    ModuleDefInstanceMap moduleDefInstanceMap; // 子模块实例映射表
+    SubModulePorts subModulePorts;             // 子模块实例的引脚表
     /*********************************** 网表实例信息(END)
      * *********************************************/
 

@@ -250,14 +250,14 @@ struct AssignStatus
 class HierCellsNetListsVisitor final : public AstNVisitor
 {
   public:
-    // _moudleMap[_curMouldeInstanceParentName] -> 指向当前正在处理的模块
-    // _moudleMap[_curMouldeInstanceParentName][_curMouldeInstanceParentName]
+    // _moduleMap[_curModuleInstanceParentName] -> 指向当前正在处理的模块
+    // _moduleMap[_curModuleInstanceParentName][_curModuleInstanceParentName]
     // -> 指向当前正在处理的模块下的一个模块实例
-    std::unordered_map<std::string, MoudleMsg> _moudleMap;
+    std::unordered_map<std::string, ModuleMsg> _moduleMap;
 
   private:
-    std::string _curMouldeInstanceParentName; // 当前模块实例父亲的名称
-    std::string _curMouldeInstanceName;       // 当前模块实例的名称
+    std::string _curModuleInstanceParentName; // 当前模块实例父亲的名称
+    std::string _curModuleInstanceName;       // 当前模块实例的名称
 
     AssignStatus _assignStatus; // assign 相关状态
 
@@ -266,7 +266,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
       _portInstanceFormalComplexTmp; // 端口实例形参信息 (复杂)
 
     std::vector<PortInstanceMsg>
-      _curMoudlePortInstanceMsg; // 当前模块的引脚实例信息
+      _curModulePortInstanceMsg; // 当前模块的引脚实例信息
 
   private:
     // All information we can get from this Ast tree by using the
@@ -290,37 +290,37 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     /**
      * @brief 获取层次化网表
      */
-    std::unordered_map<std::string, MoudleMsg> GetHierCellsNetLists();
+    std::unordered_map<std::string, ModuleMsg> GetHierCellsNetLists();
 
   public:
     // AstNetlist is ConElement
     HierCellsNetListsVisitor(AstNetlist *nodep) { nodep->accept(*this); }
     virtual ~HierCellsNetListsVisitor() override{
-      // selfTest(_moudleMap,
+      // selfTest(_moduleMap,
       // "/home/haorui/Desktop/verilator/note/misc/case4/test.v");
     };
 
     /**
      * @brief         自测
      * @param[in]     hierCellsNetLists :
-     * HierCellsNetListsVisitor::_moudleMap
+     * HierCellsNetListsVisitor::_moduleMap
      * @param[out]    filename : 文件名
      * @note          观察输出文件的内容
      */
     static void
-    selfTest(std::unordered_map<std::string, MoudleMsg> hierCellsNetLists,
+    selfTest(std::unordered_map<std::string, ModuleMsg> hierCellsNetLists,
              const std::string &filename);
 };
 
 /**
- * @brief moudle 语句的入口
+ * @brief module 语句的入口
  */
 void HierCellsNetListsVisitor::visit(AstModule *nodep)
 {
   /** @brief 是否是顶级模块
    *  @note  保留，未使用
    */
-  auto isTopMoudle = [nodep]() -> bool
+  auto isTopModule = [nodep]() -> bool
   {
     bool res = false;
     if(nodep->level() >= 0 && nodep->level() <= 2)
@@ -335,13 +335,13 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
    * @param[in]  moduleDefName : 模块定义名称
    * @param[in]  level : 模块的 level
    */
-  auto createMoudleInstance = [this](const std::string &moduleDefName,
+  auto createModuleInstance = [this](const std::string &moduleDefName,
                                      uint32_t level = -1) -> void
   {
-    MoudleMsg moudleInstanceMsg;
-    moudleInstanceMsg.moduleDefName = moduleDefName;
-    moudleInstanceMsg.level = level;
-    _moudleMap[moduleDefName] = std::move(moudleInstanceMsg);
+    ModuleMsg moduleInstanceMsg;
+    moduleInstanceMsg.moduleDefName = moduleDefName;
+    moduleInstanceMsg.level = level;
+    _moduleMap[moduleDefName] = std::move(moduleInstanceMsg);
   };
 
   if(nodep->prettyName() == "@CONST-POOL@")
@@ -349,10 +349,10 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
     return;
   }
 
-  createMoudleInstance(nodep->origName(), nodep->level());
+  createModuleInstance(nodep->origName(), nodep->level());
 
-  _curMouldeInstanceParentName = nodep->origName();
-  _curMouldeInstanceName = nodep->origName();
+  _curModuleInstanceParentName = nodep->origName();
+  _curModuleInstanceName = nodep->origName();
 
   iterateChildren(nodep);
 }
@@ -396,19 +396,19 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   switch(portMsg.portType)
   {
   case PortType::INPUT:
-    _moudleMap[_curMouldeInstanceParentName].inputs.push_back(
+    _moduleMap[_curModuleInstanceParentName].inputs.push_back(
       std::move(portMsg));
     break;
   case PortType::OUTPUT:
-    _moudleMap[_curMouldeInstanceParentName].outputs.push_back(
+    _moduleMap[_curModuleInstanceParentName].outputs.push_back(
       std::move(portMsg));
     break;
   case PortType::INOUT:
-    _moudleMap[_curMouldeInstanceParentName].inouts.push_back(
+    _moduleMap[_curModuleInstanceParentName].inouts.push_back(
       std::move(portMsg));
     break;
   case PortType::WIRE:
-    _moudleMap[_curMouldeInstanceParentName].wires.push_back(
+    _moduleMap[_curModuleInstanceParentName].wires.push_back(
       std::move(portMsg));
 
     break;
@@ -421,19 +421,19 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
 
 void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
-  /** @brief 向 MoudleMsg 塞入一个子模块
-   *  @sa    MoudleMsg
+  /** @brief 向 ModuleMsg 塞入一个子模块
+   *  @sa    ModuleMsg
    */
-  auto insertSubmouldeInstance =
-    [this, nodep](const std::string &parentMoudleName,
+  auto insertSubmoduleInstance =
+    [this, nodep](const std::string &parentModuleName,
                   const std::string &moduleDefName,
-                  const std::string &moudleInstanceName) -> void
+                  const std::string &moduleInstanceName) -> void
   {
-    MoudleMsg &parentMoudleInstanceMsg =
-      _moudleMap[_curMouldeInstanceParentName];
-    parentMoudleInstanceMsg.subMoudleInstanceNames.push_back(
-      moudleInstanceName);
-    parentMoudleInstanceMsg.mouldeDefInstanceMap[moudleInstanceName] =
+    ModuleMsg &parentModuleInstanceMsg =
+      _moduleMap[_curModuleInstanceParentName];
+    parentModuleInstanceMsg.subModuleInstanceNames.push_back(
+      moduleInstanceName);
+    parentModuleInstanceMsg.moduleDefInstanceMap[moduleInstanceName] =
       moduleDefName;
   };
 
@@ -443,19 +443,19 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
    * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
    * 利用备忘者模式，使得每个子模块都能知道其对应的父亲
    */
-  MemoMaker<std::string> memoMaker1(_curMouldeInstanceParentName);
-  MemoMaker<std::string> memoMaker2(_curMouldeInstanceName);
+  MemoMaker<std::string> memoMaker1(_curModuleInstanceParentName);
+  MemoMaker<std::string> memoMaker2(_curModuleInstanceName);
   MemoMaker<PortInstanceFormalComplexMsg> memoMaker3(
     _portInstanceFormalComplexTmp);
 
   std::string moduleDefName = nodep->modName();
-  std::string moudleInstanceName = nodep->origName();
+  std::string moduleInstanceName = nodep->origName();
 
-  insertSubmouldeInstance(_curMouldeInstanceParentName, nodep->modName(),
+  insertSubmoduleInstance(_curModuleInstanceParentName, nodep->modName(),
                           nodep->origName());
 
-  _curMouldeInstanceParentName = _curMouldeInstanceName;
-  _curMouldeInstanceName = moudleInstanceName;
+  _curModuleInstanceParentName = _curModuleInstanceName;
+  _curModuleInstanceName = moduleInstanceName;
 
   iterateChildren(nodep);
 }
@@ -470,8 +470,8 @@ void HierCellsNetListsVisitor::visit(AstPin *nodep)
   _portInstanceMsgTmp.portDefName = nodep->prettyName();
   iterateChildren(nodep);
   // 插入当前模块实例的一个端口信息
-  _moudleMap[_curMouldeInstanceParentName]
-    .subMoudlePorts[_curMouldeInstanceName]
+  _moduleMap[_curModuleInstanceParentName]
+    .subModulePorts[_curModuleInstanceName]
     .push_back(_portInstanceMsgTmp);
 }
 
@@ -628,7 +628,7 @@ void HierCellsNetListsVisitor::visit(AstNodeAssign *nodep)
       assignStatementMsg.rValue.index =
         _assignStatus.assignStatementComplexMsg.rValue.indexRange.first;
     }
-    _moudleMap[_curMouldeInstanceParentName].assigns.push_back(
+    _moduleMap[_curModuleInstanceParentName].assigns.push_back(
       assignStatementMsg);
   }
 }
@@ -666,15 +666,15 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   }
 }
 
-std::unordered_map<std::string, MoudleMsg>
+std::unordered_map<std::string, ModuleMsg>
 HierCellsNetListsVisitor::GetHierCellsNetLists()
 {
-  return _moudleMap;
-  // return std::move(_moudleMap);
+  return _moduleMap;
+  // return std::move(_moduleMap);
 }
 
 void V3EmitHierNetLists::emitHireNetLists(
-  std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists)
+  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
 {
   // v3Global will return a AstNetlist*
   HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
@@ -682,7 +682,7 @@ void V3EmitHierNetLists::emitHireNetLists(
 }
 
 void V3EmitHierNetLists::printHireNetLists(
-  std::unordered_map<std::string, MoudleMsg> &hierCellsNetLists,
+  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
   std::string filename)
 {
   HierCellsNetListsVisitor::selfTest(hierCellsNetLists, filename);
@@ -692,20 +692,20 @@ void V3EmitHierNetLists::printHireNetLists(
  * 自测函数(START)
  * *****************************************************************/
 void HierCellsNetListsVisitor::selfTest(
-  std::unordered_map<std::string, MoudleMsg> hierCellsNetLists,
+  std::unordered_map<std::string, ModuleMsg> hierCellsNetLists,
   const std::string &filename)
 {
   std::ofstream ofs(filename);
-  for(const auto &moudleMsg: hierCellsNetLists)
+  for(const auto &moduleMsg: hierCellsNetLists)
   {
     /**
      * @example module omsp_and_gate__0_1424(y, a, b);
      */
-    auto moudle = moudleMsg.second;
-    ofs << "module " << moudle.moduleDefName << "(";
-    for(auto output: moudle.outputs) { ofs << output.portDefName << ","; }
-    for(auto input: moudle.inputs) { ofs << input.portDefName << ","; }
-    for(auto inout: moudle.inouts) { ofs << inout.portDefName << ","; }
+    auto module = moduleMsg.second;
+    ofs << "module " << module.moduleDefName << "(";
+    for(auto output: module.outputs) { ofs << output.portDefName << ","; }
+    for(auto input: module.inputs) { ofs << input.portDefName << ","; }
+    for(auto inout: module.inouts) { ofs << inout.portDefName << ","; }
     ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
     ofs << ");" << std::endl;
 
@@ -715,7 +715,7 @@ void HierCellsNetListsVisitor::selfTest(
      *     input a;
      *     input b;
      */
-    for(auto output: moudle.outputs)
+    for(auto output: module.outputs)
     {
       ofs << "\t output ";
       if(output.isArray)
@@ -725,7 +725,7 @@ void HierCellsNetListsVisitor::selfTest(
       ofs << output.portDefName;
       ofs << ";" << std::endl;
     }
-    for(auto input: moudle.inputs)
+    for(auto input: module.inputs)
     {
       ofs << "\t input ";
       if(input.isArray)
@@ -735,7 +735,7 @@ void HierCellsNetListsVisitor::selfTest(
       ofs << input.portDefName;
       ofs << ";" << std::endl;
     }
-    for(auto inout: moudle.inouts)
+    for(auto inout: module.inouts)
     {
       ofs << "\t inout ";
       if(inout.isArray)
@@ -750,7 +750,7 @@ void HierCellsNetListsVisitor::selfTest(
     /**
      * @example wire wdtnmies;
      */
-    for(auto wire: moudle.wires)
+    for(auto wire: module.wires)
     {
       ofs << "\t wire ";
       if(wire.isArray)
@@ -768,7 +768,7 @@ void HierCellsNetListsVisitor::selfTest(
      *          2 - assign per_dout[14] = per_dout[5];
      */
 
-    for(auto assign: moudle.assigns)
+    for(auto assign: module.assigns)
     {
       ofs << "\tassign ";
       if(assign.lValue.portInstanceName != "anonymous")
@@ -804,13 +804,13 @@ void HierCellsNetListsVisitor::selfTest(
      * @example  NAND2_X1_LVT i_0_0 (.A1(exec_cycle), .A2(inst_bw),
      * .ZN(op_bit8_msk));
      */
-    for(const auto &subMoudleInstanceName: moudle.subMoudleInstanceNames)
+    for(const auto &subModuleInstanceName: module.subModuleInstanceNames)
     {
-      ofs << "\t" << moudle.mouldeDefInstanceMap[subMoudleInstanceName] << " "
-          << subMoudleInstanceName << " ";
+      ofs << "\t" << module.moduleDefInstanceMap[subModuleInstanceName] << " "
+          << subModuleInstanceName << " ";
       ofs << "(";
       for(const auto &portInstanceMsg:
-          moudle.subMoudlePorts[subMoudleInstanceName])
+          module.subModulePorts[subModuleInstanceName])
       {
         ofs << "." << portInstanceMsg.portDefName << "(";
         if(portInstanceMsg.portInstanceFormalMsgs.size() > 1)
