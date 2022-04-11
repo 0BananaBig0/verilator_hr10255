@@ -440,8 +440,8 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
   if(nodep->modp()->dead())
     return;
   /**
-   * @brief 由于编译抽象语法树是递归逻辑，所以可以利用递归的特性，
-   * 利用备忘者模式，使得每个子模块都能知道其对应的父亲
+   * @brief 446 to 449 and 457 is code redundancy which can make program more
+   * stable. Commenting it not affects the result.
    */
   MemoMaker<std::string> memoMaker1(_curModuleInstanceParentName);
   MemoMaker<std::string> memoMaker2(_curModuleInstanceName);
