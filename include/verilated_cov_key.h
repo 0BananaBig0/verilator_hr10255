@@ -67,26 +67,16 @@ public:
   // Return the short key code for a given a long coverage key
   static std::string shortKey(const std::string &key) VL_PURE {
     // VLCOVGEN_SHORT_AUTO_EDIT_BEGIN
-    if (key == "column")
-      return VL_CIK_COLUMN;
-    if (key == "comment")
-      return VL_CIK_COMMENT;
-    if (key == "filename")
-      return VL_CIK_FILENAME;
-    if (key == "hier")
-      return VL_CIK_HIER;
-    if (key == "lineno")
-      return VL_CIK_LINENO;
-    if (key == "linescov")
-      return VL_CIK_LINESCOV;
-    if (key == "per_instance")
-      return VL_CIK_PER_INSTANCE;
-    if (key == "thresh")
-      return VL_CIK_THRESH;
-    if (key == "type")
-      return VL_CIK_TYPE;
-    if (key == "weight")
-      return VL_CIK_WEIGHT;
+        if (key == "column") return VL_CIK_COLUMN;
+        if (key == "comment") return VL_CIK_COMMENT;
+        if (key == "filename") return VL_CIK_FILENAME;
+        if (key == "hier") return VL_CIK_HIER;
+        if (key == "lineno") return VL_CIK_LINENO;
+        if (key == "linescov") return VL_CIK_LINESCOV;
+        if (key == "per_instance") return VL_CIK_PER_INSTANCE;
+        if (key == "thresh") return VL_CIK_THRESH;
+        if (key == "type") return VL_CIK_TYPE;
+        if (key == "weight") return VL_CIK_WEIGHT;
     // VLCOVGEN_SHORT_AUTO_EDIT_END
     return key;
   }
