@@ -29,6 +29,7 @@ enum class PortType
  * @brief 端口的信息
  * @sa    PortType
  */
+// It is used to store input, output, inout and wire definition.
 struct PortMsg
 {
     std::string portDefName;               // 端口定义名称
@@ -42,6 +43,8 @@ struct PortMsg
  * @note  若 portInstanceName == "anonymous" ，则代表其实直接赋值，
  *        initialVal 即为默认值
  */
+// It only stores one bit information, for example, C[1], 1'b0, ci, not store
+// C[1:0]
 struct PortInstanceFormalMsg
 {
     std::string portInstanceName = "anonymous"; // 端口实例名称 (实参)
@@ -60,6 +63,8 @@ struct PortInstanceFormalMsg
 struct PortInstanceMsg
 {
     std::string portDefName; // 端口定义名称 (形参)
+    // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
+    // ci, not store C[1:0]
     std::vector<PortInstanceFormalMsg>
       portInstanceFormalMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
@@ -69,6 +74,8 @@ struct PortInstanceMsg
  * @note  实际上 assign 语句的含义就是端口直连,故使用 PortInstanceMsg
  * 作为其信息存储
  */
+// It is used to store one bit assign statement, for example, C[1]=1'b0,
+// C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
 struct AssignStatementMsg
 {
     PortInstanceFormalMsg lValue; // 左值
@@ -86,11 +93,13 @@ struct AssignStatementMsg
 struct ModuleMsg
 {
   public:
-    // std::string -> subModuleInstanceName, std::string ->
-    // subModuleDefName
+    // std::string -> subModuleInstanceName, for example, U1,
+    // std::string -> subModuleDefName, for example, full_adder
+    // for example,{{U1,full_adder_co},{U2,full_adder_sum},...}
     using ModuleDefInstanceMap = std::unordered_map<std::string, std::string>;
-    // (std::string -> subModuleInstanceName) ，
-    // std::vector<PortInstanceMsg> -> 实例引脚表
+    // std::string -> subModuleInstanceName, for example, U1
+    // std::vector<PortInstanceMsg> -> 实例引脚表, for example,
+    // {{U1,{.co(co),.A(a),.B(b),.ci(ci)}},{U2,{.sum(sum),.A(a),.B(b),.ci(ci)}},...}
     using SubModulePorts =
       std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 
