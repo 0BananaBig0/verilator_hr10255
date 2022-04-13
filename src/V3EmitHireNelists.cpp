@@ -280,8 +280,10 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // (1)node has no children. For example, AstConst node.(Not pushed to)
     // (2)node is pointed by m_nextp and its children pointed by m_opxp have
     // been visited, such as AstAssignW node.(Popped up from)
-    // (3)node is pointed by m_opxp and its all children have been visited.
-    // such as AstModule node.(Popped up from)
+    // (3)node is pointed by m_opxp and its children pointed by m_opxp have
+    // been visited. But its iterateAndNext() function will be popped up from
+    // function stack only when its all descendants have been visited such as
+    // AstModule node.(Popped up from)
     // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
