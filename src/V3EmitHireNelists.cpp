@@ -274,6 +274,15 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // AstNetlist is the first node of the Ast tree. Becaus we have no
     // information needed to get from it, we only iterate over it to
     // access its children nodes.
+
+    // A visit function will be popped up from or not pushed to the function
+    // stack after finishing obtainning data only in the following three cases:
+    // (1)node has no children. For example, AstConst node.(Not pushed to)
+    // (2)node is pointed by m_nextp and its children pointed by m_opxp have
+    // been visited, such as AstAssignW node.(Popped up from)
+    // (3)node is pointed by m_opxp and its all children have been visited.
+    // such as AstModule node.(Popped up from)
+    // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
     virtual void visit(AstModule *nodep) override;
