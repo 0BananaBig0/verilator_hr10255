@@ -896,6 +896,10 @@ void AstNode::iterateAndNext(AstNVisitor &v) {
   // then the NEW node will be iterated on next, it isn't skipped!
   // Future versions of this function may require the node to have a back to be
   // iterated; there's no lower level reason yet though the back must exist.
+  //
+  // Because the type of this pointer is unknown, we should make sure it is
+  // basic class pointer, so that when we call accept() function, we can use
+  // the polymorphism of C++.
   AstNode *nodep = this;
 #ifdef VL_DEBUG // Otherwise too hot of a function for debug
                 // Branch prediction optimization
