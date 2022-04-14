@@ -296,6 +296,13 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     virtual void visit(AstNodeAssign *nodep) override;
     virtual void visit(AstConst *nodep) override;
     virtual void visit(AstSel *nodep) override;
+    virtual void visit(AstExtend *nodep) override { iterateChildren(nodep); }
+    virtual void visit(AstReplicate *nodep) override
+    {
+      iterateChildren(nodep);
+    }
+    virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); };
+    virtual void visit(AstAssign *nodep) override { iterateChildren(nodep); };
 
   public:
     /**
@@ -520,7 +527,12 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     res = std::atoi(tmp.c_str());
     return res;
   };
-
+  // nodep->prettyName() <=> The "name" in xml file <=> nodep->name().
+  // std::cout << nodep->prettyName() << std::endl;
+  // std::cout << nodep->name() << std::endl;
+  // std::cout << nodep->width() << std::endl;
+  // std::cout << nodep->num().m_value.m_inlined[0].m_value << std::endl;
+  // std::cout << nodep->num().m_value.m_inlined[0].m_valueX << std::endl;
   if(_assignStatus.isAssignStatement)
   {
     _assignStatus.ProcessIndexRange(nodep->prettyName());
