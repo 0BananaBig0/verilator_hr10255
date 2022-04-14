@@ -296,7 +296,18 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     virtual void visit(AstNodeAssign *nodep) override;
     virtual void visit(AstConst *nodep) override;
     virtual void visit(AstSel *nodep) override;
-    virtual void visit(AstExtend *nodep) override { iterateChildren(nodep); }
+    virtual void visit(AstExtend *nodep) override
+    {
+      // nodep->width();//All children length including it 0 extension.
+      // nodep->m_op1p->width();//Except its 0 extension, all children length
+      iterateChildren(nodep);
+    }
+    virtual void visit(AstExtendS *nodep) override
+    {
+      // nodep->width();//All children length including it 1 extension.
+      // nodep->m_op1p->width();//Except its 1 extension, all children length
+      iterateChildren(nodep);
+    }
     virtual void visit(AstReplicate *nodep) override
     {
       iterateChildren(nodep);
