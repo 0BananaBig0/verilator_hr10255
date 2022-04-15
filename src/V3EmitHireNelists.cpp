@@ -287,6 +287,11 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
     // Note: This is also a reason why separating m_opxp and m_nextp by
     // AstNode::iterateChildren and AstNode::iterateAndNext
+    // If A->B by m_nextp, it means that they are parallel, and the information
+    // extraction between them will not affect each other.
+    // If A->B by m_opxp, it means that They are service relationships, where
+    // all information of B is to serve A or A's ancestors that is pointed by
+    // m_nextp.
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
     virtual void visit(AstModule *nodep) override;
