@@ -852,7 +852,7 @@ void AstNode::operator delete(void *objp, size_t size) {
 /**
  * @brief 访问节点的孩子
  */
-// iterateChildren function means visiting derived class of AstNode by m_opxp
+// iterateChildren function means visiting derived classes of AstNode by m_opxp
 // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
 void AstNode::iterateChildren(AstNVisitor &v) {
   // This is a very hot function

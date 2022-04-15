@@ -285,7 +285,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // function stack only when its all descendants have been visited such as
     // AstModule node.(Popped up from)
     // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
-    // Note: This also is a reason why separate m_opxp and m_nextp by
+    // Note: This is also a reason why separating m_opxp and m_nextp by
     // AstNode::iterateChildren and AstNode::iterateAndNext
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); }
 
