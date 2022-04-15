@@ -381,7 +381,6 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     { // Now, the const value has value x or z.
       _portRefMsgTmp.constValueAndWidth.valueX =
         nodep->num().m_value.m_inlined[0].m_valueX;
-      _portRefMsgTmp.portRefName = nodep->name();
       _portRefMsgTmp.hasValueX = true;
     }
     if(_isAssignStatement)
