@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace OneBitNetlist
+{
 /** @brief 错误类型 */
 enum class ErrorType
 {
@@ -131,3 +133,4 @@ struct ModuleMsg
     uint32_t inoutNum() const;
     uint32_t wireNum() const;
 };
+}
