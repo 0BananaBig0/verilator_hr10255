@@ -34,6 +34,8 @@ struct ModAndItsHierLevel
 // them I have written before the declaration of visit function.
 // (5)AstAssign only has one bit information.
 // (6)We only can writ one AstVarRef information at the same time.
+// (7)Only such AstNode that has children pointed by m_opxp and we need the
+// information of its children can call iterateChildren(nodep) function.
 class HierCellsNetListsVisitor final : public AstNVisitor
 {
   public:
@@ -59,8 +61,6 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // Themporary message of current visited assign statement
     AssignStatementMsg _assignStatementMsgTmp;
 
-    // AstPin Status
-    bool _isAstPin = false;
     // Themporary instance message of current visited port
     PortInstanceMsg _portInstanceMsgTmp;
     // Port Instance message of current visited submodule instance
@@ -173,7 +173,6 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   {
     std::cout << "We know " << nodep->origName()
               << " is a parameter. But we don't care about it." << std::endl;
-    iterateChildren(nodep);
     return;
   }
   else
@@ -205,8 +204,6 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   default:
     break;
   }
-
-  iterateChildren(nodep);
 }
 
 void HierCellsNetListsVisitor::visit(AstAssignW *nodep)
@@ -231,7 +228,6 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
   _curSubmoduleName = nodep->modName();
   _curSubmoduleInstanceName = nodep->origName();
-  _isAstPin = true;
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName]
     .subModInsNameMapPortInsMsgVec[_curSubmoduleInstanceName] =
@@ -241,7 +237,6 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
     std::move(_curSubmoduleName);
   _modsNameMapTheirMsg[_curModuleName].subModuleInstanceNames.push_back(
     std::move(_curSubmoduleInstanceName));
-  _isAstPin = false;
 }
 
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
@@ -377,28 +372,25 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   }
   else if(!_isReplicated)
   { // Now, AstConst is a rValue of assign statement or refValue of a port.
-    if(_isAssignStatement || _isAstPin)
-    {
-      _portRefMsgTmp.constValueAndWidth.value =
-        nodep->num().m_value.m_inlined[0].m_value;
-      _portRefMsgTmp.constValueAndWidth.width = nodep->width();
-      if(_portRefMsgTmp.constValueAndWidth.width > 0)
-        _portRefMsgTmp.isArray = true;
-      if(nodep->num().m_value.m_inlined[0].m_valueX)
-      { // Now, the const value has value x or z.
-        _portRefMsgTmp.constValueAndWidth.valueX =
-          nodep->num().m_value.m_inlined[0].m_valueX;
-        _portRefMsgTmp.portRefName = nodep->name();
-        _portRefMsgTmp.hasValueX = true;
-      }
-      if(_isAssignStatement)
-      { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat
-        _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
-      }
-      else
-      { // Now, AstConst is a child of AstPin or AstConcat
-        _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
-      }
+    _portRefMsgTmp.constValueAndWidth.value =
+      nodep->num().m_value.m_inlined[0].m_value;
+    _portRefMsgTmp.constValueAndWidth.width = nodep->width();
+    if(_portRefMsgTmp.constValueAndWidth.width > 0)
+      _portRefMsgTmp.isArray = true;
+    if(nodep->num().m_value.m_inlined[0].m_valueX)
+    { // Now, the const value has value x or z.
+      _portRefMsgTmp.constValueAndWidth.valueX =
+        nodep->num().m_value.m_inlined[0].m_valueX;
+      _portRefMsgTmp.portRefName = nodep->name();
+      _portRefMsgTmp.hasValueX = true;
+    }
+    if(_isAssignStatement)
+    { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat
+      _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+    }
+    else
+    { // Now, AstConst is a child of AstPin or AstConcat
+      _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
     }
   }
 }
