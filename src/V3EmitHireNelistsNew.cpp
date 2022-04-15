@@ -68,8 +68,6 @@ class HierCellsNetListsVisitor final : public AstNVisitor
 
     // AstSel Status:1 = m_op1p, 2 = m_op2p, 3 = m_op3p, 4 = m_op4p
     uint32_t _whichAstSelChildren = 0;
-    // AstReplicate Status
-    bool _isReplicated = false;
     PortRefMsg _portRefMsgTmp;
 
   private:
@@ -337,6 +335,8 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   int replicateTimes = nodep->m_op2p->num().m_value.m_inlined[0].m_value;
   if(_isAssignStatement)
   { // Now, AstReplicate is a child of AstAssignW or AstExtend or AstConcat
+    uint32_t replicateTimes = _assignStatementMsgTmp.rValue.back();
+    _assignStatementMsgTmp.rValue.pop_back();
     for(replicateTimes; replicateTimes > 0; replicateTimes--)
     {
       _assignStatementMsgTmp.rValue.push_back(
@@ -345,6 +345,8 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   }
   else
   { // Now, AstReplicate is a child of AstPin or AstExtend or AstConcat
+    uint32_t replicateTimes = _portInstanceMsgTmp.protRefMsgs.back();
+    _portInstanceMsgTmp.protRefMsgs.pop_back();
     for(replicateTimes; replicateTimes > 0; replicateTimes--)
     {
       _portInstanceMsgTmp.portRefMsgs.push_back(
@@ -370,8 +372,9 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     if(_portRefMsgTmp.portRefRange.width > 0)
       _portRefMsgTmp.isArray = true;
   }
-  else if(!_isReplicated)
-  { // Now, AstConst is a rValue of assign statement or refValue of a port.
+  else
+  { // Now, AstConst is a rValue of assign statement or refValue of a port or
+    // the number of AstReplicate.
     _portRefMsgTmp.constValueAndWidth.value =
       nodep->num().m_value.m_inlined[0].m_value;
     _portRefMsgTmp.constValueAndWidth.width = nodep->width();
@@ -384,11 +387,12 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
       _portRefMsgTmp.hasValueX = true;
     }
     if(_isAssignStatement)
-    { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat
+    { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat or
+      // AstReplicate
       _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
     }
     else
-    { // Now, AstConst is a child of AstPin or AstConcat
+    { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
       _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
     }
   }
