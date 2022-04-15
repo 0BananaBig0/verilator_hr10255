@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+namespace OneBitNetlist
+{
 /**
  * @brief       是否是标准单元
  * @param[in]
@@ -828,4 +830,5 @@ void V3EmitPlainNetLists::emitPlainNetLists(
   auto tmp = hierCellsNetLists;
   NetListsPlain netListsPlain(tmp);
   plainCellsNetLists = netListsPlain.GetPlainNetLists();
+}
 }

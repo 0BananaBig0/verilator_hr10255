@@ -2,6 +2,8 @@
 
 #include "netlistsdefine.h"
 
+namespace OneBitNetlist
+{
 class V3EmitHierNetLists final
 {
   public:
@@ -25,3 +27,4 @@ class V3EmitPlainNetLists final
       V3EmitHierNetLists::printHireNetLists(hierCellsNetLists, filename);
     }
 };
+}
