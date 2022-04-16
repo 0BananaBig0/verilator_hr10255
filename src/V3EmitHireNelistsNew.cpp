@@ -170,8 +170,9 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   }
   else if(nodep->isGParam())
   {
-    std::cout << "We know " << nodep->origName()
-              << " is a parameter. But we don't care about it." << std::endl;
+    std::cout << "We know " << nodep->origName() << " is a parameter in "
+              << _curModuleName << ". But we don't care about it."
+              << std::endl;
     return;
   }
   else
@@ -208,6 +209,7 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
 void HierCellsNetListsVisitor::visit(AstAssignW *nodep)
 {
   _isAssignStatement = true;
+  _assignStatementMsgTmp.rValue.clear();
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName].assigns.push_back(
     _assignStatementMsgTmp);
@@ -217,6 +219,7 @@ void HierCellsNetListsVisitor::visit(AstAssignW *nodep)
 void HierCellsNetListsVisitor::visit(AstAssign *nodep)
 {
   _isAssignStatement = true;
+  _assignStatementMsgTmp.rValue.clear();
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName].assigns.push_back(
     _assignStatementMsgTmp);
@@ -227,22 +230,24 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
   _curSubmoduleName = nodep->modName();
   _curSubmoduleInstanceName = nodep->origName();
+  _curSubModInsPortInsMsgs.clear();
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName]
     .subModInsNameMapPortInsMsgVec[_curSubmoduleInstanceName] =
-    std::move(_curSubModInsPortInsMsgs);
+    _curSubModInsPortInsMsgs;
   _modsNameMapTheirMsg[_curModuleName]
     .subModInsNameMapSubModDefName[_curSubmoduleInstanceName] =
-    std::move(_curSubmoduleName);
+    _curSubmoduleName;
   _modsNameMapTheirMsg[_curModuleName].subModuleInstanceNames.push_back(
-    std::move(_curSubmoduleInstanceName));
+    _curSubmoduleInstanceName);
 }
 
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
 {
+  _portInstanceMsgTmp.portRefMsgs.clear();
   _portInstanceMsgTmp.portDefName = nodep->name();
   iterateChildren(nodep);
-  _curSubModInsPortInsMsgs.push_back(std::move(_portInstanceMsgTmp));
+  _curSubModInsPortInsMsgs.push_back(_portInstanceMsgTmp);
 }
 
 void HierCellsNetListsVisitor::visit(AstSel *nodep)
@@ -253,22 +258,26 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
   { // Now, AstSel is a child or a descendant of AstAssignW
     if(_isAssignStatementLvalue)
     { // Now, AstSel is a child of AstAssignW
-      _assignStatementMsgTmp.lValue = std::move(_portRefMsgTmp);
+      _assignStatementMsgTmp.lValue = _portRefMsgTmp;
       _isAssignStatementLvalue = false;
     }
     else
     { // Now, AstSel is a child of AstAssign or AstExtend or AstConcat
-      _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+      _assignStatementMsgTmp.rValue.push_back(_portRefMsgTmp);
     }
   }
   else
   {
     // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat
-    _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
+    _portInstanceMsgTmp.portRefMsgs.push_back(_portRefMsgTmp);
   }
   _whichAstSelChildren = 0;
 }
 
+// If AstVarRef is a child of AstSel, it references some part of a var.
+// For example, C[2:1];
+// Otherwise, it references the whole part of a var.
+// For example, C[n-1:0] or ci;
 void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 {
   _portRefMsgTmp.portRefName = nodep->name();
@@ -282,55 +291,80 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   }
   else
   {
+    _portRefMsgTmp.hasValueX = false;
+    _portRefMsgTmp.portRefRange.end =
+      nodep->dtypep()->basicp()->nrange().left();
+    _portRefMsgTmp.portRefRange.start =
+      nodep->dtypep()->basicp()->nrange().right();
+    _portRefMsgTmp.portRefRange.width =
+      _portRefMsgTmp.portRefRange.end - _portRefMsgTmp.portRefRange.start + 1;
+    if(_portRefMsgTmp.portRefRange.width > 1)
+      _portRefMsgTmp.isArray = true;
+    else
+      _portRefMsgTmp.isArray = false;
     if(_isAssignStatement)
     { // Now, AstVarRef is a child of AstAssign or a descendant of AstAssignW
       if(nodep->access() == VAccess::WRITE)
       { // Now, AstVarRef is a child of AstAssign
-        _assignStatementMsgTmp.lValue = std::move(_portRefMsgTmp);
+        _assignStatementMsgTmp.lValue = _portRefMsgTmp;
       }
       else
       { // Now, AstVarRef is a child of AstAssign or AstExtend or AstConcat or
         // AstReplicate
-        _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+        _assignStatementMsgTmp.rValue.push_back(_portRefMsgTmp);
       }
     }
     else
     {
       // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat or
       // AstReplicate
-      _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
+      _portInstanceMsgTmp.portRefMsgs.push_back(_portRefMsgTmp);
     }
   }
 }
 
 void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 {
-  int extendWidth = nodep->width() - nodep->lhsp()->width();
-  _portRefMsgTmp.constValueAndWidth.width = extendWidth;
+  uint32_t extendWidth = nodep->width() - nodep->lhsp()->width();
+  _portRefMsgTmp.portRefName = "";
   _portRefMsgTmp.constValueAndWidth.value = 0;
+  _portRefMsgTmp.constValueAndWidth.valueX = 0;
+  if(extendWidth > 1)
+    _portRefMsgTmp.isArray = true;
+  else
+    _portRefMsgTmp.isArray = false;
+  _portRefMsgTmp.hasValueX = false;
+  _portRefMsgTmp.constValueAndWidth.width = std::move(extendWidth);
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
-    _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+    _assignStatementMsgTmp.rValue.push_back(_portRefMsgTmp);
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
+    _portInstanceMsgTmp.portRefMsgs.push_back(_portRefMsgTmp);
   }
   iterateChildren(nodep);
 }
 
 void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 {
-  int extendSWidth = nodep->width() - nodep->lhsp()->width();
-  _portRefMsgTmp.constValueAndWidth.width = extendSWidth;
+  uint32_t extendSWidth = nodep->width() - nodep->lhsp()->width();
+  _portRefMsgTmp.portRefName = "";
   _portRefMsgTmp.constValueAndWidth.value = (1 << extendSWidth) - 1;
+  _portRefMsgTmp.constValueAndWidth.valueX = 0;
+  if(extendSWidth > 1)
+    _portRefMsgTmp.isArray = true;
+  else
+    _portRefMsgTmp.isArray = false;
+  _portRefMsgTmp.hasValueX = false;
+  _portRefMsgTmp.constValueAndWidth.width = std::move(extendSWidth);
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
-    _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+    _assignStatementMsgTmp.rValue.push_back(_portRefMsgTmp);
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
+    _portInstanceMsgTmp.portRefMsgs.push_back(_portRefMsgTmp);
   }
   iterateChildren(nodep);
 }
@@ -377,27 +411,38 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
                                       _portRefMsgTmp.portRefRange.width - 1;
     if(_portRefMsgTmp.portRefRange.width > 1)
       _portRefMsgTmp.isArray = true;
+    else
+      _portRefMsgTmp.isArray = false;
+    _portRefMsgTmp.hasValueX = false;
   }
   else
   { // Now, AstConst is a rValue of assign statement or refValue of a port or
     // the number of AstReplicate.
+    _portRefMsgTmp.portRefName = "";
     _portRefMsgTmp.constValueAndWidth.value = nodep->num().getValue();
     _portRefMsgTmp.constValueAndWidth.width = nodep->width();
     if(_portRefMsgTmp.constValueAndWidth.width > 1)
       _portRefMsgTmp.isArray = true;
+    else
+      _portRefMsgTmp.isArray = false;
     if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
       _portRefMsgTmp.constValueAndWidth.valueX = nodep->num().getValueX();
       _portRefMsgTmp.hasValueX = true;
     }
+    else
+    {
+      _portRefMsgTmp.constValueAndWidth.valueX = 0;
+      _portRefMsgTmp.hasValueX = false;
+    }
     if(_isAssignStatement)
     { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat or
       // AstReplicate
-      _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
+      _assignStatementMsgTmp.rValue.push_back(_portRefMsgTmp);
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
-      _portInstanceMsgTmp.portRefMsgs.push_back(std::move(_portRefMsgTmp));
+      _portInstanceMsgTmp.portRefMsgs.push_back(_portRefMsgTmp);
     }
   }
 }
