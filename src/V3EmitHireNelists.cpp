@@ -321,8 +321,8 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     {
       iterateChildren(nodep);
     }
-    virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); };
-    virtual void visit(AstAssign *nodep) override { iterateChildren(nodep); };
+    // virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); };
+    // virtual void visit(AstAssign *nodep) override { iterateChildren(nodep); };
 
   public:
     /**

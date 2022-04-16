@@ -75,7 +75,7 @@ struct PortRefMsg
     bool hasValueX = false;       // Are there value x or z?
     union
     {
-        PortRefRange protRefRange;
+        PortRefRange portRefRange;
         ConstValueAndWidth constValueAndWidth; // 初始值，在 portInstanceName
                                                // == "anonymous" 下使用
     };
@@ -88,7 +88,7 @@ struct PortInstanceMsg
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0]
     std::vector<PortRefMsg>
-      protRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
+      portRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...

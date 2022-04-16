@@ -15,7 +15,7 @@
 
 #include "V3Ast.h"
 #include "V3Error.h"
-#include "netlistsdefineNew.h"
+// #include "netlistsdefineNew.h"
 
 namespace MultipleBitsNetlist
 {
@@ -58,6 +58,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
 
     // AstAssignW/AstAssign Status
     bool _isAssignStatement = false;
+    bool _isAssignStatementLvalue = false;
     // Themporary message of current visited assign statement
     AssignStatementMsg _assignStatementMsgTmp;
 
@@ -250,9 +251,10 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
   iterateChildren(nodep);
   if(_isAssignStatement)
   { // Now, AstSel is a child or a descendant of AstAssignW
-    if(nodep->access() == VAccess::WRITE)
+    if(_isAssignStatementLvalue)
     { // Now, AstSel is a child of AstAssignW
       _assignStatementMsgTmp.lValue = std::move(_portRefMsgTmp);
+      _isAssignStatementLvalue = false;
     }
     else
     { // Now, AstSel is a child of AstAssign or AstExtend or AstConcat
@@ -269,10 +271,14 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
 
 void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 {
-  _portRefMsgTmp.portRefName = nodep->name;
+  _portRefMsgTmp.portRefName = nodep->name();
   if(_whichAstSelChildren)
   { // Now, AstVarRef is a child of AstSel
     _whichAstSelChildren++;
+    if(nodep->access() == VAccess::WRITE)
+    {
+      _isAssignStatementLvalue = true;
+    }
   }
   else
   {
@@ -299,7 +305,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 
 void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 {
-  int extendWidth = nodep->width() - nodep->m_op1p->width();
+  int extendWidth = nodep->width() - nodep->lhsp()->width();
   _portRefMsgTmp.constValueAndWidth.width = extendWidth;
   _portRefMsgTmp.constValueAndWidth.value = 0;
   if(_isAssignStatement)
@@ -315,8 +321,8 @@ void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 
 void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 {
-  int extendSWidth = nodep->width() - nodep->m_op1p->width();
-  _portRefMsgTmp.constValueAndWidth.width = extendWidth;
+  int extendSWidth = nodep->width() - nodep->lhsp()->width();
+  _portRefMsgTmp.constValueAndWidth.width = extendSWidth;
   _portRefMsgTmp.constValueAndWidth.value = std::pow(2, extendSWidth) - 1;
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
@@ -332,12 +338,12 @@ void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
 {
   iterateChildren(nodep);
-  int replicateTimes = nodep->m_op2p->num().m_value.m_inlined[0].m_value;
   if(_isAssignStatement)
   { // Now, AstReplicate is a child of AstAssignW or AstExtend or AstConcat
-    uint32_t replicateTimes = _assignStatementMsgTmp.rValue.back();
+    uint32_t replicateTimes =
+      _assignStatementMsgTmp.rValue.back().constValueAndWidth.value;
     _assignStatementMsgTmp.rValue.pop_back();
-    for(replicateTimes; replicateTimes > 0; replicateTimes--)
+    while(replicateTimes > 0)
     {
       _assignStatementMsgTmp.rValue.push_back(
         _assignStatementMsgTmp.rValue.back());
@@ -345,12 +351,14 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   }
   else
   { // Now, AstReplicate is a child of AstPin or AstExtend or AstConcat
-    uint32_t replicateTimes = _portInstanceMsgTmp.protRefMsgs.back();
-    _portInstanceMsgTmp.protRefMsgs.pop_back();
-    for(replicateTimes; replicateTimes > 0; replicateTimes--)
+    uint32_t replicateTimes =
+      _portInstanceMsgTmp.portRefMsgs.back().constValueAndWidth.value;
+    _portInstanceMsgTmp.portRefMsgs.pop_back();
+    while(replicateTimes > 0)
     {
       _portInstanceMsgTmp.portRefMsgs.push_back(
         _portInstanceMsgTmp.portRefMsgs.back());
+      replicateTimes--;
     }
   }
 }
@@ -360,13 +368,11 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   if(_whichAstSelChildren == 2)
   { // Now, AstConst is a child of AstSel
     _whichAstSelChildren++;
-    _portRefMsgTmp.portRefRange.start =
-      nodep->num().m_value.m_inlined[0].m_value;
+    _portRefMsgTmp.portRefRange.start = nodep->num().getValue();
   }
   else if(_whichAstSelChildren == 3)
   { // Now, AstConst is a child of AstSel
-    _portRefMsgTmp.portRefRange.width =
-      nodep->num().m_value.m_inlined[0].m_value;
+    _portRefMsgTmp.portRefRange.width = nodep->num().getValue();
     _portRefMsgTmp.portRefRange.end = _portRefMsgTmp.portRefRange.start +
                                       _portRefMsgTmp.portRefRange.width - 1;
     if(_portRefMsgTmp.portRefRange.width > 0)
@@ -375,15 +381,13 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   else
   { // Now, AstConst is a rValue of assign statement or refValue of a port or
     // the number of AstReplicate.
-    _portRefMsgTmp.constValueAndWidth.value =
-      nodep->num().m_value.m_inlined[0].m_value;
+    _portRefMsgTmp.constValueAndWidth.value = nodep->num().getValue();
     _portRefMsgTmp.constValueAndWidth.width = nodep->width();
     if(_portRefMsgTmp.constValueAndWidth.width > 0)
       _portRefMsgTmp.isArray = true;
-    if(nodep->num().m_value.m_inlined[0].m_valueX)
+    if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
-      _portRefMsgTmp.constValueAndWidth.valueX =
-        nodep->num().m_value.m_inlined[0].m_valueX;
+      _portRefMsgTmp.constValueAndWidth.valueX = nodep->num().getValueX();
       _portRefMsgTmp.hasValueX = true;
     }
     if(_isAssignStatement)
@@ -399,5 +403,16 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
 }
 
 std::unordered_map<std::string, ModuleMsg>
-GetHierCellsNetLists(){ return _modsNameMapTheirMsg };
+HierCellsNetListsVisitor::GetHierCellsNetLists()
+{
+  return _modsNameMapTheirMsg;
+}
+
+void V3EmitHierNetLists::emitHireNetLists(
+  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
+{
+  // v3Global will return a AstNetlist*
+  HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
+  hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
+}
 }
