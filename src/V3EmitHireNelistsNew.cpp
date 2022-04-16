@@ -375,7 +375,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     _portRefMsgTmp.portRefRange.width = nodep->num().getValue();
     _portRefMsgTmp.portRefRange.end = _portRefMsgTmp.portRefRange.start +
                                       _portRefMsgTmp.portRefRange.width - 1;
-    if(_portRefMsgTmp.portRefRange.width > 0)
+    if(_portRefMsgTmp.portRefRange.width > 1)
       _portRefMsgTmp.isArray = true;
   }
   else
@@ -383,7 +383,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     // the number of AstReplicate.
     _portRefMsgTmp.constValueAndWidth.value = nodep->num().getValue();
     _portRefMsgTmp.constValueAndWidth.width = nodep->width();
-    if(_portRefMsgTmp.constValueAndWidth.width > 0)
+    if(_portRefMsgTmp.constValueAndWidth.width > 1)
       _portRefMsgTmp.isArray = true;
     if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
