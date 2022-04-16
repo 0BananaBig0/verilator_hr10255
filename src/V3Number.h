@@ -376,6 +376,8 @@ public:
   bool isAnyZ() const;
   bool isMsbXZ() const { return bitIsXZ(m_width); }
   uint32_t toUInt() const;
+  uint32_t getValue() const;
+  uint32_t getValueX() const;
   vlsint32_t toSInt() const;
   vluint64_t toUQuad() const;
   vlsint64_t toSQuad() const;

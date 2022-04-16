@@ -961,6 +961,15 @@ uint32_t V3Number::toUInt() const {
   return m_value[0].m_value;
 }
 
+// It is added by HuaxiaoLiang, so that the visitor can get data 
+// about and const value and value x and z.
+uint32_t V3Number::getValue() const {
+  return m_value[0].m_value;
+}
+uint32_t V3Number::getValueX() const {
+  return m_value[0].m_valueX;
+}
+
 double V3Number::toDouble() const {
   if (VL_UNCOVERABLE(!isDouble() || width() != 64)) {
     v3fatalSrc("Real operation on wrong sized/non-real number");
