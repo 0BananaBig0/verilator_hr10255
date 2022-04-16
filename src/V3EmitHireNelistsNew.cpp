@@ -377,10 +377,11 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
     uint32_t replicateTimes =
       _assignStatementMsgTmp.rValue.back().constValueAndWidth.value;
     _assignStatementMsgTmp.rValue.pop_back();
-    while(replicateTimes > 0)
+    while(replicateTimes != 1)
     {
       _assignStatementMsgTmp.rValue.push_back(
         _assignStatementMsgTmp.rValue.back());
+      replicateTimes--;
     }
   }
   else
@@ -388,7 +389,7 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
     uint32_t replicateTimes =
       _portInstanceMsgTmp.portRefMsgs.back().constValueAndWidth.value;
     _portInstanceMsgTmp.portRefMsgs.pop_back();
-    while(replicateTimes > 0)
+    while(replicateTimes != 1)
     {
       _portInstanceMsgTmp.portRefMsgs.push_back(
         _portInstanceMsgTmp.portRefMsgs.back());
