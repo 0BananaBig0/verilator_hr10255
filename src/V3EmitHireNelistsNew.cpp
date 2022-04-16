@@ -323,7 +323,7 @@ void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 {
   int extendSWidth = nodep->width() - nodep->lhsp()->width();
   _portRefMsgTmp.constValueAndWidth.width = extendSWidth;
-  _portRefMsgTmp.constValueAndWidth.value = std::pow(2, extendSWidth) - 1;
+  _portRefMsgTmp.constValueAndWidth.value = (1 << extendSWidth) - 1;
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
     _assignStatementMsgTmp.rValue.push_back(std::move(_portRefMsgTmp));
