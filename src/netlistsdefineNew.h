@@ -9,43 +9,44 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "netlistsdefine.h"
 
 namespace MultipleBitsNetlist
 {
 /** @brief 错误类型 */
-enum class ErrorType
-{
-  UNKNOWN = -1,
-  FALSE,
-  TRUE
-};
-
+// enum class ErrorType
+// {
+//   UNKNOWN = -1,
+//   FALSE,
+//   TRUE
+// };
+//
 /** @brief 端口类型
  *  @sa    HDL RTL 级别的 module 设计
  */
-enum class PortType
-{
-  UNKNOWN = -1,
-  INPUT,  // 输入
-  OUTPUT, // 输出
-  INOUT,  // 输入输出
-  WIRE,   // 连线
-  TYPENUM // 类型种数
-};
-
+// enum class PortType
+// {
+//   UNKNOWN = -1,
+//   INPUT,  // 输入
+//   OUTPUT, // 输出
+//   INOUT,  // 输入输出
+//   WIRE,   // 连线
+//   TYPENUM // 类型种数
+// };
+//
 /**
  * @brief 端口的信息
  * @sa    PortType
  */
-// It is used to store input, output, inout and wire definition.
-// PortMsg = Port Definded Message
-struct PortMsg
-{
-    std::string portDefName;               // 端口定义名称
-    PortType portType = PortType::UNKNOWN; // 端口类型
-    bool isArray = false;                  // 是否是数组
-    uint32_t arraySize = 1;                // 数组大小
-};
+// // It is used to store input, output, inout and wire definition.
+// // PortMsg = Port Definded Message
+// struct PortMsg
+// {
+//     std::string portDefName;               // 端口定义名称
+//     PortType portType = PortType::UNKNOWN; // 端口类型
+//     bool isArray = false;                  // 是否是数组
+//     uint32_t arraySize = 1;                // 数组大小
+// };
 
 // VarRefRange = Variable Referenced Range
 struct VarRefRange

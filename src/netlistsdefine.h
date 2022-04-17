@@ -4,8 +4,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace OneBitNetlist
-{
 /** @brief 错误类型 */
 enum class ErrorType
 {
@@ -39,6 +37,9 @@ struct PortMsg
     bool isArray = false;                  // 是否是数组
     uint32_t arraySize = 1;                // 数组大小
 };
+
+namespace OneBitNetlist
+{
 
 /**
  * @brief 端口实例信息
