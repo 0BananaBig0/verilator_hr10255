@@ -661,13 +661,13 @@ PlainModule(ModuleMsg &moduleMsg,
     }
 
     // 2.2 - 做子模块的 in, out, inout 到父模块的映射
-    std::unordered_map<std::string, std::vector<PortInstanceFormalMsg>>
+    std::unordered_map<std::string, std::vector<VarRefMsg>>
       portsDefInstanceMap;
     auto &subModulePorts = moduleMsg.subModulePorts[subModuleInstanceName];
     for(auto &subModulePort: subModulePorts)
     {
       portsDefInstanceMap[subModulePort.portDefName] =
-        subModulePort.portInstanceFormalMsgs;
+        subModulePort.varRefMsgs;
     }
 
     // 3 - 将子模块中的标准单元实例搬移到 result 中去
@@ -698,66 +698,55 @@ PlainModule(ModuleMsg &moduleMsg,
           // 3.3.2 修改引脚实例名称，分情况讨论
           auto &subModulePorts =
             moduleMsg.subModulePorts[subModuleInstanceName];
-          for(auto &originPortInstanceFormalMsg:
-              originPortInstanceMsg.portInstanceFormalMsgs)
+          for(auto &originVarRefMsg: originPortInstanceMsg.varRefMsgs)
           {
 
-            PortInstanceFormalMsg portInstanceFormalMsg;
+            VarRefMsg varRefMsg;
             // 1 - 匿名赋值直接拷贝
-            if(originPortInstanceFormalMsg.portInstanceName == "anonymous")
+            if(originVarRefMsg.varRefName == "anonymous")
             {
-              portInstanceFormalMsg = originPortInstanceFormalMsg;
+              varRefMsg = originVarRefMsg;
             }
             // 2- in, out, inout 做端口映射
-            else if(portsDefInstanceMap.count(
-                      originPortInstanceFormalMsg.portInstanceName) != 0)
+            else if(portsDefInstanceMap.count(originVarRefMsg.varRefName) != 0)
             {
-              if(originPortInstanceFormalMsg.isArray == false)
+              if(originVarRefMsg.isArray == false)
               {
-                portInstanceFormalMsg =
-                  portsDefInstanceMap[originPortInstanceFormalMsg
-                                        .portInstanceName][0];
+                varRefMsg = portsDefInstanceMap[originVarRefMsg.varRefName][0];
               }
               else
               {
-                int index = originPortInstanceFormalMsg.index;
+                int index = originVarRefMsg.index;
                 // 这种情况算下端口转发，verilator没有捕获到
                 // TODO : 此处应该被列为 bug 修复
-                if(portsDefInstanceMap[originPortInstanceFormalMsg
-                                         .portInstanceName]
-                       .size() == 1 &&
-                   portsDefInstanceMap[originPortInstanceFormalMsg
-                                         .portInstanceName][0]
+                if(portsDefInstanceMap[originVarRefMsg.varRefName].size() ==
+                     1 &&
+                   portsDefInstanceMap[originVarRefMsg.varRefName][0]
                        .isArray == false)
                 {
-                  portInstanceFormalMsg =
-                    portsDefInstanceMap[originPortInstanceFormalMsg
-                                          .portInstanceName][0];
-                  portInstanceFormalMsg.isArray = true;
-                  portInstanceFormalMsg.index = index;
+                  varRefMsg =
+                    portsDefInstanceMap[originVarRefMsg.varRefName][0];
+                  varRefMsg.isArray = true;
+                  varRefMsg.index = index;
                 }
                 else
                 {
-                  portInstanceFormalMsg =
-                    portsDefInstanceMap[originPortInstanceFormalMsg
-                                          .portInstanceName][index];
+                  varRefMsg =
+                    portsDefInstanceMap[originVarRefMsg.varRefName][index];
                 }
               }
             }
             // 3 - wire 类型向父类做转换
             else
             {
-              portInstanceFormalMsg = originPortInstanceFormalMsg;
-              portInstanceFormalMsg.portInstanceName =
-                subModuleInstanceName + "_" +
-                portInstanceFormalMsg.portInstanceName;
-              std::cout << "originPortInstanceFormalMsg."
-                           "portInstanceName is "
-                        << originPortInstanceFormalMsg.portInstanceName
-                        << std::endl;
+              varRefMsg = originVarRefMsg;
+              varRefMsg.varRefName =
+                subModuleInstanceName + "_" + varRefMsg.varRefName;
+              std::cout << "originVarRefMsg."
+                           "varRefName is "
+                        << originVarRefMsg.varRefName << std::endl;
             }
-            portInstanceMsg.portInstanceFormalMsgs.push_back(
-              portInstanceFormalMsg);
+            portInstanceMsg.varRefMsgs.push_back(varRefMsg);
           }
           subPortInstanceMsgs.push_back(portInstanceMsg);
         }

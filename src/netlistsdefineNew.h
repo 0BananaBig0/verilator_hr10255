@@ -67,7 +67,6 @@ struct ConstValueAndWidth
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 // VarRefMsg = Variable Referenced Message
-// VarRefMsg will replace PortInstanceFormalMsg structure.
 struct VarRefMsg
 {
     std::string portRefName = ""; // 端口实例名称 (实参)
@@ -87,8 +86,7 @@ struct PortInstanceMsg
     std::string portDefName; // 端口定义名称 (形参)
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0]
-    std::vector<VarRefMsg>
-      varRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
+    std::vector<VarRefMsg> varRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...

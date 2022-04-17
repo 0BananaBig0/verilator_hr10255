@@ -292,8 +292,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   else
   {
     _varRefMsgTmp.hasValueX = false;
-    _varRefMsgTmp.varRefRange.end =
-      nodep->dtypep()->basicp()->nrange().left();
+    _varRefMsgTmp.varRefRange.end = nodep->dtypep()->basicp()->nrange().left();
     _varRefMsgTmp.varRefRange.start =
       nodep->dtypep()->basicp()->nrange().right();
     _varRefMsgTmp.varRefRange.width =
@@ -408,8 +407,8 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   else if(_whichAstSelChildren == 3)
   { // Now, AstConst is a child of AstSel
     _varRefMsgTmp.varRefRange.width = nodep->num().getValue();
-    _varRefMsgTmp.varRefRange.end = _varRefMsgTmp.varRefRange.start +
-                                      _varRefMsgTmp.varRefRange.width - 1;
+    _varRefMsgTmp.varRefRange.end =
+      _varRefMsgTmp.varRefRange.start + _varRefMsgTmp.varRefRange.width - 1;
     if(_varRefMsgTmp.varRefRange.width > 1)
       _varRefMsgTmp.isArray = true;
     else

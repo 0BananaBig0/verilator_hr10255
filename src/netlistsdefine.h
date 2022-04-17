@@ -42,20 +42,19 @@ struct PortMsg
 
 /**
  * @brief 端口实例信息
- * @note  若 portInstanceName == "anonymous" ，则代表其实直接赋值，
+ * @note  若 varRefName == "anonymous" ，则代表其实直接赋值，
  *        initialVal 即为默认值
  */
 // It only stores one bit information, for example, C[1], 1'b0, ci, not store
 // C[1:0]
-struct PortInstanceFormalMsg
+struct VarRefMsg
 {
-    std::string portInstanceName = "anonymous"; // 端口实例名称 (实参)
-    bool isArray = false;                       // 是否是数组类型
+    std::string varRefName = "anonymous"; // 端口实例名称 (实参)
+    bool isArray = false;                 // 是否是数组类型
     union
     {
         uint32_t index;      // 索引
-        uint32_t initialVal; // 初始值，在 portInstanceName ==
-                             // "anonymous" 下使用
+        uint32_t initialVal; // 初始值，在 varRefName == "anonymous" 下使用
     };
 };
 
@@ -67,8 +66,7 @@ struct PortInstanceMsg
     std::string portDefName; // 端口定义名称 (形参)
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // ci, not store C[1:0]
-    std::vector<PortInstanceFormalMsg>
-      portInstanceFormalMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
+    std::vector<VarRefMsg> varRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
 /**
@@ -80,8 +78,8 @@ struct PortInstanceMsg
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
 struct AssignStatementMsg
 {
-    PortInstanceFormalMsg lValue; // 左值
-    PortInstanceFormalMsg rValue; // 右值
+    VarRefMsg lValue; // 左值
+    VarRefMsg rValue; // 右值
 };
 
 /**
