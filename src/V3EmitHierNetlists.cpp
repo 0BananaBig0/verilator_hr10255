@@ -319,7 +319,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     {
       iterateChildren(nodep);
     }
-    // virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); }; 
+    // virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); };
     // virtual void visit(AstAssign *nodep) override { iterateChildren(nodep); };
 
   public:
@@ -469,7 +469,7 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
       _moduleMap[_curModuleInstanceParentName];
     parentModuleInstanceMsg.subModuleInstanceNames.push_back(
       moduleInstanceName);
-    parentModuleInstanceMsg.moduleDefInstanceMap[moduleInstanceName] =
+    parentModuleInstanceMsg.subModInsNameMapSubModDefName[moduleInstanceName] =
       moduleDefName;
   };
 
@@ -505,7 +505,7 @@ void HierCellsNetListsVisitor::visit(AstPin *nodep)
   iterateChildren(nodep);
   // 插入当前模块实例的一个端口信息
   _moduleMap[_curModuleInstanceParentName]
-    .subModulePorts[_curModuleInstanceName]
+    .subModInsNameMapPortInsMsgs[_curModuleInstanceName]
     .push_back(_portInstanceMsgTmp);
 }
 
@@ -837,11 +837,12 @@ void HierCellsNetListsVisitor::selfTest(
      */
     for(const auto &subModuleInstanceName: module.subModuleInstanceNames)
     {
-      ofs << "\t" << module.moduleDefInstanceMap[subModuleInstanceName] << " "
+      ofs << "\t"
+          << module.subModInsNameMapSubModDefName[subModuleInstanceName] << " "
           << subModuleInstanceName << " ";
       ofs << "(";
       for(const auto &portInstanceMsg:
-          module.subModulePorts[subModuleInstanceName])
+          module.subModInsNameMapPortInsMsgs[subModuleInstanceName])
       {
         ofs << "." << portInstanceMsg.portDefName << "(";
         if(portInstanceMsg.varRefMsgs.size() > 1)

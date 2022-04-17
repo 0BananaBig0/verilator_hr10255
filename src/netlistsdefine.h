@@ -96,11 +96,12 @@ struct ModuleMsg
     // std::string -> subModuleInstanceName, for example, U1,
     // std::string -> subModuleDefName, for example, full_adder
     // for example,{{U1,full_adder_co},{U2,full_adder_sum},...}
-    using ModuleDefInstanceMap = std::unordered_map<std::string, std::string>;
+    using SubModInsNameMapSubModDefName =
+      std::unordered_map<std::string, std::string>;
     // std::string -> subModuleInstanceName, for example, U1
     // std::vector<PortInstanceMsg> -> 实例引脚表, for example,
     // {{U1,{.co(co),.A(a),.B(b),.ci(ci)}},{U2,{.sum(sum),.A(a),.B(b),.ci(ci)}},...}
-    using SubModulePorts =
+    using SubModInsNameMapPortInsMsgs =
       std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 
   public:
@@ -120,8 +121,10 @@ struct ModuleMsg
     /*********************************** 网表实例信息(START)
      * *********************************************/
     std::vector<std::string> subModuleInstanceNames; // 子模块实例名称  (实参)
-    ModuleDefInstanceMap moduleDefInstanceMap; // 子模块实例映射表
-    SubModulePorts subModulePorts;             // 子模块实例的引脚表
+    SubModInsNameMapSubModDefName
+      subModInsNameMapSubModDefName; // 子模块实例映射表
+    SubModInsNameMapPortInsMsgs
+      subModInsNameMapPortInsMsgs; // 子模块实例的引脚表
     /*********************************** 网表实例信息(END)
      * *********************************************/
 

@@ -622,16 +622,16 @@ PlainModule(ModuleMsg &moduleMsg,
   for(const auto &subModuleInstanceName: moduleMsg.subModuleInstanceNames)
   {
     const std::string subModuleDefName =
-      moduleMsg.moduleDefInstanceMap[subModuleInstanceName];
+      moduleMsg.subModInsNameMapSubModDefName[subModuleInstanceName];
     // 1 - 判断子模块是否是标准单元
     // Hint : 标准单元不需要展开，直接拷贝走就可以了
     if(IsStdCell(subModuleDefName))
     {
       result.subModuleInstanceNames.push_back(subModuleInstanceName);
-      result.moduleDefInstanceMap[subModuleInstanceName] =
-        moduleMsg.moduleDefInstanceMap[subModuleInstanceName];
-      result.subModulePorts[subModuleInstanceName] =
-        moduleMsg.subModulePorts[subModuleInstanceName];
+      result.subModInsNameMapSubModDefName[subModuleInstanceName] =
+        moduleMsg.subModInsNameMapSubModDefName[subModuleInstanceName];
+      result.subModInsNameMapPortInsMsgs[subModuleInstanceName] =
+        moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
       continue;
     }
     // 2 - 展开非标准单元的子模块
@@ -663,7 +663,8 @@ PlainModule(ModuleMsg &moduleMsg,
     // 2.2 - 做子模块的 in, out, inout 到父模块的映射
     std::unordered_map<std::string, std::vector<VarRefMsg>>
       portsDefInstanceMap;
-    auto &subModulePorts = moduleMsg.subModulePorts[subModuleInstanceName];
+    auto &subModulePorts =
+      moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
     for(auto &subModulePort: subModulePorts)
     {
       portsDefInstanceMap[subModulePort.portDefName] =
@@ -680,13 +681,15 @@ PlainModule(ModuleMsg &moduleMsg,
       result.subModuleInstanceNames.push_back(subSubModuleInstanceName);
 
       // 3.2 - 记录新的标准单元实例的类型
-      result.moduleDefInstanceMap[subSubModuleInstanceName] =
-        subModuleMsg.moduleDefInstanceMap[originSubSubModuleInstanceName];
+      result.subModInsNameMapSubModDefName[subSubModuleInstanceName] =
+        subModuleMsg
+          .subModInsNameMapSubModDefName[originSubSubModuleInstanceName];
 
       // 3.3 - 将原来的标准单元的形参替换为新的映射关系
       {
         const auto &originSubPortInstanceMsgs =
-          subModuleMsg.subModulePorts[originSubSubModuleInstanceName];
+          subModuleMsg
+            .subModInsNameMapPortInsMsgs[originSubSubModuleInstanceName];
         std::vector<PortInstanceMsg> subPortInstanceMsgs;
         for(const auto &originPortInstanceMsg: originSubPortInstanceMsgs)
         {
@@ -697,7 +700,7 @@ PlainModule(ModuleMsg &moduleMsg,
 
           // 3.3.2 修改引脚实例名称，分情况讨论
           auto &subModulePorts =
-            moduleMsg.subModulePorts[subModuleInstanceName];
+            moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
           for(auto &originVarRefMsg: originPortInstanceMsg.varRefMsgs)
           {
 
@@ -750,7 +753,8 @@ PlainModule(ModuleMsg &moduleMsg,
           }
           subPortInstanceMsgs.push_back(portInstanceMsg);
         }
-        result.subModulePorts[subSubModuleInstanceName] = subPortInstanceMsgs;
+        result.subModInsNameMapPortInsMsgs[subSubModuleInstanceName] =
+          subPortInstanceMsgs;
       }
     }
   }
