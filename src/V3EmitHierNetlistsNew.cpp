@@ -280,7 +280,7 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
 // For example, C[n-1:0] or ci;
 void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 {
-  _varRefMsgTmp.portRefName = nodep->name();
+  _varRefMsgTmp.varRefName = nodep->name();
   if(_whichAstSelChildren)
   { // Now, AstVarRef is a child of AstSel
     _whichAstSelChildren++;
@@ -325,7 +325,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 {
   uint32_t extendWidth = nodep->width() - nodep->lhsp()->width();
-  _varRefMsgTmp.portRefName = "";
+  _varRefMsgTmp.varRefName = "";
   _varRefMsgTmp.constValueAndWidth.value = 0;
   _varRefMsgTmp.constValueAndWidth.valueX = 0;
   if(extendWidth > 1)
@@ -348,7 +348,7 @@ void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 {
   uint32_t extendSWidth = nodep->width() - nodep->lhsp()->width();
-  _varRefMsgTmp.portRefName = "";
+  _varRefMsgTmp.varRefName = "";
   _varRefMsgTmp.constValueAndWidth.value = (1 << extendSWidth) - 1;
   _varRefMsgTmp.constValueAndWidth.valueX = 0;
   if(extendSWidth > 1)
@@ -415,7 +415,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   else
   { // Now, AstConst is a rValue of assign statement or refValue of a port or
     // the number of AstReplicate.
-    _varRefMsgTmp.portRefName = "";
+    _varRefMsgTmp.varRefName = "";
     _varRefMsgTmp.constValueAndWidth.value = nodep->num().getValue();
     _varRefMsgTmp.constValueAndWidth.width = nodep->width();
     if(_varRefMsgTmp.constValueAndWidth.width > 1)

@@ -67,11 +67,15 @@ struct ConstValueAndWidth
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 // VarRefMsg = Variable Referenced Message
+// if(varRefName !="" && !hasValueX)
+//   isArray means varRef is defined as a vector in verilog source code.
+// else
+//   isArray means the value is not one bit.
 struct VarRefMsg
 {
-    std::string portRefName = ""; // 端口实例名称 (实参)
-    bool isArray = false;         // 是否是数组类型
-    bool hasValueX = false;       // Are there value x or z?
+    std::string varRefName = ""; // 端口实例名称 (实参)
+    bool isArray = false;        // 是否是数组类型
+    bool hasValueX = false;      // Are there value x or z?
     union
     {
         VarRefRange varRefRange;
