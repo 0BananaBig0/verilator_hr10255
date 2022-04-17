@@ -6,10 +6,10 @@
  ************************************************************************/
 #pragma once
 
+#include "netlistsdefine.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "netlistsdefine.h"
 
 namespace MultipleBitsNetlist
 {
@@ -52,9 +52,9 @@ namespace MultipleBitsNetlist
 struct VarRefRange
 {
     // For example, C[end:start], width = end - start + 1;
-    uint32_t end, start, width;
+    uint32_t end, start;
 };
-struct ConstValueAndWidth
+struct ConstValueAndValueX
 {
     // For example, 10'd33, value = 33, valueX = 0, width = 10;
     // 9'bx01xz1x0z, value = 364, valueX = 309, width = 9 <=>
@@ -64,7 +64,7 @@ struct ConstValueAndWidth
     // 1       | 0      | 0      | 1
     //   <=> x |  <=> z |  <=> 0 |  <=> 1
     // 1       | 1      | 0      | 0
-    uint32_t value, valueX, width;
+    uint32_t value, valueX;
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 // VarRefMsg = Variable Referenced Message
@@ -77,10 +77,11 @@ struct VarRefMsg
     std::string varRefName = ""; // 端口实例名称 (实参)
     bool isArray = false;        // 是否是数组类型
     bool hasValueX = false;      // Are there value x or z?
+    uint32_t width;
     union
     {
         VarRefRange varRefRange;
-        ConstValueAndWidth constValueAndWidth; // 初始值，在 portInstanceName
+        ConstValueAndValueX constValueAndValueX; // 初始值，在 portInstanceName
                                                // == "anonymous" 下使用
     };
 };

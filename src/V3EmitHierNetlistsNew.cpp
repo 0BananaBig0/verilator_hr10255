@@ -295,9 +295,9 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
     _varRefMsgTmp.varRefRange.end = nodep->dtypep()->basicp()->nrange().left();
     _varRefMsgTmp.varRefRange.start =
       nodep->dtypep()->basicp()->nrange().right();
-    _varRefMsgTmp.varRefRange.width =
+    _varRefMsgTmp.width =
       _varRefMsgTmp.varRefRange.end - _varRefMsgTmp.varRefRange.start + 1;
-    if(_varRefMsgTmp.varRefRange.width > 1)
+    if(_varRefMsgTmp.width > 1)
       _varRefMsgTmp.isArray = true;
     else
       _varRefMsgTmp.isArray = false;
@@ -326,14 +326,14 @@ void HierCellsNetListsVisitor::visit(AstExtend *nodep)
 {
   uint32_t extendWidth = nodep->width() - nodep->lhsp()->width();
   _varRefMsgTmp.varRefName = "";
-  _varRefMsgTmp.constValueAndWidth.value = 0;
-  _varRefMsgTmp.constValueAndWidth.valueX = 0;
+  _varRefMsgTmp.constValueAndValueX.value = 0;
+  _varRefMsgTmp.constValueAndValueX.valueX = 0;
   if(extendWidth > 1)
     _varRefMsgTmp.isArray = true;
   else
     _varRefMsgTmp.isArray = false;
   _varRefMsgTmp.hasValueX = false;
-  _varRefMsgTmp.constValueAndWidth.width = std::move(extendWidth);
+  _varRefMsgTmp.width = std::move(extendWidth);
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
     _assignStatementMsgTmp.rValue.push_back(_varRefMsgTmp);
@@ -349,14 +349,14 @@ void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
 {
   uint32_t extendSWidth = nodep->width() - nodep->lhsp()->width();
   _varRefMsgTmp.varRefName = "";
-  _varRefMsgTmp.constValueAndWidth.value = (1 << extendSWidth) - 1;
-  _varRefMsgTmp.constValueAndWidth.valueX = 0;
+  _varRefMsgTmp.constValueAndValueX.value = (1 << extendSWidth) - 1;
+  _varRefMsgTmp.constValueAndValueX.valueX = 0;
   if(extendSWidth > 1)
     _varRefMsgTmp.isArray = true;
   else
     _varRefMsgTmp.isArray = false;
   _varRefMsgTmp.hasValueX = false;
-  _varRefMsgTmp.constValueAndWidth.width = std::move(extendSWidth);
+  _varRefMsgTmp.width = std::move(extendSWidth);
   if(_isAssignStatement)
   { // Now, AstExtend is a child of AstAssign or AstAssignW or AstConcat
     _assignStatementMsgTmp.rValue.push_back(_varRefMsgTmp);
@@ -374,7 +374,7 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   if(_isAssignStatement)
   { // Now, AstReplicate is a child of AstAssignW or AstExtend or AstConcat
     uint32_t replicateTimes =
-      _assignStatementMsgTmp.rValue.back().constValueAndWidth.value;
+      _assignStatementMsgTmp.rValue.back().constValueAndValueX.value;
     _assignStatementMsgTmp.rValue.pop_back();
     while(replicateTimes != 1)
     {
@@ -386,7 +386,7 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   else
   { // Now, AstReplicate is a child of AstPin or AstExtend or AstConcat
     uint32_t replicateTimes =
-      _portInstanceMsgTmp.varRefMsgs.back().constValueAndWidth.value;
+      _portInstanceMsgTmp.varRefMsgs.back().constValueAndValueX.value;
     _portInstanceMsgTmp.varRefMsgs.pop_back();
     while(replicateTimes != 1)
     {
@@ -406,9 +406,9 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   }
   else if(_whichAstSelChildren == 3)
   { // Now, AstConst is a child of AstSel
-    _varRefMsgTmp.varRefRange.width = nodep->num().getValue();
+    _varRefMsgTmp.width = nodep->num().getValue();
     _varRefMsgTmp.varRefRange.end =
-      _varRefMsgTmp.varRefRange.start + _varRefMsgTmp.varRefRange.width - 1;
+      _varRefMsgTmp.varRefRange.start + _varRefMsgTmp.width - 1;
     _varRefMsgTmp.isArray = true;
     _varRefMsgTmp.hasValueX = false;
   }
@@ -416,20 +416,20 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   { // Now, AstConst is a rValue of assign statement or refValue of a port or
     // the number of AstReplicate.
     _varRefMsgTmp.varRefName = "";
-    _varRefMsgTmp.constValueAndWidth.value = nodep->num().getValue();
-    _varRefMsgTmp.constValueAndWidth.width = nodep->width();
-    if(_varRefMsgTmp.constValueAndWidth.width > 1)
+    _varRefMsgTmp.constValueAndValueX.value = nodep->num().getValue();
+    _varRefMsgTmp.width = nodep->width();
+    if(_varRefMsgTmp.width > 1)
       _varRefMsgTmp.isArray = true;
     else
       _varRefMsgTmp.isArray = false;
     if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
-      _varRefMsgTmp.constValueAndWidth.valueX = nodep->num().getValueX();
+      _varRefMsgTmp.constValueAndValueX.valueX = nodep->num().getValueX();
       _varRefMsgTmp.hasValueX = true;
     }
     else
     {
-      _varRefMsgTmp.constValueAndWidth.valueX = 0;
+      _varRefMsgTmp.constValueAndValueX.valueX = 0;
       _varRefMsgTmp.hasValueX = false;
     }
     if(_isAssignStatement)
