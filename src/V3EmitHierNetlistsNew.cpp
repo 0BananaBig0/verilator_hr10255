@@ -233,7 +233,7 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
   _curSubModInsPortInsMsgs.clear();
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName]
-    .subModInsNameMapPortInsMsgVec[_curSubmoduleInstanceName] =
+    .subModInsNameMapPortInsMsgs[_curSubmoduleInstanceName] =
     _curSubModInsPortInsMsgs;
   _modsNameMapTheirMsg[_curModuleName]
     .subModInsNameMapSubModDefName[_curSubmoduleInstanceName] =

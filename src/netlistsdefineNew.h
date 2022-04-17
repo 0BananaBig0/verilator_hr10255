@@ -136,7 +136,7 @@ struct ModuleMsg
     SubModInsNameMapSubModDefName
       subModInsNameMapSubModDefName; // 子模块实例映射表
     SubModInsNameMapPortInsMsgs
-      subModInsNameMapPortInsMsgVec; // 子模块实例的引脚表
+      subModInsNameMapPortInsMsgs; // 子模块实例的引脚表
     /*********************************** 网表实例信息(END)
      * *********************************************/
 
