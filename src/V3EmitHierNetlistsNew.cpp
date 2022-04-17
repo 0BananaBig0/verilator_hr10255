@@ -409,10 +409,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     _varRefMsgTmp.varRefRange.width = nodep->num().getValue();
     _varRefMsgTmp.varRefRange.end =
       _varRefMsgTmp.varRefRange.start + _varRefMsgTmp.varRefRange.width - 1;
-    if(_varRefMsgTmp.varRefRange.width > 1)
-      _varRefMsgTmp.isArray = true;
-    else
-      _varRefMsgTmp.isArray = false;
+    _varRefMsgTmp.isArray = true;
     _varRefMsgTmp.hasValueX = false;
   }
   else
