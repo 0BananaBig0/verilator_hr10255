@@ -261,10 +261,10 @@ RAW_OBJS = \
 	V3Width.o \
 	V3WidthSel.o \
 	netlistsdefine.o \
-	V3EmitHireNelists.o \
-	V3EmitPlainNelists.o \
+	V3EmitHierNetlists.o \
+	V3EmitPlainNetlists.o \
 	netlistsdefineNew.o \
-	V3EmitHireNelistsNew.o
+	V3EmitHierNetlistsNew.o
 
 # Non-concatable
 NC_OBJS += \
