@@ -245,7 +245,7 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
 {
   _portInstanceMsgTmp.portRefMsgs.clear();
-  _portInstanceMsgTmp.portDefName = nodep->name();
+  _portInstanceMsgTmp.portDefName = nodep->modVarp()->name();
   iterateChildren(nodep);
   _curSubModInsPortInsMsgs.push_back(_portInstanceMsgTmp);
 }
