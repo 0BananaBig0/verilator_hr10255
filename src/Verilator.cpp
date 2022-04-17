@@ -207,7 +207,7 @@ static void process() {
     std::unordered_map<std::string, OneBitNetlist::ModuleMsg> oneBitHierCellsNetLists,
         plainCellsNetLists;
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
-    MultipleBitsNetlist::V3EmitHierNetLists::emitHireNetLists(multipleBitsHierCellsNetLists);
+    MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
     OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
     OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetLists,
                                           "./hierCellsNetLists.v");

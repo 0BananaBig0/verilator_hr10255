@@ -47,9 +47,8 @@ struct PortMsg
     uint32_t arraySize = 1;                // 数组大小
 };
 
-// PortRefMsg will replace PortInstanceFormalMsg structure.
-// PortRefMsg = Port Referenced Range
-struct PortRefRange
+// VarRefRange = Variable Referenced Range
+struct VarRefRange
 {
     // For example, C[end:start], width = end - start + 1;
     uint32_t end, start, width;
@@ -67,15 +66,16 @@ struct ConstValueAndWidth
     uint32_t value, valueX, width;
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
-// PortRefMsg = Port Referenced Message
-struct PortRefMsg
+// VarRefMsg = Variable Referenced Message
+// VarRefMsg will replace PortInstanceFormalMsg structure.
+struct VarRefMsg
 {
     std::string portRefName = ""; // 端口实例名称 (实参)
     bool isArray = false;         // 是否是数组类型
     bool hasValueX = false;       // Are there value x or z?
     union
     {
-        PortRefRange portRefRange;
+        VarRefRange varRefRange;
         ConstValueAndWidth constValueAndWidth; // 初始值，在 portInstanceName
                                                // == "anonymous" 下使用
     };
@@ -87,15 +87,15 @@ struct PortInstanceMsg
     std::string portDefName; // 端口定义名称 (形参)
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0]
-    std::vector<PortRefMsg>
-      portRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
+    std::vector<VarRefMsg>
+      varRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...
 struct AssignStatementMsg
 {
-    PortRefMsg lValue;              // 左值
-    std::vector<PortRefMsg> rValue; // 右值
+    VarRefMsg lValue;              // 左值
+    std::vector<VarRefMsg> rValue; // 右值
 };
 
 struct ModuleMsg
@@ -109,7 +109,7 @@ struct ModuleMsg
     // std::string -> subModuleInstanceName, for example, U1
     // std::vector<PortInstanceMsg> -> 实例引脚表, for example,
     // {{U1,{.co(co),.A(a),.B(b),.ci(ci)}},{U2,{.sum(sum),.A(a),.B(b),.ci(ci)}},...}
-    using SubModInsNameMapPortInsMsgVec =
+    using SubModInsNameMapPortInsMsgs =
       std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
 
   public:
@@ -131,7 +131,7 @@ struct ModuleMsg
     std::vector<std::string> subModuleInstanceNames; // 子模块实例名称  (实参)
     SubModInsNameMapSubModDefName
       subModInsNameMapSubModDefName; // 子模块实例映射表
-    SubModInsNameMapPortInsMsgVec
+    SubModInsNameMapPortInsMsgs
       subModInsNameMapPortInsMsgVec; // 子模块实例的引脚表
     /*********************************** 网表实例信息(END)
      * *********************************************/

@@ -13,7 +13,7 @@ namespace MultipleBitsNetlist
 class V3EmitHierNetLists final
 {
   public:
-    static void emitHireNetLists(
+    static void emitHierNetLists(
       std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists);
     // static void printHireNetLists(
     //   std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
