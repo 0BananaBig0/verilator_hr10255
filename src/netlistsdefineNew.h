@@ -82,7 +82,7 @@ struct VarRefMsg
     {
         VarRefRange varRefRange;
         ConstValueAndValueX constValueAndValueX; // 初始值，在 portInstanceName
-                                               // == "anonymous" 下使用
+                                                 // == "anonymous" 下使用
     };
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
