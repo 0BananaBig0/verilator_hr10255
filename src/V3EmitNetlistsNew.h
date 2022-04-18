@@ -15,6 +15,11 @@ class V3EmitHierNetLists final
   public:
     static void emitHierNetLists(
       std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists);
+    static void MultipleBitsToOneBit(
+      std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg>
+        &multipleBitsHierCellsNetLists,
+      std::unordered_map<std::string, OneBitNetlist::ModuleMsg>
+        &oneBitHierCellsNetLists);
     // static void printHireNetLists(
     //   std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
     //   std::string filename);

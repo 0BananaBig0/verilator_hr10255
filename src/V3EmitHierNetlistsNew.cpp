@@ -12,9 +12,11 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 #include "V3Ast.h"
 #include "V3Error.h"
+#include "netlistsdefine.h"
 
 namespace MultipleBitsNetlist
 {
@@ -456,5 +458,132 @@ void V3EmitHierNetLists::emitHierNetLists(
   // v3Global will return a AstNetlist*
   HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
   hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
+}
+
+void V3EmitHierNetLists::MultipleBitsToOneBit(
+  std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg>
+    &multipleBitsHierCellsNetLists,
+  std::unordered_map<std::string, OneBitNetlist::ModuleMsg>
+    &oneBitHierCellsNetLists)
+{
+  std::string curModuleName;
+
+  OneBitNetlist::AssignStatementMsg oneBitAssignStatementMsg;
+  int lEnd, rEnd;
+  uint32_t rWidth;
+  uint32_t hotCode = 1 << 31;
+
+  std::string curSubmoduleInstanceName;
+  OneBitNetlist::PortInstanceMsg oPortInstanceMsg;
+  OneBitNetlist::VarRefMsg oVarRefMsg;
+  std::vector<OneBitNetlist::PortInstanceMsg> oPortInstanceMsgs;
+
+  for(auto &mBHCN: multipleBitsHierCellsNetLists)
+  {
+    curModuleName = mBHCN.first;
+    oneBitHierCellsNetLists[curModuleName].moduleDefName =
+      mBHCN.second.moduleDefName;
+    oneBitHierCellsNetLists[curModuleName].level = mBHCN.second.level;
+    oneBitHierCellsNetLists[curModuleName].inputs = mBHCN.second.inputs;
+    oneBitHierCellsNetLists[curModuleName].outputs = mBHCN.second.outputs;
+    oneBitHierCellsNetLists[curModuleName].inouts = mBHCN.second.inouts;
+    oneBitHierCellsNetLists[curModuleName].wires = mBHCN.second.wires;
+    oneBitHierCellsNetLists[curModuleName].subModuleInstanceNames =
+      mBHCN.second.subModuleInstanceNames;
+    oneBitHierCellsNetLists[curModuleName].subModInsNameMapSubModDefName =
+      mBHCN.second.subModInsNameMapSubModDefName;
+
+    for(auto &assigns: mBHCN.second.assigns)
+    { // One AstAssignW/AstAssign Node
+      auto &lValue = assigns.lValue;
+      lEnd = lValue.varRefRange.end;
+      for(auto &rValue: assigns.rValue)
+      {
+        oneBitAssignStatementMsg.lValue.varRefName = lValue.varRefName;
+        oneBitAssignStatementMsg.lValue.isArray = lValue.isArray;
+        oneBitAssignStatementMsg.rValue.varRefName = rValue.varRefName;
+        if(rValue.varRefName == "")
+        {
+          rWidth = rValue.width;
+          oneBitAssignStatementMsg.rValue.varRefName = "anonymous";
+          oneBitAssignStatementMsg.rValue.isArray = false;
+          while(rWidth >= 1)
+          {
+            oneBitAssignStatementMsg.rValue.initialVal =
+              ((rValue.constValueAndValueX.value &
+                (hotCode >> (32 - rWidth))) > 0)
+                ? 1
+                : 0;
+            oneBitAssignStatementMsg.lValue.index = lEnd;
+            oneBitHierCellsNetLists[curModuleName].assigns.push_back(
+              oneBitAssignStatementMsg);
+            rWidth--;
+            lEnd--;
+          }
+        }
+        else
+        {
+          rEnd = rValue.varRefRange.end;
+          oneBitAssignStatementMsg.rValue.varRefName = rValue.varRefName;
+          oneBitAssignStatementMsg.rValue.isArray = rValue.isArray;
+          while(rEnd >= int(rValue.varRefRange.start))
+          {
+            oneBitAssignStatementMsg.rValue.index = rEnd;
+            oneBitAssignStatementMsg.lValue.index = lEnd;
+            oneBitHierCellsNetLists[curModuleName].assigns.push_back(
+              oneBitAssignStatementMsg);
+            rEnd--;
+            lEnd--;
+          }
+        }
+      }
+
+      for(auto &sMINMPIM: mBHCN.second.subModInsNameMapPortInsMsgs)
+      { // One AstCell
+        curSubmoduleInstanceName = sMINMPIM.first;
+        oPortInstanceMsgs.clear();
+        for(auto &mPortInstanceMsg: sMINMPIM.second)
+        { // One AstPin
+          oPortInstanceMsg.portDefName = mPortInstanceMsg.portDefName;
+          oPortInstanceMsg.varRefMsgs.clear();
+          for(auto &mVarRefMsg: mPortInstanceMsg.varRefMsgs)
+          {
+            if(mVarRefMsg.varRefName == "")
+            {
+              rWidth = mVarRefMsg.width;
+              oVarRefMsg.varRefName = "anonymous";
+              oVarRefMsg.isArray = false;
+              while(rWidth >= 1)
+              {
+                oVarRefMsg.initialVal =
+                  ((mVarRefMsg.constValueAndValueX.value &
+                    (hotCode >> (32 - rWidth))) > 0)
+                    ? 1
+                    : 0;
+                oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
+                rWidth--;
+              }
+            }
+            else
+            {
+              rEnd = mVarRefMsg.varRefRange.end;
+              oVarRefMsg.varRefName = mVarRefMsg.varRefName;
+              oVarRefMsg.isArray = mVarRefMsg.isArray;
+              while(rEnd >= int(mVarRefMsg.varRefRange.start))
+              {
+                oVarRefMsg.index = rEnd;
+                oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
+                rEnd--;
+              }
+            }
+          }
+          oPortInstanceMsgs.push_back(oPortInstanceMsg);
+        }
+        oneBitHierCellsNetLists[curModuleName]
+          .subModInsNameMapPortInsMsgs[curSubmoduleInstanceName] =
+          oPortInstanceMsgs;
+      }
+    }
+  }
 }
 }
