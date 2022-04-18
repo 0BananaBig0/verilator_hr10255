@@ -7,4 +7,4 @@
 #!/bin/bash
 
 ~/Downloads/program/verilator/bin/verilator -Wno-implicit --language 1364-2005 -Wno-litendian -Od -Wno-assignin --xml-output netlist_h.xml input.v
-~/cpp_workspace/verilator_hr10255/bin/verilator -Wno-implicit --language 1364-2005 -Wno-litendian -Od -Wno-assignin --xml-output input.v
+~/cpp_workspace/verilator_hr10255/bin/verilator -Wno-implicit --language 1364-2005 -Wno-litendian -Od -Wno-assignin --xml-only input.v
