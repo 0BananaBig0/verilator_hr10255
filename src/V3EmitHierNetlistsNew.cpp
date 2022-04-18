@@ -233,7 +233,7 @@ void HierCellsNetListsVisitor::visit(AstAssign *nodep)
 void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
   _curSubmoduleName = nodep->modName();
-  _curSubmoduleInstanceName = nodep->origName();
+  _curSubmoduleInstanceName = nodep->prettyName();
   _curSubModInsPortInsMsgs.clear();
   iterateChildren(nodep);
   _modsNameMapTheirMsg[_curModuleName]
@@ -288,7 +288,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   if(_whichAstSelChildren)
   { // Now, AstVarRef is a child of AstSel
     _whichAstSelChildren++;
-    if(nodep->access() == VAccess::WRITE)
+    if(_isAssignStatement && (nodep->access() == VAccess::WRITE))
     {
       _isAssignStatementLvalue = true;
     }
