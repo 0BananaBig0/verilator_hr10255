@@ -6,5 +6,5 @@
 #########################################################################
 #!/bin/bash
 ~/Downloads/program/verilator/bin/verilator full_adder_oasys_2021_h.syn.v ../LibBlackbox.v --xml-output netlist_h.xml
-~/cpp_workspace/verilator_hr10255/bin/verilator full_adder_oasys_2021_h.syn.v ../LibBlackbox.v --xml-only netlist_h.xml
+~/cpp_workspace/verilator_hr10255/bin/verilator full_adder_oasys_2021_h.syn.v ../LibBlackbox.v --xml-only
 # verilator full_adder_oasys_2021_h.syn.v ../LibBlackbox.v --xml-output netlist_nh.xml --flatten
