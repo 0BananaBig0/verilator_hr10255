@@ -105,6 +105,8 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     virtual void visit(AstExtendS *nodep) override;
     virtual void visit(AstReplicate *nodep) override;
     virtual void visit(AstConst *nodep) override;
+    // Prevent idling iteration
+    virtual void visit(AstTypeTable *nodep) override { return; }
 
   public:
     /**
