@@ -232,7 +232,7 @@ void HierCellsNetListsVisitor::visit(AstAssign *nodep)
 
 void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
-  _curSubmoduleName = nodep->modName();
+  _curSubmoduleName = nodep->modp()->prettyName();
   _curSubmoduleInstanceName = nodep->prettyName();
   _curSubModInsPortInsMsgs.clear();
   iterateChildren(nodep);
