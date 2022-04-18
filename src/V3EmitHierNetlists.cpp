@@ -385,10 +385,11 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
   {
     return;
   }
-  else
-  {
-    createModuleInstance(nodep->prettyName(), nodep->level());
-  }
+  // else
+  // {
+  //   createModuleInstance(nodep->prettyName(), nodep->level());
+  // }
+  createModuleInstance(nodep->prettyName(), nodep->level());
   _curModuleInstanceParentName = nodep->origName();
   _curModuleInstanceName = nodep->origName();
 

@@ -210,7 +210,7 @@ static void process() {
     MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
     OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
     MultipleBitsNetlist::V3EmitHierNetLists::MultipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
-    OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetLists,
+    OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetListsN,
                                           "./hierCellsNetLists.v");
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
     OneBitNetlist::V3EmitPlainNetLists::emitPlainNetLists(oneBitHierCellsNetLists,

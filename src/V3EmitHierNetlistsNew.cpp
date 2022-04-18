@@ -174,7 +174,7 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   }
   else if(nodep->isGParam())
   {
-    std::cout << "We know " << nodep->origName() << " is a parameter in "
+    std::cout << "We know " << nodep->prettyName() << " is a parameter in "
               << _curModuleName << ". But we don't care about it."
               << std::endl;
     return;
@@ -183,7 +183,7 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   {
     portMsg.portType = PortType::WIRE;
   }
-  portMsg.portDefName = nodep->origName();
+  portMsg.portDefName = nodep->prettyName();
 
   if(nodep->basicp() && nodep->basicp()->width() != 1)
   {
@@ -539,52 +539,50 @@ void V3EmitHierNetLists::MultipleBitsToOneBit(
           }
         }
       }
-
-      for(auto &sMINMPIM: mBHCN.second.subModInsNameMapPortInsMsgs)
-      { // One AstCell
-        curSubmoduleInstanceName = sMINMPIM.first;
-        oPortInstanceMsgs.clear();
-        for(auto &mPortInstanceMsg: sMINMPIM.second)
-        { // One AstPin
-          oPortInstanceMsg.portDefName = mPortInstanceMsg.portDefName;
-          oPortInstanceMsg.varRefMsgs.clear();
-          for(auto &mVarRefMsg: mPortInstanceMsg.varRefMsgs)
+    }
+    for(auto &sMINMPIM: mBHCN.second.subModInsNameMapPortInsMsgs)
+    { // One AstCell
+      curSubmoduleInstanceName = sMINMPIM.first;
+      oPortInstanceMsgs.clear();
+      for(auto &mPortInstanceMsg: sMINMPIM.second)
+      { // One AstPin
+        oPortInstanceMsg.portDefName = mPortInstanceMsg.portDefName;
+        oPortInstanceMsg.varRefMsgs.clear();
+        for(auto &mVarRefMsg: mPortInstanceMsg.varRefMsgs)
+        {
+          if(mVarRefMsg.varRefName == "")
           {
-            if(mVarRefMsg.varRefName == "")
+            rWidth = mVarRefMsg.width;
+            oVarRefMsg.varRefName = "anonymous";
+            oVarRefMsg.isArray = false;
+            while(rWidth >= 1)
             {
-              rWidth = mVarRefMsg.width;
-              oVarRefMsg.varRefName = "anonymous";
-              oVarRefMsg.isArray = false;
-              while(rWidth >= 1)
-              {
-                oVarRefMsg.initialVal =
-                  ((mVarRefMsg.constValueAndValueX.value &
-                    (hotCode >> (32 - rWidth))) > 0)
-                    ? 1
-                    : 0;
-                oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
-                rWidth--;
-              }
-            }
-            else
-            {
-              rEnd = mVarRefMsg.varRefRange.end;
-              oVarRefMsg.varRefName = mVarRefMsg.varRefName;
-              oVarRefMsg.isArray = mVarRefMsg.isArray;
-              while(rEnd >= int(mVarRefMsg.varRefRange.start))
-              {
-                oVarRefMsg.index = rEnd;
-                oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
-                rEnd--;
-              }
+              oVarRefMsg.initialVal = ((mVarRefMsg.constValueAndValueX.value &
+                                        (hotCode >> (32 - rWidth))) > 0)
+                                        ? 1
+                                        : 0;
+              oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
+              rWidth--;
             }
           }
-          oPortInstanceMsgs.push_back(oPortInstanceMsg);
+          else
+          {
+            rEnd = mVarRefMsg.varRefRange.end;
+            oVarRefMsg.varRefName = mVarRefMsg.varRefName;
+            oVarRefMsg.isArray = mVarRefMsg.isArray;
+            while(rEnd >= int(mVarRefMsg.varRefRange.start))
+            {
+              oVarRefMsg.index = rEnd;
+              oPortInstanceMsg.varRefMsgs.push_back(oVarRefMsg);
+              rEnd--;
+            }
+          }
         }
-        oneBitHierCellsNetLists[curModuleName]
-          .subModInsNameMapPortInsMsgs[curSubmoduleInstanceName] =
-          oPortInstanceMsgs;
+        oPortInstanceMsgs.push_back(oPortInstanceMsg);
       }
+      oneBitHierCellsNetLists[curModuleName]
+        .subModInsNameMapPortInsMsgs[curSubmoduleInstanceName] =
+        oPortInstanceMsgs;
     }
   }
 }
