@@ -284,7 +284,7 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
 // For example, C[n-1:0] or ci;
 void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
 {
-  _varRefMsgTmp.varRefName = nodep->name();
+  _varRefMsgTmp.varRefName = nodep->prettyName();
   if(_whichAstSelChildren)
   { // Now, AstVarRef is a child of AstSel
     _whichAstSelChildren++;
