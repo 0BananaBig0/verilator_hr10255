@@ -204,12 +204,12 @@ static void process() {
     // V3EmitXml::emitxml();
     // 1 - 创建层次化网表及层次化网表容器
     std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg> multipleBitsHierCellsNetLists;
-    std::unordered_map<std::string, OneBitNetlist::ModuleMsg> oneBitHierCellsNetLists,
+    std::unordered_map<std::string, OneBitNetlist::ModuleMsg> oneBitHierCellsNetLists,oneBitHierCellsNetListsN,
         plainCellsNetLists;
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
     MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
-    // OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
-    MultipleBitsNetlist::V3EmitHierNetLists::MultipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetLists);
+    OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
+    MultipleBitsNetlist::V3EmitHierNetLists::MultipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
     OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetLists,
                                           "./hierCellsNetLists.v");
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件

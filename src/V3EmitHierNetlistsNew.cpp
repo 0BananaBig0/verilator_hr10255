@@ -141,8 +141,10 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
   {
     return;
   }
-
-  createModule(nodep->origName(), nodep->level());
+  else
+  {
+    createModule(nodep->prettyName(), nodep->level());
+  }
   iterateChildren(nodep);
 }
 

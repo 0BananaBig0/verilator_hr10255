@@ -319,8 +319,9 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     {
       iterateChildren(nodep);
     }
-    // virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep); };
-    // virtual void visit(AstAssign *nodep) override { iterateChildren(nodep); };
+    // virtual void visit(AstAssignW *nodep) override { iterateChildren(nodep);
+    // }; virtual void visit(AstAssign *nodep) override {
+    // iterateChildren(nodep); };
 
   public:
     /**
@@ -384,9 +385,10 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
   {
     return;
   }
-
-  createModuleInstance(nodep->origName(), nodep->level());
-
+  else
+  {
+    createModuleInstance(nodep->prettyName(), nodep->level());
+  }
   _curModuleInstanceParentName = nodep->origName();
   _curModuleInstanceName = nodep->origName();
 
