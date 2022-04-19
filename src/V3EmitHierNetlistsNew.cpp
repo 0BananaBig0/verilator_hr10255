@@ -298,9 +298,27 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   else
   {
     _varRefMsgTmp.hasValueX = false;
-    _varRefMsgTmp.varRefRange.end = nodep->dtypep()->basicp()->nrange().left();
-    _varRefMsgTmp.varRefRange.start =
-      nodep->dtypep()->basicp()->nrange().right();
+    if(nodep->dtypep()->basicp()->nrange().left() >
+       nodep->dtypep()->basicp()->nrange().right())
+    {
+      _varRefMsgTmp.varRefRange.end =
+        nodep->dtypep()->basicp()->nrange().left();
+      _varRefMsgTmp.varRefRange.start =
+        nodep->dtypep()->basicp()->nrange().right();
+    }
+    else
+    {
+      _varRefMsgTmp.varRefRange.end =
+        nodep->dtypep()->basicp()->nrange().right();
+      _varRefMsgTmp.varRefRange.start =
+        nodep->dtypep()->basicp()->nrange().left();
+    }
+    if(_varRefMsgTmp.varRefRange.start > 0)
+    {
+      _varRefMsgTmp.varRefRange.end =
+        _varRefMsgTmp.varRefRange.end - _varRefMsgTmp.varRefRange.start;
+      _varRefMsgTmp.varRefRange.start = 0;
+    }
     _varRefMsgTmp.width =
       _varRefMsgTmp.varRefRange.end - _varRefMsgTmp.varRefRange.start + 1;
     if(_varRefMsgTmp.width > 1)
