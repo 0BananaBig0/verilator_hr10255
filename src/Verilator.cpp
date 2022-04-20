@@ -202,19 +202,21 @@ static void process() {
       || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() &&
           !v3Global.opt.dpiHdrOnly())) {
     // V3EmitXml::emitxml();
-    // 1 - 创建层次化网表及层次化网表容器
+    // 1 - create netlist vector
     std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg> multipleBitsHierCellsNetLists;
     std::unordered_map<std::string, OneBitNetlist::ModuleMsg> oneBitHierCellsNetLists,oneBitHierCellsNetListsN,
         plainCellsNetLists;
-    // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
+    // 2 - get hierarchical netlist from AST
     MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
     OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
-    MultipleBitsNetlist::V3EmitHierNetLists::MultipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
+    MultipleBitsNetlist::V3EmitHierNetLists::multipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
+    // print hierarchical netlist. It is used to debug.
     OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetListsN,
                                           "./hierCellsNetLists.v");
-    // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
+    // 3 - flatten hierarchical netlist
     OneBitNetlist::V3EmitPlainNetLists::emitPlainNetLists(oneBitHierCellsNetLists,
                                            plainCellsNetLists);
+    // print flattened netlist
     OneBitNetlist::V3EmitPlainNetLists::printPlainNetLists(plainCellsNetLists,
                                             "./plainCellsNetLists.v");
   }
