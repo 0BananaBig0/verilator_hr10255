@@ -20,7 +20,6 @@
 
 namespace MultipleBitsNetlist
 {
-/** @brief 层次化网表访问者 */
 struct ModAndItsHierLevel
 {
     std::string moduleDefName;
@@ -109,9 +108,6 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     virtual void visit(AstTypeTable *nodep) override { return; }
 
   public:
-    /**
-     * @brief 获取层次化网表
-     */
     std::unordered_map<std::string, ModuleMsg> GetHierCellsNetLists();
 
   public:
@@ -281,6 +277,7 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
 }
 
 // If AstVarRef is a child of AstSel, it references some part of a var.
+// Sometimes, whole part.
 // For example, C[2:1];
 // Otherwise, it references the whole part of a var.
 // For example, C[n-1:0] or ci;
@@ -298,6 +295,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   else
   {
     _varRefMsgTmp.hasValueX = false;
+    // Make sure all var like A[1:3] or A[3:1] become A[2:0]
     if(nodep->dtypep()->basicp()->nrange().left() >
        nodep->dtypep()->basicp()->nrange().right())
     {
@@ -482,7 +480,7 @@ void V3EmitHierNetLists::emitHierNetLists(
   hierCellsNetLists = hierCellsNetListsVisitor.GetHierCellsNetLists();
 }
 
-void V3EmitHierNetLists::MultipleBitsToOneBit(
+void V3EmitHierNetLists::multipleBitsToOneBit(
   std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg>
     &multipleBitsHierCellsNetLists,
   std::unordered_map<std::string, OneBitNetlist::ModuleMsg>
