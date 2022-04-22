@@ -149,4 +149,10 @@ module top(co, cco, SUM, A, B, ci);
 
   assign zn = 1'bz;
   assign xn = 1'bx;
+  wire[63:0] slongv;
+  wire[127:0] longv;
+  wire[255:0] llongv;
+  assign slongv = 64'd8589934593;
+  assign longv = {slongv+1,slongv};
+  assign llongv = {slongv,longv,slongv};
 endmodule
