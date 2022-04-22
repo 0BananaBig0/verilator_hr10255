@@ -6,6 +6,7 @@
  ************************************************************************/
 #pragma once
 
+#include "V3Number.h"
 #include "netlistsdefine.h"
 #include <string>
 #include <unordered_map>
@@ -64,10 +65,10 @@ struct ConstValueAndValueX
 //   isArray means varRef is defined as a vector in verilog source code.
 // else
 //   isArray means the value is not one bit.
-struct VarRefMsg
+struct MultipleBitsVarRef
 {
     std::string varRefName = ""; // Variable Referenced Name
-    bool isArray = false;
+    bool isVector = false;
     bool hasValueX = false; // Are there value x or z?
     uint32_t width;
     union
@@ -75,22 +76,23 @@ struct VarRefMsg
         VarRefRange varRefRange;
         ConstValueAndValueX constValueAndValueX;
     };
+    std::vector<V3NumberData::ValueAndX> BiggerValue;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
 // PortInstanceMsg = Port Instanced Message
-struct PortInstanceMsg
+struct MultipleBitsPortAssignment
 {
     std::string portDefName; // Port Defined Name
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0]
-    std::vector<VarRefMsg> varRefMsgs;
+    std::vector<MultipleBitsVarRef> multipleBitsVarRefs;
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...
-struct AssignStatementMsg
+struct MultipleBitsAssignStatement
 {
-    VarRefMsg lValue;              // left value (locator value)
-    std::vector<VarRefMsg> rValue; // right value (read value)
+    MultipleBitsVarRef lValue;              // left value (locator value)
+    std::vector<MultipleBitsVarRef> rValue; // right value (read value)
 };
 
 struct ModuleMsg
@@ -107,7 +109,7 @@ struct ModuleMsg
     // For example,{{U1,{.co(co),.A(a),.B(b),.ci(ci)}},
     // {U2,{.sum(sum),.A(a[1],a[2],1'b0),.B(b,1'b1,1'b0),.ci(ci)}},...}
     using SubModInsNameMapPortInsMsgs =
-      std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
+      std::unordered_map<std::string, std::vector<MultipleBitsPortAssignment>>;
 
   public:
     std::string moduleDefName; // Module Defined Name
@@ -119,7 +121,7 @@ struct ModuleMsg
     std::vector<PortMsg> outputs;
     std::vector<PortMsg> inouts;
     std::vector<PortMsg> wires;
-    std::vector<AssignStatementMsg> assigns;
+    std::vector<MultipleBitsAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
 

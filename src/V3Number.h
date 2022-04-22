@@ -83,6 +83,20 @@ public:
   const ValueAndX &operator[](size_t idx) const {
     return const_cast<V3NumberData &>(*this)[idx];
   }
+  // It is added by HuaxiaoLiang, so that the visitor can get data 
+  // about and const value and value x and z.
+  uint32_t getValue32() const {
+    return m_inlined[0].m_value;
+  }
+  uint32_t getValueX32() const {
+    return m_inlined[0].m_valueX;
+  }
+  ValueAndX getValueAndX64() const {
+    return m_inlined[1];
+  }
+  std::vector<ValueAndX> getValueAndX128() const{
+    return m_data;
+  }
 };
 
 class V3Number final {
@@ -376,8 +390,7 @@ public:
   bool isAnyZ() const;
   bool isMsbXZ() const { return bitIsXZ(m_width); }
   uint32_t toUInt() const;
-  uint32_t getValue() const;
-  uint32_t getValueX() const;
+  V3NumberData value() const;
   vlsint32_t toSInt() const;
   vluint64_t toUQuad() const;
   vlsint64_t toSQuad() const;
