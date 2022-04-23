@@ -91,6 +91,11 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // function stack only when its all descendants have been visited such as
     // AstModule node.(Popped up from)
     // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
+
+    // m_opxp means parent node owns its children.
+    // m_nextp means parent node and its children is parallel in verilog source code.
+    // For example, if A -> B by m_opxp, A owns B, like AstAssign can own AstVarRef.
+    // If A -> B by m_nextp, A and B are parallel, like AstAssign and AstAssign or AstCell.
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); };
 
     virtual void visit(AstModule *nodep) override;
