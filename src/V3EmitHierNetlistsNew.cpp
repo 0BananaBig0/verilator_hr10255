@@ -67,7 +67,8 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // Themporary instance message of current visited port
     MultipleBitsPortAssignment _multipleBitsPortAssignmentsTmp;
     // Port Instance message of current visited submodule instance
-    std::vector<MultipleBitsPortAssignment> _curSubModInsMultipleBitsPortAssignmentsTmp;
+    std::vector<MultipleBitsPortAssignment>
+      _curSubModInsMultipleBitsPortAssignmentsTmp;
 
     // AstSel Status:1 = m_op1p, 2 = m_op2p, 3 = m_op3p, 4 = m_op4p
     uint32_t _whichAstSelChildren = 0;
@@ -250,7 +251,8 @@ void HierCellsNetListsVisitor::visit(AstPin *nodep)
   _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.clear();
   _multipleBitsPortAssignmentsTmp.portDefName = nodep->modVarp()->name();
   iterateChildren(nodep);
-  _curSubModInsMultipleBitsPortAssignmentsTmp.push_back(_multipleBitsPortAssignmentsTmp);
+  _curSubModInsMultipleBitsPortAssignmentsTmp.push_back(
+    _multipleBitsPortAssignmentsTmp);
 }
 
 void HierCellsNetListsVisitor::visit(AstSel *nodep)
@@ -272,7 +274,8 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
   else
   {
     // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(_multipleBitsVarRef);
+    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+      _multipleBitsVarRef);
   }
   _whichAstSelChildren = 0;
 }
@@ -315,11 +318,12 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
     if(_multipleBitsVarRef.varRefRange.start > 0)
     {
       _multipleBitsVarRef.varRefRange.end =
-        _multipleBitsVarRef.varRefRange.end - _multipleBitsVarRef.varRefRange.start;
+        _multipleBitsVarRef.varRefRange.end -
+        _multipleBitsVarRef.varRefRange.start;
       _multipleBitsVarRef.varRefRange.start = 0;
     }
-    _multipleBitsVarRef.width =
-      _multipleBitsVarRef.varRefRange.end - _multipleBitsVarRef.varRefRange.start + 1;
+    _multipleBitsVarRef.width = _multipleBitsVarRef.varRefRange.end -
+                                _multipleBitsVarRef.varRefRange.start + 1;
     if(_multipleBitsVarRef.width > 1)
       _multipleBitsVarRef.isVector = true;
     else
@@ -340,7 +344,8 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
     {
       // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat or
       // AstReplicate
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(_multipleBitsVarRef);
+      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+        _multipleBitsVarRef);
     }
   }
 }
@@ -363,7 +368,8 @@ void HierCellsNetListsVisitor::visit(AstExtend *nodep)
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(_multipleBitsVarRef);
+    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+      _multipleBitsVarRef);
   }
   iterateChildren(nodep);
 }
@@ -386,7 +392,8 @@ void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(_multipleBitsVarRef);
+    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+      _multipleBitsVarRef);
   }
   iterateChildren(nodep);
 }
@@ -409,7 +416,8 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   else
   { // Now, AstReplicate is a child of AstPin or AstExtend or AstConcat
     uint32_t replicateTimes =
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.back().constValueAndValueX.value;
+      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.back()
+        .constValueAndValueX.value;
     _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.pop_back();
     while(replicateTimes != 1)
     {
@@ -439,7 +447,8 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
   { // Now, AstConst is a rValue of assign statement or refValue of a port or
     // the number of AstReplicate.
     _multipleBitsVarRef.varRefName = "";
-    _multipleBitsVarRef.constValueAndValueX.value = nodep->num().value().getValue32();
+    _multipleBitsVarRef.constValueAndValueX.value =
+      nodep->num().value().getValue32();
     _multipleBitsVarRef.width = nodep->width();
     if(_multipleBitsVarRef.width > 1)
       _multipleBitsVarRef.isVector = true;
@@ -447,7 +456,8 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
       _multipleBitsVarRef.isVector = false;
     if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
-      _multipleBitsVarRef.constValueAndValueX.valueX = nodep->num().value().getValueX32();
+      _multipleBitsVarRef.constValueAndValueX.valueX =
+        nodep->num().value().getValueX32();
       _multipleBitsVarRef.hasValueX = true;
     }
     else
@@ -455,14 +465,30 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
       _multipleBitsVarRef.constValueAndValueX.valueX = 0;
       _multipleBitsVarRef.hasValueX = false;
     }
+    if(_multipleBitsVarRef.width > 32)
+      _multipleBitsVarRef.BiggerValue.push_back(
+        nodep->num().value().getValueAndX64());
+    if(_multipleBitsVarRef.width > 64)
+    {
+      const std::vector<V3NumberData::ValueAndX> valueAndX128Tmp =
+        nodep->num().value().getValueAndX128();
+      _multipleBitsVarRef.BiggerValue.insert(
+        _multipleBitsVarRef.BiggerValue.end(), valueAndX128Tmp.begin(),
+        valueAndX128Tmp.end());
+    }
     if(_isAssignStatement)
     { // Now, AstConst is a child of AstAssign or AstAssignW or AstConcat or
       // AstReplicate
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsVarRef);
+      if(_multipleBitsVarRef.width > 32)
+        _multipleBitsVarRef.BiggerValue.clear();
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(_multipleBitsVarRef);
+      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+        _multipleBitsVarRef);
+      if(_multipleBitsVarRef.width > 32)
+        _multipleBitsVarRef.BiggerValue.clear();
     }
   }
 }

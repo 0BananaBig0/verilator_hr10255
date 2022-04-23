@@ -962,7 +962,7 @@ uint32_t V3Number::toUInt() const {
 }
 
 // It is added by HuaxiaoLiang to get data.
-V3NumberData V3Number::value() const {
+const V3NumberData& V3Number::value() const {
   return m_value;
 }
 double V3Number::toDouble() const {

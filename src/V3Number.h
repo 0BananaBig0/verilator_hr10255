@@ -85,16 +85,16 @@ public:
   }
   // It is added by HuaxiaoLiang, so that the visitor can get data 
   // about and const value and value x and z.
-  uint32_t getValue32() const {
+  const uint32_t& getValue32() const {
     return m_inlined[0].m_value;
   }
-  uint32_t getValueX32() const {
+  const uint32_t& getValueX32() const {
     return m_inlined[0].m_valueX;
   }
-  ValueAndX getValueAndX64() const {
+  const ValueAndX& getValueAndX64() const {
     return m_inlined[1];
   }
-  std::vector<ValueAndX> getValueAndX128() const{
+  const std::vector<ValueAndX>& getValueAndX128() const{
     return m_data;
   }
 };
@@ -390,7 +390,7 @@ public:
   bool isAnyZ() const;
   bool isMsbXZ() const { return bitIsXZ(m_width); }
   uint32_t toUInt() const;
-  V3NumberData value() const;
+  const V3NumberData& value() const;
   vlsint32_t toSInt() const;
   vluint64_t toUQuad() const;
   vlsint64_t toSQuad() const;
