@@ -596,8 +596,8 @@ static bool IsStdCell(const std::string &moduleName)
 }
 
 static void
-PlainModule(ModuleMsg &moduleMsg,
-            std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
+PlainModule(Module &moduleMsg,
+            std::unordered_map<std::string, Module> &hierCellsNetLists)
 {
   /**
    * @brief       moduleMsg 初始化拷贝
@@ -605,9 +605,9 @@ PlainModule(ModuleMsg &moduleMsg,
    * @return      拷贝对象
    * @sa          参见具体使用处
    */
-  auto initModuleMsgCopy = [](const ModuleMsg &moduleMsg) -> ModuleMsg
+  auto initModuleMsgCopy = [](const Module &moduleMsg) -> Module
   {
-    ModuleMsg result;
+    Module result;
     result.moduleDefName = moduleMsg.moduleDefName;
     result.inputs = moduleMsg.inputs;
     result.outputs = moduleMsg.outputs;
@@ -617,7 +617,7 @@ PlainModule(ModuleMsg &moduleMsg,
     return result;
   };
 
-  ModuleMsg result = initModuleMsgCopy(moduleMsg);
+  Module result = initModuleMsgCopy(moduleMsg);
 
   for(const auto &subModuleInstanceName: moduleMsg.subModuleInstanceNames)
   {
@@ -630,22 +630,22 @@ PlainModule(ModuleMsg &moduleMsg,
       result.subModuleInstanceNames.push_back(subModuleInstanceName);
       result.subModInsNameMapSubModDefName[subModuleInstanceName] =
         moduleMsg.subModInsNameMapSubModDefName[subModuleInstanceName];
-      result.subModInsNameMapPortInsMsgs[subModuleInstanceName] =
-        moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
+      result.subModInsNameMapPortAssignments[subModuleInstanceName] =
+        moduleMsg.subModInsNameMapPortAssignments[subModuleInstanceName];
       continue;
     }
     // 2 - 展开非标准单元的子模块
     // Hint : 本质上是 const 的,但是这样我操作 map 就很麻烦了，下同
-    /* const */ ModuleMsg &subModuleMsg = hierCellsNetLists[subModuleDefName];
+    /* const */ Module &subModuleMsg = hierCellsNetLists[subModuleDefName];
     /**
      * @brief 简单的 hash 算子
      * @note  这个是还要优化的
      */
     struct PortMsgHash
     {
-        size_t operate(const PortMsg &portMsg)
+        size_t operate(const PortDefinition &portMsg)
         {
-          return static_cast<size_t>(portMsg.arraySize * 2 +
+          return static_cast<size_t>(portMsg.bitWidth * 2 +
                                      portMsg.portDefName.size() * 5);
         }
     };
@@ -654,21 +654,21 @@ PlainModule(ModuleMsg &moduleMsg,
     // Hint : 为了确保唯一性，加上子模块的实例名称
     for(auto originPortMsg: subModuleMsg.wires)
     {
-      PortMsg portMsg = originPortMsg;
+      PortDefinition portMsg = originPortMsg;
       portMsg.portDefName =
         subModuleInstanceName + "_" + originPortMsg.portDefName;
       result.wires.push_back(portMsg);
     }
 
     // 2.2 - 做子模块的 in, out, inout 到父模块的映射
-    std::unordered_map<std::string, std::vector<VarRefMsg>>
+    std::unordered_map<std::string, std::vector<VarRef>>
       portsDefInstanceMap;
     auto &subModulePorts =
-      moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
+      moduleMsg.subModInsNameMapPortAssignments[subModuleInstanceName];
     for(auto &subModulePort: subModulePorts)
     {
       portsDefInstanceMap[subModulePort.portDefName] =
-        subModulePort.varRefMsgs;
+        subModulePort.varRefs;
     }
 
     // 3 - 将子模块中的标准单元实例搬移到 result 中去
@@ -689,22 +689,22 @@ PlainModule(ModuleMsg &moduleMsg,
       {
         const auto &originSubPortInstanceMsgs =
           subModuleMsg
-            .subModInsNameMapPortInsMsgs[originSubSubModuleInstanceName];
-        std::vector<PortInstanceMsg> subPortInstanceMsgs;
+            .subModInsNameMapPortAssignments[originSubSubModuleInstanceName];
+        std::vector<PortAssignment> subPortInstanceMsgs;
         for(const auto &originPortInstanceMsg: originSubPortInstanceMsgs)
         {
-          PortInstanceMsg portInstanceMsg;
+          PortAssignment portInstanceMsg;
 
           // 3.3.1 引脚定义名称不变，这是从标准单元来的
           portInstanceMsg.portDefName = originPortInstanceMsg.portDefName;
 
           // 3.3.2 修改引脚实例名称，分情况讨论
           auto &subModulePorts =
-            moduleMsg.subModInsNameMapPortInsMsgs[subModuleInstanceName];
-          for(auto &originVarRefMsg: originPortInstanceMsg.varRefMsgs)
+            moduleMsg.subModInsNameMapPortAssignments[subModuleInstanceName];
+          for(auto &originVarRefMsg: originPortInstanceMsg.varRefs)
           {
 
-            VarRefMsg varRefMsg;
+            VarRef varRefMsg;
             // 1 - 匿名赋值直接拷贝
             if(originVarRefMsg.varRefName == "anonymous")
             {
@@ -713,7 +713,7 @@ PlainModule(ModuleMsg &moduleMsg,
             // 2- in, out, inout 做端口映射
             else if(portsDefInstanceMap.count(originVarRefMsg.varRefName) != 0)
             {
-              if(originVarRefMsg.isArray == false)
+              if(originVarRefMsg.isVector == false)
               {
                 varRefMsg = portsDefInstanceMap[originVarRefMsg.varRefName][0];
               }
@@ -725,11 +725,11 @@ PlainModule(ModuleMsg &moduleMsg,
                 if(portsDefInstanceMap[originVarRefMsg.varRefName].size() ==
                      1 &&
                    portsDefInstanceMap[originVarRefMsg.varRefName][0]
-                       .isArray == false)
+                       .isVector == false)
                 {
                   varRefMsg =
                     portsDefInstanceMap[originVarRefMsg.varRefName][0];
-                  varRefMsg.isArray = true;
+                  varRefMsg.isVector = true;
                   varRefMsg.index = index;
                 }
                 else
@@ -749,11 +749,11 @@ PlainModule(ModuleMsg &moduleMsg,
                            "varRefName is "
                         << originVarRefMsg.varRefName << std::endl;
             }
-            portInstanceMsg.varRefMsgs.push_back(varRefMsg);
+            portInstanceMsg.varRefs.push_back(varRefMsg);
           }
           subPortInstanceMsgs.push_back(portInstanceMsg);
         }
-        result.subModInsNameMapPortInsMsgs[subSubModuleInstanceName] =
+        result.subModInsNameMapPortAssignments[subSubModuleInstanceName] =
           subPortInstanceMsgs;
       }
     }
@@ -771,21 +771,21 @@ class NetListsPlain final
 {
   public:
     NetListsPlain(
-      std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists);
+      std::unordered_map<std::string, Module> &hierCellsNetLists);
     NetListsPlain() = default;
 
   public:
     /**
      * @brief 获取扁平化的网表
      */
-    std::unordered_map<std::string, ModuleMsg> GetPlainNetLists();
+    std::unordered_map<std::string, Module> GetPlainNetLists();
 
   private:
-    std::unordered_map<std::string, ModuleMsg> _plainCellsNetLists;
+    std::unordered_map<std::string, Module> _plainCellsNetLists;
 };
 
 NetListsPlain::NetListsPlain(
-  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
+  std::unordered_map<std::string, Module> &hierCellsNetLists)
 {
   std::vector<std::string> moduleDefNameOrderByLevel;
   for(const auto &module: hierCellsNetLists)
@@ -805,20 +805,20 @@ NetListsPlain::NetListsPlain(
     {
       continue;
     }
-    ModuleMsg &moduleMsg = hierCellsNetLists[moduleDefName];
+    Module &moduleMsg = hierCellsNetLists[moduleDefName];
     PlainModule(moduleMsg, hierCellsNetLists);
   }
   _plainCellsNetLists = hierCellsNetLists;
 }
 
-std::unordered_map<std::string, ModuleMsg> NetListsPlain::GetPlainNetLists()
+std::unordered_map<std::string, Module> NetListsPlain::GetPlainNetLists()
 {
   return std::move(_plainCellsNetLists);
 }
 
 void V3EmitPlainNetLists::emitPlainNetLists(
-  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
-  std::unordered_map<std::string, ModuleMsg> &plainCellsNetLists)
+  std::unordered_map<std::string, Module> &hierCellsNetLists,
+  std::unordered_map<std::string, Module> &plainCellsNetLists)
 {
   auto tmp = hierCellsNetLists;
   NetListsPlain netListsPlain(tmp);

@@ -32,8 +32,8 @@ namespace MultipleBitsNetlist
 // };
 //
 // // It is used to store input, output, inout and wire definition.
-// // PortMsg = Port Definded Message
-// struct PortMsg
+// // Port = Port Definded Message
+// struct Port
 // {
 //     std::string portDefName;               // Port Defined Name
 //     PortType portType = PortType::UNKNOWN;
@@ -60,7 +60,7 @@ struct ConstValueAndValueX
     uint32_t value, valueX;
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
-// VarRefMsg = Variable Referenced Message
+// VarRef = Variable Referenced
 // if(varRefName !="" && !hasValueX)
 //   isArray means varRef is defined as a vector in verilog source code.
 // else
@@ -76,10 +76,10 @@ struct MultipleBitsVarRef
         VarRefRange varRefRange;
         ConstValueAndValueX constValueAndValueX;
     };
-    std::vector<V3NumberData::ValueAndX> BiggerValue;
+    std::vector<V3NumberData::ValueAndX> biggerValue;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
-// PortInstanceMsg = Port Instanced Message
+// PortInstance = Port Instanced
 struct MultipleBitsPortAssignment
 {
     std::string portDefName; // Port Defined Name
@@ -95,7 +95,7 @@ struct MultipleBitsAssignStatement
     std::vector<MultipleBitsVarRef> rValue; // right value (read value)
 };
 
-struct ModuleMsg
+struct Module
 {
   public:
     // std::string -> subModuleInstanceName, for example, U1.
@@ -104,11 +104,11 @@ struct ModuleMsg
     using SubModInsNameMapSubModDefName =
       std::unordered_map<std::string, std::string>;
     // std::string -> subModuleInstanceName, for example, U1.
-    // std::vector<PortInstanceMsg> -> allInstancedPortsMsgoFOneSubMod,
+    // std::vector<MultipleBitsPortAssignment> -> allInstancedPortsoFOneSubMod,
     // For example,{.co(co),.A(a),.B(b),.ci(ci)}.
     // For example,{{U1,{.co(co),.A(a),.B(b),.ci(ci)}},
     // {U2,{.sum(sum),.A(a[1],a[2],1'b0),.B(b,1'b1,1'b0),.ci(ci)}},...}
-    using SubModInsNameMapPortInsMsgs =
+    using SubModInsNameMapPortAssignments =
       std::unordered_map<std::string, std::vector<MultipleBitsPortAssignment>>;
 
   public:
@@ -117,10 +117,10 @@ struct ModuleMsg
 
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
-    std::vector<PortMsg> inputs;
-    std::vector<PortMsg> outputs;
-    std::vector<PortMsg> inouts;
-    std::vector<PortMsg> wires;
+    std::vector<PortDefinition> inputs;
+    std::vector<PortDefinition> outputs;
+    std::vector<PortDefinition> inouts;
+    std::vector<PortDefinition> wires;
     std::vector<MultipleBitsAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
@@ -132,7 +132,7 @@ struct ModuleMsg
     // SubModule Instanced Name Map SubModule Defined Name
     SubModInsNameMapSubModDefName subModInsNameMapSubModDefName;
     // SubModule Instanced Name Map Port Instanced Messages
-    SubModInsNameMapPortInsMsgs subModInsNameMapPortInsMsgs;
+    SubModInsNameMapPortAssignments subModInsNameMapPortAssignments;
     /*********************************** Netlist Instance Information(END)
      * *********************************************/
 

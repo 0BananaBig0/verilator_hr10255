@@ -19,7 +19,7 @@ namespace OneBitNetlist
  * @note  1 - indexRange : uint32_t -> start， uint32_t -> len
  *        2 - 仅供内部使用
  */
-struct VarRefComplexMsg
+struct VarRefComplex
 {
     /**
      * @brief varRefName == "anonymous"
@@ -39,10 +39,10 @@ struct VarRefComplexMsg
  * @brief assign 语句信息 (复杂)
  * @note  仅供内部使用
  */
-struct AssignStatementComplexMsg
+struct AssignStatementComplex
 {
-    VarRefComplexMsg lValue; // 左值
-    VarRefComplexMsg rValue; // 右值
+    VarRefComplex lValue; // 左值
+    VarRefComplex rValue; // 右值
 };
 
 static uint32_t IndexStrToIndexNum(const std::string &indexStr)
@@ -76,11 +76,11 @@ class MemoMaker
     MemoMaker &operator=(const MemoMaker &) = delete;
 };
 
-std::vector<int> VarRefComplexMsg::getIndexs()
+std::vector<int> VarRefComplex::getIndexs()
 {
   if(!isArray)
   {
-    throw std::runtime_error("VarRefComplexMsg::getIndexs() should "
+    throw std::runtime_error("VarRefComplex::getIndexs() should "
                              "be involed by array type");
   }
   std::vector<int> res;
@@ -99,8 +99,8 @@ struct AssignStatus
     bool isAssignStatement = false; // 是否是 assign 语句
     bool isAssignLvalue = false;    // 是否是 assign 的左值,仅当
                                     // isAssignStatement == true 时有效
-    AssignStatementComplexMsg
-      assignStatementComplexMsg; // assign 语句信息临时存放处
+    AssignStatementComplex
+      assignStatementComplex; // assign 语句信息临时存放处
     bool isFrist = true;
 
   public:
@@ -119,8 +119,8 @@ struct AssignStatus
       // Second,process assignrValue(corresponding to else statement)
       if(isAssignLvalue)
       {
-        assignStatementComplexMsg.lValue.varRefName = varRefName;
-        if(assignStatementComplexMsg.lValue.isArray == false)
+        assignStatementComplex.lValue.varRefName = varRefName;
+        if(assignStatementComplex.lValue.isArray == false)
         {
           // Make the next call of ProcessVarRefName to process
           // assignrValue.
@@ -129,8 +129,8 @@ struct AssignStatus
       }
       else
       {
-        assignStatementComplexMsg.rValue.varRefName = varRefName;
-        if(assignStatementComplexMsg.rValue.isArray == false)
+        assignStatementComplex.rValue.varRefName = varRefName;
+        if(assignStatementComplex.rValue.isArray == false)
         {
           isAssignLvalue = !isAssignLvalue;
         }
@@ -150,11 +150,11 @@ struct AssignStatus
       }
       if(isAssignLvalue)
       {
-        assignStatementComplexMsg.lValue.isArray = true;
+        assignStatementComplex.lValue.isArray = true;
       }
       else
       {
-        assignStatementComplexMsg.rValue.isArray = true;
+        assignStatementComplex.rValue.isArray = true;
       }
 
       return true;
@@ -190,7 +190,7 @@ struct AssignStatus
       // isAssignLvalue = true, process lValue of assign statement;
       if(isAssignLvalue)
       {
-        VarRefComplexMsg &value = assignStatementComplexMsg.lValue;
+        VarRefComplex &value = assignStatementComplex.lValue;
         if(value.varRefName == "anonymous")
         {
           value.indexRange.first = IndexStrToIndexNum(constStr);
@@ -219,7 +219,7 @@ struct AssignStatus
       // isAssignLvalue = false, process rValue of assign statement;
       else
       {
-        VarRefComplexMsg &value = assignStatementComplexMsg.rValue;
+        VarRefComplex &value = assignStatementComplex.rValue;
         if(value.varRefName == "anonymous")
         {
           value.indexRange.first = IndexStrToIndexNum(constStr);
@@ -254,7 +254,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // _moduleMap[_curModuleInstanceParentName] -> 指向当前正在处理的模块
     // _moduleMap[_curModuleInstanceParentName][_curModuleInstanceParentName]
     // -> 指向当前正在处理的模块下的一个模块实例
-    std::unordered_map<std::string, ModuleMsg> _moduleMap;
+    std::unordered_map<std::string, Module> _moduleMap;
 
   private:
     std::string _curModuleInstanceParentName; // 当前模块实例父亲的名称
@@ -262,11 +262,11 @@ class HierCellsNetListsVisitor final : public AstNVisitor
 
     AssignStatus _assignStatus; // assign 相关状态
 
-    PortInstanceMsg _portInstanceMsgTmp; // 端口实例信息临时变量
-    VarRefComplexMsg _varRefComplexTmp;  // 端口实例形参信息 (复杂)
+    PortAssignment _portAssignmentTmp; // 端口实例信息临时变量
+    VarRefComplex _varRefComplexTmp;  // 端口实例形参信息 (复杂)
 
-    std::vector<PortInstanceMsg>
-      _curModulePortInstanceMsg; // 当前模块的引脚实例信息
+    std::vector<PortAssignment>
+      _curModulePortAssignments; // 当前模块的引脚实例信息
 
   private:
     // All information we can get from this Ast tree by using the
@@ -327,7 +327,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     /**
      * @brief 获取层次化网表
      */
-    std::unordered_map<std::string, ModuleMsg> GetHierCellsNetLists();
+    std::unordered_map<std::string, Module> GetHierCellsNetLists();
 
   public:
     // AstNetlist is ConElement
@@ -345,7 +345,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
      * @note          观察输出文件的内容
      */
     static void
-    selfTest(std::unordered_map<std::string, ModuleMsg> hierCellsNetLists,
+    selfTest(std::unordered_map<std::string, Module> hierCellsNetLists,
              const std::string &filename);
 };
 
@@ -375,10 +375,10 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
   auto createModuleInstance = [this](const std::string &moduleDefName,
                                      uint32_t level = -1) -> void
   {
-    ModuleMsg moduleInstanceMsg;
-    moduleInstanceMsg.moduleDefName = moduleDefName;
-    moduleInstanceMsg.level = level;
-    _moduleMap[moduleDefName] = std::move(moduleInstanceMsg);
+    Module moduleInstance;
+    moduleInstance.moduleDefName = moduleDefName;
+    moduleInstance.level = level;
+    _moduleMap[moduleDefName] = std::move(moduleInstance);
   };
 
   if(nodep->prettyName() == "@CONST-POOL@")
@@ -398,21 +398,21 @@ void HierCellsNetListsVisitor::visit(AstModule *nodep)
 
 void HierCellsNetListsVisitor::visit(AstVar *nodep)
 {
-  PortMsg portMsg;
-  portMsg.portDefName = nodep->origName();
+  PortDefinition port;
+  port.portDefName = nodep->origName();
 
   if(nodep->isIO())
   {
     switch(nodep->direction())
     {
     case VDirection::INPUT:
-      portMsg.portType = PortType::INPUT;
+      port.portType = PortType::INPUT;
       break;
     case VDirection::OUTPUT:
-      portMsg.portType = PortType::OUTPUT;
+      port.portType = PortType::OUTPUT;
       break;
     case VDirection::INOUT:
-      portMsg.portType = PortType::INOUT;
+      port.portType = PortType::INOUT;
       break;
     default:
       throw std::runtime_error(
@@ -423,32 +423,32 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   }
   else
   {
-    portMsg.portType = PortType::WIRE;
+    port.portType = PortType::WIRE;
   }
 
   if(nodep->basicp() && nodep->basicp()->width() != 1)
   {
-    portMsg.isArray = true;
-    portMsg.arraySize = nodep->basicp()->width();
+    port.isVector = true;
+    port.bitWidth = nodep->basicp()->width();
   }
 
-  switch(portMsg.portType)
+  switch(port.portType)
   {
   case PortType::INPUT:
     _moduleMap[_curModuleInstanceParentName].inputs.push_back(
-      std::move(portMsg));
+      std::move(port));
     break;
   case PortType::OUTPUT:
     _moduleMap[_curModuleInstanceParentName].outputs.push_back(
-      std::move(portMsg));
+      std::move(port));
     break;
   case PortType::INOUT:
     _moduleMap[_curModuleInstanceParentName].inouts.push_back(
-      std::move(portMsg));
+      std::move(port));
     break;
   case PortType::WIRE:
     _moduleMap[_curModuleInstanceParentName].wires.push_back(
-      std::move(portMsg));
+      std::move(port));
 
     break;
   default:
@@ -460,19 +460,19 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
 
 void HierCellsNetListsVisitor::visit(AstCell *nodep)
 {
-  /** @brief 向 ModuleMsg 塞入一个子模块
-   *  @sa    ModuleMsg
+  /** @brief 向 Module 塞入一个子模块
+   *  @sa    Module
    */
   auto insertSubmoduleInstance =
     [this, nodep](const std::string &parentModuleName,
                   const std::string &moduleDefName,
                   const std::string &moduleInstanceName) -> void
   {
-    ModuleMsg &parentModuleInstanceMsg =
+    Module &parentModuleInstance =
       _moduleMap[_curModuleInstanceParentName];
-    parentModuleInstanceMsg.subModuleInstanceNames.push_back(
+    parentModuleInstance.subModuleInstanceNames.push_back(
       moduleInstanceName);
-    parentModuleInstanceMsg.subModInsNameMapSubModDefName[moduleInstanceName] =
+    parentModuleInstance.subModInsNameMapSubModDefName[moduleInstanceName] =
       moduleDefName;
   };
 
@@ -484,7 +484,7 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
    */
   MemoMaker<std::string> memoMaker1(_curModuleInstanceParentName);
   MemoMaker<std::string> memoMaker2(_curModuleInstanceName);
-  MemoMaker<VarRefComplexMsg> memoMaker3(_varRefComplexTmp);
+  MemoMaker<VarRefComplex> memoMaker3(_varRefComplexTmp);
 
   std::string moduleDefName = nodep->modName();
   std::string moduleInstanceName = nodep->origName();
@@ -501,20 +501,20 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
 {
   // 引脚实例 tmp 自动恢复默认值
-  _portInstanceMsgTmp.varRefMsgs.clear();
-  MemoMaker<PortInstanceMsg> memoMaker1(_portInstanceMsgTmp);
-  MemoMaker<VarRefComplexMsg> memoMaker2(_varRefComplexTmp);
-  _portInstanceMsgTmp.portDefName = nodep->prettyName();
+  _portAssignmentTmp.varRefs.clear();
+  MemoMaker<PortAssignment> memoMaker1(_portAssignmentTmp);
+  MemoMaker<VarRefComplex> memoMaker2(_varRefComplexTmp);
+  _portAssignmentTmp.portDefName = nodep->prettyName();
   iterateChildren(nodep);
   // 插入当前模块实例的一个端口信息
   _moduleMap[_curModuleInstanceParentName]
-    .subModInsNameMapPortInsMsgs[_curModuleInstanceName]
-    .push_back(_portInstanceMsgTmp);
+    .subModInsNameMapPortAssignments[_curModuleInstanceName]
+    .push_back(_portAssignmentTmp);
 }
 
 /**
  * @note 进入此引脚的实例参数不止一个，目前这里不需要做任何处理
- * @sa   PortInstanceMsg
+ * @sa   PortInstance
  */
 void HierCellsNetListsVisitor::visit(AstConcat *nodep)
 {
@@ -562,15 +562,15 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     if(_varRefComplexTmp.varRefName == "anonymous")
     {
       // 引脚实例 tmp 自动恢复默认值
-      MemoMaker<VarRefComplexMsg> memoMaker(_varRefComplexTmp);
+      MemoMaker<VarRefComplex> memoMaker(_varRefComplexTmp);
       uint32_t len = getLen(nodep->prettyName());
       _varRefComplexTmp.indexRange.first =
         IndexStrToIndexNum(nodep->prettyName());
-      VarRefMsg varRefMsg;
-      varRefMsg.initialVal = _varRefComplexTmp.indexRange.first;
+      VarRef varRef;
+      varRef.initialVal = _varRefComplexTmp.indexRange.first;
       for(uint32_t i = 0; i < len; i++)
       {
-        _portInstanceMsgTmp.varRefMsgs.push_back(varRefMsg);
+        _portAssignmentTmp.varRefs.push_back(varRef);
       }
     }
     else
@@ -596,7 +596,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
  */
 void HierCellsNetListsVisitor::visit(AstSel *nodep)
 {
-  MemoMaker<VarRefComplexMsg> memoMaker(_varRefComplexTmp);
+  MemoMaker<VarRefComplex> memoMaker(_varRefComplexTmp);
 
   if(_assignStatus.isAssignStatement)
   {
@@ -610,14 +610,14 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
   if(_assignStatus.isAssignStatement) {}
   else
   {
-    VarRefMsg varRefMsg;
-    varRefMsg.varRefName = _varRefComplexTmp.varRefName;
-    varRefMsg.isArray = _varRefComplexTmp.isArray;
+    VarRef varRef;
+    varRef.varRefName = _varRefComplexTmp.varRefName;
+    varRef.isVector = _varRefComplexTmp.isArray;
     auto indexs = _varRefComplexTmp.getIndexs();
     for(auto index: indexs)
     {
-      varRefMsg.index = index;
-      _portInstanceMsgTmp.varRefMsgs.push_back(varRefMsg);
+      varRef.index = index;
+      _portAssignmentTmp.varRefs.push_back(varRef);
     }
   }
 }
@@ -631,41 +631,41 @@ void HierCellsNetListsVisitor::visit(AstNodeAssign *nodep)
   _assignStatus.isAssignLvalue = false;
   _assignStatus.isAssignStatement = true;
   iterateChildren(nodep);
-  AssignStatementMsg assignStatementMsg;
-  assignStatementMsg.lValue.varRefName =
-    _assignStatus.assignStatementComplexMsg.lValue.varRefName;
-  assignStatementMsg.lValue.isArray =
-    _assignStatus.assignStatementComplexMsg.lValue.isArray;
-  assignStatementMsg.rValue.varRefName =
-    _assignStatus.assignStatementComplexMsg.rValue.varRefName;
-  assignStatementMsg.rValue.isArray =
-    _assignStatus.assignStatementComplexMsg.rValue.isArray;
+  AssignStatement assignStatement;
+  assignStatement.lValue.varRefName =
+    _assignStatus.assignStatementComplex.lValue.varRefName;
+  assignStatement.lValue.isVector =
+    _assignStatus.assignStatementComplex.lValue.isArray;
+  assignStatement.rValue.varRefName =
+    _assignStatus.assignStatementComplex.rValue.varRefName;
+  assignStatement.rValue.isVector =
+    _assignStatus.assignStatementComplex.rValue.isArray;
   for(uint32_t i = 0;
-      i < _assignStatus.assignStatementComplexMsg.lValue.indexRange.second;
+      i < _assignStatus.assignStatementComplex.lValue.indexRange.second;
       i++)
   {
-    if(assignStatementMsg.lValue.varRefName != "anonymous")
+    if(assignStatement.lValue.varRefName != "anonymous")
     {
-      assignStatementMsg.lValue.index =
-        _assignStatus.assignStatementComplexMsg.lValue.indexRange.first + i;
+      assignStatement.lValue.index =
+        _assignStatus.assignStatementComplex.lValue.indexRange.first + i;
     }
     else
     {
-      assignStatementMsg.lValue.index =
-        _assignStatus.assignStatementComplexMsg.lValue.indexRange.second;
+      assignStatement.lValue.index =
+        _assignStatus.assignStatementComplex.lValue.indexRange.second;
     }
-    if(assignStatementMsg.rValue.varRefName != "anonymous")
+    if(assignStatement.rValue.varRefName != "anonymous")
     {
-      assignStatementMsg.rValue.index =
-        _assignStatus.assignStatementComplexMsg.rValue.indexRange.first + i;
+      assignStatement.rValue.index =
+        _assignStatus.assignStatementComplex.rValue.indexRange.first + i;
     }
     else
     {
-      assignStatementMsg.rValue.index =
-        _assignStatus.assignStatementComplexMsg.rValue.indexRange.first;
+      assignStatement.rValue.index =
+        _assignStatus.assignStatementComplex.rValue.indexRange.first;
     }
     _moduleMap[_curModuleInstanceParentName].assigns.push_back(
-      assignStatementMsg);
+      assignStatement);
   }
 }
 
@@ -692,15 +692,15 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
   {
     if(_varRefComplexTmp.isArray == false)
     {
-      VarRefMsg varRefMsg;
-      varRefMsg.varRefName = _varRefComplexTmp.varRefName;
-      varRefMsg.isArray = _varRefComplexTmp.isArray;
-      _portInstanceMsgTmp.varRefMsgs.push_back(varRefMsg);
+      VarRef varRef;
+      varRef.varRefName = _varRefComplexTmp.varRefName;
+      varRef.isVector = _varRefComplexTmp.isArray;
+      _portAssignmentTmp.varRefs.push_back(varRef);
     }
   }
 }
 
-std::unordered_map<std::string, ModuleMsg>
+std::unordered_map<std::string, Module>
 HierCellsNetListsVisitor::GetHierCellsNetLists()
 {
   return _moduleMap;
@@ -708,7 +708,7 @@ HierCellsNetListsVisitor::GetHierCellsNetLists()
 }
 
 void V3EmitHierNetLists::emitHireNetLists(
-  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists)
+  std::unordered_map<std::string, Module> &hierCellsNetLists)
 {
   // v3Global will return a AstNetlist*
   HierCellsNetListsVisitor hierCellsNetListsVisitor(v3Global.rootp());
@@ -716,7 +716,7 @@ void V3EmitHierNetLists::emitHireNetLists(
 }
 
 void V3EmitHierNetLists::printHireNetLists(
-  std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
+  std::unordered_map<std::string, Module> &hierCellsNetLists,
   std::string filename)
 {
   HierCellsNetListsVisitor::selfTest(hierCellsNetLists, filename);
@@ -726,16 +726,16 @@ void V3EmitHierNetLists::printHireNetLists(
  * 自测函数(START)
  * *****************************************************************/
 void HierCellsNetListsVisitor::selfTest(
-  std::unordered_map<std::string, ModuleMsg> hierCellsNetLists,
+  std::unordered_map<std::string, Module> hierCellsNetLists,
   const std::string &filename)
 {
   std::ofstream ofs(filename);
-  for(const auto &moduleMsg: hierCellsNetLists)
+  for(const auto &oneModule: hierCellsNetLists)
   {
     /**
      * @example module omsp_and_gate__0_1424(y, a, b);
      */
-    auto module = moduleMsg.second;
+    auto module = oneModule.second;
     ofs << "module " << module.moduleDefName << "(";
     for(auto output: module.outputs) { ofs << output.portDefName << ","; }
     for(auto input: module.inputs) { ofs << input.portDefName << ","; }
@@ -752,9 +752,9 @@ void HierCellsNetListsVisitor::selfTest(
     for(auto output: module.outputs)
     {
       ofs << "\t output ";
-      if(output.isArray)
+      if(output.isVector)
       {
-        ofs << "[" << output.arraySize - 1 << ":0]";
+        ofs << "[" << output.bitWidth - 1 << ":0]";
       }
       ofs << output.portDefName;
       ofs << ";" << std::endl;
@@ -762,9 +762,9 @@ void HierCellsNetListsVisitor::selfTest(
     for(auto input: module.inputs)
     {
       ofs << "\t input ";
-      if(input.isArray)
+      if(input.isVector)
       {
-        ofs << "[" << input.arraySize - 1 << ":0]";
+        ofs << "[" << input.bitWidth - 1 << ":0]";
       }
       ofs << input.portDefName;
       ofs << ";" << std::endl;
@@ -772,9 +772,9 @@ void HierCellsNetListsVisitor::selfTest(
     for(auto inout: module.inouts)
     {
       ofs << "\t inout ";
-      if(inout.isArray)
+      if(inout.isVector)
       {
-        ofs << "[" << inout.arraySize - 1 << ":0]";
+        ofs << "[" << inout.bitWidth - 1 << ":0]";
       }
       ofs << inout.portDefName;
       ofs << ";" << std::endl;
@@ -787,9 +787,9 @@ void HierCellsNetListsVisitor::selfTest(
     for(auto wire: module.wires)
     {
       ofs << "\t wire ";
-      if(wire.isArray)
+      if(wire.isVector)
       {
-        ofs << "[" << wire.arraySize - 1 << ":0]";
+        ofs << "[" << wire.bitWidth - 1 << ":0]";
       }
       ofs << wire.portDefName;
       ofs << ";" << std::endl;
@@ -808,7 +808,7 @@ void HierCellsNetListsVisitor::selfTest(
       if(assign.lValue.varRefName != "anonymous")
       {
         ofs << assign.lValue.varRefName;
-        if(assign.lValue.isArray)
+        if(assign.lValue.isVector)
         {
           ofs << "[" << assign.lValue.index << "]";
         }
@@ -825,7 +825,7 @@ void HierCellsNetListsVisitor::selfTest(
       else
       {
         ofs << assign.rValue.varRefName;
-        if(assign.rValue.isArray)
+        if(assign.rValue.isVector)
         {
           ofs << "[" << assign.rValue.index << "]";
         }
@@ -844,35 +844,35 @@ void HierCellsNetListsVisitor::selfTest(
           << module.subModInsNameMapSubModDefName[subModuleInstanceName] << " "
           << subModuleInstanceName << " ";
       ofs << "(";
-      for(const auto &portInstanceMsg:
-          module.subModInsNameMapPortInsMsgs[subModuleInstanceName])
+      for(const auto &portAssignment:
+          module.subModInsNameMapPortAssignments[subModuleInstanceName])
       {
-        ofs << "." << portInstanceMsg.portDefName << "(";
-        if(portInstanceMsg.varRefMsgs.size() > 1)
+        ofs << "." << portAssignment.portDefName << "(";
+        if(portAssignment.varRefs.size() > 1)
         {
           ofs << "{";
         }
-        for(const auto &varRefMsg: portInstanceMsg.varRefMsgs)
+        for(const auto &varRef: portAssignment.varRefs)
         {
-          if(varRefMsg.varRefName == "anonymous")
+          if(varRef.varRefName == "anonymous")
           {
-            ofs << "1'b" << varRefMsg.initialVal;
+            ofs << "1'b" << varRef.initialVal;
           }
           else
           {
-            ofs << varRefMsg.varRefName;
-            if(varRefMsg.isArray)
+            ofs << varRef.varRefName;
+            if(varRef.isVector)
             {
-              ofs << "[" << varRefMsg.index << "]";
+              ofs << "[" << varRef.index << "]";
             }
           }
           ofs << ",";
         }
-        if(!portInstanceMsg.varRefMsgs.empty())
+        if(!portAssignment.varRefs.empty())
         {
           ofs.seekp(ofs.tellp() - std::streampos(1)); // 顶掉一个 ","
         }
-        if(portInstanceMsg.varRefMsgs.size() > 1)
+        if(portAssignment.varRefs.size() > 1)
         {
           ofs << "}";
         }

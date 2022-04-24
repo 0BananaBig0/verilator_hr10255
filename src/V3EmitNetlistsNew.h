@@ -14,14 +14,14 @@ class V3EmitHierNetLists final
 {
   public:
     static void emitHierNetLists(
-      std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists);
+      std::unordered_map<std::string, Module> &hierCellsNetLists);
     static void multipleBitsToOneBit(
-      std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg>
+      std::unordered_map<std::string, MultipleBitsNetlist::Module>
         &multipleBitsHierCellsNetLists,
-      std::unordered_map<std::string, OneBitNetlist::ModuleMsg>
+      std::unordered_map<std::string, OneBitNetlist::Module>
         &oneBitHierCellsNetLists);
     // static void printHireNetLists(
-    //   std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
+    //   std::unordered_map<std::string, Module> &hierCellsNetLists,
     //   std::string filename);
 };
 
@@ -29,10 +29,10 @@ class V3EmitHierNetLists final
 // {
 //   public:
 //     static void emitPlainNetLists(
-//       std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
-//       std::unordered_map<std::string, ModuleMsg> &plainCellsNetLists);
+//       std::unordered_map<std::string, Module> &hierCellsNetLists,
+//       std::unordered_map<std::string, Module> &plainCellsNetLists);
 //     static void printPlainNetLists(
-//       std::unordered_map<std::string, ModuleMsg> &hierCellsNetLists,
+//       std::unordered_map<std::string, Module> &hierCellsNetLists,
 //       std::string filename)
 //     {
 //       V3EmitHierNetLists::printHireNetLists(hierCellsNetLists, filename);

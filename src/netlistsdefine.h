@@ -30,12 +30,12 @@ enum class PortType
  * @sa    PortType
  */
 // It is used to store input, output, inout and wire definition.
-struct PortMsg
+struct PortDefinition
 {
     std::string portDefName;               // 端口定义名称
     PortType portType = PortType::UNKNOWN; // 端口类型
-    bool isArray = false;                  // 是否是数组
-    uint32_t arraySize = 1;                // 数组大小
+    bool isVector = false;                 // 是否是数组
+    uint32_t bitWidth = 1;                 // 数组大小
 };
 
 namespace OneBitNetlist
@@ -48,10 +48,10 @@ namespace OneBitNetlist
  */
 // It only stores one bit information, for example, C[1], 1'b0, ci, not store
 // C[1:0]
-struct VarRefMsg
+struct VarRef
 {
     std::string varRefName = "anonymous"; // 端口实例名称 (实参)
-    bool isArray = false;                 // 是否是数组类型
+    bool isVector = false;                // 是否是数组类型
     union
     {
         uint32_t index;      // 索引
@@ -62,25 +62,20 @@ struct VarRefMsg
 /** @brief 端口实例信息
  *  @note  只需要知道端口的形参以及实参即可
  * */
-struct PortInstanceMsg
+struct PortAssignment
 {
     std::string portDefName; // 端口定义名称 (形参)
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // ci, not store C[1:0]
-    std::vector<VarRefMsg> varRefMsgs; // 端口实例组 (实参,参考 c++ 初始化列表)
+    std::vector<VarRef> varRefs; // 端口实例组 (实参,参考 c++ 初始化列表)
 };
 
-/**
- * @brief assign 语句信息
- * @note  实际上 assign 语句的含义就是端口直连,故使用 PortInstanceMsg
- * 作为其信息存储
- */
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
-struct AssignStatementMsg
+struct AssignStatement
 {
-    VarRefMsg lValue; // 左值
-    VarRefMsg rValue; // 右值
+    VarRef lValue; // 左值
+    VarRef rValue; // 右值
 };
 
 /**
@@ -91,7 +86,7 @@ struct AssignStatementMsg
  *        3 - 需要知道使用到的子模块的引脚及其实例
  * (由于传入本身就不保证顺序，所以这里不保证)\ 4 - 模块的引脚信息
  */
-struct ModuleMsg
+struct Module
 {
   public:
     // std::string -> subModuleInstanceName, for example, U1,
@@ -100,10 +95,10 @@ struct ModuleMsg
     using SubModInsNameMapSubModDefName =
       std::unordered_map<std::string, std::string>;
     // std::string -> subModuleInstanceName, for example, U1
-    // std::vector<PortInstanceMsg> -> 实例引脚表, for example,
+    // std::vector<PortAssignment> -> 实例引脚表, for example,
     // {{U1,{.co(co),.A(a),.B(b),.ci(ci)}},{U2,{.sum(sum),.A(a),.B(b),.ci(ci)}},...}
-    using SubModInsNameMapPortInsMsgs =
-      std::unordered_map<std::string, std::vector<PortInstanceMsg>>;
+    using SubModInsNameMapPortAssignments =
+      std::unordered_map<std::string, std::vector<PortAssignment>>;
 
   public:
     std::string moduleDefName; // 模块定义名称   (形参)
@@ -111,11 +106,11 @@ struct ModuleMsg
 
     /*********************************** 网表定义信息(START)
      * *********************************************/
-    std::vector<PortMsg> inputs;             // 输入引脚
-    std::vector<PortMsg> outputs;            // 输出引脚
-    std::vector<PortMsg> inouts;             // 输入输出引脚
-    std::vector<PortMsg> wires;              // 连线引脚
-    std::vector<AssignStatementMsg> assigns; // assign 语句
+    std::vector<PortDefinition> inputs;   // 输入引脚
+    std::vector<PortDefinition> outputs;  // 输出引脚
+    std::vector<PortDefinition> inouts;   // 输入输出引脚
+    std::vector<PortDefinition> wires;    // 连线引脚
+    std::vector<AssignStatement> assigns; // assign 语句
     /*********************************** 网表定义信息(END)
      * *********************************************/
 
@@ -124,8 +119,8 @@ struct ModuleMsg
     std::vector<std::string> subModuleInstanceNames; // 子模块实例名称  (实参)
     SubModInsNameMapSubModDefName
       subModInsNameMapSubModDefName; // 子模块实例映射表
-    SubModInsNameMapPortInsMsgs
-      subModInsNameMapPortInsMsgs; // 子模块实例的引脚表
+    SubModInsNameMapPortAssignments
+      subModInsNameMapPortAssignments; // 子模块实例的引脚表
     /*********************************** 网表实例信息(END)
      * *********************************************/
 
