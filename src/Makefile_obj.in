@@ -260,11 +260,8 @@ RAW_OBJS = \
 	V3Waiver.o \
 	V3Width.o \
 	V3WidthSel.o \
-	netlistsdefine.o \
-	V3EmitHierNetlists.o \
-	V3EmitPlainNetlists.o \
-	netlistsdefineNew.o \
-	V3EmitHierNetlistsNew.o
+	OneBitNetlist.o \
+	OneBitHierNetlist.o
 
 # Non-concatable
 NC_OBJS += \

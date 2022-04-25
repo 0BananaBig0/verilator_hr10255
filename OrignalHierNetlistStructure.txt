@@ -1,0 +1,2 @@
+ 0           1               2            3           4           5              6            7           8             9      
+top ripple_adder_twelve SDFF_X1_LVT ripple_adder full_adder full_adder_co full_adder_sum INV_X1_LVT OAI222_X1_LVT XNOR2_X1_LVT 

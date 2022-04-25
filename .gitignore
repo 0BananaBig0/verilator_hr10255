@@ -10,7 +10,9 @@
 *.log
 *.1
 doxy
+log
 hierCellsNetLists.v
+hierNetList.v
 plainCellsNetLists.v
 .cache
 *.xml
