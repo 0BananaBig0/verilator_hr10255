@@ -56,6 +56,7 @@ struct PortDefinition
 struct VarRef
 {
     // Variable Referenced Index in std::vector<PortDefinition>
+    // If varRefIndex == MAX32, it means it is a const value, X or Z.
     uint32_t varRefIndex = MAX32;
     bool isVector = false;
     union
