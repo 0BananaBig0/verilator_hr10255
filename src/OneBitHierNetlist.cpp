@@ -304,7 +304,7 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
                            (hotCode >> (32 - rWidthTmp))) > 0);
           if(bValue & bValueX)
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-          else if((!bValue) & (!bValue))
+          else if((!bValue) & (!bValueX))
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
           else if(bValue)
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
@@ -348,7 +348,7 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
               ((biggerValue.m_valueX & (hotCode >> (32 - rWidthTmp))) > 0);
             if(bValue & bValueX)
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-            else if((!bValue) & (!bValue))
+            else if((!bValue) & (!bValueX))
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
             else if(bValue)
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
@@ -440,7 +440,7 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
                            (hotCode >> (32 - rWidthTmp))) > 0);
           if(bValue & bValueX)
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-          else if((!bValue) & (!bValue))
+          else if((!bValue) & (!bValueX))
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
           else if(bValue)
             bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
@@ -484,7 +484,7 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
               ((biggerValue.m_valueX & (hotCode >> (32 - rWidthTmp))) > 0);
             if(bValue & bValueX)
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-            else if((!bValue) & (!bValue))
+            else if((!bValue) & (!bValueX))
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
             else if(bValue)
               bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
@@ -921,4 +921,145 @@ void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
 void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
 {
   std::ofstream ofs("HierNetlist.v");
+  for(const auto &oneModule: hierNetList)
+  {
+    ofs << "module " << oneModule.moduleDefName << "(";
+    for(const auto &port: oneModule.ports)
+    {
+      if(port.portType != PortType::WIRE &&
+         port.portType != PortType::LAST_PORT_TYPE)
+        ofs << port.portDefName << ",";
+    }
+    ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+    ofs << ");" << std::endl;
+    for(const auto &port: oneModule.ports)
+    {
+      switch(port.portType)
+      {
+      case PortType::INPUT:
+        ofs << "\tinput ";
+        break;
+      case PortType::OUTPUT:
+        ofs << "\toutput ";
+        break;
+      case PortType::INOUT:
+        ofs << "\tinout ";
+        break;
+      case PortType::WIRE:
+        ofs << "\twire ";
+        break;
+      }
+      if(port.isVector)
+      {
+        ofs << "[" << port.bitWidth - 1 << ":0]";
+      }
+      ofs << port.portDefName;
+      ofs << ";" << std::endl;
+    }
+    for(auto oneAssign: oneModule.assigns)
+    {
+      ofs << "\tassign ";
+      ofs << oneModule.ports[oneAssign.lValue.varRefIndex].portDefName;
+      if(oneAssign.lValue.varRefIndex != MAX32)
+      {
+        if(oneAssign.lValue.isVector)
+          ofs << "[" << oneAssign.lValue.index << "]";
+      }
+      else
+      {
+        throw std::runtime_error("assign left value can not be anonymous");
+      }
+      ofs << " = ";
+      if(oneAssign.rValue.varRefIndex == MAX32)
+      {
+        switch(oneAssign.rValue.valueAndValueX)
+        {
+        case ONE:
+          ofs << "1'b1";
+          break;
+        case ZERO:
+          ofs << "1'b0";
+          break;
+        case X:
+          ofs << "1'bx";
+          break;
+        case Z:
+          ofs << "1'bz";
+          break;
+        }
+      }
+      else
+      {
+        ofs << oneModule.ports[oneAssign.rValue.varRefIndex].portDefName;
+        if(oneAssign.rValue.isVector)
+          ofs << "[" << oneAssign.rValue.index << "]";
+      }
+      ofs << ";" << std::endl;
+    }
+    uint32_t subModuleIndex = 0;
+    for(const auto &onesubModuleInstanceName: oneModule.subModuleInstanceNames)
+    {
+      ofs << "\t"
+          << hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+               .moduleDefName
+          << onesubModuleInstanceName << " "
+          << "(";
+      for(const auto &onePortAssignment:
+          oneModule.portAssignmentsOfSubModuleInstances[subModuleIndex])
+      {
+        ofs << "."
+            << hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+                 .ports[onePortAssignment.portDefIndex]
+                 .portDefName
+            << "(";
+        if(hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+             .ports[onePortAssignment.portDefIndex]
+             .isVector)
+        {
+          ofs << "{";
+        }
+        for(const auto &varRef: onePortAssignment.varRefs)
+        {
+          if(varRef.varRefIndex == MAX32)
+          {
+            switch(varRef.valueAndValueX)
+            {
+            case ONE:
+              ofs << "1'b1";
+              break;
+            case ZERO:
+              ofs << "1'b0";
+              break;
+            case X:
+              ofs << "1'bx";
+              break;
+            case Z:
+              ofs << "1'bz";
+              break;
+            }
+          }
+          else
+          {
+            ofs << oneModule.ports[varRef.varRefIndex].portDefName;
+            if(varRef.isVector)
+            {
+              ofs << "[" << varRef.index << "]";
+            }
+            ofs << ",";
+          }
+        }
+        if(hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+             .ports[onePortAssignment.portDefIndex]
+             .isVector)
+        {
+          ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+          ofs << "}";
+        }
+        ofs << ")";
+      }
+      ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+      ofs << ")";
+    }
+    ofs << "endmodule" << std::endl << std::endl;
+  }
 }
