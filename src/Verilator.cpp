@@ -47,8 +47,6 @@
 #include "V3EmitCMain.h"
 #include "V3EmitCMake.h"
 #include "V3EmitMk.h"
-#include "V3EmitNetlists.h"
-#include "V3EmitNetlistsNew.h"
 #include "V3EmitV.h"
 #include "V3EmitXml.h"
 #include "V3Expand.h"
@@ -105,6 +103,7 @@
 
 #include <ctime>
 
+#include "Netlist.h"
 V3Global v3Global;
 static void process() {
   // Sort modules by level so later algorithms don't need to care
@@ -203,20 +202,10 @@ static void process() {
           !v3Global.opt.dpiHdrOnly())) {
     // V3EmitXml::emitxml();
     // 1 - 创建层次化网表及层次化网表容器
-    std::unordered_map<std::string, MultipleBitsNetlist::ModuleMsg> multipleBitsHierCellsNetLists;
-    std::unordered_map<std::string, OneBitNetlist::ModuleMsg> oneBitHierCellsNetLists,oneBitHierCellsNetListsN,
-        plainCellsNetLists;
+    std::vector<Module> hierNetList;
+    EmitHierNetList::emitHierNetLists(hierNetList);
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
-    MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
-    OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
-    MultipleBitsNetlist::V3EmitHierNetLists::multipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
-    OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetListsN,
-                                          "./hierCellsNetLists.v");
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
-    OneBitNetlist::V3EmitPlainNetLists::emitPlainNetLists(oneBitHierCellsNetLists,
-                                           plainCellsNetLists);
-    OneBitNetlist::V3EmitPlainNetLists::printPlainNetLists(plainCellsNetLists,
-                                            "./plainCellsNetLists.v");
   }
 }
 
