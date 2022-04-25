@@ -121,6 +121,11 @@ class HierNetlistVisitor final : public AstNVisitor
     // Prevent idling iteration
     virtual void visit(AstTypeTable *nodep) override { return; }
 
+    // reuse some code.
+    char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
+                                         uint32_t &position,
+                                         bool &hasValueX) const;
+
   public:
     const std::vector<Module> &GetHierNetList() const { return _hierNetlist; };
 
@@ -279,7 +284,6 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
   {
     if(rValue.varRefName == "")
     {
-      uint32_t hotCode = 1 << 31;
       auto rWidth = rValue.width;
       uint32_t rWidthTmp = rWidth;
       bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
@@ -296,26 +300,10 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
       }
       while(rWidthTmp >= 1)
       {
-        bool bValue = ((rValue.constValueAndValueX.value &
-                        (hotCode >> (32 - rWidthTmp))) > 0);
-        if(rValue.hasValueX)
-        {
-          bool bValueX = ((rValue.constValueAndValueX.valueX &
-                           (hotCode >> (32 - rWidthTmp))) > 0);
-          if(bValue & bValueX)
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-          else if((!bValue) & (!bValueX))
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
-          else if(bValue)
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
-          else
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = Z;
-        }
-        else
-        {
-          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-            bValue ? ONE : ZERO;
-        }
+        bitSlicedAssignStatementTmp.rValue.valueAndValueX =
+          getOneBitValueFromDecimalNumber(rValue.constValueAndValueX.value,
+                                          rValue.constValueAndValueX.valueX,
+                                          rWidthTmp, rValue.hasValueX);
         bitSlicedAssignStatementTmp.lValue.index = lEnd;
         _hierNetlist[_curModuleIndex].assigns.push_back(
           bitSlicedAssignStatementTmp);
@@ -340,26 +328,10 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
         }
         while(rWidthTmp >= 1)
         {
-          bool bValue =
-            ((biggerValue.m_value & (hotCode >> (32 - rWidthTmp))) > 0);
-          if(rValue.hasValueX)
-          {
-            bool bValueX =
-              ((biggerValue.m_valueX & (hotCode >> (32 - rWidthTmp))) > 0);
-            if(bValue & bValueX)
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-            else if((!bValue) & (!bValueX))
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
-            else if(bValue)
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
-            else
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = Z;
-          }
-          else
-          {
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-              bValue ? ONE : ZERO;
-          }
+          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
+            getOneBitValueFromDecimalNumber(biggerValue.m_value,
+                                            biggerValue.m_valueX, rWidthTmp,
+                                            rValue.hasValueX);
           bitSlicedAssignStatementTmp.lValue.index = lEnd;
           _hierNetlist[_curModuleIndex].assigns.push_back(
             bitSlicedAssignStatementTmp);
@@ -415,7 +387,6 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
   {
     if(rValue.varRefName == "")
     {
-      uint32_t hotCode = 1 << 31;
       auto rWidth = rValue.width;
       uint32_t rWidthTmp = rWidth;
       bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
@@ -432,26 +403,10 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
       }
       while(rWidthTmp >= 1)
       {
-        bool bValue = ((rValue.constValueAndValueX.value &
-                        (hotCode >> (32 - rWidthTmp))) > 0);
-        if(rValue.hasValueX)
-        {
-          bool bValueX = ((rValue.constValueAndValueX.valueX &
-                           (hotCode >> (32 - rWidthTmp))) > 0);
-          if(bValue & bValueX)
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-          else if((!bValue) & (!bValueX))
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
-          else if(bValue)
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
-          else
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX = Z;
-        }
-        else
-        {
-          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-            bValue ? ONE : ZERO;
-        }
+        bitSlicedAssignStatementTmp.rValue.valueAndValueX =
+          getOneBitValueFromDecimalNumber(rValue.constValueAndValueX.value,
+                                          rValue.constValueAndValueX.valueX,
+                                          rWidthTmp, rValue.hasValueX);
         bitSlicedAssignStatementTmp.lValue.index = lEnd;
         _hierNetlist[_curModuleIndex].assigns.push_back(
           bitSlicedAssignStatementTmp);
@@ -476,26 +431,10 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
         }
         while(rWidthTmp >= 1)
         {
-          bool bValue =
-            ((biggerValue.m_value & (hotCode >> (32 - rWidthTmp))) > 0);
-          if(rValue.hasValueX)
-          {
-            bool bValueX =
-              ((biggerValue.m_valueX & (hotCode >> (32 - rWidthTmp))) > 0);
-            if(bValue & bValueX)
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = X;
-            else if((!bValue) & (!bValueX))
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = ZERO;
-            else if(bValue)
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = ONE;
-            else
-              bitSlicedAssignStatementTmp.rValue.valueAndValueX = Z;
-          }
-          else
-          {
-            bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-              bValue ? ONE : ZERO;
-          }
+          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
+            getOneBitValueFromDecimalNumber(biggerValue.m_value,
+                                            biggerValue.m_valueX, rWidthTmp,
+                                            rValue.hasValueX);
           bitSlicedAssignStatementTmp.lValue.index = lEnd;
           _hierNetlist[_curModuleIndex].assigns.push_back(
             bitSlicedAssignStatementTmp);
@@ -564,7 +503,6 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   {
     if(mVarRef.varRefName == "")
     {
-      uint32_t hotCode = 1 << 31;
       auto rWidth = mVarRef.width;
       uint32_t rWidthTmp = rWidth;
       varRef.varRefIndex = MAX32;
@@ -581,25 +519,9 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       }
       while(rWidthTmp >= 1)
       {
-        bool bValue = ((mVarRef.constValueAndValueX.value &
-                        (hotCode >> (32 - rWidthTmp))) > 0);
-        if(mVarRef.hasValueX)
-        {
-          bool bValueX = ((mVarRef.constValueAndValueX.valueX &
-                           (hotCode >> (32 - rWidthTmp))) > 0);
-          if(bValue & bValueX)
-            varRef.valueAndValueX = X;
-          else if((!bValue) & (!bValueX))
-            varRef.valueAndValueX = ZERO;
-          else if(bValue)
-            varRef.valueAndValueX = ONE;
-          else
-            varRef.valueAndValueX = Z;
-        }
-        else
-        {
-          varRef.valueAndValueX = bValue ? ONE : ZERO;
-        }
+        varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
+          mVarRef.constValueAndValueX.value,
+          mVarRef.constValueAndValueX.valueX, rWidthTmp, mVarRef.hasValueX);
         portAssignment.varRefs.push_back(varRef);
         rWidthTmp--;
       }
@@ -617,25 +539,9 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         }
         while(rWidthTmp >= 1)
         {
-          bool bValue =
-            ((biggerValue.m_value & (hotCode >> (32 - rWidthTmp))) > 0);
-          if(mVarRef.hasValueX)
-          {
-            bool bValueX =
-              ((biggerValue.m_valueX & (hotCode >> (32 - rWidthTmp))) > 0);
-            if(bValue & bValueX)
-              varRef.valueAndValueX = X;
-            else if((!bValue) & (!bValueX))
-              varRef.valueAndValueX = ZERO;
-            else if(bValue)
-              varRef.valueAndValueX = ONE;
-            else
-              varRef.valueAndValueX = Z;
-          }
-          else
-          {
-            varRef.valueAndValueX = bValue ? ONE : ZERO;
-          }
+          varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
+            biggerValue.m_value, biggerValue.m_valueX, rWidthTmp,
+            mVarRef.hasValueX);
           portAssignment.varRefs.push_back(varRef);
         }
       }
@@ -914,6 +820,32 @@ void HierNetlistVisitor::visit(AstConst *nodep)
     }
   }
 }
+
+char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
+                                                         uint32_t &valueX,
+                                                         uint32_t &position,
+                                                         bool &hasValueX) const
+{
+  uint32_t hotCode = 1 << 31;
+  bool bValue = ((value & (hotCode >> (32 - position))) > 0);
+  if(hasValueX)
+  {
+    bool bValueX = ((valueX & (hotCode >> (32 - position))) > 0);
+    if(bValue & bValueX)
+      return X;
+    else if((!bValue) & (!bValueX))
+      return ZERO;
+    else if(bValue)
+      return ONE;
+    else
+      return Z;
+  }
+  else
+  {
+    return bValue ? ONE : ZERO;
+  }
+};
+
 void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
 {
   HierNetlistVisitor hierNetListVisitor(v3Global.rootp());
