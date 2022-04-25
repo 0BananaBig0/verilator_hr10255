@@ -576,6 +576,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       }
       else
       {
+        rWidthTmp = rWidth;
         rWidth = rWidth - 32;
       }
       while(rWidthTmp >= 1)
@@ -611,6 +612,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         }
         else
         {
+          rWidthTmp = rWidth;
           rWidth = rWidth - 32;
         }
         while(rWidthTmp >= 1)
@@ -921,8 +923,10 @@ void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
 void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
 {
   std::ofstream ofs("HierNetlist.v");
+  // Every time print one module defintion
   for(const auto &oneModule: hierNetList)
   {
+    // Print one module declaration
     ofs << "module " << oneModule.moduleDefName << "(";
     for(const auto &port: oneModule.ports)
     {
@@ -932,21 +936,23 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
     }
     ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
     ofs << ");" << std::endl;
+
+    // Every time print one port definition
     for(const auto &port: oneModule.ports)
     {
       switch(port.portType)
       {
       case PortType::INPUT:
-        ofs << "\tinput ";
+        ofs << "  input ";
         break;
       case PortType::OUTPUT:
-        ofs << "\toutput ";
+        ofs << "  output ";
         break;
       case PortType::INOUT:
-        ofs << "\tinout ";
+        ofs << "  inout ";
         break;
       case PortType::WIRE:
-        ofs << "\twire ";
+        ofs << "  wire ";
         break;
       }
       if(port.isVector)
@@ -956,9 +962,12 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       ofs << port.portDefName;
       ofs << ";" << std::endl;
     }
+
+    // Every time print one assign statement, every assign statement only has
+    // one bit data;
     for(auto oneAssign: oneModule.assigns)
     {
-      ofs << "\tassign ";
+      ofs << "  assign ";
       ofs << oneModule.ports[oneAssign.lValue.varRefIndex].portDefName;
       if(oneAssign.lValue.varRefIndex != MAX32)
       {
@@ -967,9 +976,11 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       }
       else
       {
-        throw std::runtime_error("assign left value can not be anonymous");
+        throw std::runtime_error(
+          "Assign left value can not be const value or x or z.");
       }
       ofs << " = ";
+      // rValue is a consta value or x or z
       if(oneAssign.rValue.varRefIndex == MAX32)
       {
         switch(oneAssign.rValue.valueAndValueX)
@@ -986,6 +997,9 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
         case Z:
           ofs << "1'bz";
           break;
+        default:
+          ofs << "1'be"; // e = error valuex
+          break;
         }
       }
       else
@@ -996,14 +1010,17 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       }
       ofs << ";" << std::endl;
     }
+
+    // Every time print one submodule instance
     uint32_t subModuleIndex = 0;
     for(const auto &onesubModuleInstanceName: oneModule.subModuleInstanceNames)
     {
-      ofs << "\t"
+      ofs << "  "
           << hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
                .moduleDefName
-          << onesubModuleInstanceName << " "
+          << " " << onesubModuleInstanceName << " "
           << "(";
+      // Every time print one port assignment
       for(const auto &onePortAssignment:
           oneModule.portAssignmentsOfSubModuleInstances[subModuleIndex])
       {
@@ -1012,9 +1029,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
                  .ports[onePortAssignment.portDefIndex]
                  .portDefName
             << "(";
-        if(hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
-             .ports[onePortAssignment.portDefIndex]
-             .isVector)
+        if(onePortAssignment.varRefs.size() > 1)
         {
           ofs << "{";
         }
@@ -1036,6 +1051,9 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
             case Z:
               ofs << "1'bz";
               break;
+            default:
+              ofs << "1'be"; // e = error valuex
+              break;
             }
           }
           else
@@ -1045,20 +1063,22 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
             {
               ofs << "[" << varRef.index << "]";
             }
-            ofs << ",";
           }
+          ofs << ",";
         }
-        if(hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
-             .ports[onePortAssignment.portDefIndex]
-             .isVector)
-        {
+        if(onePortAssignment.varRefs.size() >= 1)
           ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+        if(onePortAssignment.varRefs.size() > 1)
+        {
           ofs << "}";
         }
         ofs << ")";
+        ofs << ",";
       }
       ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
-      ofs << ")";
+      ofs << ");";
+      ofs << std::endl;
+      subModuleIndex++;
     }
     ofs << "endmodule" << std::endl << std::endl;
   }
