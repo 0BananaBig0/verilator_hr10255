@@ -121,10 +121,13 @@ class HierNetlistVisitor final : public AstNVisitor
     // Prevent idling iteration
     virtual void visit(AstTypeTable *nodep) override { return; }
 
-    // reuse some code.
+    // reuse some codes.
     char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
                                          uint32_t &position,
                                          bool &hasValueX) const;
+    void
+    determineWhetherTheWidthOfConstValueIsBiggerThan32(uint32_t &rWidth,
+                                                       uint32_t &rWidthTmp);
 
   public:
     const std::vector<Module> &GetHierNetList() const { return _hierNetlist; };
@@ -285,19 +288,10 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
     if(rValue.varRefName == "")
     {
       auto rWidth = rValue.width;
-      uint32_t rWidthTmp = rWidth;
+      uint32_t rWidthTmp;
       bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
       bitSlicedAssignStatementTmp.rValue.isVector = false;
-      if(rWidth > 32)
-      {
-        rWidthTmp = 32;
-        rWidth = rWidth - 32;
-      }
-      else
-      {
-        rWidthTmp = rWidth;
-        rWidth = rWidth - 32;
-      }
+      determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
       while(rWidthTmp >= 1)
       {
         bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -316,16 +310,7 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
       }
       for(auto &biggerValue: rValue.biggerValue)
       {
-        if(rWidth > 32)
-        {
-          rWidthTmp = 32;
-          rWidth = rWidth - 32;
-        }
-        else
-        {
-          rWidthTmp = rWidth;
-          rWidth = rWidth - 32;
-        }
+        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
         while(rWidthTmp >= 1)
         {
           bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -388,19 +373,10 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
     if(rValue.varRefName == "")
     {
       auto rWidth = rValue.width;
-      uint32_t rWidthTmp = rWidth;
+      uint32_t rWidthTmp;
       bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
       bitSlicedAssignStatementTmp.rValue.isVector = false;
-      if(rWidth > 32)
-      {
-        rWidthTmp = 32;
-        rWidth = rWidth - 32;
-      }
-      else
-      {
-        rWidthTmp = rWidth;
-        rWidth = rWidth - 32;
-      }
+      determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
       while(rWidthTmp >= 1)
       {
         bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -419,16 +395,7 @@ void HierNetlistVisitor::visit(AstAssign *nodep)
       }
       for(auto &biggerValue: rValue.biggerValue)
       {
-        if(rWidth > 32)
-        {
-          rWidthTmp = 32;
-          rWidth = rWidth - 32;
-        }
-        else
-        {
-          rWidthTmp = rWidth;
-          rWidth = rWidth - 32;
-        }
+        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
         while(rWidthTmp >= 1)
         {
           bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -504,19 +471,10 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     if(mVarRef.varRefName == "")
     {
       auto rWidth = mVarRef.width;
-      uint32_t rWidthTmp = rWidth;
+      uint32_t rWidthTmp;
       varRef.varRefIndex = MAX32;
       varRef.isVector = false;
-      if(rWidth > 32)
-      {
-        rWidthTmp = 32;
-        rWidth = rWidth - 32;
-      }
-      else
-      {
-        rWidthTmp = rWidth;
-        rWidth = rWidth - 32;
-      }
+      determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
       while(rWidthTmp >= 1)
       {
         varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
@@ -527,16 +485,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       }
       for(auto &biggerValue: mVarRef.biggerValue)
       {
-        if(rWidth > 32)
-        {
-          rWidthTmp = 32;
-          rWidth = rWidth - 32;
-        }
-        else
-        {
-          rWidthTmp = rWidth;
-          rWidth = rWidth - 32;
-        }
+        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, rWidthTmp);
         while(rWidthTmp >= 1)
         {
           varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
@@ -655,8 +604,7 @@ void HierNetlistVisitor::visit(AstVarRef *nodep)
       }
       else
       { // Now, AstVarRef is a child of AstAssign or AstExtend or
-        // AstConcat or
-        // AstReplicate
+        // AstConcat or AstReplicate
         _multipleBitsAssignStatementTmp.rValue.push_back(
           _multipleBitsVarRefTmp);
       }
@@ -844,7 +792,21 @@ char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
   {
     return bValue ? ONE : ZERO;
   }
-};
+}
+void HierNetlistVisitor::determineWhetherTheWidthOfConstValueIsBiggerThan32(
+  uint32_t &rWidth, uint32_t &rWidthTmp)
+{
+  if(rWidth > 32)
+  {
+    rWidthTmp = 32;
+    rWidth = rWidth - 32;
+  }
+  else
+  {
+    rWidthTmp = rWidth;
+    rWidth = rWidth - 32;
+  }
+}
 
 void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
 {
