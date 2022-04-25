@@ -582,11 +582,11 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       while(rWidthTmp >= 1)
       {
         bool bValue = ((mVarRef.constValueAndValueX.value &
-                        (hotCode >> (32 - rWidth))) > 0);
+                        (hotCode >> (32 - rWidthTmp))) > 0);
         if(mVarRef.hasValueX)
         {
           bool bValueX = ((mVarRef.constValueAndValueX.valueX &
-                           (hotCode >> (32 - rWidth))) > 0);
+                           (hotCode >> (32 - rWidthTmp))) > 0);
           if(bValue & bValueX)
             varRef.valueAndValueX = X;
           else if((!bValue) & (!bValueX))
