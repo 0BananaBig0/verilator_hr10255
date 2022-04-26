@@ -53,6 +53,7 @@ class HierNetlistVisitor final : public AstNVisitor
     std::vector<PortNameMapIndex> _portNameMapIndexs;
     PortNameMapIndex _portNameMapIndex;
     uint32_t _curPortIndex;
+    std::vector<PortDefinition> wires;
 
     // AstCell
     std::string _curSubmoduleName;
@@ -182,8 +183,9 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     // Push current module to hierarchical netlist.
     _hierNetlist.push_back(std::move(curModule));
     // Initial value for all ports of every module.
-    _curPortIndex = 0;
     _portNameMapIndex.ports.clear();
+    _curPortIndex = 0;
+    wires.clear();
     // Initial value
     uint32_t theNumberOfSubModuleInstance = 0;
     // Ready to start visiting AstVar and counting the number
@@ -196,6 +198,16 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       else if(varpTmp->type() == AstType::atCell)
         theNumberOfSubModuleInstance++;
       varpTmp = varpTmp->nextp();
+    }
+    _hierNetlist[_curModuleIndex].theNumberOfPortExceptWire = _curPortIndex;
+    // Make sure store wires at the end of ports.
+    _hierNetlist[_curModuleIndex].ports.insert(
+      _hierNetlist[_curModuleIndex].ports.end(), wires.begin(), wires.end());
+    for(const auto &wire: wires)
+    {
+      // Create LUT for wires
+      _portNameMapIndex.ports[wire.portDefName] = _curPortIndex;
+      _curPortIndex++;
     }
     // Store LUT, the number of SubModuleInstance.
     _portNameMapIndexs.push_back(_portNameMapIndex);
@@ -267,11 +279,19 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     portDefinition.portType = PortType::WIRE;
     portDefinition.whichInstanceOutput.resize(portDefinition.bitWidth, MAX32);
   }
-  // Create LUT
-  _portNameMapIndex.ports[portDefinition.portDefName] = _curPortIndex;
-  _curPortIndex++;
-  // Store input definition
-  _hierNetlist[_curModuleIndex].ports.push_back(std::move(portDefinition));
+  if(portDefinition.portType == PortType::WIRE)
+  {
+    // Store wire definition
+    wires.push_back(std::move(portDefinition));
+  }
+  else
+  {
+    // Create LUT except wires
+    _portNameMapIndex.ports[portDefinition.portDefName] = _curPortIndex;
+    _curPortIndex++;
+    // Store port definition
+    _hierNetlist[_curModuleIndex].ports.push_back(std::move(portDefinition));
+  }
 }
 
 void HierNetlistVisitor::visit(AstAssignW *nodep)

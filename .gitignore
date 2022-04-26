@@ -13,7 +13,7 @@ doxy
 log
 hierCellsNetLists.v
 HierNetlist.v
-HierNetlist.v.backup
+HierNetlist.backup.v
 plainCellsNetLists.v
 .cache
 *.xml

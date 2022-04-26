@@ -94,6 +94,7 @@ struct Module
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
     std::vector<PortDefinition> ports;
+    uint32_t theNumberOfPortExceptWire;
     std::vector<BitSlicedAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
