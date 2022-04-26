@@ -30,12 +30,12 @@ module full_adder_sum(sum, a, b, ci);
    input b;
    input ci;
 
-   wire n_0_0;
-   wire e;
-   assign e = 1'b0;
+   wire [15:0]\DC_output[2] ;
+   wire [15:0]\DC_output[1] ;
+   assign \DC_output[2] [14] = 1'b0;
 
-   XNOR2_X1_LVT i_0_0 (.A(a), .B(ci), .ZN(n_0_0));
-   XNOR2_X1_LVT i_0_1 (.A(n_0_0), .B(b), .ZN(sum));
+   XNOR2_X1_LVT i_0_0 (.A(a), .B(ci), .ZN(\DC_output[1] [15]));
+   XNOR2_X1_LVT i_0_1 (.A(\DC_output[1] [15]), .B(b), .ZN(sum));
 endmodule
 
 module full_adder(co, sum, a, b, ci);
