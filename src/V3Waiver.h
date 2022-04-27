@@ -6,7 +6,7 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -19,18 +19,17 @@
 
 #include "V3Error.h"
 
-#include <string>
 #include <vector>
+#include <string>
 
 class V3Waiver final {
-  // TYPES
-  using WaiverList = std::vector<std::string>;
-  static WaiverList s_waiverList;
+    // TYPES
+    using WaiverList = std::vector<std::string>;
+    static WaiverList s_waiverList;
 
 public:
-  static void addEntry(V3ErrorCode errorCode, const string &filename,
-                       const std::string &str);
-  static void write(const std::string &filename);
+    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& str);
+    static void write(const std::string& filename);
 };
 
-#endif // Guard
+#endif  // Guard

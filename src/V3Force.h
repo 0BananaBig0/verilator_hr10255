@@ -1,6 +1,6 @@
 // -*- mode: C++; c-file-style: "cc-mode" -*-
 //*************************************************************************
-// DESCRIPTION: Verilator: Dead branch elimination
+// DESCRIPTION: Verilator: Process force/release
 //
 // Code available from: https://verilator.org
 //
@@ -12,10 +12,11 @@
 // Version 2.0.
 // SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 //
+
 //*************************************************************************
 
-#ifndef VERILATOR_V3DEAD_H_
-#define VERILATOR_V3DEAD_H_
+#ifndef VERILATOR_V3FORCE_H_
+#define VERILATOR_V3FORCE_H_
 
 #include "config_build.h"
 #include "verilatedos.h"
@@ -24,16 +25,9 @@ class AstNetlist;
 
 //============================================================================
 
-class V3Dead final {
+class V3Force final {
 public:
-    // Modules, no vars/dtypes
-    static void deadifyModules(AstNetlist* nodep);
-    // Modules, Data types
-    static void deadifyDTypes(AstNetlist* nodep);
-    static void deadifyDTypesScoped(AstNetlist* nodep);
-    // Everything that's possible
-    static void deadifyAll(AstNetlist* nodep);
-    static void deadifyAllScoped(AstNetlist* nodep);
+    static void forceAll(AstNetlist* nodep);
 };
 
 #endif  // Guard
