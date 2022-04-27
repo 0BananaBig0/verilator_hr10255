@@ -148,7 +148,7 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   _isOnlyGetModuleNameAndVarName = false;
   iterateChildren(nodep);
   // Print HierNetlist, maybe change its called position.
-  // EmitHierNetList::printHierNetlist(_hierNetlist);
+  EmitHierNetList::printHierNetlist(_hierNetlist);
   // Clear data that is no longer in use.
   // _portNameMapIndexs.clear();
   // _theNumberOfAssignStateOfModules.clear();
@@ -213,7 +213,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     _theNumberOfSubModuleInstances.push_back(theNumberOfSubModuleInstance);
     // Prepare for the next visit to AstModule.
     _curModuleIndex++;
-    delete varpTmp;
+    varpTmp = NULL;
     return;
   }
   // The second time visit AST, we visit all AstNode, except AstVar.
