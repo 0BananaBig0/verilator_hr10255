@@ -208,15 +208,15 @@ static void process() {
         plainCellsNetLists;
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
     MultipleBitsNetlist::V3EmitHierNetLists::emitHierNetLists(multipleBitsHierCellsNetLists);
-    OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
+    // OneBitNetlist::V3EmitHierNetLists::emitHireNetLists(oneBitHierCellsNetLists);
     MultipleBitsNetlist::V3EmitHierNetLists::multipleBitsToOneBit(multipleBitsHierCellsNetLists,oneBitHierCellsNetListsN);
     OneBitNetlist::V3EmitHierNetLists::printHireNetLists(oneBitHierCellsNetListsN,
                                           "./hierCellsNetLists.v");
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
-    OneBitNetlist::V3EmitPlainNetLists::emitPlainNetLists(oneBitHierCellsNetLists,
-                                           plainCellsNetLists);
-    OneBitNetlist::V3EmitPlainNetLists::printPlainNetLists(plainCellsNetLists,
-                                            "./plainCellsNetLists.v");
+    // OneBitNetlist::V3EmitPlainNetLists::emitPlainNetLists(oneBitHierCellsNetListsN,
+    //                                        plainCellsNetLists);
+    // OneBitNetlist::V3EmitPlainNetLists::printPlainNetLists(plainCellsNetLists,
+    //                                         "./plainCellsNetLists.v");
   }
 }
 

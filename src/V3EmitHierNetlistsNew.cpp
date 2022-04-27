@@ -65,7 +65,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     MultipleBitsAssignStatement _multipleBitsAssignStatementTmp;
 
     // Themporary instance message of current visited port
-    MultipleBitsPortAssignment _multipleBitsPortAssignmentsTmp;
+    MultipleBitsPortAssignment _multipleBitsPortAssignmentTmp;
     // Port Instance message of current visited submodule instance
     std::vector<MultipleBitsPortAssignment>
       _curSubModInsMultipleBitsPortAssignmentsTmp;
@@ -100,6 +100,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
     // If A -> B by m_nextp, A and B are parallel, like AstAssign and AstAssign
     // or AstCell.
     virtual void visit(AstNode *nodep) override { iterateChildren(nodep); };
+    virtual void visit(AstNetlist *nodep) override { iterateChildren(nodep); };
 
     virtual void visit(AstModule *nodep) override;
     virtual void visit(AstVar *nodep) override;
@@ -260,11 +261,11 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
 {
-  _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.clear();
-  _multipleBitsPortAssignmentsTmp.portDefName = nodep->modVarp()->name();
+  _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.clear();
+  _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->name();
   iterateChildren(nodep);
   _curSubModInsMultipleBitsPortAssignmentsTmp.push_back(
-    _multipleBitsPortAssignmentsTmp);
+    _multipleBitsPortAssignmentTmp);
 }
 
 void HierCellsNetListsVisitor::visit(AstSel *nodep)
@@ -286,7 +287,7 @@ void HierCellsNetListsVisitor::visit(AstSel *nodep)
   else
   {
     // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+    _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
       _multipleBitsVarRefTmp);
   }
   _whichAstSelChildren = 0;
@@ -358,7 +359,7 @@ void HierCellsNetListsVisitor::visit(AstVarRef *nodep)
     {
       // Now, AstVarRef is a child of AstPin or AstExtend or AstConcat or
       // AstReplicate
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+      _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
         _multipleBitsVarRefTmp);
     }
   }
@@ -382,7 +383,7 @@ void HierCellsNetListsVisitor::visit(AstExtend *nodep)
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+    _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
       _multipleBitsVarRefTmp);
   }
   iterateChildren(nodep);
@@ -406,7 +407,7 @@ void HierCellsNetListsVisitor::visit(AstExtendS *nodep)
   }
   else
   { // Now, AstExtend is a child of AstPin or AstConcat
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+    _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
       _multipleBitsVarRefTmp);
   }
   iterateChildren(nodep);
@@ -430,13 +431,13 @@ void HierCellsNetListsVisitor::visit(AstReplicate *nodep)
   else
   { // Now, AstReplicate is a child of AstPin or AstExtend or AstConcat
     uint32_t replicateTimes =
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.back()
+      _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.back()
         .constValueAndValueX.value;
-    _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.pop_back();
+    _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.pop_back();
     while(replicateTimes != 1)
     {
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
-        _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.back());
+      _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
+        _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.back());
       replicateTimes--;
     }
   }
@@ -501,7 +502,7 @@ void HierCellsNetListsVisitor::visit(AstConst *nodep)
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
-      _multipleBitsPortAssignmentsTmp.multipleBitsVarRefs.push_back(
+      _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.push_back(
         _multipleBitsVarRefTmp);
       if(_multipleBitsVarRefTmp.width > 32)
         _multipleBitsVarRefTmp.biggerValue.clear();
@@ -619,9 +620,9 @@ void V3EmitHierNetLists::multipleBitsToOneBit(
             while(rWidth >= 1)
             {
               oVarRef.initialVal = ((mVarRef.constValueAndValueX.value &
-                                        (hotCode >> (32 - rWidth))) > 0)
-                                        ? 1
-                                        : 0;
+                                     (hotCode >> (32 - rWidth))) > 0)
+                                     ? 1
+                                     : 0;
               oPortAssignment.varRefs.push_back(oVarRef);
               rWidth--;
             }

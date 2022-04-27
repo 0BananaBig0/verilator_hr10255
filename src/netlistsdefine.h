@@ -18,11 +18,11 @@ enum class ErrorType
 enum class PortType
 {
   UNKNOWN = -1,
-  INPUT,  // 输入
-  OUTPUT, // 输出
-  INOUT,  // 输入输出
-  WIRE,   // 连线
-  TYPENUM // 类型种数
+  INPUT,         // 输入
+  OUTPUT,        // 输出
+  INOUT,         // 输入输出
+  WIRE,          // 连线
+  LAST_PORT_TYPE // 类型种数
 };
 
 /**

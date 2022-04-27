@@ -661,14 +661,12 @@ PlainModule(Module &moduleMsg,
     }
 
     // 2.2 - 做子模块的 in, out, inout 到父模块的映射
-    std::unordered_map<std::string, std::vector<VarRef>>
-      portsDefInstanceMap;
+    std::unordered_map<std::string, std::vector<VarRef>> portsDefInstanceMap;
     auto &subModulePorts =
       moduleMsg.subModInsNameMapPortAssignments[subModuleInstanceName];
     for(auto &subModulePort: subModulePorts)
     {
-      portsDefInstanceMap[subModulePort.portDefName] =
-        subModulePort.varRefs;
+      portsDefInstanceMap[subModulePort.portDefName] = subModulePort.varRefs;
     }
 
     // 3 - 将子模块中的标准单元实例搬移到 result 中去
@@ -770,8 +768,7 @@ PlainModule(Module &moduleMsg,
 class NetListsPlain final
 {
   public:
-    NetListsPlain(
-      std::unordered_map<std::string, Module> &hierCellsNetLists);
+    NetListsPlain(std::unordered_map<std::string, Module> &hierCellsNetLists);
     NetListsPlain() = default;
 
   public:
