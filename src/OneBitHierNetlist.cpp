@@ -301,8 +301,6 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
   bitSlicedAssignStatementTmp.lValue.varRefIndex =
     _portNameMapIndexs[_curModuleIndex]
       .ports[_multipleBitsAssignStatementTmp.lValue.varRefName];
-  bitSlicedAssignStatementTmp.lValue.isVector =
-    _multipleBitsAssignStatementTmp.lValue.isVector;
   // Maybe, in this, the boundary between port and var will become blurred.
   // But, we should rember that, port can be input, output and inout.(In fact,
   // we regard wire as port,too. Look at PortType enum.)
@@ -316,7 +314,6 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
       uint32_t position;
       // Store rValue
       bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
-      bitSlicedAssignStatementTmp.rValue.isVector = false;
       determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
       while(position >= 1)
       {
@@ -358,7 +355,6 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         int rEnd = rValue.varRefRange.end;
         bitSlicedAssignStatementTmp.rValue.varRefIndex =
           _portNameMapIndexs[_curModuleIndex].ports[rValue.varRefName];
-        bitSlicedAssignStatementTmp.rValue.isVector = rValue.isVector;
         while(rEnd >= int(rValue.varRefRange.start))
         {
           bitSlicedAssignStatementTmp.rValue.index = rEnd;
@@ -409,7 +405,6 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       auto rWidth = mVarRef.width;
       uint32_t position;
       varRef.varRefIndex = MAX32;
-      varRef.isVector = false;
       determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
       while(position >= 1)
       {
@@ -436,7 +431,6 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       int rEnd = mVarRef.varRefRange.end;
       varRef.varRefIndex =
         _portNameMapIndexs[_curModuleIndex].ports[mVarRef.varRefName];
-      varRef.isVector = mVarRef.isVector;
       while(rEnd >= int(mVarRef.varRefRange.start))
       {
         varRef.index = rEnd;
@@ -519,10 +513,6 @@ void HierNetlistVisitor::visit(AstVarRef *nodep)
     _multipleBitsVarRefTmp.width = _multipleBitsVarRefTmp.varRefRange.end -
                                    _multipleBitsVarRefTmp.varRefRange.start +
                                    1;
-    if(_multipleBitsVarRefTmp.width > 1)
-      _multipleBitsVarRefTmp.isVector = true;
-    else
-      _multipleBitsVarRefTmp.isVector = false;
     if(_isAssignStatement)
     { // Now, AstVarRef is a child of AstAssign or a
       // descendant of AstAssignW
@@ -553,10 +543,6 @@ void HierNetlistVisitor::visit(AstExtend *nodep)
   _multipleBitsVarRefTmp.varRefName = "";
   _multipleBitsVarRefTmp.constValueAndValueX.value = 0;
   _multipleBitsVarRefTmp.constValueAndValueX.valueX = 0;
-  if(extendWidth > 1)
-    _multipleBitsVarRefTmp.isVector = true;
-  else
-    _multipleBitsVarRefTmp.isVector = false;
   _multipleBitsVarRefTmp.hasValueX = false;
   _multipleBitsVarRefTmp.width = std::move(extendWidth);
   if(_isAssignStatement)
@@ -578,10 +564,6 @@ void HierNetlistVisitor::visit(AstExtendS *nodep)
   _multipleBitsVarRefTmp.varRefName = "";
   _multipleBitsVarRefTmp.constValueAndValueX.value = (1 << extendSWidth) - 1;
   _multipleBitsVarRefTmp.constValueAndValueX.valueX = 0;
-  if(extendSWidth > 1)
-    _multipleBitsVarRefTmp.isVector = true;
-  else
-    _multipleBitsVarRefTmp.isVector = false;
   _multipleBitsVarRefTmp.hasValueX = false;
   _multipleBitsVarRefTmp.width = std::move(extendSWidth);
   if(_isAssignStatement)
@@ -642,7 +624,6 @@ void HierNetlistVisitor::visit(AstConst *nodep)
     _multipleBitsVarRefTmp.varRefRange.end =
       _multipleBitsVarRefTmp.varRefRange.start + _multipleBitsVarRefTmp.width -
       1;
-    _multipleBitsVarRefTmp.isVector = true;
     _multipleBitsVarRefTmp.hasValueX = false;
   }
   else
@@ -653,10 +634,6 @@ void HierNetlistVisitor::visit(AstConst *nodep)
     _multipleBitsVarRefTmp.constValueAndValueX.value =
       nodep->num().value().getValue32();
     _multipleBitsVarRefTmp.width = nodep->width();
-    if(_multipleBitsVarRefTmp.width > 1)
-      _multipleBitsVarRefTmp.isVector = true;
-    else
-      _multipleBitsVarRefTmp.isVector = false;
     if(nodep->num().isAnyXZ())
     { // Now, the const value has value x or z.
       _multipleBitsVarRefTmp.constValueAndValueX.valueX =
@@ -797,7 +774,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       ofs << oneModule.ports[oneAssign.lValue.varRefIndex].portDefName;
       if(oneAssign.lValue.varRefIndex != MAX32)
       {
-        if(oneAssign.lValue.isVector)
+        if(oneModule.ports[oneAssign.lValue.varRefIndex].isVector)
           ofs << "[" << oneAssign.lValue.index << "]";
       }
       else
@@ -831,7 +808,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       else
       {
         ofs << oneModule.ports[oneAssign.rValue.varRefIndex].portDefName;
-        if(oneAssign.rValue.isVector)
+        if(oneModule.ports[oneAssign.rValue.varRefIndex].isVector)
           ofs << "[" << oneAssign.rValue.index << "]";
       }
       ofs << ";" << std::endl;
@@ -885,7 +862,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
           else
           {
             ofs << oneModule.ports[varRef.varRefIndex].portDefName;
-            if(varRef.isVector)
+            if(oneModule.ports[varRef.varRefIndex].isVector)
             {
               ofs << "[" << varRef.index << "]";
             }
