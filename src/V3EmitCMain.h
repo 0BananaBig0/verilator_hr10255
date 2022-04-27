@@ -6,7 +6,7 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -24,7 +24,7 @@
 
 class V3EmitCMain final {
 public:
-  static void emit();
+    static void emit();
 };
 
-#endif // Guard
+#endif  // Guard

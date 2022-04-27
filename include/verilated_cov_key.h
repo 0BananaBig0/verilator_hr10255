@@ -3,7 +3,7 @@
 //
 // Code available from: https://verilator.org
 //
-// Copyright 2001-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2001-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -64,9 +64,9 @@ VLCOVGEN_ITEM("'name':'weight',      'short':'w',  'group':0, 'default':None, 'd
 
 class VerilatedCovKey final {
 public:
-  // Return the short key code for a given a long coverage key
-  static std::string shortKey(const std::string &key) VL_PURE {
-    // VLCOVGEN_SHORT_AUTO_EDIT_BEGIN
+    // Return the short key code for a given a long coverage key
+    static std::string shortKey(const std::string& key) VL_PURE {
+        // VLCOVGEN_SHORT_AUTO_EDIT_BEGIN
         if (key == "column") return VL_CIK_COLUMN;
         if (key == "comment") return VL_CIK_COMMENT;
         if (key == "filename") return VL_CIK_FILENAME;
@@ -77,9 +77,9 @@ public:
         if (key == "thresh") return VL_CIK_THRESH;
         if (key == "type") return VL_CIK_TYPE;
         if (key == "weight") return VL_CIK_WEIGHT;
-    // VLCOVGEN_SHORT_AUTO_EDIT_END
-    return key;
-  }
+        // VLCOVGEN_SHORT_AUTO_EDIT_END
+        return key;
+    }
 };
 
-#endif // guard
+#endif  // guard

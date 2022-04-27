@@ -35,17 +35,17 @@ unsigned int main_time = 0;
 
 double sc_time_stamp() { return main_time; }
 
-VM_PREFIX *topp = nullptr;
+VM_PREFIX* topp = nullptr;
 
-int main(int argc, char *argv[]) {
-  topp = new VM_PREFIX;
+int main(int argc, char* argv[]) {
+    topp = new VM_PREFIX;
 
-  Verilated::debug(0);
+    Verilated::debug(0);
 
-  topp->eval();
-  dpix_task(); // Missing svSetScope
+    topp->eval();
+    dpix_task();  // Missing svSetScope
 
-  topp->final();
-  VL_DO_DANGLING(delete topp, topp);
-  return 1;
+    topp->final();
+    VL_DO_DANGLING(delete topp, topp);
+    return 1;
 }

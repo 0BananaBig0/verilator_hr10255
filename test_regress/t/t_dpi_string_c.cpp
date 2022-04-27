@@ -9,9 +9,9 @@
 //
 //*************************************************************************
 
-#include "svdpi.h"
 #include <cstdio>
 #include <cstring>
+#include "svdpi.h"
 
 //======================================================================
 
@@ -30,13 +30,13 @@
 #ifdef NEED_EXTERNS
 extern "C" {
 
-extern int dpii_string(const char *s);
+extern int dpii_string(const char* s);
 }
 #endif
 
 //======================================================================
 
-int dpii_string(const char *s) {
-  printf("dpii_string: %s\n", s);
-  return strlen(s);
+int dpii_string(const char* s) {
+    printf("dpii_string: %s\n", s);
+    return strlen(s);
 }

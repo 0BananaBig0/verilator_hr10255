@@ -6,7 +6,7 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -20,21 +20,20 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+class AstNetlist;
 
 //============================================================================
 
 class V3Dead final {
 public:
-  // Modules, no vars/dtypes
-  static void deadifyModules(AstNetlist *nodep);
-  // Modules, Data types
-  static void deadifyDTypes(AstNetlist *nodep);
-  static void deadifyDTypesScoped(AstNetlist *nodep);
-  // Everything that's possible
-  static void deadifyAll(AstNetlist *nodep);
-  static void deadifyAllScoped(AstNetlist *nodep);
+    // Modules, no vars/dtypes
+    static void deadifyModules(AstNetlist* nodep);
+    // Modules, Data types
+    static void deadifyDTypes(AstNetlist* nodep);
+    static void deadifyDTypesScoped(AstNetlist* nodep);
+    // Everything that's possible
+    static void deadifyAll(AstNetlist* nodep);
+    static void deadifyAllScoped(AstNetlist* nodep);
 };
 
-#endif // Guard
+#endif  // Guard

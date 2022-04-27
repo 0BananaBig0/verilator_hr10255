@@ -6,7 +6,7 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -20,9 +20,7 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-
+class AstNetlist;
 class VInFilter;
 class V3ParseSym;
 
@@ -30,8 +28,7 @@ class V3ParseSym;
 
 class V3LinkCells final {
 public:
-  static void link(AstNetlist *nodep, VInFilter *filterp,
-                   V3ParseSym *parseSymp);
+    static void link(AstNetlist* nodep, VInFilter* filterp, V3ParseSym* parseSymp);
 };
 
-#endif // Guard
+#endif  // Guard

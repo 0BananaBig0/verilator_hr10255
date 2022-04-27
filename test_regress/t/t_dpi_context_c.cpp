@@ -9,8 +9,8 @@
 //
 //*************************************************************************
 
-#include "svdpi.h"
 #include <cstdio>
+#include "svdpi.h"
 
 //======================================================================
 
@@ -47,119 +47,115 @@ extern unsigned dpic_getcontext();
 //======================================================================
 
 int dpic_line() {
-  svScope scope = svGetScope();
-  if (!scope) {
-    printf("%%Warning: svGetScope failed\n");
-    return 0;
-  }
+    svScope scope = svGetScope();
+    if (!scope) {
+        printf("%%Warning: svGetScope failed\n");
+        return 0;
+    }
 
 #ifdef VERILATOR
-  static int didDump = 0;
-  if (didDump++ == 0)
-    Verilated::scopesDump();
+    static int didDump = 0;
+    if (didDump++ == 0) Verilated::scopesDump();
 #endif
 
-  const char *scopenamep = svGetNameFromScope(scope);
-  if (!scopenamep) {
-    printf("%%Warning: svGetNameFromScope failed\n");
-    return 0;
-  }
-  if (scope != svGetScopeFromName(scopenamep)) {
-    printf("%%Warning: svGetScopeFromName repeat failed\n");
-    return 0;
-  }
+    const char* scopenamep = svGetNameFromScope(scope);
+    if (!scopenamep) {
+        printf("%%Warning: svGetNameFromScope failed\n");
+        return 0;
+    }
+    if (scope != svGetScopeFromName(scopenamep)) {
+        printf("%%Warning: svGetScopeFromName repeat failed\n");
+        return 0;
+    }
 
-  const char *filenamep = "";
-  int lineno = 0;
-  if (svGetCallerInfo(&filenamep, &lineno)) {
-    printf("Call from %s:%d:%s\n", filenamep, lineno, scopenamep);
-  } else {
-    printf("%%Warning: svGetCallerInfo failed\n");
-    return 0;
-  }
-  if (svGetCallerInfo(nullptr, nullptr)) {
-  } // Check doesn't segflt
-  return lineno;
+    const char* filenamep = "";
+    int lineno = 0;
+    if (svGetCallerInfo(&filenamep, &lineno)) {
+        printf("Call from %s:%d:%s\n", filenamep, lineno, scopenamep);
+    } else {
+        printf("%%Warning: svGetCallerInfo failed\n");
+        return 0;
+    }
+    if (svGetCallerInfo(nullptr, nullptr)) {}  // Check doesn't segflt
+    return lineno;
 }
 
 extern int Dpic_Unique;
-int Dpic_Unique = 0; // Address used for uniqueness
+int Dpic_Unique = 0;  // Address used for uniqueness
 extern int Dpic_Value;
-int Dpic_Value = 0; // Address used for testing
+int Dpic_Value = 0;  // Address used for testing
 
 int dpic_save(int value) {
-  svScope scope = svGetScope();
-  if (!scope) {
-    printf("%%Warning: svGetScope failed\n");
-    return 0;
-  }
-
-  // Use union to avoid cast to different size pointer warnings
-  union valpack {
-    void *ptr;
-    int i;
-  } vp;
-
-  // Load the value here, and below, to test we can reinsert correctly
-  if (svPutUserData(scope, &Dpic_Unique, &Dpic_Value)) {
-    printf("%%Warning: svPutUserData failed (initial)\n");
-    return 0;
-  }
-  if (void *userp = svGetUserData(scope, &Dpic_Unique)) {
-    if (userp != &Dpic_Value) {
-      printf("%%Warning: svGetUserData failed (initial wrong data)\n");
-      return 0;
+    svScope scope = svGetScope();
+    if (!scope) {
+        printf("%%Warning: svGetScope failed\n");
+        return 0;
     }
-  } else {
-    printf("%%Warning: svGetUserData failed (initial)\n");
-    return 0;
-  }
 
-  vp.i = value;
-  if (vp.i) {
-  }
-  if (svPutUserData(scope, &Dpic_Unique, vp.ptr)) {
-    printf("%%Warning: svPutUserData failed\n");
-    return 0;
-  }
-  return 1;
+    // Use union to avoid cast to different size pointer warnings
+    union valpack {
+        void* ptr;
+        int i;
+    } vp;
+
+    // Load the value here, and below, to test we can reinsert correctly
+    if (svPutUserData(scope, &Dpic_Unique, &Dpic_Value)) {
+        printf("%%Warning: svPutUserData failed (initial)\n");
+        return 0;
+    }
+    if (void* userp = svGetUserData(scope, &Dpic_Unique)) {
+        if (userp != &Dpic_Value) {
+            printf("%%Warning: svGetUserData failed (initial wrong data)\n");
+            return 0;
+        }
+    } else {
+        printf("%%Warning: svGetUserData failed (initial)\n");
+        return 0;
+    }
+
+    vp.i = value;
+    if (vp.i) {}
+    if (svPutUserData(scope, &Dpic_Unique, vp.ptr)) {
+        printf("%%Warning: svPutUserData failed\n");
+        return 0;
+    }
+    return 1;
 }
 
 int dpic_restore() {
-  svScope scope = svGetScope();
-  if (!scope) {
-    printf("%%Warning: svGetScope failed\n");
-    return 0;
-  }
+    svScope scope = svGetScope();
+    if (!scope) {
+        printf("%%Warning: svGetScope failed\n");
+        return 0;
+    }
 
-  if (void *userp = svGetUserData(scope, (void *)&Dpic_Unique)) {
-    // Use union to avoid cast to different size pointer warnings
-    union valpack {
-      void *ptr;
-      int i;
-    } vp;
-    vp.ptr = userp;
-    return vp.i;
-  } else {
-    printf("%%Warning: svGetUserData failed\n");
-    return 0;
-  }
+    if (void* userp = svGetUserData(scope, (void*)&Dpic_Unique)) {
+        // Use union to avoid cast to different size pointer warnings
+        union valpack {
+            void* ptr;
+            int i;
+        } vp;
+        vp.ptr = userp;
+        return vp.i;
+    } else {
+        printf("%%Warning: svGetUserData failed\n");
+        return 0;
+    }
 }
 
 unsigned dpic_getcontext() {
-  svScope scope = svGetScope();
-  printf("%%Info: svGetScope returned scope (%p) with name %s\n", //
-         scope, svGetNameFromScope(scope));
-  return (unsigned)(uintptr_t)scope;
+    svScope scope = svGetScope();
+    printf("%%Info: svGetScope returned scope (%p) with name %s\n",  //
+           scope, svGetNameFromScope(scope));
+    return (unsigned)(uintptr_t)scope;
 }
 
 void dpic_final() {
-  static int s_once = 0;
-  if (s_once++)
-    return;
-  printf("%s:\n", __func__);
+    static int s_once = 0;
+    if (s_once++) return;
+    printf("%s:\n", __func__);
 #ifdef VERILATOR
-  // Cover VerilatedImp::userDump
-  Verilated::internalsDump();
+    // Cover VerilatedImp::userDump
+    Verilated::internalsDump();
 #endif
 }

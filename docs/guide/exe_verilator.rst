@@ -1,4 +1,4 @@
-.. Copyright 2003-2021 by Wilson Snyder.
+.. Copyright 2003-2022 by Wilson Snyder.
 .. SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 verilator Arguments
@@ -178,19 +178,6 @@ Summary:
    clocker will cause the signal indicated to be considered a clock, and
    remove it from the combinatorial logic reevaluation checking code. This
    may greatly improve performance.
-
-.. option:: --make <build-tool>
-
-   Generates a script for the specified build tool.
-
-   Supported values are ``gmake`` for GNU Make and ``cmake`` for CMake.
-   Both can be specified together.  If no build tool is specified, gmake is
-   assumed.  The executable of gmake can be configured via environment
-   variable "MAKE".
-
-   When using :vlopt:`--build` Verilator takes over the responsibility of
-   building the model library/executable.  For this reason :option:`--make`
-   cannot be specified when using :vlopt:`--build`.
 
 .. option:: --compiler <compiler-name>
 
@@ -588,6 +575,23 @@ Summary:
    "+libext+" is fairly standard across Verilog tools.  Defaults to
    ".v+.sv".
 
+.. option:: --lib-create <name>
+
+   Produces C++, Verilog wrappers and a Makefile which can in turn produce
+   a DPI library which can be used by Verilator or other simulators along
+   with the corresponding Verilog wrapper.  The Makefile will build both a
+   static and dynamic version of the library named :file:`lib<name>.a` and
+   :file:`lib<name>.so` respectively.  This is done because some simulators
+   require a dynamic library, but the static library is arguably easier to
+   use if possible.  :vlopt:`--protect-lib` implies :vlopt:`--protect-ids`.
+
+   When using :vlopt:`--lib-create` it is advised to also use
+   :vlopt:`--timescale-override /1fs <--timescale-override>` to ensure the
+   model has a time resolution that is always compatible with the time
+   precision of the upper instantiating module.
+
+   See also :vlopt:`--protect-lib`.
+
 .. option:: --lint-only
 
    Check the files for lint violations only, do not create any other
@@ -598,6 +602,19 @@ Summary:
 
    If the design is not to be completely Verilated see also the
    :vlopt:`--bbox-sys` and :vlopt:`--bbox-unsup` options.
+
+.. option:: --make <build-tool>
+
+   Generates a script for the specified build tool.
+
+   Supported values are ``gmake`` for GNU Make and ``cmake`` for CMake.
+   Both can be specified together.  If no build tool is specified, gmake is
+   assumed.  The executable of gmake can be configured via environment
+   variable "MAKE".
+
+   When using :vlopt:`--build` Verilator takes over the responsibility of
+   building the model library/executable.  For this reason :option:`--make`
+   cannot be specified when using :vlopt:`--build`.
 
 .. option:: -MAKEFLAGS <string>
 
@@ -867,28 +884,19 @@ Summary:
 
    Using DPI imports/exports is allowed and generally relatively safe in
    terms of information disclosed, which is limited to the DPI function
-   prototyptes.  Use of the VPI is not recommended as many design details
+   prototypes.  Use of the VPI is not recommended as many design details
    may be exposed, and an INSECURE warning will be issued.
 
 .. option:: --protect-lib <name>
 
-   Produces C++, Verilog wrappers and a Makefile which can in turn produce
-   a DPI library which can be used by Verilator or other simulators along
-   with the corresponding Verilog wrapper.  The Makefile will build both a
-   static and dynamic version of the library named :file:`lib<name>.a` and
-   :file:`lib<name>.so` respectively.  This is done because some simulators
-   require a dynamic library, but the static library is arguably easier to
-   use if possible.  :vlopt:`--protect-lib` implies :vlopt:`--protect-ids`.
+   Produces a DPI library similar to :vlopt:`--lib-create`, but hides
+   internal design details.  :vlopt:`--protect-lib` implies
+   :vlopt:`--protect-ids`, and :vlopt:`--lib-create`.
 
    This allows for the secure delivery of sensitive IP without the need for
    encrypted RTL (i.e. IEEE P1735).  See :file:`examples/make_protect_lib`
    in the distribution for a demonstration of how to build and use the DPI
    library.
-
-   When using :vlopt:`--protect-lib` it is advised to also use
-   :vlopt:`--timescale-override /1fs <--timescale-override>` to ensure the
-   model has a time resolution that is always compatible with the time
-   precision of the upper instantiating module.
 
 .. option:: --private
 
@@ -1165,9 +1173,9 @@ Summary:
 
 .. option:: --trace-underscore
 
-   Enable tracing of signals that start with an underscore. Normally, these
-   signals are not output during tracing.  See also
-   :vlopt:`--coverage-underscore` option.
+   Enable tracing of signals or modules that start with an
+   underscore. Normally, these signals are not output during tracing.  See
+   also :vlopt:`--coverage-underscore` option.
 
 .. option:: -U<var>
 
@@ -1356,9 +1364,10 @@ Summary:
    .. note::
 
       This option applies only to values which are explicitly written as X
-      in the Verilog source code. Initial values of clocks are set to 0
-      unless `--x-initial-edge` is specified. Initial values of all other
-      state holding variables are controlled with `--x-initial`.
+      in modules (not classes) in the Verilog source code. Initial values
+      of clocks are set to 0 unless `--x-initial-edge` is
+      specified. Initial values of all other state holding variables are
+      controlled with `--x-initial`.
 
 .. option:: --x-initial 0
 
@@ -1505,7 +1514,7 @@ The grammar of configuration commands is as follows:
 .. option:: no_clocker -module "<modulename>" [-function "<funcname>"] -var "<signame>"
 
    Indicates that the signal is used as clock or not. This information is
-   used by Verilator to mark the signal and any derrived signals as
+   used by Verilator to mark the signal and any derived signals as
    clocker.  See :vlopt:`--clk`.
 
    Same as :option:`/*verilator&32;clocker*/` metacomment.
@@ -1519,6 +1528,14 @@ The grammar of configuration commands is as follows:
    filename and line number.
 
    Same as :option:`/*verilator&32;coverage_block_off*/` metacomment.
+
+.. option:: forceable -module "<modulename>" -var "<signame>"
+
+   Generate public `<signame>__VforceEn` and `<signame>__VforceVal` signals
+   that can be used to force/release a signal from C++ code. The force control
+   signals are created as :option:`public_flat` signals.
+
+   Same as :option:`/*verilator&32;forceable*/` metacomment.
 
 .. option:: full_case -file "<filename>" -lines <lineno>
 

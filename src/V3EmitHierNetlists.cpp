@@ -247,7 +247,7 @@ struct AssignStatus
  * ****************************************/
 
 /** @brief 层次化网表访问者 */
-class HierCellsNetListsVisitor final : public AstNVisitor
+class HierCellsNetListsVisitor final : public VNVisitor
 {
   public:
     // _moduleMap[_curModuleInstanceParentName] -> 指向当前正在处理的模块

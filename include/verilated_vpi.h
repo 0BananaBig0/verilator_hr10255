@@ -3,7 +3,7 @@
 //
 // Code available from: https://verilator.org
 //
-// Copyright 2009-2021 by Wilson Snyder. This program is free software; you can
+// Copyright 2009-2022 by Wilson Snyder. This program is free software; you can
 // redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -24,9 +24,9 @@
 #ifndef VERILATOR_VERILATED_VPI_H_
 #define VERILATOR_VERILATED_VPI_H_
 
+#include "verilatedos.h"
 #include "verilated.h"
 #include "verilated_syms.h"
-#include "verilatedos.h"
 
 //======================================================================
 // From IEEE 1800-2009 annex K
@@ -39,21 +39,21 @@
 
 class VerilatedVpi final {
 public:
-  /// Call timed callbacks.
-  /// User wrapper code should call this from their main loops.
-  static void callTimedCbs() VL_MT_UNSAFE_ONE;
-  /// Call value based callbacks.
-  /// User wrapper code should call this from their main loops.
-  static bool callValueCbs() VL_MT_UNSAFE_ONE;
-  /// Call callbacks of arbitrary types.
-  /// User wrapper code should call this from their main loops.
-  static bool callCbs(const vluint32_t reason) VL_MT_UNSAFE_ONE;
-  /// Returns time of the next registered VPI callback, or
-  /// ~(0ULL) if none are registered
-  static QData cbNextDeadline() VL_MT_UNSAFE_ONE;
+    /// Call timed callbacks.
+    /// User wrapper code should call this from their main loops.
+    static void callTimedCbs() VL_MT_UNSAFE_ONE;
+    /// Call value based callbacks.
+    /// User wrapper code should call this from their main loops.
+    static bool callValueCbs() VL_MT_UNSAFE_ONE;
+    /// Call callbacks of arbitrary types.
+    /// User wrapper code should call this from their main loops.
+    static bool callCbs(const vluint32_t reason) VL_MT_UNSAFE_ONE;
+    /// Returns time of the next registered VPI callback, or
+    /// ~(0ULL) if none are registered
+    static QData cbNextDeadline() VL_MT_UNSAFE_ONE;
 
-  // Self test, for internal use only
-  static void selfTest() VL_MT_UNSAFE_ONE;
+    // Self test, for internal use only
+    static void selfTest() VL_MT_UNSAFE_ONE;
 };
 
-#endif // Guard
+#endif  // Guard

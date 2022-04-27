@@ -25,29 +25,29 @@ double sc_time_stamp() { return (double)main_time; }
 
 const unsigned long long dt_2 = 3;
 
-int main(int argc, char **argv, char **env) {
-  VM_PREFIX *top = new VM_PREFIX("top");
+int main(int argc, char** argv, char** env) {
+    VM_PREFIX* top = new VM_PREFIX("top");
 
-  Verilated::debug(0);
-  Verilated::traceEverOn(true);
+    Verilated::debug(0);
+    Verilated::traceEverOn(true);
 
-  VerilatedVcdC *tfp = new VerilatedVcdC;
-  top->trace(tfp, 99);
-  tfp->open(VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd");
+    VerilatedVcdC* tfp = new VerilatedVcdC;
+    top->trace(tfp, 99);
+    tfp->open(VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd");
 
-  while (main_time <= 20) {
-    top->CLK = (main_time / dt_2) % 2;
-    top->eval();
+    while (main_time <= 20) {
+        top->CLK = (main_time / dt_2) % 2;
+        top->eval();
 
-    top->t->glbl->GSR = (main_time < 7);
+        top->t->glbl->GSR = (main_time < 7);
 
-    tfp->dump((unsigned int)(main_time));
-    ++main_time;
-  }
-  tfp->close();
-  top->final();
-  VL_DO_DANGLING(delete top, top);
-  VL_DO_DANGLING(delete tfp, tfp);
-  printf("*-* All Finished *-*\n");
-  return 0;
+        tfp->dump((unsigned int)(main_time));
+        ++main_time;
+    }
+    tfp->close();
+    top->final();
+    VL_DO_DANGLING(delete top, top);
+    VL_DO_DANGLING(delete tfp, tfp);
+    printf("*-* All Finished *-*\n");
+    return 0;
 }

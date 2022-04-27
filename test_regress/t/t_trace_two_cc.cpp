@@ -23,19 +23,19 @@
 // Compile in place
 #include "Vt_trace_two_b__ALL.cpp"
 
-VM_PREFIX *ap;
-Vt_trace_two_b *bp;
+VM_PREFIX* ap;
+Vt_trace_two_b* bp;
 vluint64_t main_time = 0;
 double sc_time_stamp() { return main_time; }
 
-int main(int argc, char **argv, char **env) {
-  vluint64_t sim_time = 1100;
-  Verilated::commandArgs(argc, argv);
-  Verilated::debug(0);
-  Verilated::traceEverOn(true);
-  srand48(5);
-  ap = new VM_PREFIX("topa");
-  bp = new Vt_trace_two_b("topb");
+int main(int argc, char** argv, char** env) {
+    vluint64_t sim_time = 1100;
+    Verilated::commandArgs(argc, argv);
+    Verilated::debug(0);
+    Verilated::traceEverOn(true);
+    srand48(5);
+    ap = new VM_PREFIX("topa");
+    bp = new Vt_trace_two_b("topb");
 
 // clang-format off
 #ifdef TEST_HDR_TRACE
@@ -52,48 +52,44 @@ int main(int argc, char **argv, char **env) {
     tfp->open(VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd");
 # endif
 #endif
-  // clang-format on
+    // clang-format on
 
 #ifdef TEST_HDR_TRACE
-  ap->eval_step();
-  bp->eval_step();
-  ap->eval_end_step();
-  bp->eval_end_step();
-  if (tfp)
-    tfp->dump(main_time);
-#endif
-
-  {
-    ap->clk = false;
-    main_time += 10;
-  }
-  while (vl_time_stamp64() < sim_time && !Verilated::gotFinish()) {
-    ap->clk = !ap->clk;
-    bp->clk = ap->clk;
     ap->eval_step();
     bp->eval_step();
     ap->eval_end_step();
     bp->eval_end_step();
-#ifdef TEST_HDR_TRACE
-    if (tfp)
-      tfp->dump(main_time);
-#endif
-    main_time += 5;
-  }
-  if (!Verilated::gotFinish()) {
-    vl_fatal(__FILE__, __LINE__, "main",
-             "%Error: Timeout; never got a $finish");
-  }
-  ap->final();
-  bp->final();
-
-#ifdef TEST_HDR_TRACE
-  if (tfp)
-    tfp->close();
-  VL_DO_DANGLING(delete tfp, tfp);
+    if (tfp) tfp->dump(main_time);
 #endif
 
-  VL_DO_DANGLING(delete ap, ap);
-  VL_DO_DANGLING(delete bp, bp);
-  return 0;
+    {
+        ap->clk = false;
+        main_time += 10;
+    }
+    while (vl_time_stamp64() < sim_time && !Verilated::gotFinish()) {
+        ap->clk = !ap->clk;
+        bp->clk = ap->clk;
+        ap->eval_step();
+        bp->eval_step();
+        ap->eval_end_step();
+        bp->eval_end_step();
+#ifdef TEST_HDR_TRACE
+        if (tfp) tfp->dump(main_time);
+#endif
+        main_time += 5;
+    }
+    if (!Verilated::gotFinish()) {
+        vl_fatal(__FILE__, __LINE__, "main", "%Error: Timeout; never got a $finish");
+    }
+    ap->final();
+    bp->final();
+
+#ifdef TEST_HDR_TRACE
+    if (tfp) tfp->close();
+    VL_DO_DANGLING(delete tfp, tfp);
+#endif
+
+    VL_DO_DANGLING(delete ap, ap);
+    VL_DO_DANGLING(delete bp, bp);
+    return 0;
 }

@@ -9,10 +9,10 @@
 //
 //*************************************************************************
 
-#include "svdpi.h"
-#include "vpi_user.h"
 #include <cstdio>
 #include <cstring>
+#include "svdpi.h"
+#include "vpi_user.h"
 
 //======================================================================
 

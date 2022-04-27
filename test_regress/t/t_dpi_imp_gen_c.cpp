@@ -9,9 +9,9 @@
 // SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 //*************************************************************************
 
-#include "svdpi.h"
 #include <cstdio>
 #include <cstring>
+#include "svdpi.h"
 
 //======================================================================
 
@@ -37,6 +37,6 @@ extern void dpi_genvarTest();
 
 // Called from our Verilog code to run the tests
 void dpi_genvarTest() {
-  const char *scopeName = svGetNameFromScope(svGetScope());
-  printf("scope name : %s\n", scopeName);
+    const char* scopeName = svGetNameFromScope(svGetScope());
+    printf("scope name : %s\n", scopeName);
 }

@@ -18,11 +18,11 @@ unsigned int main_time = 0;
 
 double sc_time_stamp() { return main_time; }
 
-int main(int argc, char *argv[]) {
-  auto topp = new VM_PREFIX;
+int main(int argc, char* argv[]) {
+    auto topp = new VM_PREFIX;
 
-  // We aren't calling Verilated::commandArgs(argc, argv)
-  topp->eval();
+    // We aren't calling Verilated::commandArgs(argc, argv)
+    topp->eval();
 
-  return 0;
+    return 0;
 }

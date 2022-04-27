@@ -3,7 +3,7 @@
 //
 // Code available from: https://verilator.org
 //
-// Copyright 2001-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2001-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -21,24 +21,33 @@
 ///
 //=============================================================================
 
-#include "verilated_vcd_sc.h"
 #include "verilatedos.h"
+#include "verilated_vcd_sc.h"
 
 //======================================================================
 //======================================================================
+
+void VerilatedVcdSc::open(const char* filename) {
+    if (!sc_core::sc_get_curr_simcontext()->elaboration_done()) {
+        vl_fatal(__FILE__, __LINE__, "VerilatedVcdSc",
+                 ("%Error: VerilatedVcdSc::open(\"" + std::string(filename)
+                  + "\") is called before sc_core::sc_start(). "
+                    "Run sc_core::sc_start(sc_core::SC_ZERO_TIME) before opening a wave file.")
+                     .c_str());
+    }
+    VerilatedVcdC::open(filename);
+}
 
 //--------------------------------------------------
 // SystemC 2.1.v1
 // cppcheck-suppress unusedFunction
-void VerilatedVcdSc::write_comment(const std::string &) {}
-void VerilatedVcdSc::trace(const unsigned int &, const std::string &,
-                           const char **) {}
+void VerilatedVcdSc::write_comment(const std::string&) {}
+void VerilatedVcdSc::trace(const unsigned int&, const std::string&, const char**) {}
 
-#define DECL_TRACE_METHOD_A(tp)                                                \
-  void VerilatedVcdSc::trace(const tp &object, const std::string &name) {}
-#define DECL_TRACE_METHOD_B(tp)                                                \
-  void VerilatedVcdSc::trace(const tp &object, const std::string &name,        \
-                             int width) {}
+#define DECL_TRACE_METHOD_A(tp) \
+    void VerilatedVcdSc::trace(const tp& object, const std::string& name) {}
+#define DECL_TRACE_METHOD_B(tp) \
+    void VerilatedVcdSc::trace(const tp& object, const std::string& name, int width) {}
 
 // clang-format off
 #if (SYSTEMC_VERSION >= 20171012)

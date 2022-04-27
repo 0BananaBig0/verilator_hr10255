@@ -15,52 +15,51 @@
 unsigned long long main_time = 0;
 double sc_time_stamp() { return (double)main_time; }
 
-const char *trace_name() {
-  static char name[1000];
-  VL_SNPRINTF(name, 1000, VL_STRINGIFY(TEST_OBJ_DIR) "/simpart_%04d.vcd",
-              (int)main_time);
-  return name;
+const char* trace_name() {
+    static char name[1000];
+    VL_SNPRINTF(name, 1000, VL_STRINGIFY(TEST_OBJ_DIR) "/simpart_%04d.vcd", (int)main_time);
+    return name;
 }
 
-int main(int argc, char **argv, char **env) {
-  std::unique_ptr<VM_PREFIX> top{new VM_PREFIX("top")};
+int main(int argc, char** argv, char** env) {
+    std::unique_ptr<VM_PREFIX> top{new VM_PREFIX("top")};
 
-  Verilated::debug(0);
-  Verilated::traceEverOn(true);
+    Verilated::debug(0);
+    Verilated::traceEverOn(true);
 
-  std::unique_ptr<VerilatedVcdC> tfp{new VerilatedVcdC};
-  top->trace(tfp.get(), 99);
+    std::unique_ptr<VerilatedVcdC> tfp{new VerilatedVcdC};
+    top->trace(tfp.get(), 99);
 
-  tfp->open(trace_name());
+    tfp->open(trace_name());
 
-  top->clk = 0;
+    top->clk = 0;
 
-  while (main_time < 190) { // Creates 2 files
-    top->clk = !top->clk;
-    top->eval();
+    while (main_time < 190) {  // Creates 2 files
+        top->clk = !top->clk;
+        top->eval();
 
-    if ((main_time % 100) == 0) {
+        if ((main_time % 100) == 0) {
 #if defined(T_TRACE_CAT)
-      tfp->openNext(true);
+            tfp->openNext(true);
 #elif defined(T_TRACE_CAT_REOPEN)
-      tfp->close();
-      tfp->open(trace_name());
+            tfp->close();
+            tfp->open(trace_name());
 #elif defined(T_TRACE_CAT_RENEW)
-      tfp->close();
-      tfp.reset(new VerilatedVcdC);
-      top->trace(tfp.get(), 99);
-      tfp->open(trace_name());
+            tfp->close();
+            tfp.reset(new VerilatedVcdC);
+            top->trace(tfp.get(), 99);
+            tfp->open(trace_name());
 #else
 #error "Unknown test"
 #endif
+        }
+        tfp->dump((unsigned int)(main_time));
+        ++main_time;
     }
-    tfp->dump((unsigned int)(main_time));
-    ++main_time;
-  }
-  tfp->close();
-  top->final();
-  tfp.reset();
-  top.reset();
-  printf("*-* All Finished *-*\n");
-  return 0;
+    tfp->close();
+    top->final();
+    tfp.reset();
+    top.reset();
+    printf("*-* All Finished *-*\n");
+    return 0;
 }

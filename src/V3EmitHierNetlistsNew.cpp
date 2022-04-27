@@ -38,7 +38,7 @@ struct ModAndItsHierLevel
 // (6)We only can writ one AstVarRef information at the same time.
 // (7)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
-class HierCellsNetListsVisitor final : public AstNVisitor
+class HierCellsNetListsVisitor final : public VNVisitor
 {
   public:
     // std::string -> Current Module name.
@@ -104,8 +104,7 @@ class HierCellsNetListsVisitor final : public AstNVisitor
 
     virtual void visit(AstModule *nodep) override;
     virtual void visit(AstVar *nodep) override;
-    virtual void visit(AstAssignW *nodep) override;
-    virtual void visit(AstAssign *nodep) override;
+    virtual void visit(AstNodeAssign *nodep) override;
     virtual void visit(AstCell *nodep) override;
     virtual void visit(AstPin *nodep) override;
     virtual void visit(AstConcat *nodep) override { iterateChildren(nodep); };
@@ -223,17 +222,7 @@ void HierCellsNetListsVisitor::visit(AstVar *nodep)
   }
 }
 
-void HierCellsNetListsVisitor::visit(AstAssignW *nodep)
-{
-  _isAssignStatement = true;
-  _multipleBitsAssignStatementTmp.rValue.clear();
-  iterateChildren(nodep);
-  _modsNameMapTheirDefinition[_curModuleName].assigns.push_back(
-    _multipleBitsAssignStatementTmp);
-  _isAssignStatement = false;
-}
-
-void HierCellsNetListsVisitor::visit(AstAssign *nodep)
+void HierCellsNetListsVisitor::visit(AstNodeAssign *nodep)
 {
   _isAssignStatement = true;
   _multipleBitsAssignStatementTmp.rValue.clear();

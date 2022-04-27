@@ -38,9 +38,7 @@ int cSvLeft1(const svOpenArrayHandle h, int d) { return svLeft(h, d); }
 int cSvRight1(const svOpenArrayHandle h, int d) { return svRight(h, d); }
 int cSvLow1(const svOpenArrayHandle h, int d) { return svLow(h, d); }
 int cSvHigh1(const svOpenArrayHandle h, int d) { return svHigh(h, d); }
-int cSvIncrement1(const svOpenArrayHandle h, int d) {
-  return svIncrement(h, d);
-}
+int cSvIncrement1(const svOpenArrayHandle h, int d) { return svIncrement(h, d); }
 int cSvSize1(const svOpenArrayHandle h, int d) { return svSize(h, d); }
 int cSvDimensions1(const svOpenArrayHandle h) { return svDimensions(h); }
 
@@ -49,9 +47,7 @@ int cSvLeft2(const svOpenArrayHandle h, int d) { return svLeft(h, d); }
 int cSvRight2(const svOpenArrayHandle h, int d) { return svRight(h, d); }
 int cSvLow2(const svOpenArrayHandle h, int d) { return svLow(h, d); }
 int cSvHigh2(const svOpenArrayHandle h, int d) { return svHigh(h, d); }
-int cSvIncrement2(const svOpenArrayHandle h, int d) {
-  return svIncrement(h, d);
-}
+int cSvIncrement2(const svOpenArrayHandle h, int d) { return svIncrement(h, d); }
 int cSvSize2(const svOpenArrayHandle h, int d) { return svSize(h, d); }
 int cSvDimensions2(const svOpenArrayHandle h) { return svDimensions(h); }
 
@@ -60,9 +56,7 @@ int cSvLeft3(const svOpenArrayHandle h, int d) { return svLeft(h, d); }
 int cSvRight3(const svOpenArrayHandle h, int d) { return svRight(h, d); }
 int cSvLow3(const svOpenArrayHandle h, int d) { return svLow(h, d); }
 int cSvHigh3(const svOpenArrayHandle h, int d) { return svHigh(h, d); }
-int cSvIncrement3(const svOpenArrayHandle h, int d) {
-  return svIncrement(h, d);
-}
+int cSvIncrement3(const svOpenArrayHandle h, int d) { return svIncrement(h, d); }
 int cSvSize3(const svOpenArrayHandle h, int d) { return svSize(h, d); }
 int cSvDimensions3(const svOpenArrayHandle h) { return svDimensions(h); }
 
@@ -71,8 +65,6 @@ int cSvLeft4(const svOpenArrayHandle h, int d) { return svLeft(h, d); }
 int cSvRight4(const svOpenArrayHandle h, int d) { return svRight(h, d); }
 int cSvLow4(const svOpenArrayHandle h, int d) { return svLow(h, d); }
 int cSvHigh4(const svOpenArrayHandle h, int d) { return svHigh(h, d); }
-int cSvIncrement4(const svOpenArrayHandle h, int d) {
-  return svIncrement(h, d);
-}
+int cSvIncrement4(const svOpenArrayHandle h, int d) { return svIncrement(h, d); }
 int cSvSize4(const svOpenArrayHandle h, int d) { return svSize(h, d); }
 int cSvDimensions4(const svOpenArrayHandle h) { return svDimensions(h); }

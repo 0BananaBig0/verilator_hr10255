@@ -9,9 +9,9 @@
 //
 //*************************************************************************
 
-#include "svdpi.h"
 #include <cstdio>
 #include <cstring>
+#include "svdpi.h"
 
 //======================================================================
 
@@ -38,11 +38,11 @@
 //======================================================================
 
 int dpii_a_func(int i) {
-  int o = dpix_a_func(i);
-  return o;
+    int o = dpix_a_func(i);
+    return o;
 }
 
-int dpii_a_task(int i, int *op) {
-  (void)dpix_a_task(i, op);
-  return 0;
+int dpii_a_task(int i, int* op) {
+    (void)dpix_a_task(i, op);
+    return 0;
 }

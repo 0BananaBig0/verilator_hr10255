@@ -30,27 +30,27 @@ double sc_time_stamp() { return 0; }
 #endif
 // clang-format on
 
-int main(int argc, const char **argv) {
-  VM_PREFIX *top = new VM_PREFIX();
+int main(int argc, const char** argv) {
+    VM_PREFIX* top = new VM_PREFIX();
 
 #if defined(T_X_ASSIGN_UNIQUE_0)
-  Verilated::randReset(0);
+    Verilated::randReset(0);
 #elif defined(T_X_ASSIGN_UNIQUE_1)
-  Verilated::randReset(1);
+    Verilated::randReset(1);
 #endif
 
-  // Evaluate one clock posedge
-  top->clk = 0;
-  top->eval();
-  top->clk = 1;
-  top->eval();
+    // Evaluate one clock posedge
+    top->clk = 0;
+    top->eval();
+    top->clk = 1;
+    top->eval();
 
-  if (top->o != EXPECTED) {
-    vl_fatal(__FILE__, __LINE__, "TOP.t", "incorrect module output");
-    exit(1);
-  }
+    if (top->o != EXPECTED) {
+        vl_fatal(__FILE__, __LINE__, "TOP.t", "incorrect module output");
+        exit(1);
+    }
 
-  VL_DO_DANGLING(delete top, top);
-  std::cout << "*-* All Finished *-*" << std::endl;
-  return 0;
+    VL_DO_DANGLING(delete top, top);
+    std::cout << "*-* All Finished *-*" << std::endl;
+    return 0;
 }

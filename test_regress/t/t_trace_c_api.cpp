@@ -13,12 +13,12 @@
 
 double sc_time_stamp() { return 0; }
 
-extern void vcdTestMain(const char *filenamep);
+extern void vcdTestMain(const char* filenamep);
 
-int main(int argc, char **argv, char **env) {
-  const char *filenamep = VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd";
-  printf("Writing %s\n", filenamep);
-  vcdTestMain(filenamep);
-  printf("*-* All Finished *-*\n");
-  return 0;
+int main(int argc, char** argv, char** env) {
+    const char* filenamep = VL_STRINGIFY(TEST_OBJ_DIR) "/simx.vcd";
+    printf("Writing %s\n", filenamep);
+    vcdTestMain(filenamep);
+    printf("*-* All Finished *-*\n");
+    return 0;
 }
