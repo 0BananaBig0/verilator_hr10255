@@ -6,7 +6,7 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2021 by Wilson Snyder. This program is free software; you
+// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
 // can redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
@@ -32,23 +32,23 @@ class V3ParseSym;
 
 class V3Parse final {
 private:
-  V3ParseImp *m_impp;
+    V3ParseImp* m_impp;
 
-  // CONSTRUCTORS
-  VL_UNCOPYABLE(V3Parse);
+    // CONSTRUCTORS
+    VL_UNCOPYABLE(V3Parse);
 
 public:
-  // We must allow reading multiple files into one parser
-  V3Parse(AstNetlist *rootp, VInFilter *filterp, V3ParseSym *symp);
-  ~V3Parse();
+    // We must allow reading multiple files into one parser
+    V3Parse(AstNetlist* rootp, VInFilter* filterp, V3ParseSym* symp);
+    ~V3Parse();
 
-  // METHODS
-  // Preprocess and read the Verilog file specified into the netlist database
-  void parseFile(FileLine *fileline, const string &modname, bool inLibrary,
-                 const string &errmsg);
+    // METHODS
+    // Preprocess and read the Verilog file specified into the netlist database
+    void parseFile(FileLine* fileline, const string& modname, bool inLibrary,
+                   const string& errmsg);
 
-  // Push preprocessed text to the lexer
-  static void ppPushText(V3ParseImp *impp, const string &text);
+    // Push preprocessed text to the lexer
+    static void ppPushText(V3ParseImp* impp, const string& text);
 };
 
-#endif // Guard
+#endif  // Guard

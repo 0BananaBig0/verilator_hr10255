@@ -34,7 +34,7 @@ struct PortNameMapIndex
 {
     std::unordered_map<std::string, uint32_t> ports;
 };
-class HierNetlistVisitor final : public AstNVisitor
+class HierNetlistVisitor final : public VNVisitor
 {
   public:
     // AstNetlist
@@ -107,8 +107,7 @@ class HierNetlistVisitor final : public AstNVisitor
     virtual void visit(AstNetlist *nodep) override;
     virtual void visit(AstModule *nodep) override;
     virtual void visit(AstVar *nodep) override;
-    virtual void visit(AstAssignW *nodep) override;
-    virtual void visit(AstAssign *nodep) override;
+    virtual void visit(AstNodeAssign *nodep) override;
     virtual void visit(AstCell *nodep) override;
     virtual void visit(AstPin *nodep) override;
     virtual void visit(AstConcat *nodep) override { iterateChildren(nodep); };
@@ -149,9 +148,9 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   _isOnlyGetModuleNameAndVarName = false;
   iterateChildren(nodep);
   // Print HierNetlist, maybe change its called position.
-  EmitHierNetList::printHierNetlist(_hierNetlist);
+  // EmitHierNetList::printHierNetlist(_hierNetlist);
   // Clear data that is no longer in use.
-  _portNameMapIndexs.clear();
+  // _portNameMapIndexs.clear();
   // _theNumberOfAssignStateOfModules.clear();
   // _moduleNameMapIndex.clear();
   // _curModuleName = "";
@@ -193,9 +192,9 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     AstNode *varpTmp = nodep->op2p();
     while(varpTmp)
     {
-      if(varpTmp->type() == AstType::atVar)
+      if(varpTmp->type() == VNType::atVar)
         varpTmp->accept(*this);
-      else if(varpTmp->type() == AstType::atCell)
+      else if(varpTmp->type() == VNType::atCell)
         theNumberOfSubModuleInstance++;
       varpTmp = varpTmp->nextp();
     }
@@ -225,7 +224,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     AstNode *nodepTmp = nodep->op2p();
     while(nodepTmp)
     {
-      if(nodepTmp->type() != AstType::atVar)
+      if(nodepTmp->type() != VNType::atVar)
         nodepTmp->accept(*this);
       nodepTmp = nodepTmp->nextp();
     }
@@ -259,15 +258,11 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     case VDirection::OUTPUT:
       {
         portDefinition.portType = PortType::OUTPUT;
-        portDefinition.whichInstanceOutput.resize(portDefinition.bitWidth,
-                                                  MAX32);
         break;
       }
     case VDirection::INOUT:
       {
         portDefinition.portType = PortType::INOUT;
-        portDefinition.whichInstanceOutput.resize(portDefinition.bitWidth,
-                                                  MAX32);
         break;
       }
     default:
@@ -277,7 +272,6 @@ void HierNetlistVisitor::visit(AstVar *nodep)
   else
   {
     portDefinition.portType = PortType::WIRE;
-    portDefinition.whichInstanceOutput.resize(portDefinition.bitWidth, MAX32);
   }
   if(portDefinition.portType == PortType::WIRE)
   {
@@ -294,7 +288,7 @@ void HierNetlistVisitor::visit(AstVar *nodep)
   }
 }
 
-void HierNetlistVisitor::visit(AstAssignW *nodep)
+void HierNetlistVisitor::visit(AstNodeAssign *nodep)
 {
   // Set assign status and initial value.
   _isAssignStatement = true;
@@ -334,12 +328,8 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
         bitSlicedAssignStatementTmp.lValue.index = lEnd;
         _hierNetlist[_curModuleIndex].assigns.push_back(
           bitSlicedAssignStatementTmp);
-        position--;
-        // Store Current Assign Index to the definition of varRef of its lValue
-        _hierNetlist[_curModuleIndex]
-          .ports[_curPortIndex]
-          .whichInstanceOutput[lEnd] = _curAssignIndex;
         _curAssignIndex++;
+        position--;
         lEnd--;
       }
       for(auto &biggerValue: rValue.biggerValue)
@@ -356,13 +346,8 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
           bitSlicedAssignStatementTmp.lValue.index = lEnd;
           _hierNetlist[_curModuleIndex].assigns.push_back(
             bitSlicedAssignStatementTmp);
-          position--;
-          // Store Current Assign Index to the definition of varRef of its
-          // lValue
-          _hierNetlist[_curModuleIndex]
-            .ports[_curPortIndex]
-            .whichInstanceOutput[lEnd] = _curAssignIndex;
           _curAssignIndex++;
+          position--;
           lEnd--;
         }
       }
@@ -380,114 +365,8 @@ void HierNetlistVisitor::visit(AstAssignW *nodep)
           bitSlicedAssignStatementTmp.lValue.index = lEnd;
           _hierNetlist[_curModuleIndex].assigns.push_back(
             bitSlicedAssignStatementTmp);
+          _curAssignIndex++;
           rEnd--;
-          // Store Current Assign Index to the definition of varRef of its
-          // lValue
-          _hierNetlist[_curModuleIndex]
-            .ports[_curPortIndex]
-            .whichInstanceOutput[lEnd] = _curAssignIndex;
-          _curAssignIndex++;
-          lEnd--;
-        }
-      }
-    }
-    _isAssignStatement = false;
-  }
-}
-
-void HierNetlistVisitor::visit(AstAssign *nodep)
-{
-  // Set assign status and initial value.
-  _isAssignStatement = true;
-  _multipleBitsAssignStatementTmp.rValue.clear();
-  iterateChildren(nodep);
-  // Convert multi bits wide assign statement into unit wide assign statement.
-  BitSlicedAssignStatement bitSlicedAssignStatementTmp;
-  // Use int type, not uint32_t, because of start = end = 0 may happen.
-  int lEnd = _multipleBitsAssignStatementTmp.lValue.varRefRange.end;
-  bitSlicedAssignStatementTmp.lValue.varRefIndex =
-    _portNameMapIndexs[_curModuleIndex]
-      .ports[_multipleBitsAssignStatementTmp.lValue.varRefName];
-  bitSlicedAssignStatementTmp.lValue.isVector =
-    _multipleBitsAssignStatementTmp.lValue.isVector;
-  // Maybe, in this, the boundary between port and var will become blurred.
-  // But, we should rember that, port can be input, output and inout.(In fact,
-  // we regard wire as port,too. Look at PortType enum.)
-  // Var can be input, output, inout, wire, const value, X or Z.
-  _curPortIndex = bitSlicedAssignStatementTmp.lValue.varRefIndex;
-  for(auto &rValue: _multipleBitsAssignStatementTmp.rValue)
-  {
-    if(rValue.varRefName == "")
-    { // rValue is a const value, X or Z.
-      auto rWidth = rValue.width;
-      uint32_t position;
-      // Store rValue
-      bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
-      bitSlicedAssignStatementTmp.rValue.isVector = false;
-      determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
-      while(position >= 1)
-      {
-        // Store rValue
-        bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-          getOneBitValueFromDecimalNumber(rValue.constValueAndValueX.value,
-                                          rValue.constValueAndValueX.valueX,
-                                          position, rValue.hasValueX);
-        bitSlicedAssignStatementTmp.lValue.index = lEnd;
-        _hierNetlist[_curModuleIndex].assigns.push_back(
-          bitSlicedAssignStatementTmp);
-        position--;
-        // Store Current Assign Index to the definition of varRef of its lValue
-        _hierNetlist[_curModuleIndex]
-          .ports[_curPortIndex]
-          .whichInstanceOutput[lEnd] = _curAssignIndex;
-        _curAssignIndex++;
-        lEnd--;
-      }
-      for(auto &biggerValue: rValue.biggerValue)
-      { // If the width of const value, X or Z is bigger than 32, we should
-        // pop up its remaining data, from left to right.
-        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
-        while(position >= 1)
-        {
-          // Store rValue
-          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-            getOneBitValueFromDecimalNumber(biggerValue.m_value,
-                                            biggerValue.m_valueX, position,
-                                            rValue.hasValueX);
-          bitSlicedAssignStatementTmp.lValue.index = lEnd;
-          _hierNetlist[_curModuleIndex].assigns.push_back(
-            bitSlicedAssignStatementTmp);
-          position--;
-          // Store Current Assign Index to the definition of varRef of its
-          // lValue
-          _hierNetlist[_curModuleIndex]
-            .ports[_curPortIndex]
-            .whichInstanceOutput[lEnd] = _curAssignIndex;
-          _curAssignIndex++;
-          lEnd--;
-        }
-      }
-    }
-    else
-    { // rValue is a input, output, wire or inout.
-      {
-        int rEnd = rValue.varRefRange.end;
-        bitSlicedAssignStatementTmp.rValue.varRefIndex =
-          _portNameMapIndexs[_curModuleIndex].ports[rValue.varRefName];
-        bitSlicedAssignStatementTmp.rValue.isVector = rValue.isVector;
-        while(rEnd >= int(rValue.varRefRange.start))
-        {
-          bitSlicedAssignStatementTmp.rValue.index = rEnd;
-          bitSlicedAssignStatementTmp.lValue.index = lEnd;
-          _hierNetlist[_curModuleIndex].assigns.push_back(
-            bitSlicedAssignStatementTmp);
-          rEnd--;
-          // Store Current Assign Index to the definition of varRef of its
-          // lValue
-          _hierNetlist[_curModuleIndex]
-            .ports[_curPortIndex]
-            .whichInstanceOutput[lEnd] = _curAssignIndex;
-          _curAssignIndex++;
           lEnd--;
         }
       }
@@ -563,14 +442,6 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         varRef.index = rEnd;
         portAssignment.varRefs.push_back(varRef);
         rEnd--;
-        if(_hierNetlist[curSubModuleIndex]
-               .ports[portAssignment.portDefIndex]
-               .portType != PortType::INPUT &&
-           _hierNetlist[_curModuleIndex].ports[varRef.varRefIndex].portType !=
-             PortType::INPUT)
-          _hierNetlist[_curModuleIndex]
-            .ports[varRef.varRefIndex]
-            .whichInstanceOutput[varRef.index] = _curSubmoduleInstanceIndex;
       }
     }
   }
