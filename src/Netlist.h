@@ -12,6 +12,5 @@ class EmitHierNetList final
 {
   public:
     static void emitHierNetLists(std::vector<Module> &hierNetList);
-    static void
-    printHierNetlist(const std::vector<Module> &hierNetList);
+    static void printHierNetlist(const std::vector<Module> &hierNetList);
 };

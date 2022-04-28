@@ -35,7 +35,7 @@ struct ConstValueAndValueX
 struct MultipleBitsVarRef
 {
     std::string varRefName = ""; // Variable Referenced Name
-    bool hasValueX = false; // Are there value x or z?
+    bool hasValueX = false;      // Are there value x or z?
     uint32_t width;
     union
     {
