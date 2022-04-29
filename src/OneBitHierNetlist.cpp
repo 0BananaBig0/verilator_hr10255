@@ -24,11 +24,10 @@
 // until all its information have been obtained.
 // (2)Only AstVarRef or AstSel can be lValue of assign statement.
 // (3)AstConst, AstExtend and AstConcat can't be lValue of assign statement.
-// (4)Know the difference between m_nextp and m_opxp, some information about
-// them I have written before the declaration of visit function.
-// (5)AstAssign only has one bit information.
-// (6)We only can writ one AstVarRef information at the same time.
-// (7)Only such AstNode that has children pointed by m_opxp and we need the
+// (4)Know about the difference between m_nextp and m_opxp, some information
+// about them I have written before the declaration of visit function.
+// (5)We are only allowed to writ one AstVarRef information at the same time.
+// (6)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
 struct PortNameMapIndex
 {
@@ -61,7 +60,7 @@ class HierNetlistVisitor final : public VNVisitor
     uint32_t _curSubmoduleInstanceIndex;
     uint32_t _theNumberOfSubModuleInstance;
 
-    // AstAssignW/AstAssign Status
+    // AstAssignW/AstAssign:AstNodeAssign Status
     bool _isAssignStatement = false;
     bool _isAssignStatementLvalue = false;
     uint32_t _curAssignIndex;
@@ -87,13 +86,13 @@ class HierNetlistVisitor final : public VNVisitor
 
     // A visit function will be popped up from or not pushed to the function
     // stack after finishing obtainning data only in the following three cases:
-    // (1)node has no children. For example, AstConst node.(Not pushed to)
-    // (2)node is pointed by m_nextp and its children pointed by m_opxp have
+    // (1)Node has no children. For example, AstConst node.(Not pushed to)
+    // (2)Node is pointed by m_nextp and its children pointed by m_opxp have
     // been visited, such as AstAssignW node.(Popped up from)
-    // (3)node is pointed by m_opxp and its children pointed by m_opxp have
-    // been visited. But its iterateAndNext() function will be popped up from
-    // function stack only when its all descendants have been visited such as
-    // AstModule node.(Popped up from)
+    // (3)Node is pointed by m_opxp and its children pointed by m_opxp have
+    // been visited.(Popped up from) But its iterateAndNext() function will be
+    // popped up from function stack only when its all descendants have been
+    // visited such as AstModule node.
     // Note: m_opxp = m_op1p or m_op2p or m_op3p or m_op4p
 
     // m_opxp means parent node owns its children.
@@ -266,7 +265,7 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     }
     else
     {
-      // Create LUT except wires
+      // Create LUT excluding wires
       _portNameMapIndex.ports[portDefinition.portDefName] = _curPortIndex;
       _curPortIndex++;
       // Store port definition
@@ -286,13 +285,13 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     // Convert multi bits wide assign statement into unit wide assign
     // statement.
     BitSlicedAssignStatement bitSlicedAssignStatementTmp;
-    // Use int type, not uint32_t, because of start = end = 0 may happen.
+    // Use int type, not uint32_t, because of start = end = 0 may occur.
     int lEnd = _multipleBitsAssignStatementTmp.lValue.varRefRange.end;
     bitSlicedAssignStatementTmp.lValue.varRefIndex =
       _portNameMapIndexs[_curModuleIndex]
         .ports[_multipleBitsAssignStatementTmp.lValue.varRefName];
     // Maybe, in this, the boundary between port and var will become blurred.
-    // But, we should rember that, port can be input, output and inout.(In
+    // But, we should remember that, port can be input, output and inout.(In
     // fact, we regard wire as port,too. Look at PortType enum.) Var can be
     // input, output, inout, wire, const value, X or Z.
     _curPortIndex = bitSlicedAssignStatementTmp.lValue.varRefIndex;
