@@ -7,14 +7,14 @@
 #pragma once
 
 #include <cstdint>
+#include <limits.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#define ZERO  char(0x00)
-#define ONE   char(0xFF)
-#define X     char(0x0F)
-#define Z     char(0xF0)
-#define MAX32 uint32_t(0xFFFFFFFF) // limits.h
+#define ZERO     char(0x00)
+#define ONE      char(0xFF)
+#define X        char(0x0F)
+#define Z        char(0xF0)
 
 enum class PortType
 {
@@ -51,8 +51,8 @@ struct PortDefinition
 struct VarRef
 {
     // Variable Referenced Index in std::vector<PortDefinition>
-    // If varRefIndex == MAX32, it means it is a const value, X or Z.
-    uint32_t varRefIndex = MAX32;
+    // If varRefIndex == UINT_MAX, it means it is a const value, X or Z.
+    uint32_t varRefIndex = UINT_MAX;
     union
     {
         uint32_t index; // Like C[1], index = 1;
@@ -87,7 +87,7 @@ struct Module
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
     std::vector<PortDefinition> ports;
-    uint32_t theNumberOfPortExceptWire; // theNumberOfPortExcludingWire
+    uint32_t theNumberOfPortExcludingWire;
     std::vector<BitSlicedAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
