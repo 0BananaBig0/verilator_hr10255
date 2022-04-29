@@ -11,17 +11,17 @@ module full_adder_co(co, a, b, ci);
    input b;
    input ci;
 
-   wire n_0_0;
-   wire n_0_1;
-   wire n_0_2;
+   wire \n_0[0] ;
+   wire \n_0[1] ;
+   wire \n_0[2] ;
    wire d;
    assign d = 1'b0;
 
-   INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
-   INV_X1_LVT i_0_1 (.A(b), .ZN(n_0_1));
-   INV_X1_LVT i_0_2 (.A(ci), .ZN(n_0_2));
-   OAI222_X1_LVT i_0_3 (.A1(n_0_0), .A2(n_0_1), .B1(n_0_1), .B2(n_0_2), .C1(
-      n_0_0), .C2(n_0_2), .ZN(co));
+   INV_X1_LVT i_0_0 (.A(a), .ZN(\n_0[0] ));
+   INV_X1_LVT i_0_1 (.A(b), .ZN(\n_0[1] ));
+   INV_X1_LVT i_0_2 (.A(ci), .ZN(\n_0[2] ));
+   OAI222_X1_LVT i_0_3 (.A1(\n_0[0] ), .A2(\n_0[1] ), .B1(\n_0[1] ), .B2(\n_0[2] ), .C1(
+      \n_0[0] ), .C2(\n_0[2] ), .ZN(co));
 endmodule
 
 module full_adder_sum(sum, a, b, ci);
