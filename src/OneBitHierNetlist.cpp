@@ -741,6 +741,9 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
   };
   auto haveVerilogKeyWordOrOperator = [](const string &name)
   {
+    // If there are too many kinds of keywords(more than 14) will be used in
+    // port name, instance name, module name, variable name and so on, use map
+    // to replace vector.
     std::vector<std::string> verilogKeyWord = { "run", "signed" };
     std::vector<std::string> verilogOperator = { "[", ".", "]" };
     for(auto vKW: verilogKeyWord)

@@ -51,6 +51,7 @@
 #include "V3EmitXml.h"
 #include "V3Expand.h"
 #include "V3File.h"
+#include "V3Force.h"
 #include "V3Gate.h"
 #include "V3GenClk.h"
 #include "V3Graph.h"
@@ -105,14 +106,16 @@
 
 #include "Netlist.h"
 V3Global v3Global;
-static void process() {
+static void process()
+{
   // Sort modules by level so later algorithms don't need to care
   V3LinkLevel::modSortByLevel();
   V3Error::abortIfErrors();
 
   // Convert parseref's to varrefs, and other directly post parsing fixups
   V3LinkParse::linkParse(v3Global.rootp());
-  if (v3Global.opt.debugExitUvm()) {
+  if(v3Global.opt.debugExitUvm())
+  {
     V3Error::abortIfErrors();
     cout << "--debug-exit-uvm: Exiting after UVM-supported pass\n";
     std::exit(0);
@@ -122,7 +125,7 @@ static void process() {
   // Cross-link dotted hierarchical references
   V3LinkDot::linkDotPrimary(v3Global.rootp());
   v3Global
-      .checkTree(); // Force a check, as link is most likely place for problems
+    .checkTree(); // Force a check, as link is most likely place for problems
   // Check if all parameters have been found
   v3Global.opt.checkParameters();
   // Correct state we couldn't know at parse time, repair SEL's
@@ -135,7 +138,7 @@ static void process() {
   V3LinkInc::linkIncrements(v3Global.rootp());
   V3Error::abortIfErrors();
 
-  if (v3Global.opt.stats())
+  if(v3Global.opt.stats())
     V3Stats::statsStageAll(v3Global.rootp(), "Link");
 
   // Remove parameters by cloning modules to de-parameterized versions
@@ -148,7 +151,8 @@ static void process() {
   V3Dead::deadifyModules(v3Global.rootp());
   v3Global.checkTree();
 
-  // Calculate and check widths, edit tree to TRUNC/EXTRACT any width mismatches
+  // Calculate and check widths, edit tree to TRUNC/EXTRACT any width
+  // mismatches
   V3Width::width(v3Global.rootp());
 
   V3Error::abortIfErrors();
@@ -160,11 +164,11 @@ static void process() {
 
   // Coverage insertion
   //    Before we do dead code elimination and inlining, or we'll lose it.
-  if (v3Global.opt.coverage())
+  if(v3Global.opt.coverage())
     V3Coverage::coverage(v3Global.rootp());
 
   // Add randomize() class methods if they are used by the design
-  if (v3Global.useRandomizeMethods())
+  if(v3Global.useRandomizeMethods())
     V3Randomize::randomizeNetlist(v3Global.rootp());
 
   // Push constants, but only true constants preserving liveness
@@ -196,10 +200,11 @@ static void process() {
   V3Error::abortIfErrors();
 
   // Output the text
-  if (v3Global.opt.xmlOnly()
-      // Check XML when debugging to make sure no missing node types
-      || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() &&
-          !v3Global.opt.dpiHdrOnly())) {
+  if(v3Global.opt.xmlOnly()
+     // Check XML when debugging to make sure no missing node types
+     || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() &&
+         !v3Global.opt.dpiHdrOnly()))
+  {
     // V3EmitXml::emitxml();
     // 1 - 创建层次化网表及层次化网表容器
     std::vector<Module> hierNetList;
@@ -209,14 +214,16 @@ static void process() {
   }
 }
 
-static void verilate(const string &argString) {
+static void verilate(const string &argString)
+{
 
   // Read first filename
   v3Global.readFiles();
 
   // Link, etc, if needed
   // had been modified by haorui, and we need to know about it.
-  if (!v3Global.opt.preprocOnly()) { //
+  if(!v3Global.opt.preprocOnly())
+  { //
     process();
   }
 
@@ -237,28 +244,10 @@ static void verilate(const string &argString) {
 #include <list>
 #include <vector>
 
-/**
- * @brief C++ 子类向基类的默认提升
- */
-void demo1() {
-  std::vector<uint32_t> vec;
-  std::list<uint32_t> lst;
-
-  for (uint32_t i = 0; i < 10; i++) {
-    vec.push_back(i);
-    lst.push_back(i);
-  }
-
-  std::sort(vec.begin(), vec.end());
-  lst.sort();
-
-  std::find(vec.begin(), vec.end(), 5);
-  std::find(lst.begin(), lst.end(), 5);
-}
-
 //######################################################################
 
-int main(int argc, char **argv, char **env) {
+int main(int argc, char **argv, char **env)
+{
   // General initialization
   std::ios::sync_with_stdio();
 

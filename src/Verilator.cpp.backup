@@ -103,6 +103,7 @@
 #include "V3Width.h"
 
 #include <ctime>
+#include "Netlist.h"
 
 V3Global v3Global;
 
