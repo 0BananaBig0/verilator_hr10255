@@ -188,7 +188,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     // Initial value
     _theNumberOfSubModuleInstance = 0;
     iterateChildren(nodep);
-    _hierNetlist[_curModuleIndex].theNumberOfPortExceptWire = _curPortIndex;
+    _hierNetlist[_curModuleIndex].theNumberOfPortExcludingWire = _curPortIndex;
     // Make sure store wires at the end of ports.
     _hierNetlist[_curModuleIndex].ports.insert(
       _hierNetlist[_curModuleIndex].ports.end(), wires.begin(), wires.end());
@@ -302,7 +302,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         auto rWidth = rValue.width;
         uint32_t position;
         // Store rValue
-        bitSlicedAssignStatementTmp.rValue.varRefIndex = MAX32;
+        bitSlicedAssignStatementTmp.rValue.varRefIndex = UINT_MAX;
         determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
         while(position >= 1)
         {
@@ -402,7 +402,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     {
       auto rWidth = mVarRef.width;
       uint32_t position;
-      varRef.varRefIndex = MAX32;
+      varRef.varRefIndex = UINT_MAX;
       determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
       while(position >= 1)
       {
@@ -850,7 +850,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
           ofs << " ";
           shouldHaveEscapeCharacter = false;
         }
-        if(oneAssign.lValue.varRefIndex != MAX32)
+        if(oneAssign.lValue.varRefIndex != UINT_MAX)
         {
           if(oneModule.ports[oneAssign.lValue.varRefIndex].isVector)
             ofs << "[" << oneAssign.lValue.index << "]";
@@ -862,7 +862,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
         }
         ofs << " = ";
         // rValue is a consta value or x or z
-        if(oneAssign.rValue.varRefIndex == MAX32)
+        if(oneAssign.rValue.varRefIndex == UINT_MAX)
         {
           switch(oneAssign.rValue.valueAndValueX)
           {
@@ -970,7 +970,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
           }
           for(const auto &varRef: onePortAssignment.varRefs)
           {
-            if(varRef.varRefIndex == MAX32)
+            if(varRef.varRefIndex == UINT_MAX)
             {
               if(totalCharactersEveryLine + 4 > maxCharactersEveryLine)
               {
