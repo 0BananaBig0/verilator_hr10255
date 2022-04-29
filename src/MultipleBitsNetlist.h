@@ -10,7 +10,7 @@
 #include <vector>
 struct VarRefRange
 {
-    // For example, C[end:start], width = end - start + 1;
+    // For example, C[end:start];
     uint32_t end, start;
 };
 struct ConstValueAndValueX
@@ -27,11 +27,6 @@ struct ConstValueAndValueX
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 // MultipleBitsVarRef =Multiple Bits Variable Referenced
-// if(varRefName !="" && !hasValueX)
-//   isArray means MultipleBitsVarRef is defined as a vector in verilog source
-//   code.
-// else
-//   isArray means the value is not one bit.
 struct MultipleBitsVarRef
 {
     std::string varRefName = ""; // Variable Referenced Name
@@ -49,8 +44,6 @@ struct MultipleBitsVarRef
 struct MultipleBitsPortAssignment
 {
     std::string portDefName; // Port Defined Name
-    // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
-    // not store C[1:0]
     std::vector<MultipleBitsVarRef> multipleBitsVarRefs;
 };
 

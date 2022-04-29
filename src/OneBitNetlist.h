@@ -14,14 +14,14 @@
 #define ONE   char(0xFF)
 #define X     char(0x0F)
 #define Z     char(0xF0)
-#define MAX32 uint32_t(0xFFFFFFFF)
+#define MAX32 uint32_t(0xFFFFFFFF) // limits.h
 
 enum class PortType
 {
   INPUT,
   OUTPUT,
   INOUT,
-  WIRE,          // not belong to PortType
+  WIRE,          // not belong to PortType, but we put it with PortType.
   LAST_PORT_TYPE // The number of port type
 };
 
@@ -46,13 +46,8 @@ struct PortDefinition
 };
 
 // VarRef = Variable Referenced
-// Everytime it store only one bit information, for example, C[1], ci, 1'b0,
+// Everytime it stores only one bit information, for example, C[1], ci, 1'b0,
 // not store C[3:0], which will be broken into C[3], C[2], C[1], C[0].
-// if(varRefIndex !="")
-//   hasIndex means the variable is like C[1], C[0], not like ci;
-// else
-//   hasIndex has no meaning.
-
 struct VarRef
 {
     // Variable Referenced Index in std::vector<PortDefinition>
@@ -66,18 +61,17 @@ struct VarRef
 };
 
 //.A({1'b0,ci,C[1],C[2]})
-// PortInstanceMsg = Port Instanced Message
+// Use in module instantiation
 struct PortAssignment
 {
     uint32_t portDefIndex; // Port Definition Index
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
-    // not store C[1:0]
+    // not store C[1:0],which will be broken into C[1], C[0]
     std::vector<VarRef> varRefs;
 };
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
-
 struct BitSlicedAssignStatement
 {
     VarRef lValue; // left value (locator value)
@@ -93,7 +87,7 @@ struct Module
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
     std::vector<PortDefinition> ports;
-    uint32_t theNumberOfPortExceptWire;
+    uint32_t theNumberOfPortExceptWire; // theNumberOfPortExcludingWire
     std::vector<BitSlicedAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
@@ -102,7 +96,7 @@ struct Module
      * *********************************************/
     // Instance Name Of All Sub Modules Of Current Module
     std::vector<std::string> subModuleInstanceNames;
-    // All Sub Modules Definition Index Of Current Module
+    // All Sub Modules Definition Index in hierNetlist Of Current Module
     std::vector<uint32_t> subModuleDefIndex;
     std::vector<std::vector<PortAssignment>>
       portAssignmentsOfSubModuleInstances;
