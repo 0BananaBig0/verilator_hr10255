@@ -394,7 +394,7 @@ void HierNetlistVisitor::visit(AstCell *nodep)
 void HierNetlistVisitor::visit(AstPin *nodep)
 {
   _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.clear();
-  _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->name();
+  _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->prettyName();
   iterateChildren(nodep);
   // Convert multi bits wide port assignment into unit wide port assignment.
   PortAssignment portAssignment;
