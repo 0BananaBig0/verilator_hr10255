@@ -251,7 +251,7 @@ void HierCellsNetListsVisitor::visit(AstCell *nodep)
 void HierCellsNetListsVisitor::visit(AstPin *nodep)
 {
   _multipleBitsPortAssignmentTmp.multipleBitsVarRefs.clear();
-  _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->name();
+  _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->prettyName();
   iterateChildren(nodep);
   _curSubModInsMultipleBitsPortAssignmentsTmp.push_back(
     _multipleBitsPortAssignmentTmp);
