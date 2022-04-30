@@ -206,9 +206,12 @@ static void process()
          !v3Global.opt.dpiHdrOnly()))
   {
     // V3EmitXml::emitxml();
-    // 1 - 创建层次化网表及层次化网表容器
-    std::vector<Module> hierNetList;
-    EmitHierNetList::emitHierNetLists(hierNetList);
+    // 1,Create vector to store hierarchical netlist.
+    std::vector<Module> hierNetlist;
+    // 2,Obtain hierarchical netlist from AST.
+    EmitHierNetList::emitHierNetLists(hierNetlist);
+    // 3,Print hierarchical netlist to a verilog file.
+    EmitHierNetList::printHierNetlist(hierNetlist);
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
   }
@@ -250,8 +253,6 @@ int main(int argc, char **argv, char **env)
 {
   // General initialization
   std::ios::sync_with_stdio();
-
-  // demo1();
 
   // Post-constructor initialization of netlists
   v3Global.boot();
