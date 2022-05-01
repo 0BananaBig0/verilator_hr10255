@@ -22,7 +22,7 @@
 // uint32_t Module::inoutNum() const { return inouts.size(); }
 //
 // uint32_t Module::wireNum() const { return wires.size(); }
-bool IsStdCell(const std::string &moduleName)
+bool isStdCell(const std::string &moduleName)
 {
   const std::unordered_set<std::string> stdCells = { "PLL",
                                                      "PADBID",
