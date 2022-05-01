@@ -30,7 +30,7 @@
 // (5)We are only allowed to writ one AstVarRef information at the same time.
 // (6)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
-bool IsStdCell(const std::string &moduleName);
+bool isStdCell(const std::string &moduleName);
 struct PortNameMapPortDefIndex
 {
     std::unordered_map<std::string, uint32_t> ports;
@@ -141,7 +141,7 @@ class HierNetlistVisitor final : public VNVisitor
     }
 
   public:
-    const std::vector<Module> &GetHierNetList() const { return _hierNetlist; };
+    const std::vector<Module> &getHierNetList() const { return _hierNetlist; };
     const uint32_t &getTheNumberOfStdCellsShouldUse() const
     {
       return _theNumberOfStdModuleShouldUse;
@@ -231,10 +231,10 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       _curModuleIndex++;
     };
     // The first time visit
-    if(_theTimesOfVisit == 1 && IsStdCell(_curModuleName))
+    if(_theTimesOfVisit == 1 && isStdCell(_curModuleName))
       visitAstModuleAndAstVar(nodep);
     // The second time visit
-    else if(_theTimesOfVisit == 2 && !IsStdCell(_curModuleName))
+    else if(_theTimesOfVisit == 2 && !isStdCell(_curModuleName))
       visitAstModuleAndAstVar(nodep);
     return;
   }
@@ -752,7 +752,7 @@ void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList,
                                        uint32_t &theNumberOfStdCellsShouldUse)
 {
   HierNetlistVisitor hierNetListVisitor(v3Global.rootp());
-  hierNetList = hierNetListVisitor.GetHierNetList();
+  hierNetList = hierNetListVisitor.getHierNetList();
   theNumberOfStdCellsShouldUse =
     hierNetListVisitor.getTheNumberOfStdCellsShouldUse();
 }
@@ -801,7 +801,7 @@ void EmitHierNetList::printHierNetlist(
   {
     const auto &oneModule = hierNetList[moduleIndex];
     totalCharactersEveryLine = 0;
-    if(!IsStdCell(oneModule.moduleDefName) && oneModule.level <= hierMaxLevel)
+    if(!isStdCell(oneModule.moduleDefName) && oneModule.level <= hierMaxLevel)
     { // Print one module declaration
       ofs << "module " << oneModule.moduleDefName << "(";
       totalCharactersEveryLine =
