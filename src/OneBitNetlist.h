@@ -1,5 +1,5 @@
 /*************************************************************************
-  > File Name: netlistsdefineNew.h
+  > File Name: OneBitNetlist.h
   > Author: 16hxliang3
   > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Wed 13 Apr 2022 08:18:03 AM CST
@@ -7,10 +7,13 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
+#include <exception>
 #include <limits.h>
 #include <string>
-#include <unordered_map>
+#include <unistd.h>
 #include <vector>
+
 #define ZERO char(0x00)
 #define ONE  char(0xFF)
 #define X    char(0x0F)
