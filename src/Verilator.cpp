@@ -102,6 +102,7 @@
 #include "V3Waiver.h"
 #include "V3Width.h"
 
+#include <cstdint>
 #include <ctime>
 
 #include "Netlist.h"
@@ -207,11 +208,12 @@ static void process()
   {
     // V3EmitXml::emitxml();
     // 1,Create vector to store hierarchical netlist.
+    uint32_t theNumberOfStdCellsShouldUse;
     std::vector<Module> hierNetlist;
     // 2,Obtain hierarchical netlist from AST.
-    EmitHierNetList::emitHierNetLists(hierNetlist);
+    EmitHierNetList::emitHierNetLists(hierNetlist,theNumberOfStdCellsShouldUse);
     // 3,Print hierarchical netlist to a verilog file.
-    EmitHierNetList::printHierNetlist(hierNetlist);
+    EmitHierNetList::printHierNetlist(hierNetlist,theNumberOfStdCellsShouldUse);
     // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
     // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
   }

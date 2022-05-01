@@ -11,10 +11,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#define ZERO     char(0x00)
-#define ONE      char(0xFF)
-#define X        char(0x0F)
-#define Z        char(0xF0)
+#define ZERO char(0x00)
+#define ONE  char(0xFF)
+#define X    char(0x0F)
+#define Z    char(0xF0)
 
 enum class PortType
 {

@@ -30,6 +30,7 @@
 // (5)We are only allowed to writ one AstVarRef information at the same time.
 // (6)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
+bool IsStdCell(const std::string &moduleName);
 struct PortNameMapPortDefIndex
 {
     std::unordered_map<std::string, uint32_t> ports;
@@ -41,9 +42,12 @@ class HierNetlistVisitor final : public VNVisitor
     std::vector<Module> _hierNetlist;
 
   private:
+    // AstNetlist
+    uint32_t _theTimesOfVisit;
+
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
-    bool _isOnlyGetModuleNameAndVarName;
+    uint32_t _theNumberOfStdModuleShouldUse;
     std::vector<uint32_t> _theNumberOfSubModuleInstances;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
     std::string _curModuleName;
@@ -138,6 +142,10 @@ class HierNetlistVisitor final : public VNVisitor
 
   public:
     const std::vector<Module> &GetHierNetList() const { return _hierNetlist; };
+    const uint32_t &getTheNumberOfStdCellsShouldUse() const
+    {
+      return _theNumberOfStdModuleShouldUse;
+    };
 
   public:
     // AstNetlist is the root of HierNetList
@@ -147,13 +155,19 @@ class HierNetlistVisitor final : public VNVisitor
 
 void HierNetlistVisitor::visit(AstNetlist *nodep)
 {
-  // First visit.
-  _isOnlyGetModuleNameAndVarName = true;
+  // First time visit: Only get information of standard cells we will use from
+  // AstCell, AstModule and AstVar
+  _theTimesOfVisit = 1;
+  _theNumberOfStdModuleShouldUse = 0;
   _curModuleIndex = 0;
   iterateChildren(nodep);
-  // Second visit.
-  _isOnlyGetModuleNameAndVarName = false;
-  _curModuleIndex = 0;
+  // Second time visit: Get information of other modules excluding standard
+  // cells from AstCell, AstModule and AstVar
+  _theTimesOfVisit = 2;
+  iterateChildren(nodep);
+  // Third time visit: Get information of all modules including standard cells
+  // from AstConst, AstVarRef, AstCell and so on.
+  _theTimesOfVisit = 3;
   iterateChildren(nodep);
   // Clear data that is no longer in use.
   freeContainerBySwap(_theNumberOfSubModuleInstances);
@@ -175,59 +189,68 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
 // Create LUT.
 void HierNetlistVisitor::visit(AstModule *nodep)
 {
-  if(nodep->prettyName() == "@CONST-POOL@")
+  _curModuleName = nodep->prettyName();
+  if(_curModuleName == "@CONST-POOL@")
     return;
-  else if(_isOnlyGetModuleNameAndVarName)
+  else if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
   {
-    // The first time visit AST, we only visit AstModule and AstVar and cout
-    // the number of AstCell of Every AstModule.
-    Module curModule;
-    _curModuleName = nodep->prettyName();
-    // Create a LUT.
-    _moduleNameMapIndex[_curModuleName] = _curModuleIndex;
-    // Store name and level for current module.
-    curModule.moduleDefName = _curModuleName;
-    curModule.level = nodep->level();
-    // Push current module to hierarchical netlist.
-    _hierNetlist.push_back(std::move(curModule));
-    // Initial value for all ports of every module.
-    _portNameMapPortDefIndex.ports.clear();
-    _curPortDefIndex = 0;
-    wires.clear();
-    // Initial value
-    _theNumberOfSubModuleInstance = 0;
-    iterateChildren(nodep);
-    _hierNetlist[_curModuleIndex].theNumberOfPortExcludingWire =
-      _curPortDefIndex;
-    // Make sure store wires at the end of ports.
-    _hierNetlist[_curModuleIndex].ports.insert(
-      _hierNetlist[_curModuleIndex].ports.end(), wires.begin(), wires.end());
-    for(const auto &wire: wires)
+    // The first two times visit AST, we only visit AstModule and AstVar and
+    // count the number of AstCell of Every AstModule.
+    auto visitAstModuleAndAstVar = [this](AstModule *nodep)
     {
-      // Create LUT for wires
-      _portNameMapPortDefIndex.ports[wire.portDefName] = _curPortDefIndex;
-      _curPortDefIndex++;
-    }
-    // Store LUT, the number of SubModuleInstance.
-    _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
-    _theNumberOfSubModuleInstances.push_back(_theNumberOfSubModuleInstance);
-    // Prepare for the next visit to AstModule.
-    _curModuleIndex++;
+      Module curModule;
+      // Create a LUT.
+      _moduleNameMapIndex[_curModuleName] = _curModuleIndex;
+      // Store name and level for current module.
+      curModule.moduleDefName = _curModuleName;
+      curModule.level = nodep->level();
+      // Push current module to hierarchical netlist.
+      _hierNetlist.push_back(std::move(curModule));
+      // Initial value for all ports of every module.
+      _portNameMapPortDefIndex.ports.clear();
+      _curPortDefIndex = 0;
+      wires.clear();
+      // Initial value
+      _theNumberOfSubModuleInstance = 0;
+      iterateChildren(nodep);
+      _hierNetlist[_curModuleIndex].theNumberOfPortExcludingWire =
+        _curPortDefIndex;
+      // Make sure store wires at the end of ports.
+      _hierNetlist[_curModuleIndex].ports.insert(
+        _hierNetlist[_curModuleIndex].ports.end(), wires.begin(), wires.end());
+      for(const auto &wire: wires)
+      {
+        // Create LUT for wires
+        _portNameMapPortDefIndex.ports[wire.portDefName] = _curPortDefIndex;
+        _curPortDefIndex++;
+      }
+      // Store LUT, the number of SubModuleInstance.
+      _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
+      _theNumberOfSubModuleInstances.push_back(_theNumberOfSubModuleInstance);
+      // Prepare for the next visit to AstModule.
+      _curModuleIndex++;
+    };
+    // The first time visit
+    if(_theTimesOfVisit == 1 && IsStdCell(_curModuleName))
+      visitAstModuleAndAstVar(nodep);
+    // The second time visit
+    else if(_theTimesOfVisit == 2 && !IsStdCell(_curModuleName))
+      visitAstModuleAndAstVar(nodep);
     return;
   }
-  // The second time visit AST, we visit all AstNode, except AstVar.
+  // The third time visit AST, we visit all AstNode, except AstVar.
   else
   {
+    _curModuleIndex = _moduleNameMapIndex[_curModuleName];
     _curSubmoduleInstanceIndex = 0;
     iterateChildren(nodep);
-    _curModuleIndex++;
-    // Prepare for the next visit to AstModule.
+    return;
   }
 }
 
 void HierNetlistVisitor::visit(AstVar *nodep)
 {
-  if(_isOnlyGetModuleNameAndVarName)
+  if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
   {
     PortDefinition portDefinition;
     if(nodep->isGParam())
@@ -286,7 +309,7 @@ void HierNetlistVisitor::visit(AstVar *nodep)
 
 void HierNetlistVisitor::visit(AstNodeAssign *nodep)
 {
-  if(!_isOnlyGetModuleNameAndVarName)
+  if(_theTimesOfVisit == 3)
   {
     // Set assign status and initial value.
     _isAssignStatement = true;
@@ -371,7 +394,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
 
 void HierNetlistVisitor::visit(AstCell *nodep)
 {
-  if(_isOnlyGetModuleNameAndVarName)
+  if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
   {
     _theNumberOfSubModuleInstance++;
   }
@@ -725,15 +748,18 @@ void HierNetlistVisitor::determineWhetherTheWidthOfConstValueIsBiggerThan32(
   }
 }
 
-void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
+void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList,
+                                       uint32_t &theNumberOfStdCellsShouldUse)
 {
   HierNetlistVisitor hierNetListVisitor(v3Global.rootp());
   hierNetList = hierNetListVisitor.GetHierNetList();
+  theNumberOfStdCellsShouldUse =
+    hierNetListVisitor.getTheNumberOfStdCellsShouldUse();
 }
 
-bool IsStdCell(const std::string &moduleName);
-void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList,
-                                       const uint32_t hierMaxLevel)
+void EmitHierNetList::printHierNetlist(
+  const std::vector<Module> &hierNetList,
+  const uint32_t &theNumberOfStdCellsShouldUse, const uint32_t hierMaxLevel)
 {
   std::ofstream ofs("HierNetlist.v");
   bool shouldHaveEscapeCharacter;
@@ -768,9 +794,12 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList,
     return false;
   };
   const uint32_t maxCharactersEveryLine = 80;
+  uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
   // Every time print one module defintion
-  for(const auto &oneModule: hierNetList)
+  for(uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
+      moduleIndex < hierNetList.size(); moduleIndex++)
   {
+    const auto &oneModule = hierNetList[moduleIndex];
     totalCharactersEveryLine = 0;
     if(!IsStdCell(oneModule.moduleDefName) && oneModule.level <= hierMaxLevel)
     { // Print one module declaration
