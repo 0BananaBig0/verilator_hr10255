@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unistd.h>
 #include <unordered_map>
 
 #include "V3Ast.h"
@@ -731,7 +732,8 @@ void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList)
 }
 
 bool IsStdCell(const std::string &moduleName);
-void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
+void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList,
+                                       const uint32_t hierMaxLevel)
 {
   std::ofstream ofs("HierNetlist.v");
   bool shouldHaveEscapeCharacter;
@@ -770,7 +772,7 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
   for(const auto &oneModule: hierNetList)
   {
     totalCharactersEveryLine = 0;
-    if(!IsStdCell(oneModule.moduleDefName))
+    if(!IsStdCell(oneModule.moduleDefName) && oneModule.level <= hierMaxLevel)
     { // Print one module declaration
       ofs << "module " << oneModule.moduleDefName << "(";
       totalCharactersEveryLine =
@@ -1081,4 +1083,5 @@ void EmitHierNetList::printHierNetlist(const std::vector<Module> &hierNetList)
       ofs << "endmodule" << std::endl << std::endl;
     }
   }
+  ofs.close();
 }
