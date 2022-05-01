@@ -7,8 +7,8 @@
 
 #pragma once
 #include "MultipleBitsNetlist.h"
-#include "OneBitNetlist.h"
-#include <cstdint>
+#include "OneBitHierNetlist.h"
+
 class EmitHierNetList final
 {
   public:
