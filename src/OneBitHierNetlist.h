@@ -108,9 +108,6 @@ class HierNetlistVisitor final : public VNVisitor
     char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
                                          uint32_t &position,
                                          bool &hasValueX) const;
-    void
-    determineWhetherTheWidthOfConstValueIsBiggerThan32(uint32_t &rWidth,
-                                                       uint32_t &position);
 
     // Clear data and free ram
     template<typename T>
