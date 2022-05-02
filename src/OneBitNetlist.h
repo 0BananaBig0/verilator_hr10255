@@ -67,7 +67,6 @@ struct VarRef
 // Use in module instantiation
 struct PortAssignment
 {
-    uint32_t portDefIndex; // Port Definition Index
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0],which will be broken into C[1], C[0]
     std::vector<VarRef> varRefs;
