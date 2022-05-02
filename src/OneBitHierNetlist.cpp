@@ -198,28 +198,19 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     {
       if(rValue.varRefName == "")
       { // rValue is a const value, X or Z.
-        auto rWidth = rValue.width;
+        auto &rWidth = rValue.width;
         uint32_t position;
+        uint32_t biggerValueSize = rValue.biggerValue.size();
         // Store rValue
         bitSlicedAssignStatementTmp.rValue.varRefIndex = UINT_MAX;
-        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
-        while(position >= 1)
-        {
-          // Store rValue
-          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-            getOneBitValueFromDecimalNumber(rValue.constValueAndValueX.value,
-                                            rValue.constValueAndValueX.valueX,
-                                            position, rValue.hasValueX);
-          bitSlicedAssignStatementTmp.lValue.index = lEnd;
-          _hierNetlist[_curModuleIndex].assigns.push_back(
-            bitSlicedAssignStatementTmp);
-          position--;
-          lEnd--;
-        }
-        for(auto &biggerValue: rValue.biggerValue)
+        while(biggerValueSize > 0)
         { // If the width of const value, X or Z is bigger than 32, we should
           // pop up its remaining data, from left to right.
-          determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
+          auto &biggerValue = rValue.biggerValue[biggerValueSize - 1];
+          if(biggerValueSize == rValue.biggerValue.size())
+            position = rWidth - 32 * biggerValueSize;
+          else
+            position = 32;
           while(position >= 1)
           {
             // Store rValue
@@ -233,6 +224,24 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
             position--;
             lEnd--;
           }
+          biggerValueSize--;
+        }
+        if(rWidth > 32)
+          position = 32;
+        else
+          position = rWidth;
+        while(position >= 1)
+        {
+          // Store rValue
+          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
+            getOneBitValueFromDecimalNumber(rValue.constValueAndValueX.value,
+                                            rValue.constValueAndValueX.valueX,
+                                            position, rValue.hasValueX);
+          bitSlicedAssignStatementTmp.lValue.index = lEnd;
+          _hierNetlist[_curModuleIndex].assigns.push_back(
+            bitSlicedAssignStatementTmp);
+          position--;
+          lEnd--;
         }
       }
       else
@@ -297,21 +306,17 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   {
     if(mVarRef.varRefName == "")
     {
-      auto rWidth = mVarRef.width;
+      auto &rWidth = mVarRef.width;
       uint32_t position;
+      uint32_t biggerValueSize = mVarRef.biggerValue.size();
       varRef.varRefIndex = UINT_MAX;
-      determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
-      while(position >= 1)
+      while(biggerValueSize > 0)
       {
-        varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
-          mVarRef.constValueAndValueX.value,
-          mVarRef.constValueAndValueX.valueX, position, mVarRef.hasValueX);
-        portAssignment.varRefs.push_back(varRef);
-        position--;
-      }
-      for(auto &biggerValue: mVarRef.biggerValue)
-      {
-        determineWhetherTheWidthOfConstValueIsBiggerThan32(rWidth, position);
+        auto &biggerValue = mVarRef.biggerValue[biggerValueSize - 1];
+        if(biggerValueSize == mVarRef.biggerValue.size())
+          position = rWidth - 32 * biggerValueSize;
+        else
+          position = 32;
         while(position >= 1)
         {
           varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
@@ -320,6 +325,19 @@ void HierNetlistVisitor::visit(AstPin *nodep)
           portAssignment.varRefs.push_back(varRef);
           position--;
         }
+        biggerValueSize--;
+      }
+      if(rWidth > 32)
+        position = 32;
+      else
+        position = rWidth;
+      while(position >= 1)
+      {
+        varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
+          mVarRef.constValueAndValueX.value,
+          mVarRef.constValueAndValueX.valueX, position, mVarRef.hasValueX);
+        portAssignment.varRefs.push_back(varRef);
+        position--;
       }
     }
     else
@@ -595,24 +613,6 @@ char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
   else
   {
     return bValue ? ONE : ZERO;
-  }
-}
-void HierNetlistVisitor::determineWhetherTheWidthOfConstValueIsBiggerThan32(
-  uint32_t &rWidth, uint32_t &position)
-{
-  if(rWidth > 32)
-  {
-    // Bigger than 32, every bit of the uint32_t number(value or valueX) we
-    // should obtain.
-    position = 32;
-    rWidth = rWidth - 32;
-  }
-  else
-  {
-    // Smaller than 32, the rWidth bit of the uint32_t number(value or valueX)
-    // we should obtain
-    position = rWidth;
-    rWidth = 0;
   }
 }
 
