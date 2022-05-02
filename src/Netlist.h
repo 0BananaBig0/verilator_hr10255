@@ -17,4 +17,7 @@ class EmitHierNetList final
     static void printHierNetlist(const std::vector<Module> &hierNetList,
                                  const uint32_t &theNumberOfStdCellsShouldUse,
                                  const uint32_t hierMaxLevel = UINT32_MAX);
+    static void emitFlattenedNetLists(std::vector<Module> &hierNetList,
+                                      std::vector<Module> &flatNetList,
+                                      uint32_t &theNumberOfStdCellsShouldUse);
 };

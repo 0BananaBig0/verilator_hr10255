@@ -27,7 +27,7 @@ class HierNetlistVisitor final : public VNVisitor
 
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
-    uint32_t _theNumberOfStdModuleShouldUse;
+    uint32_t _theNumberOfStdCellsShouldUse;
     std::vector<uint32_t> _theNumberOfSubModuleInstances;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
     std::string _curModuleName;
@@ -117,7 +117,7 @@ class HierNetlistVisitor final : public VNVisitor
     const std::vector<Module> &getHierNetList() const { return _hierNetlist; };
     const uint32_t &getTheNumberOfStdCellsShouldUse() const
     {
-      return _theNumberOfStdModuleShouldUse;
+      return _theNumberOfStdCellsShouldUse;
     };
 
   public:

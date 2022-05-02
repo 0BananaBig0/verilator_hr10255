@@ -24,7 +24,7 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   // First time visit: Only get information of standard cells we will use from
   // AstCell, AstModule and AstVar
   _theTimesOfVisit = 1;
-  _theNumberOfStdModuleShouldUse = 0;
+  _theNumberOfStdCellsShouldUse = 0;
   _curModuleIndex = 0;
   iterateChildren(nodep);
   // Second time visit: Get information of other modules excluding standard
@@ -98,7 +98,10 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     };
     // The first time visit
     if(_theTimesOfVisit == 1 && isStdCell(_curModuleName))
+    {
       visitAstModuleAndAstVar(nodep);
+      _theNumberOfStdCellsShouldUse++;
+    }
     // The second time visit
     else if(_theTimesOfVisit == 2 && !isStdCell(_curModuleName))
       visitAstModuleAndAstVar(nodep);
@@ -278,6 +281,9 @@ void HierNetlistVisitor::visit(AstCell *nodep)
     _curSubmoduleName = nodep->modp()->prettyName();
     _curSubmoduleInstanceName = nodep->prettyName();
     _curSubModInsPortAssignmentsTmp.clear();
+    _curSubModInsPortAssignmentsTmp.resize(
+      _hierNetlist[_moduleNameMapIndex[_curSubmoduleName]]
+        .theNumberOfPortExcludingWire);
     iterateChildren(nodep);
     _hierNetlist[_curModuleIndex].subModuleInstanceNames.push_back(
       _curSubmoduleInstanceName);
@@ -299,9 +305,8 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   PortAssignment portAssignment;
   VarRef varRef;
   auto &curSubModuleIndex = _moduleNameMapIndex[_curSubmoduleName];
-  portAssignment.portDefIndex =
-    _portNameMapPortDefIndexs[curSubModuleIndex]
-      .ports[_multipleBitsPortAssignmentTmp.portDefName];
+  auto &portDefIndex = _portNameMapPortDefIndexs[curSubModuleIndex]
+                         .ports[_multipleBitsPortAssignmentTmp.portDefName];
   for(auto &mVarRef: _multipleBitsPortAssignmentTmp.multipleBitsVarRefs)
   {
     if(mVarRef.varRefName == "")
@@ -322,7 +327,8 @@ void HierNetlistVisitor::visit(AstPin *nodep)
           varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
             biggerValue.m_value, biggerValue.m_valueX, position,
             mVarRef.hasValueX);
-          portAssignment.varRefs.push_back(varRef);
+          portAssignment.varRefs.insert(portAssignment.varRefs.begin(),
+                                        varRef);
           position--;
         }
         biggerValueSize--;
@@ -336,7 +342,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         varRef.valueAndValueX = getOneBitValueFromDecimalNumber(
           mVarRef.constValueAndValueX.value,
           mVarRef.constValueAndValueX.valueX, position, mVarRef.hasValueX);
-        portAssignment.varRefs.push_back(varRef);
+        portAssignment.varRefs.insert(portAssignment.varRefs.begin(), varRef);
         position--;
       }
     }
@@ -348,12 +354,12 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       while(rEnd >= int(mVarRef.varRefRange.start))
       {
         varRef.index = rEnd;
-        portAssignment.varRefs.push_back(varRef);
+        portAssignment.varRefs.insert(portAssignment.varRefs.begin(), varRef);
         rEnd--;
       }
     }
   }
-  _curSubModInsPortAssignmentsTmp.push_back(portAssignment);
+  _curSubModInsPortAssignmentsTmp[portDefIndex] = portAssignment;
 }
 
 void HierNetlistVisitor::visit(AstConcat *nodep) { iterateChildren(nodep); };
