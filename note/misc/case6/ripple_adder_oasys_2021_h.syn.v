@@ -152,7 +152,7 @@ module top(co, cco, SUM, A, B, ci);
   wire[63:0] slongv;
   wire[127:0] longv;
   wire[255:0] llongv;
-  assign slongv = 64'd8589934593;// 64'h200000001
-  assign longv = {slongv+1,slongv};// 128'h200000002 200000001
-  assign llongv = {slongv,longv,slongv};// 256'h200000001 200000002 200000001 200000001
+  assign slongv = 64'd8589934593;// 64'h00000002_00000001
+  assign longv = {slongv+1,slongv};// 128'h00000002_00000002 00000002_00000001
+  assign llongv = {slongv,longv,slongv};// 256'h00000002_00000001 00000002_00000002 00000002_00000001 00000002_00000001
 endmodule
