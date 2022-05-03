@@ -6,6 +6,8 @@
  ************************************************************************/
 
 #include "Netlist.h"
+#include <climits>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
@@ -591,20 +593,21 @@ bool isStdCell(const std::string &moduleName)
   return stdCells.find(moduleName) != stdCells.end();
 }
 
-void EmitHierNetList::emitHierNetLists(std::vector<Module> &hierNetList,
+void EmitHierNetlist::emitHierNetlists(std::vector<Module> &hierNetlist,
                                        uint32_t &theNumberOfStdCellsShouldUse)
 {
-  HierNetlistVisitor hierNetListVisitor(v3Global.rootp());
-  hierNetList = hierNetListVisitor.getHierNetList();
+  HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
+  hierNetlist = hierNetlistVisitor.getHierNetlist();
   theNumberOfStdCellsShouldUse =
-    hierNetListVisitor.getTheNumberOfStdCellsShouldUse();
+    hierNetlistVisitor.getTheNumberOfStdCellsShouldUse();
 }
 
-void EmitHierNetList::printHierNetlist(
-  const std::vector<Module> &hierNetList,
-  const uint32_t &theNumberOfStdCellsShouldUse, const uint32_t hierMaxLevel)
+void EmitHierNetlist::printHierNetlist(
+  const std::vector<Module> &hierNetlist,
+  const uint32_t &theNumberOfStdCellsShouldUse, std::string fileName,
+  const uint32_t hierMaxLevel)
 {
-  std::ofstream ofs("HierNetlist.v");
+  std::ofstream ofs(fileName);
   bool shouldHaveEscapeCharacter;
   uint32_t totalCharactersEveryLine;
   auto getDecimalNumberLength = [](uint32_t number)
@@ -640,9 +643,9 @@ void EmitHierNetList::printHierNetlist(
   uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
   // Every time print one module defintion
   for(uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
-      moduleIndex < hierNetList.size(); moduleIndex++)
+      moduleIndex < hierNetlist.size(); moduleIndex++)
   {
-    const auto &oneModule = hierNetList[moduleIndex];
+    const auto &oneModule = hierNetlist[moduleIndex];
     totalCharactersEveryLine = 0;
     if(oneModule.level <= hierMaxLevel)
     { // Print one module declaration
@@ -794,7 +797,7 @@ void EmitHierNetList::printHierNetlist(
       {
         totalCharactersEveryLine = 0;
         ofs << "  "
-            << hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+            << hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
                  .moduleDefName
             << " ";
         if(haveVerilogKeyWordOrOperator(onesubModuleInstanceName))
@@ -806,7 +809,7 @@ void EmitHierNetList::printHierNetlist(
             << "(";
         totalCharactersEveryLine =
           totalCharactersEveryLine + 5 +
-          hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+          hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
             .moduleDefName.size() +
           onesubModuleInstanceName.size();
         // Every time print one port assignment
@@ -815,7 +818,7 @@ void EmitHierNetList::printHierNetlist(
             oneModule.portAssignmentsOfSubModuleInstances[subModuleIndex])
         {
           if(totalCharactersEveryLine + 1 +
-               hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+               hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
                  .ports[portDefIndex]
                  .portDefName.size() >
              maxCharactersEveryLine)
@@ -825,7 +828,7 @@ void EmitHierNetList::printHierNetlist(
           }
           ofs << ".";
           if(haveVerilogKeyWordOrOperator(
-               hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+               hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
                  .ports[portDefIndex]
                  .portDefName))
           {
@@ -833,7 +836,7 @@ void EmitHierNetList::printHierNetlist(
             ofs << "\\";
             totalCharactersEveryLine++;
           }
-          ofs << hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+          ofs << hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
                    .ports[portDefIndex]
                    .portDefName;
           if(shouldHaveEscapeCharacter)
@@ -845,7 +848,7 @@ void EmitHierNetList::printHierNetlist(
           ofs << "(";
           totalCharactersEveryLine =
             totalCharactersEveryLine + 2 +
-            hierNetList[oneModule.subModuleDefIndex[subModuleIndex]]
+            hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
               .ports[portDefIndex]
               .portDefName.size();
           if(onePortAssignment.varRefs.size() > 1)
@@ -963,58 +966,156 @@ void EmitHierNetList::printHierNetlist(
 }
 
 // Use case2 as a example to demonstrate.
-void EmitHierNetList::emitFlattenedNetLists(
-  std::vector<Module> &hierNetList, std::vector<Module> &flatNetList,
+void EmitHierNetlist::emitFlattenedNetlists(
+  std::vector<Module> &hierNetlist, std::vector<Module> &flatNetlist,
   uint32_t &theNumberOfStdCellsShouldUse)
 {
-  if(flatNetList.size() < hierNetList.size())
-  {
-    Module oneModule;
-    flatNetList.insert(flatNetList.end(),
-                       hierNetList.size() - flatNetList.size(), oneModule);
-  }
+  flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign
   // statement;
-  auto &theMostDepthLevelExcludingStdCells =
-    hierNetList[hierNetList.size() - 1].level;
-  for(uint32_t moduleDefIndex = hierNetList.size() - 1;
+  auto &theMostDepthLevelExcludingStdCells = hierNetlist.back().level;
+  for(uint32_t moduleDefIndex = hierNetlist.size() - 1;
       moduleDefIndex >= theNumberOfStdCellsShouldUse; moduleDefIndex--)
   {
-    // full_adder
-    const auto &oneModuleH = hierNetList[moduleDefIndex];
-    auto &oneModuleF = flatNetList[moduleDefIndex];
-    oneModuleF = oneModuleH;
-    oneModuleF.subModuleInstanceNames.clear();
-    oneModuleF.subModuleDefIndex.clear();
-    oneModuleF.portAssignmentsOfSubModuleInstances.clear();
-    uint32_t subModuleInstanceIndex = 0;
-    // full_adder_co
-    for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
+    // full_adder definition
+    const auto &oneModuleH = hierNetlist[moduleDefIndex];
+    auto &oneModuleF = flatNetlist[moduleDefIndex];
+    if(oneModuleH.level < theMostDepthLevelExcludingStdCells)
     {
-      // U1
-      const std::string &subModuleInstanceName =
-        oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
-      // (.co(co), .a(a), .b(b), .ci(ci));
-      const auto &portAssignmentsOfSubModuleInstance =
-        oneModuleH.portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
-      subModuleInstanceIndex++;
-      Module *oneSubModule;
-      if(subModuleDefIndex > moduleDefIndex)
-        oneSubModule = &flatNetList[subModuleDefIndex];
-      else
-        oneSubModule = &hierNetList[subModuleDefIndex];
-      std::vector<std::vector<VarRef *>> varRefFromParentps(
-        oneSubModule->theNumberOfPortExcludingWire);
-      // .co(co)
-      for(auto &onePortAssignment: portAssignmentsOfSubModuleInstance)
+      oneModuleF.subModuleInstanceNames.clear();
+      oneModuleF.subModuleDefIndex.clear();
+      oneModuleF.portAssignmentsOfSubModuleInstances.clear();
+      uint32_t subModuleInstanceIndex = 0;
+      // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
+      for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
       {
-        // varRefFromParentps[onePortAssignment.portDefIndex].reserve(
-        //   oneSubModule->ports[onePortAssignment.portDefIndex].bitWidth);
-        // (co)
-        // for(auto &oneVarRef: onePortAssignment.varRefs)
-        //   varRefFromParentps[onePortAssignment.portDefIndex].insert(
-        //     varRefFromParentps[onePortAssignment.portDefIndex].begin(),
-        //     &oneVarRef);
+        // U1
+        const std::string &subModuleInstanceName =
+          oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
+        // (.co(co), .a(a), .b(b), .ci(ci));
+        const auto &portAssignmentsOfSubModuleInstance =
+          oneModuleH
+            .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
+        subModuleInstanceIndex++;
+        // full_adder_co definition
+        auto &oneSubModule = flatNetlist[subModuleDefIndex];
+        uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
+        uint32_t oneSubModuleWirePosition =
+          oneSubModule.theNumberOfPortExcludingWire;
+        oneModuleF.ports.resize(oneModuleFPortsNumber +
+                                oneSubModule.ports.size() -
+                                oneSubModuleWirePosition);
+        // full_adder_co wires,n_0_0 become U1_n_0_0
+        for(uint32_t i = oneModuleFPortsNumber; i < oneModuleF.ports.size();
+            i++)
+        {
+          oneModuleF.ports[i] = oneSubModule.ports[oneSubModuleWirePosition];
+          oneModuleF.ports[i].portDefName.insert(0, "_");
+          oneModuleF.ports[i].portDefName.insert(0, subModuleInstanceName);
+          oneSubModuleWirePosition++;
+        }
+        oneModuleF.subModuleDefIndex.insert(
+          oneModuleF.subModuleDefIndex.end(),
+          oneSubModule.subModuleDefIndex.begin(),
+          oneSubModule.subModuleDefIndex.end());
+        uint32_t stdCellInstanceNameIndex = 0;
+        // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
+        for(auto oneStdCellIns:
+            oneSubModule.portAssignmentsOfSubModuleInstances)
+        {
+          // stdInstanceName i_0_0 becomes U1_i_0_0
+          oneModuleF.subModuleInstanceNames.push_back(
+            oneSubModule.subModuleInstanceNames[stdCellInstanceNameIndex]);
+          stdCellInstanceNameIndex++;
+          oneModuleF.subModuleInstanceNames.back().insert(0, "_");
+          oneModuleF.subModuleInstanceNames.back().insert(
+            0, subModuleInstanceName);
+          // .A(a)
+          for(auto &portAssignmentOfStdCell: oneStdCellIns)
+          {
+            for(auto &oneVarRef: portAssignmentOfStdCell.varRefs)
+            {
+              // Now, oneVarRef is a wire
+              if(oneVarRef.varRefIndex >=
+                   oneSubModule.theNumberOfPortExcludingWire &&
+                 oneVarRef.varRefIndex < UINT_MAX)
+              {
+                oneVarRef.varRefIndex =
+                  oneVarRef.varRefIndex -
+                  oneSubModule.theNumberOfPortExcludingWire +
+                  oneModuleFPortsNumber;
+              }
+              // Now,oneVarRef is a input, output or inout
+              else if(oneVarRef.varRefIndex <
+                      oneSubModule.theNumberOfPortExcludingWire)
+              { // If the port of full_adder_co instance is empty.
+                if(portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
+                     .varRefs.empty())
+                {
+                  portAssignmentOfStdCell.varRefs.clear();
+                }
+                else
+                  oneVarRef =
+                    portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
+                      .varRefs[oneVarRef.index];
+              }
+              // Now,oneVarRef is a const value or x or z
+              // else{}
+            }
+          }
+          oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
+            std::move(oneStdCellIns));
+        }
+        for(auto oneAssign: oneSubModule.assigns)
+        {
+          bool _curAssignConnectToEmptySignal = false;
+          if(oneAssign.lValue.varRefIndex >=
+               oneSubModule.theNumberOfPortExcludingWire &&
+             oneAssign.lValue.varRefIndex < UINT_MAX)
+          {
+            oneAssign.lValue.varRefIndex =
+              oneAssign.lValue.varRefIndex -
+              oneSubModule.theNumberOfPortExcludingWire +
+              oneModuleFPortsNumber;
+          }
+          else if(oneAssign.lValue.varRefIndex <
+                  oneSubModule.theNumberOfPortExcludingWire)
+          {
+            if(portAssignmentsOfSubModuleInstance[oneAssign.lValue.varRefIndex]
+                 .varRefs.empty())
+              _curAssignConnectToEmptySignal = true;
+            else
+              oneAssign.lValue =
+                portAssignmentsOfSubModuleInstance[oneAssign.lValue
+                                                     .varRefIndex]
+                  .varRefs[oneAssign.lValue.index];
+          }
+          if(oneAssign.rValue.varRefIndex >=
+               oneSubModule.theNumberOfPortExcludingWire &&
+             oneAssign.rValue.varRefIndex < UINT_MAX)
+          {
+            oneAssign.rValue.varRefIndex =
+              oneAssign.rValue.varRefIndex -
+              oneSubModule.theNumberOfPortExcludingWire +
+              oneModuleFPortsNumber;
+          }
+          else if(oneAssign.rValue.varRefIndex <
+                  oneSubModule.theNumberOfPortExcludingWire)
+          {
+            if(portAssignmentsOfSubModuleInstance[oneAssign.rValue.varRefIndex]
+                 .varRefs.empty())
+              _curAssignConnectToEmptySignal = true;
+            else
+              oneAssign.rValue =
+                portAssignmentsOfSubModuleInstance[oneAssign.rValue
+                                                     .varRefIndex]
+                  .varRefs[oneAssign.rValue.index];
+          }
+          if(_curAssignConnectToEmptySignal)
+            _curAssignConnectToEmptySignal = false;
+          else
+            oneModuleF.assigns.push_back(std::move(oneAssign));
+        }
       }
     }
   }
