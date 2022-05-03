@@ -209,13 +209,20 @@ static void process()
     // V3EmitXml::emitxml();
     // 1,Create vector to store hierarchical netlist.
     uint32_t theNumberOfStdCellsShouldUse;
-    std::vector<Module> hierNetlist;
+    std::vector<Module> hierNetlist, flatNetlist;
     // 2,Obtain hierarchical netlist from AST.
-    EmitHierNetList::emitHierNetLists(hierNetlist,theNumberOfStdCellsShouldUse);
+    EmitHierNetlist::emitHierNetlists(hierNetlist,
+                                      theNumberOfStdCellsShouldUse);
     // 3,Print hierarchical netlist to a verilog file.
-    EmitHierNetList::printHierNetlist(hierNetlist,theNumberOfStdCellsShouldUse);
-    // 2 - 获取层次化网表，并且将其反输出到 HDL 文件
-    // 3 - 获取平面化网表，并且将顶级模块输出到 HDL 文件
+    EmitHierNetlist::printHierNetlist(hierNetlist,
+                                      theNumberOfStdCellsShouldUse);
+    // 4,Flatten hierarchical netlist
+    EmitHierNetlist::emitFlattenedNetlists(hierNetlist, flatNetlist,
+                                           theNumberOfStdCellsShouldUse);
+    // 5,Print flattened netlist to a verilog file.
+    EmitHierNetlist::printHierNetlist(
+      flatNetlist, theNumberOfStdCellsShouldUse, "FlatNetlist.v",
+      hierNetlist[theNumberOfStdCellsShouldUse].level);
   }
 }
 

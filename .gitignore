@@ -11,10 +11,11 @@
 *.1
 doxy
 log
-hierCellsNetLists.v
-HierNetlist.v
-HierNetlist.backup.v
-plainCellsNetLists.v
+FlatNetlits*v
+hierCellsNetList*v
+HierNetlist*v
+HierNetlist*v
+plainCellsNetList*v
 .cache
 *.xml
 note/misc/case5

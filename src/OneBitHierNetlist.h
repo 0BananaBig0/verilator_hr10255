@@ -114,14 +114,14 @@ class HierNetlistVisitor final : public VNVisitor
     void freeContainerBySwap(T &rContainer);
 
   public:
-    const std::vector<Module> &getHierNetList() const { return _hierNetlist; };
+    const std::vector<Module> &getHierNetlist() const { return _hierNetlist; };
     const uint32_t &getTheNumberOfStdCellsShouldUse() const
     {
       return _theNumberOfStdCellsShouldUse;
     };
 
   public:
-    // AstNetlist is the root of HierNetList
+    // AstNetlist is the root of HierNetlist
     HierNetlistVisitor(AstNetlist *nodep) { nodep->accept(*this); }
     virtual ~HierNetlistVisitor() override{};
 };

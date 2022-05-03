@@ -9,15 +9,16 @@
 #include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
 
-class EmitHierNetList final
+class EmitHierNetlist final
 {
   public:
-    static void emitHierNetLists(std::vector<Module> &hierNetList,
+    static void emitHierNetlists(std::vector<Module> &hierNetlist,
                                  uint32_t &theNumberOfStdCellsShouldUse);
-    static void printHierNetlist(const std::vector<Module> &hierNetList,
+    static void printHierNetlist(const std::vector<Module> &hierNetlist,
                                  const uint32_t &theNumberOfStdCellsShouldUse,
+                                 const std::string fileName = "HierNetlist.v",
                                  const uint32_t hierMaxLevel = UINT32_MAX);
-    static void emitFlattenedNetLists(std::vector<Module> &hierNetList,
-                                      std::vector<Module> &flatNetList,
+    static void emitFlattenedNetlists(std::vector<Module> &hierNetlist,
+                                      std::vector<Module> &flatNetlist,
                                       uint32_t &theNumberOfStdCellsShouldUse);
 };
