@@ -1009,7 +1009,6 @@ void EmitHierNetlist::emitFlattenedNetlists(
           const auto &portAssignmentsOfSubModuleInstance =
             oneModuleH
               .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
-          subModuleInstanceIndex++;
           // full_adder_co definition
           auto &oneSubModule = flatNetlist[subModuleDefIndex];
           uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
@@ -1132,6 +1131,7 @@ void EmitHierNetlist::emitFlattenedNetlists(
               oneModuleF.assigns.push_back(std::move(oneAssign));
           }
         }
+        subModuleInstanceIndex++;
       }
     }
   }
