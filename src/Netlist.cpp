@@ -972,10 +972,12 @@ void EmitHierNetlist::emitFlattenedNetlists(
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign
-  // statement;
+  // statement; Sometimes, theNumberOfStdCellsShouldUse = 0.
   auto &theMostDepthLevelExcludingStdCells = hierNetlist.back().level;
   for(uint32_t moduleDefIndex = hierNetlist.size() - 1;
-      moduleDefIndex >= theNumberOfStdCellsShouldUse; moduleDefIndex--)
+      moduleDefIndex >= theNumberOfStdCellsShouldUse &&
+      moduleDefIndex != UINT_MAX;
+      moduleDefIndex--)
   {
     // full_adder definition
     const auto &oneModuleH = hierNetlist[moduleDefIndex];
@@ -989,132 +991,146 @@ void EmitHierNetlist::emitFlattenedNetlists(
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
       for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
       {
-        // U1
-        const std::string &subModuleInstanceName =
-          oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
-        // (.co(co), .a(a), .b(b), .ci(ci));
-        const auto &portAssignmentsOfSubModuleInstance =
-          oneModuleH
-            .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
-        subModuleInstanceIndex++;
-        // full_adder_co definition
-        auto &oneSubModule = flatNetlist[subModuleDefIndex];
-        uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
-        uint32_t oneSubModuleWirePosition =
-          oneSubModule.theNumberOfPortExcludingWire;
-        oneModuleF.ports.resize(oneModuleFPortsNumber +
-                                oneSubModule.ports.size() -
-                                oneSubModuleWirePosition);
-        // full_adder_co wires,n_0_0 become U1_n_0_0
-        for(uint32_t i = oneModuleFPortsNumber; i < oneModuleF.ports.size();
-            i++)
+        // subModule is a stdCell
+        if(subModuleDefIndex < theNumberOfStdCellsShouldUse)
         {
-          oneModuleF.ports[i] = oneSubModule.ports[oneSubModuleWirePosition];
-          oneModuleF.ports[i].portDefName.insert(0, "_");
-          oneModuleF.ports[i].portDefName.insert(0, subModuleInstanceName);
-          oneSubModuleWirePosition++;
-        }
-        oneModuleF.subModuleDefIndex.insert(
-          oneModuleF.subModuleDefIndex.end(),
-          oneSubModule.subModuleDefIndex.begin(),
-          oneSubModule.subModuleDefIndex.end());
-        uint32_t stdCellInstanceNameIndex = 0;
-        // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
-        for(auto oneStdCellIns:
-            oneSubModule.portAssignmentsOfSubModuleInstances)
-        {
-          // stdInstanceName i_0_0 becomes U1_i_0_0
           oneModuleF.subModuleInstanceNames.push_back(
-            oneSubModule.subModuleInstanceNames[stdCellInstanceNameIndex]);
-          stdCellInstanceNameIndex++;
-          oneModuleF.subModuleInstanceNames.back().insert(0, "_");
-          oneModuleF.subModuleInstanceNames.back().insert(
-            0, subModuleInstanceName);
-          // .A(a)
-          for(auto &portAssignmentOfStdCell: oneStdCellIns)
-          {
-            for(auto &oneVarRef: portAssignmentOfStdCell.varRefs)
-            {
-              // Now, oneVarRef is a wire
-              if(oneVarRef.varRefIndex >=
-                   oneSubModule.theNumberOfPortExcludingWire &&
-                 oneVarRef.varRefIndex < UINT_MAX)
-              {
-                oneVarRef.varRefIndex =
-                  oneVarRef.varRefIndex -
-                  oneSubModule.theNumberOfPortExcludingWire +
-                  oneModuleFPortsNumber;
-              }
-              // Now,oneVarRef is a input, output or inout
-              else if(oneVarRef.varRefIndex <
-                      oneSubModule.theNumberOfPortExcludingWire)
-              { // If the port of full_adder_co instance is empty.
-                if(portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
-                     .varRefs.empty())
-                {
-                  portAssignmentOfStdCell.varRefs.clear();
-                }
-                else
-                  oneVarRef =
-                    portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
-                      .varRefs[oneVarRef.index];
-              }
-              // Now,oneVarRef is a const value or x or z
-              // else{}
-            }
-          }
+            oneModuleH.subModuleInstanceNames[subModuleInstanceIndex]);
+          oneModuleF.subModuleDefIndex.push_back(subModuleDefIndex);
           oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
-            std::move(oneStdCellIns));
+            oneModuleH
+              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex]);
         }
-        for(auto oneAssign: oneSubModule.assigns)
-        {
-          bool _curAssignConnectToEmptySignal = false;
-          if(oneAssign.lValue.varRefIndex >=
-               oneSubModule.theNumberOfPortExcludingWire &&
-             oneAssign.lValue.varRefIndex < UINT_MAX)
+        else
+        { // U1, subModule is not a stdCell
+          const std::string &subModuleInstanceName =
+            oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
+          // (.co(co), .a(a), .b(b), .ci(ci));
+          const auto &portAssignmentsOfSubModuleInstance =
+            oneModuleH
+              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
+          subModuleInstanceIndex++;
+          // full_adder_co definition
+          auto &oneSubModule = flatNetlist[subModuleDefIndex];
+          uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
+          uint32_t oneSubModuleWirePosition =
+            oneSubModule.theNumberOfPortExcludingWire;
+          oneModuleF.ports.resize(oneModuleFPortsNumber +
+                                  oneSubModule.ports.size() -
+                                  oneSubModuleWirePosition);
+          // full_adder_co wires,n_0_0 become U1_n_0_0
+          for(uint32_t i = oneModuleFPortsNumber; i < oneModuleF.ports.size();
+              i++)
           {
-            oneAssign.lValue.varRefIndex =
-              oneAssign.lValue.varRefIndex -
-              oneSubModule.theNumberOfPortExcludingWire +
-              oneModuleFPortsNumber;
+            oneModuleF.ports[i] = oneSubModule.ports[oneSubModuleWirePosition];
+            oneModuleF.ports[i].portDefName.insert(0, "_");
+            oneModuleF.ports[i].portDefName.insert(0, subModuleInstanceName);
+            oneSubModuleWirePosition++;
           }
-          else if(oneAssign.lValue.varRefIndex <
-                  oneSubModule.theNumberOfPortExcludingWire)
+          oneModuleF.subModuleDefIndex.insert(
+            oneModuleF.subModuleDefIndex.end(),
+            oneSubModule.subModuleDefIndex.begin(),
+            oneSubModule.subModuleDefIndex.end());
+          uint32_t stdCellInstanceNameIndex = 0;
+          // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
+          for(auto oneStdCellIns:
+              oneSubModule.portAssignmentsOfSubModuleInstances)
           {
-            if(portAssignmentsOfSubModuleInstance[oneAssign.lValue.varRefIndex]
-                 .varRefs.empty())
-              _curAssignConnectToEmptySignal = true;
+            // stdInstanceName i_0_0 becomes U1_i_0_0
+            oneModuleF.subModuleInstanceNames.push_back(
+              oneSubModule.subModuleInstanceNames[stdCellInstanceNameIndex]);
+            stdCellInstanceNameIndex++;
+            oneModuleF.subModuleInstanceNames.back().insert(0, "_");
+            oneModuleF.subModuleInstanceNames.back().insert(
+              0, subModuleInstanceName);
+            // .A(a)
+            for(auto &portAssignmentOfStdCell: oneStdCellIns)
+            {
+              for(auto &oneVarRef: portAssignmentOfStdCell.varRefs)
+              {
+                // Now, oneVarRef is a wire
+                if(oneVarRef.varRefIndex >=
+                     oneSubModule.theNumberOfPortExcludingWire &&
+                   oneVarRef.varRefIndex < UINT_MAX)
+                {
+                  oneVarRef.varRefIndex =
+                    oneVarRef.varRefIndex -
+                    oneSubModule.theNumberOfPortExcludingWire +
+                    oneModuleFPortsNumber;
+                }
+                // Now,oneVarRef is a input, output or inout
+                else if(oneVarRef.varRefIndex <
+                        oneSubModule.theNumberOfPortExcludingWire)
+                { // If the port of full_adder_co instance is empty.
+                  if(portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
+                       .varRefs.empty())
+                  {
+                    portAssignmentOfStdCell.varRefs.clear();
+                  }
+                  else
+                    oneVarRef =
+                      portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
+                        .varRefs[oneVarRef.index];
+                }
+                // Now,oneVarRef is a const value or x or z
+                // else{}
+              }
+            }
+            oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
+              std::move(oneStdCellIns));
+          }
+          for(auto oneAssign: oneSubModule.assigns)
+          {
+            bool _curAssignConnectToEmptySignal = false;
+            if(oneAssign.lValue.varRefIndex >=
+                 oneSubModule.theNumberOfPortExcludingWire &&
+               oneAssign.lValue.varRefIndex < UINT_MAX)
+            {
+              oneAssign.lValue.varRefIndex =
+                oneAssign.lValue.varRefIndex -
+                oneSubModule.theNumberOfPortExcludingWire +
+                oneModuleFPortsNumber;
+            }
+            else if(oneAssign.lValue.varRefIndex <
+                    oneSubModule.theNumberOfPortExcludingWire)
+            {
+              if(portAssignmentsOfSubModuleInstance[oneAssign.lValue
+                                                      .varRefIndex]
+                   .varRefs.empty())
+                _curAssignConnectToEmptySignal = true;
+              else
+                oneAssign.lValue =
+                  portAssignmentsOfSubModuleInstance[oneAssign.lValue
+                                                       .varRefIndex]
+                    .varRefs[oneAssign.lValue.index];
+            }
+            if(oneAssign.rValue.varRefIndex >=
+                 oneSubModule.theNumberOfPortExcludingWire &&
+               oneAssign.rValue.varRefIndex < UINT_MAX)
+            {
+              oneAssign.rValue.varRefIndex =
+                oneAssign.rValue.varRefIndex -
+                oneSubModule.theNumberOfPortExcludingWire +
+                oneModuleFPortsNumber;
+            }
+            else if(oneAssign.rValue.varRefIndex <
+                    oneSubModule.theNumberOfPortExcludingWire)
+            {
+              if(portAssignmentsOfSubModuleInstance[oneAssign.rValue
+                                                      .varRefIndex]
+                   .varRefs.empty())
+                _curAssignConnectToEmptySignal = true;
+              else
+                oneAssign.rValue =
+                  portAssignmentsOfSubModuleInstance[oneAssign.rValue
+                                                       .varRefIndex]
+                    .varRefs[oneAssign.rValue.index];
+            }
+            if(_curAssignConnectToEmptySignal)
+              _curAssignConnectToEmptySignal = false;
             else
-              oneAssign.lValue =
-                portAssignmentsOfSubModuleInstance[oneAssign.lValue
-                                                     .varRefIndex]
-                  .varRefs[oneAssign.lValue.index];
+              oneModuleF.assigns.push_back(std::move(oneAssign));
           }
-          if(oneAssign.rValue.varRefIndex >=
-               oneSubModule.theNumberOfPortExcludingWire &&
-             oneAssign.rValue.varRefIndex < UINT_MAX)
-          {
-            oneAssign.rValue.varRefIndex =
-              oneAssign.rValue.varRefIndex -
-              oneSubModule.theNumberOfPortExcludingWire +
-              oneModuleFPortsNumber;
-          }
-          else if(oneAssign.rValue.varRefIndex <
-                  oneSubModule.theNumberOfPortExcludingWire)
-          {
-            if(portAssignmentsOfSubModuleInstance[oneAssign.rValue.varRefIndex]
-                 .varRefs.empty())
-              _curAssignConnectToEmptySignal = true;
-            else
-              oneAssign.rValue =
-                portAssignmentsOfSubModuleInstance[oneAssign.rValue
-                                                     .varRefIndex]
-                  .varRefs[oneAssign.rValue.index];
-          }
-          if(_curAssignConnectToEmptySignal)
-            _curAssignConnectToEmptySignal = false;
-          else
-            oneModuleF.assigns.push_back(std::move(oneAssign));
         }
       }
     }
