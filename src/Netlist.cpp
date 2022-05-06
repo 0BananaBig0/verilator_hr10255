@@ -486,7 +486,8 @@ void EmitHierNetlist::emitFlattenedNetlists(
     // full_adder definition
     const auto &oneModuleH = hierNetlist[moduleDefIndex];
     auto &oneModuleF = flatNetlist[moduleDefIndex];
-    if(oneModuleH.level < theMostDepthLevelExcludingStdCells)
+    if((oneModuleH.level < theMostDepthLevelExcludingStdCells) &&
+       !(oneModuleH.subModuleDefIndex.empty() && oneModuleH.assigns.empty()))
     {
       oneModuleF.subModuleInstanceNames.clear();
       oneModuleF.subModuleDefIndex.clear();
@@ -495,8 +496,10 @@ void EmitHierNetlist::emitFlattenedNetlists(
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
       for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
       {
-        // subModule is a stdCell
-        if(subModuleDefIndex < theNumberOfStdCellsShouldUse)
+        // subModule is a stdCell or a black box
+        if((subModuleDefIndex < theNumberOfStdCellsShouldUse) ||
+           (hierNetlist[subModuleDefIndex].subModuleDefIndex.empty() &&
+            hierNetlist[subModuleDefIndex].assigns.empty()))
         {
           oneModuleF.subModuleInstanceNames.push_back(
             oneModuleH.subModuleInstanceNames[subModuleInstanceIndex]);
