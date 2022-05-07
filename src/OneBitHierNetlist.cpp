@@ -36,7 +36,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   _theTimesOfVisit = 3;
   iterateChildren(nodep);
   // Clear data that is no longer in use.
-  freeContainerBySwap(_theNumberOfSubModuleInstances);
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_curModuleName);
   freeContainerBySwap(_portNameMapPortDefIndexs);
@@ -77,7 +76,6 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       _curPortDefIndex = 0;
       wires.clear();
       // Initial value
-      _theNumberOfSubModuleInstance = 0;
       iterateChildren(nodep);
       _hierNetlist[_curModuleIndex].theNumberOfPortExcludingWire =
         _curPortDefIndex;
@@ -92,7 +90,6 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       }
       // Store LUT, the number of SubModuleInstance.
       _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
-      _theNumberOfSubModuleInstances.push_back(_theNumberOfSubModuleInstance);
       // Prepare for the next visit to AstModule.
       _curModuleIndex++;
     };
@@ -272,11 +269,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
 
 void HierNetlistVisitor::visit(AstCell *nodep)
 {
-  if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
-  {
-    _theNumberOfSubModuleInstance++;
-  }
-  else
+  if(_theTimesOfVisit == 3)
   {
     _curSubmoduleName = nodep->modp()->prettyName();
     _curSubmoduleInstanceName = nodep->prettyName();
