@@ -16,7 +16,6 @@
 // (5)We are only allowed to writ one AstVarRef information at the same time.
 // (6)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
-bool isStdCell(const std::string &moduleName);
 void HierNetlistVisitor::visit(AstNode *nodep) { iterateChildren(nodep); };
 
 void HierNetlistVisitor::visit(AstNetlist *nodep)
@@ -94,13 +93,13 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       _curModuleIndex++;
     };
     // The first time visit
-    if(_theTimesOfVisit == 1 && isStdCell(_curModuleName))
+    if(_theTimesOfVisit == 1 && nodep->inLibrary())
     {
       visitAstModuleAndAstVar(nodep);
       _theNumberOfStdCellsShouldUse++;
     }
     // The second time visit
-    else if(_theTimesOfVisit == 2 && !isStdCell(_curModuleName))
+    else if(_theTimesOfVisit == 2 && !nodep->inLibrary())
       visitAstModuleAndAstVar(nodep);
     return;
   }
