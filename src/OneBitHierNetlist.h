@@ -28,7 +28,6 @@ class HierNetlistVisitor final : public VNVisitor
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
     uint32_t _theNumberOfStdCellsShouldUse;
-    std::vector<uint32_t> _theNumberOfSubModuleInstances;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
     std::string _curModuleName;
     uint32_t _curModuleIndex;
@@ -43,7 +42,6 @@ class HierNetlistVisitor final : public VNVisitor
     std::string _curSubmoduleName;
     std::string _curSubmoduleInstanceName;
     uint32_t _curSubmoduleInstanceIndex;
-    uint32_t _theNumberOfSubModuleInstance;
 
     // AstAssignW/AstAssign:AstNodeAssign Status
     bool _isAssignStatement = false;
