@@ -11,7 +11,7 @@
 *.1
 doxy
 log
-FlatNetlits*v
+FlatNetlist*v
 hierCellsNetList*v
 HierNetlist*v
 HierNetlist*v
