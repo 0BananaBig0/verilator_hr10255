@@ -31,6 +31,9 @@ class HierNetlistVisitor final : public VNVisitor
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
     std::string _curModuleName;
     uint32_t _curModuleIndex;
+    uint32_t _theNumberOfBlackBoxes;
+    std::unordered_set<std::string> _blackBoxNameExcludingStdCell;
+    bool _isABlackBoxButNotAStdCell;
 
     // AstVar
     std::vector<PortNameMapPortDefIndex> _portNameMapPortDefIndexs;
@@ -116,6 +119,10 @@ class HierNetlistVisitor final : public VNVisitor
     const uint32_t &getTheNumberOfStdCellsShouldUse() const
     {
       return _theNumberOfStdCellsShouldUse;
+    };
+    const uint32_t &getTheNumberOfBlackBoxes() const
+    {
+      return _theNumberOfBlackBoxes;
     };
 
   public:
