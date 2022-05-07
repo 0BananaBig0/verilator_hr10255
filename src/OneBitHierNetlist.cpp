@@ -20,22 +20,32 @@ void HierNetlistVisitor::visit(AstNode *nodep) { iterateChildren(nodep); };
 
 void HierNetlistVisitor::visit(AstNetlist *nodep)
 {
-  // First time visit: Only get information of standard cells we will use from
-  // AstCell, AstModule and AstVar
+  // First time visit: Find all black boxes excluding std cells
   _theTimesOfVisit = 1;
+  _theNumberOfBlackBoxes = 0;
+  iterateChildren(nodep);
+  // Second time visit: Only get information of standard cells we will use from
+  // AstCell, AstModule and AstVar
+  _theTimesOfVisit = 2;
   _theNumberOfStdCellsShouldUse = 0;
   _curModuleIndex = 0;
   iterateChildren(nodep);
-  // Second time visit: Get information of other modules excluding standard
-  // cells from AstCell, AstModule and AstVar
-  _theTimesOfVisit = 2;
-  iterateChildren(nodep);
-  // Third time visit: Get information of all modules including standard cells
-  // from AstConst, AstVarRef, AstCell and so on.
+  // Third time visit: Get information of all black boxes excluding std cells
   _theTimesOfVisit = 3;
   iterateChildren(nodep);
+  // Fourth time visit: Get information of other modules excluding standard
+  // cells from AstCell, AstModule and AstVar
+  _theTimesOfVisit = 4;
+  iterateChildren(nodep);
+  // Fifth time visit: Get information of all modules including standard cells
+  // from AstConst, AstVarRef, AstCell and so on.
+  _theTimesOfVisit = 5;
+  iterateChildren(nodep);
+  _theNumberOfBlackBoxes =
+    _theNumberOfBlackBoxes + _theNumberOfStdCellsShouldUse;
   // Clear data that is no longer in use.
   freeContainerBySwap(_moduleNameMapIndex);
+  freeContainerBySwap(_blackBoxNameExcludingStdCell);
   freeContainerBySwap(_curModuleName);
   freeContainerBySwap(_portNameMapPortDefIndexs);
   freeContainerBySwap(_portNameMapPortDefIndex.ports);
@@ -54,9 +64,21 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
 void HierNetlistVisitor::visit(AstModule *nodep)
 {
   _curModuleName = nodep->prettyName();
+  const bool &inLibrary = nodep->inLibrary();
   if(_curModuleName == "@CONST-POOL@")
     return;
-  else if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
+  // The first time visit
+  else if(_theTimesOfVisit == 1 && !inLibrary)
+  {
+    _isABlackBoxButNotAStdCell = true;
+    iterateChildren(nodep);
+    if(_isABlackBoxButNotAStdCell)
+    {
+      _blackBoxNameExcludingStdCell.insert(_curModuleName);
+      _theNumberOfBlackBoxes++;
+    }
+  }
+  else if(_theTimesOfVisit > 1 && _theTimesOfVisit < 5)
   {
     // The first two times visit AST, we only visit AstModule and AstVar and
     // count the number of AstCell of Every AstModule.
@@ -92,18 +114,27 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // Prepare for the next visit to AstModule.
       _curModuleIndex++;
     };
-    // The first time visit
-    if(_theTimesOfVisit == 1 && nodep->inLibrary())
+    // The second time visit
+    if(_theTimesOfVisit == 2 && inLibrary)
     {
       visitAstModuleAndAstVar(nodep);
       _theNumberOfStdCellsShouldUse++;
     }
-    // The second time visit
-    else if(_theTimesOfVisit == 2 && !nodep->inLibrary())
+    // The third time visit
+    else if(_theTimesOfVisit == 3 &&
+            _blackBoxNameExcludingStdCell.find(_curModuleName) !=
+              _blackBoxNameExcludingStdCell.end())
+    {
+      visitAstModuleAndAstVar(nodep);
+    }
+    // The fourth time visit
+    else if(_theTimesOfVisit == 4 && !inLibrary &&
+            _blackBoxNameExcludingStdCell.find(_curModuleName) ==
+              _blackBoxNameExcludingStdCell.end())
       visitAstModuleAndAstVar(nodep);
     return;
   }
-  // The third time visit AST, we visit all AstNode, except AstVar.
+  // The fifth time visit AST, we visit all AstNode, except AstVar.
   else
   {
     _curModuleIndex = _moduleNameMapIndex[_curModuleName];
@@ -115,7 +146,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
 
 void HierNetlistVisitor::visit(AstVar *nodep)
 {
-  if(_theTimesOfVisit == 1 || _theTimesOfVisit == 2)
+  if(_theTimesOfVisit > 1 && _theTimesOfVisit < 5)
   {
     PortDefinition portDefinition;
     if(nodep->isGParam())
@@ -174,7 +205,7 @@ void HierNetlistVisitor::visit(AstVar *nodep)
 
 void HierNetlistVisitor::visit(AstNodeAssign *nodep)
 {
-  if(_theTimesOfVisit == 3)
+  if(_theTimesOfVisit == 5)
   {
     // Set assign status and initial value.
     _isAssignStatement = true;
@@ -264,11 +295,16 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
       _isAssignStatement = false;
     }
   }
+  else if(_theTimesOfVisit == 1 && _isABlackBoxButNotAStdCell)
+  {
+    // Current module is not a black box, it at least has a assign statement.
+    _isABlackBoxButNotAStdCell = false;
+  }
 }
 
 void HierNetlistVisitor::visit(AstCell *nodep)
 {
-  if(_theTimesOfVisit == 3)
+  if(_theTimesOfVisit == 5)
   {
     _curSubmoduleName = nodep->modp()->prettyName();
     _curSubmoduleInstanceName = nodep->prettyName();
@@ -285,6 +321,11 @@ void HierNetlistVisitor::visit(AstCell *nodep)
       .portAssignmentsOfSubModuleInstances.push_back(
         _curSubModInsPortAssignmentsTmp);
     _curSubmoduleInstanceIndex++;
+  }
+  else if(_theTimesOfVisit == 1 && _isABlackBoxButNotAStdCell)
+  {
+    // Current module is not a black box, it at least has a sub module.
+    _isABlackBoxButNotAStdCell = false;
   }
 }
 

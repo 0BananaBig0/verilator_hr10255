@@ -13,17 +13,20 @@
 #include <unordered_set>
 
 void EmitHierNetlist::emitHierNetlists(std::vector<Module> &hierNetlist,
-                                       uint32_t &theNumberOfStdCellsShouldUse)
+                                       uint32_t &theNumberOfStdCellsShouldUse,
+                                       uint32_t &theNumberOfBlackBoxes)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlist = hierNetlistVisitor.getHierNetlist();
   theNumberOfStdCellsShouldUse =
     hierNetlistVisitor.getTheNumberOfStdCellsShouldUse();
+  theNumberOfBlackBoxes = hierNetlistVisitor.getTheNumberOfBlackBoxes();
 }
 
 void EmitHierNetlist::printHierNetlist(
   const std::vector<Module> &hierNetlist,
-  const uint32_t &theNumberOfStdCellsShouldUse, std::string fileName,
+  const uint32_t &theNumberOfStdCellsShouldUse,
+  const uint32_t &theNumberOfBlackBoxes, std::string fileName,
   const uint32_t hierMaxLevel)
 {
   std::ofstream ofs(fileName);
@@ -66,7 +69,7 @@ void EmitHierNetlist::printHierNetlist(
   {
     const auto &oneModule = hierNetlist[moduleIndex];
     totalCharactersEveryLine = 0;
-    if(oneModule.level <= hierMaxLevel)
+    if(oneModule.level <= hierMaxLevel || moduleIndex < theNumberOfBlackBoxes)
     { // Print one module declaration
       ofs << "module " << oneModule.moduleDefName << "(";
       totalCharactersEveryLine =
@@ -385,24 +388,22 @@ void EmitHierNetlist::printHierNetlist(
 }
 
 // Use case2 as a example to demonstrate.
-void EmitHierNetlist::emitFlattenedNetlists(
-  std::vector<Module> &hierNetlist, std::vector<Module> &flatNetlist,
-  uint32_t &theNumberOfStdCellsShouldUse)
+void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
+                                            std::vector<Module> &flatNetlist,
+                                            uint32_t &theNumberOfBlackBoxes)
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign
-  // statement; Sometimes, theNumberOfStdCellsShouldUse = 0.
+  // statement; Sometimes, theNumberOfBlackBoxes = 0.
   auto &theMostDepthLevelExcludingStdCells = hierNetlist.back().level;
   for(uint32_t moduleDefIndex = hierNetlist.size() - 1;
-      moduleDefIndex >= theNumberOfStdCellsShouldUse &&
-      moduleDefIndex != UINT_MAX;
+      moduleDefIndex >= theNumberOfBlackBoxes && moduleDefIndex != UINT_MAX;
       moduleDefIndex--)
   {
     // full_adder definition
     const auto &oneModuleH = hierNetlist[moduleDefIndex];
     auto &oneModuleF = flatNetlist[moduleDefIndex];
-    if((oneModuleH.level < theMostDepthLevelExcludingStdCells) &&
-       !(oneModuleH.subModuleDefIndex.empty() && oneModuleH.assigns.empty()))
+    if(oneModuleH.level < theMostDepthLevelExcludingStdCells)
     {
       oneModuleF.subModuleInstanceNames.clear();
       oneModuleF.subModuleDefIndex.clear();
@@ -411,10 +412,8 @@ void EmitHierNetlist::emitFlattenedNetlists(
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
       for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
       {
-        // subModule is a stdCell or a black box
-        if((subModuleDefIndex < theNumberOfStdCellsShouldUse) ||
-           (hierNetlist[subModuleDefIndex].subModuleDefIndex.empty() &&
-            hierNetlist[subModuleDefIndex].assigns.empty()))
+        // subModule is a stdCell or a other black box
+        if(subModuleDefIndex < theNumberOfBlackBoxes)
         {
           oneModuleF.subModuleInstanceNames.push_back(
             oneModuleH.subModuleInstanceNames[subModuleInstanceIndex]);
