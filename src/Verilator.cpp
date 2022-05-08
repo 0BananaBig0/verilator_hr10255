@@ -222,7 +222,7 @@ static void process()
     // 5,Print flattened netlist to a verilog file.
     EmitHierNetlist::printHierNetlist(
       flatNetlist, theNumberOfStdCellsShouldUse, theNumberOfBlackBoxes,
-      "FlatNetlist.v", hierNetlist[theNumberOfStdCellsShouldUse].level);
+      "FlatNetlist.v", hierNetlist[theNumberOfBlackBoxes].level);
   }
 }
 
