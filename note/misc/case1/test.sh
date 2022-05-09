@@ -7,3 +7,7 @@
 #This is a normal hierarchical netlist without vector.
 #!/bin/bash
 ../../../bin/verilator full_adder.v ../LibBlackbox.v --xml-only
+hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
+flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
+[ $hier ] && echo "In case1,$hier." && error=true
+[ $flat ] && echo "In case1,$flat." && error=true

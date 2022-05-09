@@ -8,3 +8,5 @@
 #Ast.
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit has_bigger_constant_value.v ../LibBlackbox.v --xml-only
+[ $hier ] && echo "In case6,$hier." && error=true
+[ $flat ] && echo "In case6,$flat." && error=true

@@ -8,3 +8,5 @@
 #Ast.
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit top_has_inout.v ../LibBlackbox.v --xml-only
+[ $hier ] && echo "In case5,$hier." && error=true
+[ $flat ] && echo "In case5,$flat." && error=true

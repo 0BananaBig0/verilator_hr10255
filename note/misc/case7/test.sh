@@ -8,3 +8,5 @@
 #Ast.
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit some_ports_empty.v ../LibBlackbox.v --xml-only
+[ $hier ] && echo "In case7,$hier." && error=true
+[ $flat ] && echo "In case7,$flat." && error=true
