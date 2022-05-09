@@ -27,12 +27,12 @@ class HierNetlistVisitor final : public VNVisitor
 
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
-    uint32_t _theNumberOfStdCellsShouldUse;
+    uint32_t _totalUsedStdCells;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
     std::string _curModuleName;
     uint32_t _curModuleIndex;
-    uint32_t _theNumberOfBlackBoxes;
-    std::unordered_set<std::string> _blackBoxNameExcludingStdCell;
+    uint32_t _totalUsedBlackBoxes;
+    std::unordered_set<std::string> _blackBoxesNameExcludingStdCells;
     bool _isABlackBoxButNotAStdCell;
 
     // AstVar
@@ -60,7 +60,7 @@ class HierNetlistVisitor final : public VNVisitor
     uint32_t _whichAstSelChildren = 0;
 
     // AstVarRef
-    MultipleBitsVarRef _multipleBitsVarRefTmp;
+    MultipleBitsRefVar _multipleBitsRefVarTmp;
 
   private:
     // All information we can get from this Ast tree by using the
@@ -107,8 +107,7 @@ class HierNetlistVisitor final : public VNVisitor
 
     // reuse some codes.
     char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
-                                         uint32_t &position,
-                                         bool &hasValueX) const;
+                                         uint32_t &position, bool &hasX) const;
 
     // Clear data and free ram
     template<typename T>
@@ -116,13 +115,13 @@ class HierNetlistVisitor final : public VNVisitor
 
   public:
     const std::vector<Module> &getHierNetlist() const { return _hierNetlist; };
-    const uint32_t &getTheNumberOfStdCellsShouldUse() const
+    const uint32_t &getTotalUsedStdCells() const
     {
-      return _theNumberOfStdCellsShouldUse;
+      return _totalUsedStdCells;
     };
-    const uint32_t &getTheNumberOfBlackBoxes() const
+    const uint32_t &getTotalUsedBlackBoxes() const
     {
-      return _theNumberOfBlackBoxes;
+      return _totalUsedBlackBoxes;
     };
 
   public:

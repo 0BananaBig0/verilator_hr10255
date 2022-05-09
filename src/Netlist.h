@@ -9,18 +9,21 @@
 #include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
 
-class EmitHierNetlist final
+class ProcessNetlist final
 {
   public:
-    static void emitHierNetlists(std::vector<Module> &hierNetlist,
-                                 uint32_t &theNumberOfStdCellsShouldUse,
-                                 uint32_t &theNumberOfBlackBoxes);
-    static void printHierNetlist(const std::vector<Module> &hierNetlist,
-                                 const uint32_t &theNumberOfStdCellsShouldUse,
-                                 const uint32_t &theNumberOfBlackBoxes,
-                                 const std::string fileName = "HierNetlist.v",
-                                 const uint32_t hierMaxLevel = UINT32_MAX);
-    static void emitFlattenedNetlists(std::vector<Module> &hierNetlist,
-                                      std::vector<Module> &flatNetlist,
-                                      uint32_t &theNumberOfBlackBoxes);
+    // Get a hierarchical netlist from ast
+    static void getHierNet(std::vector<Module> &hierNetlist,
+                           uint32_t &totalUsedStdCells,
+                           uint32_t &totalUsedBlackBoxes);
+    // Print a Netlist
+    static void printNetlist(const std::vector<Module> &hierNetlist,
+                             const uint32_t &totalUsedStdCells,
+                             const uint32_t &totalUsedBlackBoxes,
+                             const std::string fileName = "HierNetlist.v",
+                             const uint32_t maxHierLevel = UINT32_MAX);
+    // Flatten Hierarchical netlist
+    static void FlattenHierNet(std::vector<Module> &hierNetlist,
+                               std::vector<Module> &flatNetlist,
+                               uint32_t &totalUsedBlackBoxes);
 };

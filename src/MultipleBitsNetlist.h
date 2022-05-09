@@ -11,12 +11,12 @@
 #include <string>
 #include <vector>
 
-struct VarRefRange
+struct RefVarRange
 {
     // For example, C[end:start];
     uint32_t end, start;
 };
-struct ConstValueAndValueX
+struct ConstValueAndX
 {
     // For example, 10'd33, value = 33, valueX = 0, width = 10;
     // 9'bx01xz1x0z, value = 364, valueX = 309, width = 9 <=>
@@ -29,30 +29,30 @@ struct ConstValueAndValueX
     uint32_t value, valueX;
 };
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
-// MultipleBitsVarRef =Multiple Bits Variable Referenced
-struct MultipleBitsVarRef
+// MultipleBitsRefVar =Multiple Bits Referenced Variable
+struct MultipleBitsRefVar
 {
-    std::string varRefName = ""; // Variable Referenced Name
-    bool hasValueX = false;      // Are there value x or z?
+    std::string refVarName = ""; // Referenced Variable Name
+    bool hasX = false;           // Are there x or z?
     uint32_t width;
     union
     {
-        VarRefRange varRefRange;
-        ConstValueAndValueX constValueAndValueX;
+        RefVarRange refVarRange;
+        ConstValueAndX constValueAndX;
     };
-    // Only when width > 32 and varRefName = "", it will be used.
+    // Only when width > 32 and refVarName = "", it will be used.
     std::vector<V3NumberData::ValueAndX> biggerValue;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
 struct MultipleBitsPortAssignment
 {
     std::string portDefName; // Port Defined Name
-    std::vector<MultipleBitsVarRef> multipleBitsVarRefs;
+    std::vector<MultipleBitsRefVar> multipleBitsRefVars;
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...
 struct MultipleBitsAssignStatement
 {
-    MultipleBitsVarRef lValue;              // left value (locator value)
-    std::vector<MultipleBitsVarRef> rValue; // right value (read value)
+    MultipleBitsRefVar lValue;              // left value (locator value)
+    std::vector<MultipleBitsRefVar> rValue; // right value (read value)
 };

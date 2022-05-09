@@ -12,22 +12,21 @@
 #include <iostream>
 #include <unordered_set>
 
-void EmitHierNetlist::emitHierNetlists(std::vector<Module> &hierNetlist,
-                                       uint32_t &theNumberOfStdCellsShouldUse,
-                                       uint32_t &theNumberOfBlackBoxes)
+void ProcessNetlist::getHierNet(std::vector<Module> &hierNetlist,
+                                uint32_t &totalUsedStdCells,
+                                uint32_t &totalUsedBlackBoxes)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlist = hierNetlistVisitor.getHierNetlist();
-  theNumberOfStdCellsShouldUse =
-    hierNetlistVisitor.getTheNumberOfStdCellsShouldUse();
-  theNumberOfBlackBoxes = hierNetlistVisitor.getTheNumberOfBlackBoxes();
+  totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
+  totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
 }
 
-void EmitHierNetlist::printHierNetlist(
-  const std::vector<Module> &hierNetlist,
-  const uint32_t &theNumberOfStdCellsShouldUse,
-  const uint32_t &theNumberOfBlackBoxes, std::string fileName,
-  const uint32_t hierMaxLevel)
+void ProcessNetlist::printNetlist(const std::vector<Module> &hierNetlist,
+                                  const uint32_t &totalUsedStdCells,
+                                  const uint32_t &totalUsedBlackBoxes,
+                                  std::string fileName,
+                                  const uint32_t maxHierLevel)
 {
   std::ofstream ofs(fileName);
   bool shouldHaveEscapeCharacter;
@@ -62,14 +61,14 @@ void EmitHierNetlist::printHierNetlist(
     return false;
   };
   const uint32_t maxCharactersEveryLine = 80;
-  uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
+  uint32_t moduleIndex = totalUsedStdCells;
   // Every time print one module defintion
-  for(uint32_t moduleIndex = theNumberOfStdCellsShouldUse;
+  for(uint32_t moduleIndex = totalUsedStdCells;
       moduleIndex < hierNetlist.size(); moduleIndex++)
   {
     const auto &oneModule = hierNetlist[moduleIndex];
     totalCharactersEveryLine = 0;
-    if(oneModule.level <= hierMaxLevel || moduleIndex < theNumberOfBlackBoxes)
+    if(oneModule.level <= maxHierLevel || moduleIndex < totalUsedBlackBoxes)
     { // Print one module declaration
       ofs << "module " << oneModule.moduleDefName << "(";
       totalCharactersEveryLine =
@@ -148,21 +147,21 @@ void EmitHierNetlist::printHierNetlist(
       {
         ofs << "  assign ";
         if(haveVerilogKeyWordOrOperator(
-             oneModule.ports[oneAssign.lValue.varRefIndex].portDefName))
+             oneModule.ports[oneAssign.lValue.refVarDefIndex].portDefName))
         {
           shouldHaveEscapeCharacter = true;
           ofs << "\\";
         }
-        ofs << oneModule.ports[oneAssign.lValue.varRefIndex].portDefName;
+        ofs << oneModule.ports[oneAssign.lValue.refVarDefIndex].portDefName;
         if(shouldHaveEscapeCharacter)
         {
           ofs << " ";
           shouldHaveEscapeCharacter = false;
         }
-        if(oneAssign.lValue.varRefIndex != UINT_MAX)
+        if(oneAssign.lValue.refVarDefIndex != UINT_MAX)
         {
-          if(oneModule.ports[oneAssign.lValue.varRefIndex].isVector)
-            ofs << "[" << oneAssign.lValue.index << "]";
+          if(oneModule.ports[oneAssign.lValue.refVarDefIndex].isVector)
+            ofs << "[" << oneAssign.lValue.bitIndex << "]";
         }
         else
         {
@@ -171,7 +170,7 @@ void EmitHierNetlist::printHierNetlist(
         }
         ofs << " = ";
         // rValue is a consta value or x or z
-        if(oneAssign.rValue.varRefIndex == UINT_MAX)
+        if(oneAssign.rValue.refVarDefIndex == UINT_MAX)
         {
           switch(oneAssign.rValue.valueAndValueX)
           {
@@ -195,31 +194,31 @@ void EmitHierNetlist::printHierNetlist(
         else
         {
           if(haveVerilogKeyWordOrOperator(
-               oneModule.ports[oneAssign.rValue.varRefIndex].portDefName))
+               oneModule.ports[oneAssign.rValue.refVarDefIndex].portDefName))
           {
             shouldHaveEscapeCharacter = true;
             ofs << "\\";
           }
-          ofs << oneModule.ports[oneAssign.rValue.varRefIndex].portDefName;
+          ofs << oneModule.ports[oneAssign.rValue.refVarDefIndex].portDefName;
           if(shouldHaveEscapeCharacter)
           {
             ofs << " ";
             shouldHaveEscapeCharacter = false;
           }
-          if(oneModule.ports[oneAssign.rValue.varRefIndex].isVector)
-            ofs << "[" << oneAssign.rValue.index << "]";
+          if(oneModule.ports[oneAssign.rValue.refVarDefIndex].isVector)
+            ofs << "[" << oneAssign.rValue.bitIndex << "]";
         }
         ofs << ";" << std::endl;
       }
 
       // Every time print one submodule instance
-      uint32_t subModuleIndex = 0;
+      uint32_t subModuleInstanceIndex = 0;
       for(const auto &onesubModuleInstanceName:
           oneModule.subModuleInstanceNames)
       {
         totalCharactersEveryLine = 0;
         ofs << "  "
-            << hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
+            << hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
                  .moduleDefName
             << " ";
         if(haveVerilogKeyWordOrOperator(onesubModuleInstanceName))
@@ -231,16 +230,17 @@ void EmitHierNetlist::printHierNetlist(
             << "(";
         totalCharactersEveryLine =
           totalCharactersEveryLine + 5 +
-          hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
+          hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
             .moduleDefName.size() +
           onesubModuleInstanceName.size();
         // Every time print one port assignment
         uint32_t portDefIndex = 0;
         for(const auto &onePortAssignment:
-            oneModule.portAssignmentsOfSubModuleInstances[subModuleIndex])
+            oneModule
+              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex])
         {
           if(totalCharactersEveryLine + 1 +
-               hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
+               hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
                  .ports[portDefIndex]
                  .portDefName.size() >
              maxCharactersEveryLine)
@@ -250,7 +250,7 @@ void EmitHierNetlist::printHierNetlist(
           }
           ofs << ".";
           if(haveVerilogKeyWordOrOperator(
-               hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
+               hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
                  .ports[portDefIndex]
                  .portDefName))
           {
@@ -258,9 +258,10 @@ void EmitHierNetlist::printHierNetlist(
             ofs << "\\";
             totalCharactersEveryLine++;
           }
-          ofs << hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
-                   .ports[portDefIndex]
-                   .portDefName;
+          ofs
+            << hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+                 .ports[portDefIndex]
+                 .portDefName;
           if(shouldHaveEscapeCharacter)
           {
             ofs << " ";
@@ -270,26 +271,26 @@ void EmitHierNetlist::printHierNetlist(
           ofs << "(";
           totalCharactersEveryLine =
             totalCharactersEveryLine + 2 +
-            hierNetlist[oneModule.subModuleDefIndex[subModuleIndex]]
+            hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
               .ports[portDefIndex]
               .portDefName.size();
-          if(onePortAssignment.varRefs.size() > 1)
+          if(onePortAssignment.refVars.size() > 1)
           {
             ofs << "{";
             totalCharactersEveryLine++;
           }
-          for(uint32_t indexOfVarRefs = onePortAssignment.varRefs.size();
-              indexOfVarRefs > 0; indexOfVarRefs--)
+          for(uint32_t indexOfRefVars = onePortAssignment.refVars.size();
+              indexOfRefVars > 0; indexOfRefVars--)
           {
-            auto &varRef = onePortAssignment.varRefs[indexOfVarRefs - 1];
-            if(varRef.varRefIndex == UINT_MAX)
+            auto &refVar = onePortAssignment.refVars[indexOfRefVars - 1];
+            if(refVar.refVarDefIndex == UINT_MAX)
             {
               if(totalCharactersEveryLine + 4 > maxCharactersEveryLine)
               {
                 ofs << std::endl << "      ";
                 totalCharactersEveryLine = 6;
               }
-              switch(varRef.valueAndValueX)
+              switch(refVar.valueAndValueX)
               {
               case ONE:
                 ofs << "1'b1";
@@ -311,11 +312,12 @@ void EmitHierNetlist::printHierNetlist(
             }
             else
             {
-              if(oneModule.ports[varRef.varRefIndex].isVector)
+              if(oneModule.ports[refVar.refVarDefIndex].isVector)
               {
                 if(totalCharactersEveryLine +
-                     oneModule.ports[varRef.varRefIndex].portDefName.size() +
-                     2 + getDecimalNumberLength(varRef.index) >
+                     oneModule.ports[refVar.refVarDefIndex]
+                       .portDefName.size() +
+                     2 + getDecimalNumberLength(refVar.bitIndex) >
                    maxCharactersEveryLine)
                 {
                   ofs << std::endl << "      ";
@@ -325,7 +327,8 @@ void EmitHierNetlist::printHierNetlist(
               else
               {
                 if(totalCharactersEveryLine +
-                     oneModule.ports[varRef.varRefIndex].portDefName.size() >
+                     oneModule.ports[refVar.refVarDefIndex]
+                       .portDefName.size() >
                    maxCharactersEveryLine)
                 {
                   ofs << std::endl << "      ";
@@ -333,39 +336,39 @@ void EmitHierNetlist::printHierNetlist(
                 }
               }
               if(haveVerilogKeyWordOrOperator(
-                   oneModule.ports[varRef.varRefIndex].portDefName))
+                   oneModule.ports[refVar.refVarDefIndex].portDefName))
               {
                 shouldHaveEscapeCharacter = true;
                 ofs << "\\";
                 totalCharactersEveryLine++;
               }
-              ofs << oneModule.ports[varRef.varRefIndex].portDefName;
+              ofs << oneModule.ports[refVar.refVarDefIndex].portDefName;
               totalCharactersEveryLine =
                 totalCharactersEveryLine +
-                oneModule.ports[varRef.varRefIndex].portDefName.size();
+                oneModule.ports[refVar.refVarDefIndex].portDefName.size();
               if(shouldHaveEscapeCharacter)
               {
                 ofs << " ";
                 totalCharactersEveryLine++;
                 shouldHaveEscapeCharacter = false;
               }
-              if(oneModule.ports[varRef.varRefIndex].isVector)
+              if(oneModule.ports[refVar.refVarDefIndex].isVector)
               {
-                ofs << "[" << varRef.index << "]";
+                ofs << "[" << refVar.bitIndex << "]";
                 totalCharactersEveryLine =
                   totalCharactersEveryLine + 2 +
-                  getDecimalNumberLength(varRef.index);
+                  getDecimalNumberLength(refVar.bitIndex);
               }
             }
             ofs << ",";
             totalCharactersEveryLine++;
           }
-          if(onePortAssignment.varRefs.size() >= 1)
+          if(onePortAssignment.refVars.size() >= 1)
           {
             ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
             totalCharactersEveryLine--;
           }
-          if(onePortAssignment.varRefs.size() > 1)
+          if(onePortAssignment.refVars.size() > 1)
           {
             ofs << "}";
             totalCharactersEveryLine++;
@@ -379,7 +382,7 @@ void EmitHierNetlist::printHierNetlist(
         ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one " "
         ofs << ");";
         ofs << std::endl;
-        subModuleIndex++;
+        subModuleInstanceIndex++;
       }
       ofs << "endmodule" << std::endl << std::endl;
     }
@@ -388,22 +391,22 @@ void EmitHierNetlist::printHierNetlist(
 }
 
 // Use case2 as a example to demonstrate.
-void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
-                                            std::vector<Module> &flatNetlist,
-                                            uint32_t &theNumberOfBlackBoxes)
+void ProcessNetlist::FlattenHierNet(std::vector<Module> &hierNetlist,
+                                    std::vector<Module> &flatNetlist,
+                                    uint32_t &totalUsedBlackBoxes)
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign
-  // statement; Sometimes, theNumberOfBlackBoxes = 0.
-  auto &theMostDepthLevelExcludingStdCells = hierNetlist.back().level;
+  // statement; Sometimes, totalUsedBlackBoxes = 0.
+  auto &theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level;
   for(uint32_t moduleDefIndex = hierNetlist.size() - 1;
-      moduleDefIndex >= theNumberOfBlackBoxes && moduleDefIndex != UINT_MAX;
+      moduleDefIndex >= totalUsedBlackBoxes && moduleDefIndex != UINT_MAX;
       moduleDefIndex--)
   {
     // full_adder definition
     const auto &oneModuleH = hierNetlist[moduleDefIndex];
     auto &oneModuleF = flatNetlist[moduleDefIndex];
-    if(oneModuleH.level < theMostDepthLevelExcludingStdCells)
+    if(oneModuleH.level < theMostDepthLevelExcludingBlackBoxes)
     {
       oneModuleF.subModuleInstanceNames.clear();
       oneModuleF.subModuleDefIndex.clear();
@@ -412,8 +415,8 @@ void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
       for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
       {
-        // subModule is a stdCell or a other black box
-        if(subModuleDefIndex < theNumberOfBlackBoxes)
+        // subModule is a stdCell or an other black box
+        if(subModuleDefIndex < totalUsedBlackBoxes)
         {
           oneModuleF.subModuleInstanceNames.push_back(
             oneModuleH.subModuleInstanceNames[subModuleInstanceIndex]);
@@ -423,7 +426,7 @@ void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
               .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex]);
         }
         else
-        { // U1, subModule is not a stdCell
+        { // U1, subModule is not a stdCell nor an other black box
           const std::string &subModuleInstanceName =
             oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
           // (.co(co), .a(a), .b(b), .ci(ci));
@@ -434,7 +437,7 @@ void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
           auto &oneSubModule = flatNetlist[subModuleDefIndex];
           uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
           uint32_t oneSubModuleWirePosition =
-            oneSubModule.theNumberOfPortExcludingWire;
+            oneSubModule.totalPortsExcludingWires;
           oneModuleF.ports.resize(oneModuleFPortsNumber +
                                   oneSubModule.ports.size() -
                                   oneSubModuleWirePosition);
@@ -451,100 +454,100 @@ void EmitHierNetlist::emitFlattenedNetlists(std::vector<Module> &hierNetlist,
             oneModuleF.subModuleDefIndex.end(),
             oneSubModule.subModuleDefIndex.begin(),
             oneSubModule.subModuleDefIndex.end());
-          uint32_t stdCellInstanceNameIndex = 0;
+          uint32_t blackBoxInstanceNameIndex = 0;
           // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
-          for(auto oneStdCellIns:
+          for(auto oneBlackBoxIns:
               oneSubModule.portAssignmentsOfSubModuleInstances)
           {
             // stdInstanceName i_0_0 becomes U1_i_0_0
             oneModuleF.subModuleInstanceNames.push_back(
-              oneSubModule.subModuleInstanceNames[stdCellInstanceNameIndex]);
-            stdCellInstanceNameIndex++;
+              oneSubModule.subModuleInstanceNames[blackBoxInstanceNameIndex]);
+            blackBoxInstanceNameIndex++;
             oneModuleF.subModuleInstanceNames.back().insert(0, "_");
             oneModuleF.subModuleInstanceNames.back().insert(
               0, subModuleInstanceName);
             // .A(a)
-            for(auto &portAssignmentOfStdCell: oneStdCellIns)
+            for(auto &portAssignmentOfBlackBox: oneBlackBoxIns)
             {
-              for(auto &oneVarRef: portAssignmentOfStdCell.varRefs)
+              for(auto &oneRefVar: portAssignmentOfBlackBox.refVars)
               {
-                // Now, oneVarRef is a wire
-                if(oneVarRef.varRefIndex >=
-                     oneSubModule.theNumberOfPortExcludingWire &&
-                   oneVarRef.varRefIndex < UINT_MAX)
+                // Now, oneRefVar is a wire
+                if(oneRefVar.refVarDefIndex >=
+                     oneSubModule.totalPortsExcludingWires &&
+                   oneRefVar.refVarDefIndex < UINT_MAX)
                 {
-                  oneVarRef.varRefIndex =
-                    oneVarRef.varRefIndex -
-                    oneSubModule.theNumberOfPortExcludingWire +
+                  oneRefVar.refVarDefIndex =
+                    oneRefVar.refVarDefIndex -
+                    oneSubModule.totalPortsExcludingWires +
                     oneModuleFPortsNumber;
                 }
-                // Now,oneVarRef is a input, output or inout
-                else if(oneVarRef.varRefIndex <
-                        oneSubModule.theNumberOfPortExcludingWire)
+                // Now,oneRefVar is a input, output or inout
+                else if(oneRefVar.refVarDefIndex <
+                        oneSubModule.totalPortsExcludingWires)
                 { // If the port of full_adder_co instance is empty.
-                  if(portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
-                       .varRefs.empty())
+                  if(portAssignmentsOfSubModuleInstance[oneRefVar
+                                                          .refVarDefIndex]
+                       .refVars.empty())
                   {
-                    portAssignmentOfStdCell.varRefs.clear();
+                    portAssignmentOfBlackBox.refVars.clear();
                   }
                   else
-                    oneVarRef =
-                      portAssignmentsOfSubModuleInstance[oneVarRef.varRefIndex]
-                        .varRefs[oneVarRef.index];
+                    oneRefVar =
+                      portAssignmentsOfSubModuleInstance[oneRefVar
+                                                           .refVarDefIndex]
+                        .refVars[oneRefVar.bitIndex];
                 }
-                // Now,oneVarRef is a const value or x or z
+                // Now,oneRefVar is a const value or x or z
                 // else{}
               }
             }
             oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
-              std::move(oneStdCellIns));
+              std::move(oneBlackBoxIns));
           }
           for(auto oneAssign: oneSubModule.assigns)
           {
             bool _curAssignConnectToEmptySignal = false;
-            if(oneAssign.lValue.varRefIndex >=
-                 oneSubModule.theNumberOfPortExcludingWire &&
-               oneAssign.lValue.varRefIndex < UINT_MAX)
+            if(oneAssign.lValue.refVarDefIndex >=
+                 oneSubModule.totalPortsExcludingWires &&
+               oneAssign.lValue.refVarDefIndex < UINT_MAX)
             {
-              oneAssign.lValue.varRefIndex =
-                oneAssign.lValue.varRefIndex -
-                oneSubModule.theNumberOfPortExcludingWire +
-                oneModuleFPortsNumber;
+              oneAssign.lValue.refVarDefIndex =
+                oneAssign.lValue.refVarDefIndex -
+                oneSubModule.totalPortsExcludingWires + oneModuleFPortsNumber;
             }
-            else if(oneAssign.lValue.varRefIndex <
-                    oneSubModule.theNumberOfPortExcludingWire)
+            else if(oneAssign.lValue.refVarDefIndex <
+                    oneSubModule.totalPortsExcludingWires)
             {
               if(portAssignmentsOfSubModuleInstance[oneAssign.lValue
-                                                      .varRefIndex]
-                   .varRefs.empty())
+                                                      .refVarDefIndex]
+                   .refVars.empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.lValue =
                   portAssignmentsOfSubModuleInstance[oneAssign.lValue
-                                                       .varRefIndex]
-                    .varRefs[oneAssign.lValue.index];
+                                                       .refVarDefIndex]
+                    .refVars[oneAssign.lValue.bitIndex];
             }
-            if(oneAssign.rValue.varRefIndex >=
-                 oneSubModule.theNumberOfPortExcludingWire &&
-               oneAssign.rValue.varRefIndex < UINT_MAX)
+            if(oneAssign.rValue.refVarDefIndex >=
+                 oneSubModule.totalPortsExcludingWires &&
+               oneAssign.rValue.refVarDefIndex < UINT_MAX)
             {
-              oneAssign.rValue.varRefIndex =
-                oneAssign.rValue.varRefIndex -
-                oneSubModule.theNumberOfPortExcludingWire +
-                oneModuleFPortsNumber;
+              oneAssign.rValue.refVarDefIndex =
+                oneAssign.rValue.refVarDefIndex -
+                oneSubModule.totalPortsExcludingWires + oneModuleFPortsNumber;
             }
-            else if(oneAssign.rValue.varRefIndex <
-                    oneSubModule.theNumberOfPortExcludingWire)
+            else if(oneAssign.rValue.refVarDefIndex <
+                    oneSubModule.totalPortsExcludingWires)
             {
               if(portAssignmentsOfSubModuleInstance[oneAssign.rValue
-                                                      .varRefIndex]
-                   .varRefs.empty())
+                                                      .refVarDefIndex]
+                   .refVars.empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.rValue =
                   portAssignmentsOfSubModuleInstance[oneAssign.rValue
-                                                       .varRefIndex]
-                    .varRefs[oneAssign.rValue.index];
+                                                       .refVarDefIndex]
+                    .refVars[oneAssign.rValue.bitIndex];
             }
             if(_curAssignConnectToEmptySignal)
               _curAssignConnectToEmptySignal = false;

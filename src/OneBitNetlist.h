@@ -40,7 +40,7 @@ struct PortDefinition
     // output of submodule only once. And this port can be input of
     // another module.
     // If A is the parent of B, then B is one child of A.
-    std::vector<uint32_t> whichInstanceOutput;
+    // std::vector<uint32_t> whichInstanceOutput;
     // For example, wire[3:0] w;w[0] and w[1] is the output of U0,
     // w[2] and w[3] is the output of U1;
     // the result of whichInstanceOutput is:
@@ -48,17 +48,17 @@ struct PortDefinition
     // InstanceIndex   0 0 1 1
 };
 
-// VarRef = Variable Referenced
+// RefVar = Referenced Variable
 // Everytime it stores only one bit information, for example, C[1], ci, 1'b0,
 // not store C[3:0], which will be broken into C[3], C[2], C[1], C[0].
-struct VarRef
+struct RefVar
 {
-    // Variable Referenced Index in std::vector<PortDefinition>
-    // If varRefIndex == UINT_MAX, it means it is a const value, X or Z.
-    uint32_t varRefIndex = UINT_MAX;
+    // Referenced Variable Definition Index in std::vector<PortDefinition>
+    // If refVarDefIndex == UINT_MAX, it means it is a const value, X or Z.
+    uint32_t refVarDefIndex = UINT_MAX;
     union
     {
-        uint32_t index; // Like C[1], index = 1;
+        uint32_t bitIndex; // Like C[1], bitIndex = 1;
         char valueAndValueX;
     };
 };
@@ -69,15 +69,15 @@ struct PortAssignment
 {
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
     // not store C[1:0],which will be broken into C[1], C[0]
-    std::vector<VarRef> varRefs;
+    std::vector<RefVar> refVars;
 };
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
 struct BitSlicedAssignStatement
 {
-    VarRef lValue; // left value (locator value)
-    VarRef rValue; // right value (read value)
+    RefVar lValue; // left value (locator value)
+    RefVar rValue; // right value (read value)
 };
 
 struct Module
@@ -89,7 +89,7 @@ struct Module
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
     std::vector<PortDefinition> ports;
-    uint32_t theNumberOfPortExcludingWire;
+    uint32_t totalPortsExcludingWires;
     std::vector<BitSlicedAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
      * *********************************************/
