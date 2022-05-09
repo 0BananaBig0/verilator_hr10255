@@ -1,0 +1,32 @@
+module vector_order(a,b);
+   input [3:0]a;
+   output [3:0]b;
+   wire [3:0]c;
+   wire [3:0]c1;
+   wire [2:0]c2;
+  assign c[3] = a[3];
+  assign c[2] = a[2];
+  assign c[1] = a[1];
+  assign c[0] = a[0];
+  assign c1[3] = a[3];
+  assign c1[2] = a[2];
+  assign c1[1] = a[1];
+  assign c1[0] = a[0];
+  assign c2[2] = a[3];
+  assign c2[1] = a[2];
+  assign c2[0] = a[1];
+  assign b[1] = 1'b0;
+  assign b[0] = 1'b0;
+  assign b[2] = 1'b0;
+  assign b[3] = c2[2];
+  assign c[0] = c2[1];
+  assign c[1] = 1'b0;
+  assign c1[0] = 1'b0;
+  assign c1[1] = 1'b0;
+  assign c1[3] = a[3];
+  assign c1[2] = a[2];
+  assign c2[2] = a[0];
+  assign c2[1] = a[1];
+  assign c2[0] = c[3];
+endmodule
+
