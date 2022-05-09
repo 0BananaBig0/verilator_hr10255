@@ -208,21 +208,21 @@ static void process()
   {
     // V3EmitXml::emitxml();
     // 1,Create vector to store hierarchical netlist.
-    uint32_t theNumberOfStdCellsShouldUse, theNumberOfBlackBoxes;
+    uint32_t totalUsedStdCells, totalUsedBlackBoxes;
     std::vector<Module> hierNetlist, flatNetlist;
-    // 2,Obtain hierarchical netlist from AST.
-    EmitHierNetlist::emitHierNetlists(
-      hierNetlist, theNumberOfStdCellsShouldUse, theNumberOfBlackBoxes);
-    // 3,Print hierarchical netlist to a verilog file.
-    EmitHierNetlist::printHierNetlist(
-      hierNetlist, theNumberOfStdCellsShouldUse, theNumberOfBlackBoxes);
-    // 4,Flatten hierarchical netlist
-    EmitHierNetlist::emitFlattenedNetlists(hierNetlist, flatNetlist,
-                                           theNumberOfBlackBoxes);
-    // 5,Print flattened netlist to a verilog file.
-    EmitHierNetlist::printHierNetlist(
-      flatNetlist, theNumberOfStdCellsShouldUse, theNumberOfBlackBoxes,
-      "FlatNetlist.v", hierNetlist[theNumberOfBlackBoxes].level);
+    // 2,Obtain a hierarchical netlist from AST.
+    ProcessNetlist::getHierNet(hierNetlist, totalUsedStdCells,
+                               totalUsedBlackBoxes);
+    // 3,Print a hierarchical netlist to a verilog file.
+    ProcessNetlist::printNetlist(hierNetlist, totalUsedStdCells,
+                                 totalUsedBlackBoxes);
+    // 4,Flatten a hierarchical netlist
+    ProcessNetlist::FlattenHierNet(hierNetlist, flatNetlist,
+                                   totalUsedBlackBoxes);
+    // 5,Print a flattened netlist to a verilog file.
+    ProcessNetlist::printNetlist(flatNetlist, totalUsedStdCells,
+                                 totalUsedBlackBoxes, "FlatNetlist.v",
+                                 hierNetlist[totalUsedBlackBoxes].level);
   }
 }
 
