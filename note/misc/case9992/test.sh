@@ -7,3 +7,5 @@
 #This is a complicated example.
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit --language 1364-2005 -Wno-litendian -Od -Wno-assignin --xml-only openmsp430_oasys_2021_h.syn.v ../LibBlackbox.v
+[ $hier ] && echo "In case9992,$hier." && error=true
+[ $flat ] && echo "In case9992,$flat." && error=true

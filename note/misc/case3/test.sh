@@ -7,3 +7,5 @@
 #This a hierarchical netlist which has a blackbox that is not a standard cell.
 #!/bin/bash
 ../../../bin/verilator blackbox.v ../LibBlackbox.v --xml-only
+[ $hier ] && echo "In case3,$hier." && error=true
+[ $flat ] && echo "In case3,$flat." && error=true
