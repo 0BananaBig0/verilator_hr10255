@@ -48,7 +48,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   freeContainerBySwap(_curModuleName);
   freeContainerBySwap(_portNameMapPortDefIndexs);
   freeContainerBySwap(_portNameMapPortDefIndex.ports);
-  freeContainerBySwap(wires);
   freeContainerBySwap(_curSubmoduleName);
   freeContainerBySwap(_curSubmoduleInstanceName);
   freeContainerBySwap(_multipleBitsAssignStatementTmp.lValue.biggerValue);
@@ -94,24 +93,25 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // Initial value for all ports of every module.
       _portNameMapPortDefIndex.ports.clear();
       _curPortDefIndex = 0;
-      wires.clear();
-      // Initial value
+      // visit input
+      _theTimesOfVisitAstVar = 1;
+      iterateChildren(nodep);
+      // visit inout
+      _theTimesOfVisitAstVar = 2;
+      iterateChildren(nodep);
+      // visit output
+      _theTimesOfVisitAstVar = 3;
       iterateChildren(nodep);
       _hierNetlist[_curModuleIndex].totalPortsExcludingWires =
         _curPortDefIndex;
-      // Make sure store wires at the end of ports.
-      _hierNetlist[_curModuleIndex].ports.insert(
-        _hierNetlist[_curModuleIndex].ports.end(), wires.begin(), wires.end());
-      for(const auto &wire: wires)
-      {
-        // Create LUT for wires
-        _portNameMapPortDefIndex.ports[wire.portDefName] = _curPortDefIndex;
-        _curPortDefIndex++;
-      }
+      // visit wire
+      _theTimesOfVisitAstVar = 4;
+      iterateChildren(nodep);
       // Store LUT, the number of SubModuleInstance.
       _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
       // Prepare for the next visit to AstModule.
       _curModuleIndex++;
+      _theTimesOfVisitAstVar = 0;
     };
     // The second time visit
     if(_theTimesOfVisit == 2 && inLibrary)
@@ -152,12 +152,6 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     {
       return;
     }
-    portDefinition.portDefName = nodep->prettyName();
-    if(nodep->basicp() && nodep->basicp()->width() != 1)
-    {
-      portDefinition.isVector = true;
-      portDefinition.bitWidth = nodep->basicp()->width();
-    }
     if(nodep->isIO())
     {
       switch(nodep->direction())
@@ -185,14 +179,22 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     {
       portDefinition.portType = PortType::WIRE;
     }
-    if(portDefinition.portType == PortType::WIRE)
+    if((portDefinition.portType == PortType::INPUT &&
+        _theTimesOfVisitAstVar == 1) ||
+       (portDefinition.portType == PortType::INOUT &&
+        _theTimesOfVisitAstVar == 2) ||
+       (portDefinition.portType == PortType::OUTPUT &&
+        _theTimesOfVisitAstVar == 3) ||
+       (portDefinition.portType == PortType::WIRE &&
+        _theTimesOfVisitAstVar == 4))
     {
-      // Store wire definition
-      wires.push_back(std::move(portDefinition));
-    }
-    else
-    {
-      // Create LUT excluding wires
+      portDefinition.portDefName = nodep->prettyName();
+      if(nodep->basicp() && nodep->basicp()->width() != 1)
+      {
+        portDefinition.isVector = true;
+        portDefinition.bitWidth = nodep->basicp()->width();
+      }
+      // Create LUT
       _portNameMapPortDefIndex.ports[portDefinition.portDefName] =
         _curPortDefIndex;
       _curPortDefIndex++;
