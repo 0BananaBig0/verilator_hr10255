@@ -8,7 +8,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceRoot}/bin/verilator_bin_dbg",
-        "args": ["-Wno-implicit","--xml-only","--language","1364-2005","-Wno-litendian","-Od","-Wno-assignin","${workspaceRoot}/note/misc/case6/ripple_adder_oasys_2021_h_modified.syn.v","${workspaceRoot}/note/misc/LibBlackbox.v"],
+        "args": ["-Wno-implicit","--xml-only","--language","1364-2005","-Wno-litendian","-Od","-Wno-assignin","${workspaceRoot}/note/misc/case0/ripple_adder_modified.v","${workspaceRoot}/note/misc/LibBlackbox.v"],
         "cwd": "${workspaceRoot}",
         "environment": [],
         "externalConsole": true,
