@@ -7,6 +7,6 @@
 #This a complicated example, which contains a variety of situations to help us understand
 #Ast.
 #!/bin/bash
-../../../bin/verilator -Wno-implicit has_valueX_and_valueZ.v ../LibBlackbox.v --xml-only
-[ $hier ] && echo "In case8,$hier." && error=true
-[ $flat ] && echo "In case8,$flat." && error=true
+../../../bin/verilator -Wno-implicit instance_no_port_name.v ../LibBlackbox.v --xml-only
+[ $hier ] && echo "In case6,$hier." && error=true
+[ $flat ] && echo "In case6,$flat." && error=true
