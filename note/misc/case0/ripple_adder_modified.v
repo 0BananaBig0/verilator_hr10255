@@ -6,10 +6,10 @@
 /* CheckSum: 3136148508 */
 
 module full_adder_co(co, a, b, ci);
-   output co;
    input a;
    input b;
    input ci;
+   output co;
 
    wire \n_0[0] ;
    wire \n_0[1] ;
@@ -25,10 +25,10 @@ module full_adder_co(co, a, b, ci);
 endmodule
 
 module full_adder_sum(sum, a, b, ci);
-   output sum;
    input a;
    input b;
    input ci;
+   output sum;
 
    wire [15:0]\DC_output[2] ;
    wire [15:0]\DC_output[1] ;
@@ -39,11 +39,11 @@ module full_adder_sum(sum, a, b, ci);
 endmodule
 
 module full_adder(co, sum, a, b, ci);
-   output co;
-   output sum;
    input a;
    input b;
    input ci;
+   output co;
+   output sum;
    wire d;
    assign d = 1'b0;
 
@@ -52,11 +52,11 @@ module full_adder(co, sum, a, b, ci);
 endmodule
 
 module ripple_adder(co, SUM, A, B, ci);
-   output co;
-   output [3:0]SUM;
    input [3:0]A;
    input [3:0]B;
    input ci;
+   output co;
+   output [3:0]SUM;
 
    wire [4:0]C;
    wire d;
@@ -70,11 +70,11 @@ endmodule
 
 module ripple_adder_twelve(co, SUM, A, B, ci);
    parameter n = 12;
-   output co;
-   output [n-1:0]SUM;
    input [n-1:0]A;
    input [n-1:0]B;
    input ci;
+   output co;
+   output [n-1:0]SUM;
 
    wire [2:0]C;
 
@@ -88,12 +88,12 @@ endmodule
 
 module top(co, cco, SUM, A, B, ci);
    parameter n = 24;
-   output co;
-   inout cco;
-   output [n+5:0]SUM;
    input [n-1:0]A;
    input [n-1:0]B;
    input ci;
+   inout cco;
+   output co;
+   output [n+5:0]SUM;
 
    wire[9:0]C;
    wire[12:0]con;

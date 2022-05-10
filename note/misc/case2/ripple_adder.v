@@ -6,10 +6,10 @@
 /* CheckSum: 3136148508 */
 
 module full_adder_co(co, a, b, ci);
-   output co;
    input a;
    input b;
    input ci;
+   output co;
 
    wire n_0_0;
    wire n_0_1;
@@ -23,10 +23,10 @@ module full_adder_co(co, a, b, ci);
 endmodule
 
 module full_adder_sum(sum, a, b, ci);
-   output sum;
    input a;
    input b;
    input ci;
+   output sum;
 
    wire n_0_0;
 
@@ -35,22 +35,22 @@ module full_adder_sum(sum, a, b, ci);
 endmodule
 
 module full_adder(co, sum, a, b, ci);
-   output co;
-   output sum;
    input a;
    input b;
    input ci;
+   output co;
+   output sum;
 
    full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
    full_adder_sum U0 (.sum(sum), .a(a), .b(b), .ci(ci));
 endmodule
 
 module ripple_adder(co, SUM, A, B, ci);
-   output co;
-   output [3:0]SUM;
    input [3:0]A;
    input [3:0]B;
    input ci;
+   output co;
+   output [3:0]SUM;
 
    wire [4:0]C;
 

@@ -1,10 +1,10 @@
-module top(co,cco,SUM,A,B,ci);
-   output co;
-   inout cco;
-   output [29:0]SUM;
+module top(A,B,ci,cco,co,SUM);
    input [23:0]A;
    input [23:0]B;
    input ci;
+   inout cco;
+   output co;
+   output [29:0]SUM;
    wire [9:0]C;
    wire [12:0]con;
    wire [3:0]con0;
@@ -507,99 +507,98 @@ module top(co,cco,SUM,A,B,ci);
   assign llongv[2] = 1'b0;
   assign llongv[1] = 1'b0;
   assign llongv[0] = 1'b1;
-  ripple_adder_twelve U1 (.co(C[5]), .SUM({SUM[13],SUM[12],SUM[11],SUM[10],
-      SUM[9],SUM[8],SUM[7],SUM[6],SUM[5],SUM[4],SUM[3],SUM[2]}), .A({1'b0,1'b1,
-      1'b0,1'b1,A[1],A[3],1'b0,A[8],A[7],A[6],A[5],A[4]}), .B({1'b0,1'b0,1'b1,
-      1'b1,B[0],B[11],B[10],B[9],B[22],B[21],B[20],B[19]}), .ci(C[9]));
-  ripple_adder_twelve U2 (.co(C[6]), .SUM({SUM[25],SUM[24],SUM[23],SUM[22],
-      SUM[21],SUM[20],SUM[19],SUM[18],SUM[17],SUM[16],SUM[15],SUM[14]}), .A({A[0],
-      A[2],A[18],A[17],A[16],A[15],A[14],A[13],A[12],A[11],A[10],A[9]}), .B({
-      B[8],B[7],B[6],B[5],B[4],B[18],B[17],B[16],B[15],B[14],B[13],B[12]}), .ci(
-      C[5]));
-  full_adder U3 (.co(C[1]), .sum(SUM[0]), .a(1'b1), .b(1'b0), .ci(C[2]));
-  full_adder U4 (.co(C[9]), .sum(SUM[1]), .a(C[0]), .b(C[3]), .ci(C[1]));
-  full_adder_co U5 (.co(C[7]), .a(A[23]), .b(B[23]), .ci(cci));
-  ripple_adder U6 (.co(C[8]), .SUM({SUM[29],SUM[28],SUM[27],SUM[26]}), .A({A[22],
-      A[21],A[20],A[19]}), .B({B[3],B[2],B[1],1'b1}), .ci(C[0]));
-  SDFF_X1_LVT U7 (.Q(), .QN(), .CK(1'b1), .D(), .SE(1'b0), .SI(1'b1));
-  ripple_adder U8 (.co(), .SUM(), .A({1'b0,1'b0,ci,1'b0}), .B({1'b0,ci,1'b1,1'b1}), 
-      .ci());
-  ripple_adder_twelve U9 (.co(), .SUM(), .A({1'b0,1'b0,ci,ci,1'b0,1'b0,ci,ci,
-      1'b0,1'b0,ci,ci}), .B({1'b0,1'bz,ci,1'bx,1'b0,1'b1,1'bx,1'bz,1'b1,1'bx,
-      1'b0,1'bz}), .ci(1'bz));
+  ripple_adder_twelve U1 (.A({1'b0,1'b1,1'b0,1'b1,A[1],A[3],1'b0,A[8],A[7],A[6],
+      A[5],A[4]}), .B({1'b0,1'b0,1'b1,1'b1,B[0],B[11],B[10],B[9],B[22],B[21],
+      B[20],B[19]}), .ci(C[9]), .co(C[5]), .SUM({SUM[13],SUM[12],SUM[11],SUM[10],
+      SUM[9],SUM[8],SUM[7],SUM[6],SUM[5],SUM[4],SUM[3],SUM[2]}));
+  ripple_adder_twelve U2 (.A({A[0],A[2],A[18],A[17],A[16],A[15],A[14],A[13],A[12],
+      A[11],A[10],A[9]}), .B({B[8],B[7],B[6],B[5],B[4],B[18],B[17],B[16],B[15],
+      B[14],B[13],B[12]}), .ci(C[5]), .co(C[6]), .SUM({SUM[25],SUM[24],SUM[23],
+      SUM[22],SUM[21],SUM[20],SUM[19],SUM[18],SUM[17],SUM[16],SUM[15],SUM[14]}));
+  full_adder U3 (.a(1'b1), .b(1'b0), .ci(C[2]), .co(C[1]), .sum(SUM[0]));
+  full_adder U4 (.a(C[0]), .b(C[3]), .ci(C[1]), .co(C[9]), .sum(SUM[1]));
+  full_adder_co U5 (.a(A[23]), .b(B[23]), .ci(cci), .co(C[7]));
+  ripple_adder U6 (.A({A[22],A[21],A[20],A[19]}), .B({B[3],B[2],B[1],1'b1}), .ci(
+      C[0]), .co(C[8]), .SUM({SUM[29],SUM[28],SUM[27],SUM[26]}));
+  SDFF_X1_LVT U7 (.CK(1'b1), .D(), .SE(1'b0), .SI(1'b1), .Q(), .QN());
+  ripple_adder U8 (.A({1'b0,1'b0,ci,1'b0}), .B({1'b0,ci,1'b1,1'b1}), .ci(), .co(), 
+      .SUM());
+  ripple_adder_twelve U9 (.A({1'b0,1'b0,ci,ci,1'b0,1'b0,ci,ci,1'b0,1'b0,ci,ci}), 
+      .B({1'b0,1'bz,ci,1'bx,1'b0,1'b1,1'bx,1'bz,1'b1,1'bx,1'b0,1'bz}), .ci(1'bz), 
+      .co(), .SUM());
 endmodule
 
-module ripple_adder_twelve(co,SUM,A,B,ci);
-   output co;
-   output [11:0]SUM;
+module ripple_adder_twelve(A,B,ci,co,SUM);
    input [11:0]A;
    input [11:0]B;
    input ci;
+   output co;
+   output [11:0]SUM;
    wire [2:0]C;
    wire c_no_defined;
   assign C[0] = ci;
   assign co = c_no_defined;
-  ripple_adder U0 (.co(C[1]), .SUM({SUM[3],SUM[2],SUM[1],SUM[0]}), .A({A[3],A[2],
-      A[1],A[0]}), .B({B[3],B[2],B[1],B[0]}), .ci(C[0]));
-  ripple_adder U1 (.co(C[2]), .SUM({SUM[7],SUM[6],SUM[5],SUM[4]}), .A({A[7],A[6],
-      A[5],A[4]}), .B({B[7],B[6],B[5],B[4]}), .ci(C[1]));
-  ripple_adder U2 (.co(c_no_defined), .SUM({SUM[11],SUM[10],SUM[9],SUM[8]}), .A({
-      A[11],A[10],A[9],A[8]}), .B({B[11],B[10],B[9],B[8]}), .ci(C[2]));
+  ripple_adder U0 (.A({A[3],A[2],A[1],A[0]}), .B({B[3],B[2],B[1],B[0]}), .ci(C[0]), 
+      .co(C[1]), .SUM({SUM[3],SUM[2],SUM[1],SUM[0]}));
+  ripple_adder U1 (.A({A[7],A[6],A[5],A[4]}), .B({B[7],B[6],B[5],B[4]}), .ci(
+      C[1]), .co(C[2]), .SUM({SUM[7],SUM[6],SUM[5],SUM[4]}));
+  ripple_adder U2 (.A({A[11],A[10],A[9],A[8]}), .B({B[11],B[10],B[9],B[8]}), .ci(
+      C[2]), .co(c_no_defined), .SUM({SUM[11],SUM[10],SUM[9],SUM[8]}));
 endmodule
 
-module ripple_adder(co,SUM,A,B,ci);
-   output co;
-   output [3:0]SUM;
+module ripple_adder(A,B,ci,co,SUM);
    input [3:0]A;
    input [3:0]B;
    input ci;
+   output co;
+   output [3:0]SUM;
    wire [4:0]C;
    wire d;
   assign d = 1'b0;
-  full_adder U0 (.co(C[1]), .sum(SUM[0]), .a(A[0]), .b(B[0]), .ci(ci));
-  full_adder U1 (.co(C[2]), .sum(SUM[1]), .a(A[1]), .b(B[1]), .ci(C[1]));
-  full_adder U2 (.co(C[3]), .sum(SUM[2]), .a(A[2]), .b(B[2]), .ci(C[2]));
-  full_adder U3 (.co(co), .sum(SUM[3]), .a(A[3]), .b(B[3]), .ci(C[3]));
+  full_adder U0 (.a(A[0]), .b(B[0]), .ci(ci), .co(C[1]), .sum(SUM[0]));
+  full_adder U1 (.a(A[1]), .b(B[1]), .ci(C[1]), .co(C[2]), .sum(SUM[1]));
+  full_adder U2 (.a(A[2]), .b(B[2]), .ci(C[2]), .co(C[3]), .sum(SUM[2]));
+  full_adder U3 (.a(A[3]), .b(B[3]), .ci(C[3]), .co(co), .sum(SUM[3]));
 endmodule
 
-module full_adder(co,sum,a,b,ci);
+module full_adder(a,b,ci,co,sum);
+   input a;
+   input b;
+   input ci;
    output co;
    output sum;
-   input a;
-   input b;
-   input ci;
    wire d;
   assign d = 1'b0;
-  full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
-  full_adder_sum U0 (.sum(sum), .a(a), .b(b), .ci(ci));
+  full_adder_co U1 (.a(a), .b(b), .ci(ci), .co(co));
+  full_adder_sum U0 (.a(a), .b(b), .ci(ci), .sum(sum));
 endmodule
 
-module full_adder_co(co,a,b,ci);
-   output co;
+module full_adder_co(a,b,ci,co);
    input a;
    input b;
    input ci;
+   output co;
    wire \n_0[0] ;
    wire \n_0[1] ;
    wire \n_0[2] ;
    wire d;
   assign d = 1'b0;
-  INV_X1_LVT i_0_0 (.ZN(\n_0[0] ), .A(a));
-  INV_X1_LVT i_0_1 (.ZN(\n_0[1] ), .A(b));
-  INV_X1_LVT i_0_2 (.ZN(\n_0[2] ), .A(ci));
-  OAI222_X1_LVT i_0_3 (.ZN(co), .A1(\n_0[0] ), .A2(\n_0[1] ), .B1(\n_0[1] ), .B2(
-      \n_0[2] ), .C1(\n_0[0] ), .C2(\n_0[2] ));
+  INV_X1_LVT i_0_0 (.A(a), .ZN(\n_0[0] ));
+  INV_X1_LVT i_0_1 (.A(b), .ZN(\n_0[1] ));
+  INV_X1_LVT i_0_2 (.A(ci), .ZN(\n_0[2] ));
+  OAI222_X1_LVT i_0_3 (.A1(\n_0[0] ), .A2(\n_0[1] ), .B1(\n_0[1] ), .B2(\n_0[2] ), 
+      .C1(\n_0[0] ), .C2(\n_0[2] ), .ZN(co));
 endmodule
 
-module full_adder_sum(sum,a,b,ci);
-   output sum;
+module full_adder_sum(a,b,ci,sum);
    input a;
    input b;
    input ci;
+   output sum;
    wire [15:0]\DC_output[2] ;
    wire [15:0]\DC_output[1] ;
   assign \DC_output[2] [14] = 1'b0;
-  XNOR2_X1_LVT i_0_0 (.ZN(\DC_output[1] [15]), .A(a), .B(ci));
-  XNOR2_X1_LVT i_0_1 (.ZN(sum), .A(\DC_output[1] [15]), .B(b));
+  XNOR2_X1_LVT i_0_0 (.A(a), .B(ci), .ZN(\DC_output[1] [15]));
+  XNOR2_X1_LVT i_0_1 (.A(\DC_output[1] [15]), .B(b), .ZN(sum));
 endmodule
 
