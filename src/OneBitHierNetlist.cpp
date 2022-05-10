@@ -96,9 +96,11 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // visit input
       _theTimesOfVisitAstVar = 1;
       iterateChildren(nodep);
+      _hierNetlist[_curModuleIndex].totalInputs = _curPortDefIndex;
       // visit inout
       _theTimesOfVisitAstVar = 2;
       iterateChildren(nodep);
+      _hierNetlist[_curModuleIndex].totalInputsAndInouts = _curPortDefIndex;
       // visit output
       _theTimesOfVisitAstVar = 3;
       iterateChildren(nodep);
