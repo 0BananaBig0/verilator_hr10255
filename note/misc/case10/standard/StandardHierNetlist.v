@@ -49,20 +49,20 @@ module submodule(A,B,C);
    input [11:0]A;
    input [11:0]B;
    output [11:0]C;
-  INV_X1_LVT i_0_0 (.ZN(C[0]), .A(A[0]));
-  INV_X1_LVT i_0_1 (.ZN(C[1]), .A(B[0]));
-  INV_X1_LVT i_0_2 (.ZN(C[2]), .A(B[1]));
-  OAI222_X1_LVT i_0_3 (.ZN(C[3]), .A1(A[1]), .A2(A[2]), .B1(B[1]), .B2(B[2]), 
-      .C1(A[3]), .C2(B[3]));
-  INV_X1_LVT i_1_0 (.ZN(C[4]), .A(A[4]));
-  INV_X1_LVT i_1_1 (.ZN(C[5]), .A(B[4]));
-  INV_X1_LVT i_1_2 (.ZN(C[6]), .A(B[5]));
-  OAI222_X1_LVT i_1_3 (.ZN(C[7]), .A1(A[5]), .A2(A[6]), .B1(B[5]), .B2(B[6]), 
-      .C1(A[7]), .C2(B[7]));
-  INV_X1_LVT i_2_0 (.ZN(C[8]), .A(A[8]));
-  INV_X1_LVT i_2_1 (.ZN(C[9]), .A(B[8]));
-  INV_X1_LVT i_2_2 (.ZN(C[10]), .A(B[9]));
-  OAI222_X1_LVT i_2_3 (.ZN(C[11]), .A1(A[9]), .A2(A[10]), .B1(B[9]), .B2(B[10]), 
-      .C1(A[11]), .C2(B[11]));
+  INV_X1_LVT i_0_0 (.A(A[0]), .ZN(C[0]));
+  INV_X1_LVT i_0_1 (.A(B[0]), .ZN(C[1]));
+  INV_X1_LVT i_0_2 (.A(B[1]), .ZN(C[2]));
+  OAI222_X1_LVT i_0_3 (.A1(A[1]), .A2(A[2]), .B1(B[1]), .B2(B[2]), .C1(A[3]), 
+      .C2(B[3]), .ZN(C[3]));
+  INV_X1_LVT i_1_0 (.A(A[4]), .ZN(C[4]));
+  INV_X1_LVT i_1_1 (.A(B[4]), .ZN(C[5]));
+  INV_X1_LVT i_1_2 (.A(B[5]), .ZN(C[6]));
+  OAI222_X1_LVT i_1_3 (.A1(A[5]), .A2(A[6]), .B1(B[5]), .B2(B[6]), .C1(A[7]), 
+      .C2(B[7]), .ZN(C[7]));
+  INV_X1_LVT i_2_0 (.A(A[8]), .ZN(C[8]));
+  INV_X1_LVT i_2_1 (.A(B[8]), .ZN(C[9]));
+  INV_X1_LVT i_2_2 (.A(B[9]), .ZN(C[10]));
+  OAI222_X1_LVT i_2_3 (.A1(A[9]), .A2(A[10]), .B1(B[9]), .B2(B[10]), .C1(A[11]), 
+      .C2(B[11]), .ZN(C[11]));
 endmodule
 

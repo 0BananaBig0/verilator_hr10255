@@ -6,5 +6,7 @@
 #########################################################################
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit some_ports_empty.v ../LibBlackbox.v --xml-only
+hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
+flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
 [ $hier ] && echo "In case7,$hier." && error=true
 [ $flat ] && echo "In case7,$flat." && error=true

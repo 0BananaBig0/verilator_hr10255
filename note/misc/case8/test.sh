@@ -6,5 +6,7 @@
 #########################################################################
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit has_valueX_and_valueZ.v ../LibBlackbox.v --xml-only
+hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
+flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
 [ $hier ] && echo "In case8,$hier." && error=true
 [ $flat ] && echo "In case8,$flat." && error=true

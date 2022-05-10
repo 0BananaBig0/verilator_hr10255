@@ -7,5 +7,7 @@
 #This an example to test effect of the vector range, like a[l:r], l > r or l < r
 #!/bin/bash
 ../../../bin/verilator vector_order.v ../LibBlackbox.v --xml-only -Wno-litendian
+hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
+flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
 [ $hier ] && echo "In case4,$hier." && error=true
 [ $flat ] && echo "In case4,$flat." && error=true

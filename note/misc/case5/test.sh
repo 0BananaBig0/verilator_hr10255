@@ -8,5 +8,7 @@
 #Ast.
 #!/bin/bash
 ../../../bin/verilator -Wno-implicit top_has_inout.v ../LibBlackbox.v --xml-only
+hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
+flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
 [ $hier ] && echo "In case5,$hier." && error=true
 [ $flat ] && echo "In case5,$flat." && error=true

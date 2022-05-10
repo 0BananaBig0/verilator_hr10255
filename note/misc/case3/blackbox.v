@@ -8,8 +8,8 @@
 module BBTOP (a,b,c,d,e);
   input a,b,c;
   output d,e;
-  XOR2_X2_HVT XOR2_X2_HVT_U1(d,a,b);
-  XNOR2_X2_HVT XNOR2_X2_HVT_U2(e,b,c);
+  XOR2_X2_HVT XOR2_X2_HVT_U1(a,b,d);
+  XNOR2_X2_HVT XNOR2_X2_HVT_U2(b,c,e);
   blackbox blackbox_U1 (.a(),.b(),.c());
   full_adder_co full_adder_co_U1(.co(),.a(),.b(),.ci());
   assign_only assign_only_U1(.a(),.b());
@@ -22,10 +22,10 @@ module blackbox(a,b,c);
 endmodule;
 
 module full_adder_co(co, a, b, ci);
-   output co;
    input a;
    input b;
    input ci;
+   output co;
 
    wire \n_0[0] ;
    wire \n_0[1] ;
