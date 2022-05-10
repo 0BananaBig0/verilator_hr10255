@@ -39,7 +39,8 @@ class HierNetlistVisitor final : public VNVisitor
     std::vector<PortNameMapPortDefIndex> _portNameMapPortDefIndexs;
     PortNameMapPortDefIndex _portNameMapPortDefIndex;
     uint32_t _curPortDefIndex;
-    std::vector<PortDefinition> wires;
+    // 1: visit input, 2: visit inout, 3: visit output, 4: visit inout
+    uint32_t _theTimesOfVisitAstVar;
 
     // AstCell
     std::string _curSubmoduleName;
