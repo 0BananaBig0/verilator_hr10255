@@ -89,6 +89,8 @@ struct Module
     /*********************************** Netlist Definition Information(START)
      * *********************************************/
     std::vector<PortDefinition> ports;
+    uint32_t totalInputs;
+    uint32_t totalInputsAndInouts;
     uint32_t totalPortsExcludingWires;
     std::vector<BitSlicedAssignStatement> assigns;
     /*********************************** Netlist Definition Information(END)
