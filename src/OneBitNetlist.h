@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <string>
 #include <unistd.h>
+#include <unordered_set>
 #include <vector>
 
 #define ZERO char(0x00)
@@ -106,10 +107,4 @@ struct Module
       portAssignmentsOfSubModuleInstances;
     /*********************************** Netlist Instance Information(END)
      * *********************************************/
-
-  public:
-    // uint32_t inNum(bool onlyIn = false) const;
-    // uint32_t outNum(bool onlyOut = false) const;
-    // uint32_t inoutNum() const;
-    // uint32_t wireNum() const;
 };

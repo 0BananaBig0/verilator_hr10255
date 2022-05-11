@@ -6,7 +6,6 @@
  ************************************************************************/
 
 #pragma once
-#include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
 #include <cstdint>
 
