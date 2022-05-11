@@ -13,8 +13,8 @@
 #include <unordered_set>
 
 void VerilogNetlist::genHierNet(std::vector<Module> &hierNetlist,
-                         uint32_t &totalUsedStdCells,
-                         uint32_t &totalUsedBlackBoxes)
+                                uint32_t &totalUsedStdCells,
+                                uint32_t &totalUsedBlackBoxes)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlist = hierNetlistVisitor.getHierNetlist();
@@ -23,9 +23,10 @@ void VerilogNetlist::genHierNet(std::vector<Module> &hierNetlist,
 }
 
 void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
-                           const uint32_t &totalUsedStdCells,
-                           const uint32_t &totalUsedBlackBoxes,
-                           std::string fileName, const uint32_t maxHierLevel)
+                                  const uint32_t &totalUsedStdCells,
+                                  const uint32_t &totalUsedBlackBoxes,
+                                  std::string fileName,
+                                  const uint32_t maxHierLevel)
 {
   std::ofstream ofs(fileName);
   bool shouldHaveEscapeCharacter;
@@ -391,8 +392,8 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 
 // Use case2 as a example to demonstrate.
 void VerilogNetlist::flattenHierNet(std::vector<Module> &hierNetlist,
-                             std::vector<Module> &flatNetlist,
-                             uint32_t &totalUsedBlackBoxes)
+                                    std::vector<Module> &flatNetlist,
+                                    uint32_t &totalUsedBlackBoxes)
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign
