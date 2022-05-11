@@ -23,7 +23,7 @@ class ProcessNetlist final
                              const std::string fileName = "HierNetlist.v",
                              const uint32_t maxHierLevel = UINT32_MAX);
     // Flatten Hierarchical netlist
-    static void FlattenHierNet(std::vector<Module> &hierNetlist,
+    static void flattenHierNet(std::vector<Module> &hierNetlist,
                                std::vector<Module> &flatNetlist,
                                uint32_t &totalUsedBlackBoxes);
 };

@@ -391,7 +391,7 @@ void ProcessNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 }
 
 // Use case2 as a example to demonstrate.
-void ProcessNetlist::FlattenHierNet(std::vector<Module> &hierNetlist,
+void ProcessNetlist::flattenHierNet(std::vector<Module> &hierNetlist,
                                     std::vector<Module> &flatNetlist,
                                     uint32_t &totalUsedBlackBoxes)
 {
