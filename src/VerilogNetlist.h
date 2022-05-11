@@ -21,20 +21,22 @@ class VerilogNetlist final
   public:
     std::vector<Module> &getHierNet() { return _hierNetlist; };
     std::vector<Module> &getFlatNet() { return _flatNetlist; };
+    uint32_t &getTotalUsedStdCells() { return _totalUsedStdCells; };
+    uint32_t &getTotalUsedBlackBoxes() { return _totalUsedBlackBoxes; };
     void parseHierNet(int argc, char **argv, char **env);
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
-    }
+    };
     void printHierNet()
     {
       printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes);
-    }
+    };
     void printFlatNet()
     {
       printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
                    "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level);
-    }
+    };
     // Get a hierarchical netlist from ast
     void genHierNet(std::vector<Module> &hierNetlist,
                     uint32_t &totalUsedStdCells,
