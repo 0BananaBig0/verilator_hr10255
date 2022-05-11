@@ -1,5 +1,5 @@
 /*************************************************************************
-  > File Name: Netlist.h
+  > File Name: VerilogNetlist.h
   > Author: 16hxliang3
   > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Sat 23 Apr 2022 05:20:27 PM CST
