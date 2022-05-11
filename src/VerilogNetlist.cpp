@@ -1,11 +1,11 @@
 /*************************************************************************
-  > File Name: Netlist.cpp
+  > File Name: VerilogNetlist.cpp
   > Author: 16hxliang3
   > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Sun 01 May 2022 04:09:26 PM CST
  ************************************************************************/
 
-#include "Netlist.h"
+#include "VerilogNetlist.h"
 #include <climits>
 #include <cstdint>
 #include <fstream>
@@ -651,7 +651,6 @@ void VerilogNetlist::flattenHierNet(std::vector<Module> &hierNetlist,
 #include <cstdint>
 #include <ctime>
 
-#include "Netlist.h"
 V3Global v3Global;
 static void process()
 {

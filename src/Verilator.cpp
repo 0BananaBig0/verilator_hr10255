@@ -13,7 +13,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 //
 //*************************************************************************
-#include "Netlist.h"
+#include "VerilogNetlist.h"
 int main(int argc, char **argv, char **env)
 {
   VerilogNetlist verilogNetlist;
