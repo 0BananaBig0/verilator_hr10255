@@ -17,6 +17,7 @@ for dir in `ls`; do                  #历遍ls命令显示目录
     if test -d $dir
     then
       cd $dir;                         #进入某个目录
+      echo "Testing $dir";
       source test.sh;
       cd ..;
     fi
