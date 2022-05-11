@@ -37,6 +37,8 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   // cells from AstCell, AstModule and AstVar
   _theTimesOfVisit = 4;
   iterateChildren(nodep);
+  // Before the fifth time visit, adjust the module order.
+  swapEmptyAndNotEmptyStdCellPosition();
   // Fifth time visit: Get information of all modules including standard cells
   // from AstConst, AstVarRef, AstCell and so on.
   _theTimesOfVisit = 5;
@@ -663,3 +665,51 @@ void HierNetlistVisitor::freeContainerBySwap(T &rContainer)
   T empty;
   std::swap(rContainer, empty);
 }
+
+bool HierNetlistVisitor::isAnEmptyStdCellInJson(const std::string &stdCellName)
+{
+  std::unordered_set<std::string> emptyStdCells = { "MemGen_16_10", "PLL" };
+  return emptyStdCells.find(stdCellName) != emptyStdCells.end() ? true : false;
+};
+
+void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
+{
+  if(_totalUsedStdCells > 0)
+    _totalUsedNotEmptyStdCells = _totalUsedStdCells - 1;
+  else
+  {
+    _totalUsedNotEmptyStdCells = 0;
+    return;
+  }
+  std::string notEmptyStdCellName, emptyStdCellName;
+  uint32_t notEmptyStdCellIndex, emptyStdCellIndex;
+  for(auto i = 0; i < _totalUsedNotEmptyStdCells; i++)
+  {
+    if(isAnEmptyStdCellInJson(_hierNetlist[i].moduleDefName))
+    {
+      emptyStdCellName = _hierNetlist[i].moduleDefName;
+      emptyStdCellIndex = i;
+      while(isAnEmptyStdCellInJson(
+        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName))
+      {
+        if(_totalUsedNotEmptyStdCells > i)
+          _totalUsedNotEmptyStdCells--;
+        else
+          return;
+      }
+      notEmptyStdCellIndex = _totalUsedNotEmptyStdCells;
+      notEmptyStdCellName =
+        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName;
+      _moduleNameMapIndex.erase(emptyStdCellName);
+      _moduleNameMapIndex.erase(notEmptyStdCellName);
+      _moduleNameMapIndex[emptyStdCellName] = notEmptyStdCellIndex;
+      _moduleNameMapIndex[notEmptyStdCellName] = emptyStdCellIndex;
+      std::swap(_hierNetlist[emptyStdCellIndex],
+                _hierNetlist[notEmptyStdCellIndex]);
+      std::swap(_portNameMapPortDefIndexs[emptyStdCellIndex],
+                _portNameMapPortDefIndexs[notEmptyStdCellIndex]);
+      _totalUsedNotEmptyStdCells--;
+    }
+  }
+  _totalUsedNotEmptyStdCells++;
+};

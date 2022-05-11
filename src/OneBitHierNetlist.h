@@ -9,6 +9,7 @@
 #include "OneBitNetlist.h"
 #include "V3Ast.h"
 #include "V3Error.h"
+#include <cstdint>
 #include <unordered_map>
 
 struct PortNameMapPortDefIndex
@@ -17,13 +18,11 @@ struct PortNameMapPortDefIndex
 };
 class HierNetlistVisitor final : public VNVisitor
 {
-  public:
-    // AstNetlist
-    std::vector<Module> _hierNetlist;
-
   private:
     // AstNetlist
+    std::vector<Module> _hierNetlist;
     uint32_t _theTimesOfVisit;
+    uint32_t _totalUsedNotEmptyStdCells;
 
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
@@ -113,6 +112,10 @@ class HierNetlistVisitor final : public VNVisitor
     // Clear data and free ram
     template<typename T>
     void freeContainerBySwap(T &rContainer);
+
+    // Make empty std cells at the end of all std cells in _hierNetlist
+    bool isAnEmptyStdCellInJson(const std::string &stdCellName);
+    void swapEmptyAndNotEmptyStdCellPosition();
 
   public:
     const std::vector<Module> &getHierNetlist() const { return _hierNetlist; };
