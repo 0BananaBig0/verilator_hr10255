@@ -8,22 +8,45 @@
 #pragma once
 #include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
+#include <cstdint>
 
-class ProcessNetlist final
+class VerilogNetlist final
 {
+  private:
+    uint32_t _totalUsedStdCells;
+    uint32_t _totalUsedBlackBoxes;
+    std::vector<Module> _hierNetlist;
+    std::vector<Module> _flatNetlist;
+
   public:
+    std::vector<Module> &getHierNet() { return _hierNetlist; };
+    std::vector<Module> &getFlatNet() { return _flatNetlist; };
+    void parseHierNet(int argc, char **argv, char **env);
+    void callFlattenHierNet()
+    {
+      flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
+    }
+    void printHierNet()
+    {
+      printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes);
+    }
+    void printFlatNet()
+    {
+      printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
+                   "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level);
+    }
     // Get a hierarchical netlist from ast
-    static void getHierNet(std::vector<Module> &hierNetlist,
-                           uint32_t &totalUsedStdCells,
-                           uint32_t &totalUsedBlackBoxes);
+    void genHierNet(std::vector<Module> &hierNetlist,
+                    uint32_t &totalUsedStdCells,
+                    uint32_t &totalUsedBlackBoxes);
     // Print a Netlist
-    static void printNetlist(const std::vector<Module> &hierNetlist,
-                             const uint32_t &totalUsedStdCells,
-                             const uint32_t &totalUsedBlackBoxes,
-                             const std::string fileName = "HierNetlist.v",
-                             const uint32_t maxHierLevel = UINT32_MAX);
+    void printNetlist(const std::vector<Module> &hierNetlist,
+                      const uint32_t &totalUsedStdCells,
+                      const uint32_t &totalUsedBlackBoxes,
+                      const std::string fileName = "HierNetlist.v",
+                      const uint32_t maxHierLevel = UINT32_MAX);
     // Flatten Hierarchical netlist
-    static void flattenHierNet(std::vector<Module> &hierNetlist,
-                               std::vector<Module> &flatNetlist,
-                               uint32_t &totalUsedBlackBoxes);
+    void flattenHierNet(std::vector<Module> &hierNetlist,
+                        std::vector<Module> &flatNetlist,
+                        uint32_t &totalUsedBlackBoxes);
 };
