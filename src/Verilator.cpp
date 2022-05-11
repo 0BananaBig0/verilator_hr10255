@@ -217,7 +217,7 @@ static void process()
     ProcessNetlist::printNetlist(hierNetlist, totalUsedStdCells,
                                  totalUsedBlackBoxes);
     // 4,Flatten a hierarchical netlist
-    ProcessNetlist::FlattenHierNet(hierNetlist, flatNetlist,
+    ProcessNetlist::flattenHierNet(hierNetlist, flatNetlist,
                                    totalUsedBlackBoxes);
     // 5,Print a flattened netlist to a verilog file.
     ProcessNetlist::printNetlist(flatNetlist, totalUsedStdCells,
