@@ -42,11 +42,11 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   freeContainerBySwap(_portNameMapPortDefIndex.ports);
   freeContainerBySwap(_curSubmoduleName);
   freeContainerBySwap(_curSubmoduleInstanceName);
-  freeContainerBySwap(_multipleBitsAssignStatementTmp.lValue.biggerValue);
+  freeContainerBySwap(_multipleBitsAssignStatementTmp.lValue.biggerValues);
   freeContainerBySwap(_multipleBitsAssignStatementTmp.rValue);
   freeContainerBySwap(_multipleBitsPortAssignmentTmp.multipleBitsRefVars);
   freeContainerBySwap(_curSubModInsPortAssignmentsTmp);
-  freeContainerBySwap(_multipleBitsRefVarTmp.biggerValue);
+  freeContainerBySwap(_multipleBitsRefVarTmp.biggerValues);
 };
 
 // Get module name and hierLevel.
@@ -225,15 +225,15 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
       { // rValue is a const value, X or Z.
         auto &rWidth = rValue.width;
         uint32_t position;
-        uint32_t biggerValueSize = rValue.biggerValue.size();
+        uint32_t biggerValuesSize = rValue.biggerValues.size();
         // Store rValue
         bitSlicedAssignStatementTmp.rValue.refVarDefIndex = UINT_MAX;
-        while(biggerValueSize > 0)
+        while(biggerValuesSize > 0)
         { // If the width of const value, X or Z is bigger than 32, we should
           // pop up its remaining data, from left to right.
-          auto &biggerValue = rValue.biggerValue[biggerValueSize - 1];
-          if(biggerValueSize == rValue.biggerValue.size())
-            position = rWidth - 32 * biggerValueSize;
+          auto &biggerValue = rValue.biggerValues[biggerValuesSize - 1];
+          if(biggerValuesSize == rValue.biggerValues.size())
+            position = rWidth - 32 * biggerValuesSize;
           else
             position = 32;
           while(position >= 1)
@@ -249,7 +249,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
             position--;
             lEnd--;
           }
-          biggerValueSize--;
+          biggerValuesSize--;
         }
         if(rWidth > 32)
           position = 32;
@@ -341,13 +341,13 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     {
       auto &rWidth = mRefVar.width;
       uint32_t position;
-      uint32_t biggerValueSize = mRefVar.biggerValue.size();
+      uint32_t biggerValuesSize = mRefVar.biggerValues.size();
       refVar.refVarDefIndex = UINT_MAX;
-      while(biggerValueSize > 0)
+      while(biggerValuesSize > 0)
       {
-        auto &biggerValue = mRefVar.biggerValue[biggerValueSize - 1];
-        if(biggerValueSize == mRefVar.biggerValue.size())
-          position = rWidth - 32 * biggerValueSize;
+        auto &biggerValue = mRefVar.biggerValues[biggerValuesSize - 1];
+        if(biggerValuesSize == mRefVar.biggerValues.size())
+          position = rWidth - 32 * biggerValuesSize;
         else
           position = 32;
         while(position >= 1)
@@ -358,7 +358,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
                                         refVar);
           position--;
         }
-        biggerValueSize--;
+        biggerValuesSize--;
       }
       if(rWidth > 32)
         position = 32;
@@ -591,28 +591,28 @@ void HierNetlistVisitor::visit(AstConst *nodep)
       _multipleBitsRefVarTmp.hasX = false;
     }
     if(_multipleBitsRefVarTmp.width > 32)
-      _multipleBitsRefVarTmp.biggerValue.push_back(
+      _multipleBitsRefVarTmp.biggerValues.push_back(
         nodep->num().value().getValueAndX64());
     if(_multipleBitsRefVarTmp.width > 64)
     {
       const std::vector<V3NumberData::ValueAndX> valueAndX128Tmp =
         nodep->num().value().getValueAndX128();
-      _multipleBitsRefVarTmp.biggerValue.insert(
-        _multipleBitsRefVarTmp.biggerValue.end(), valueAndX128Tmp.begin(),
+      _multipleBitsRefVarTmp.biggerValues.insert(
+        _multipleBitsRefVarTmp.biggerValues.end(), valueAndX128Tmp.begin(),
         valueAndX128Tmp.end());
     }
     if(_isAssignStatement)
     { // Now, AstConst is a child of AstNodeAssign or AstConcat or AstReplicate
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
       if(_multipleBitsRefVarTmp.width > 32)
-        _multipleBitsRefVarTmp.biggerValue.clear();
+        _multipleBitsRefVarTmp.biggerValues.clear();
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
       _multipleBitsPortAssignmentTmp.multipleBitsRefVars.push_back(
         _multipleBitsRefVarTmp);
       if(_multipleBitsRefVarTmp.width > 32)
-        _multipleBitsRefVarTmp.biggerValue.clear();
+        _multipleBitsRefVarTmp.biggerValues.clear();
     }
   }
 }

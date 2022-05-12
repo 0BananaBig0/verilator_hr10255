@@ -41,7 +41,7 @@ struct MultipleBitsRefVar
         ConstValueAndX constValueAndX;
     };
     // Only when width > 32 and refVarName = "", it will be used.
-    std::vector<V3NumberData::ValueAndX> biggerValue;
+    std::vector<V3NumberData::ValueAndX> biggerValues;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
 struct MultipleBitsPortAssignment
