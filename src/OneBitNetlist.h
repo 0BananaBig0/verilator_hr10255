@@ -36,17 +36,6 @@ struct PortDefinition
     PortType portType = PortType::LAST_PORT_TYPE;
     bool isVector = false;
     uint32_t bitWidth = 1;
-    // Only use for port whoes PortType is OUTPUT or INOUT or WIRE.
-    // Because, every port whoes PortType is not INPUT can be used as
-    // output of submodule only once. And this port can be input of
-    // another module.
-    // If A is the parent of B, then B is one child of A.
-    // std::vector<uint32_t> whichInstanceOutput;
-    // For example, wire[3:0] w;w[0] and w[1] is the output of U0,
-    // w[2] and w[3] is the output of U1;
-    // the result of whichInstanceOutput is:
-    // PortIndex       0 1 2 3
-    // InstanceIndex   0 0 1 1
 };
 
 // RefVar = Referenced Variable
@@ -65,7 +54,7 @@ struct RefVar
 };
 
 //.A({1'b0,ci,C[1],C[2]})
-// Use in module instantiation
+// Used in module instantiation
 struct PortAssignment
 {
     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
@@ -74,7 +63,8 @@ struct PortAssignment
 };
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
-// C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0];
+// C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0],
+// which will be broken into C[1] = 1'b0, C[0] = co or C[1] = B[1], C[0] = B[0]
 struct BitSlicedAssignStatement
 {
     RefVar lValue; // left value (locator value)
@@ -87,24 +77,20 @@ struct Module
     std::string moduleDefName; // Module Defined Name
     uint32_t level = 0;        // the maximal depth in the hierarchical tree
 
-    /*********************************** Netlist Definition Information(START)
-     * *********************************************/
+    /* Netlist Definition Information(START) */
     std::vector<PortDefinition> ports;
     uint32_t totalInputs;
     uint32_t totalInputsAndInouts;
     uint32_t totalPortsExcludingWires;
     std::vector<BitSlicedAssignStatement> assigns;
-    /*********************************** Netlist Definition Information(END)
-     * *********************************************/
+    /* Netlist Definition Information(END) */
 
-    /*********************************** Netlist Instance Information(START)
-     * *********************************************/
-    // Instance Name Of All Sub Modules Of Current Module
+    /* Netlist Instance Information(START) */
+    // Instance name of all sub modules of current module
     std::vector<std::string> subModuleInstanceNames;
-    // All Sub Modules Definition Index in hierNetlist Of Current Module
+    // All sub modules definition index in hierNetlist of current module
     std::vector<uint32_t> subModuleDefIndex;
     std::vector<std::vector<PortAssignment>>
       portAssignmentsOfSubModuleInstances;
-    /*********************************** Netlist Instance Information(END)
-     * *********************************************/
+    /* Netlist Instance Information(END) */
 };

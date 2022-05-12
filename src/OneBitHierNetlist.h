@@ -12,6 +12,16 @@
 #include <cstdint>
 #include <unordered_map>
 
+// When writing visit functions, there are some keys we should know:
+// (1)Everytime we only write either AstNodeAssign or AstPin information
+// until all its information have been obtained.
+// (2)Only AstVarRef or AstSel can be lValue of assign statement.
+// (3)AstConst, AstExtend and AstConcat can't be lValue of assign statement.
+// (4)Know about the difference between m_nextp and m_opxp, some information
+// about them I have written before the declaration of visit function.
+// (5)We are only allowed to writ one AstVarRef information at the same time.
+// (6)Only such AstNode that has children pointed by m_opxp and we need the
+// information of its children can call iterateChildren(nodep) function.
 struct PortNameMapPortDefIndex
 {
     std::unordered_map<std::string, uint32_t> ports;

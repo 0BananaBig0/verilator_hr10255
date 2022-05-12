@@ -19,14 +19,20 @@ class VerilogNetlist final
     std::vector<Module> _flatNetlist;
 
   public:
-    std::vector<Module> &getHierNet() { return _hierNetlist; };
-    std::vector<Module> &getFlatNet() { return _flatNetlist; };
-    uint32_t &getTotalUsedStdCells() { return _totalUsedStdCells; };
-    uint32_t &getTotalUsedNotEmptyStdCells()
+    const std::vector<Module> &getHierNet() const { return _hierNetlist; };
+    const std::vector<Module> &getFlatNet() const { return _flatNetlist; };
+    const uint32_t &getTotalUsedStdCells() const
+    {
+      return _totalUsedStdCells;
+    };
+    const uint32_t &getTotalUsedNotEmptyStdCells()
     {
       return _totalUsedNotEmptyStdCells;
     };
-    uint32_t &getTotalUsedBlackBoxes() { return _totalUsedBlackBoxes; };
+    const uint32_t &getTotalUsedBlackBoxes() const
+    {
+      return _totalUsedBlackBoxes;
+    };
     void parseHierNet(int argc, char **argv, char **env);
     void callFlattenHierNet()
     {
@@ -50,10 +56,10 @@ class VerilogNetlist final
     void printNetlist(const std::vector<Module> &hierNetlist,
                       const uint32_t &totalUsedStdCells,
                       const uint32_t &totalUsedBlackBoxes,
-                      const std::string fileName = "HierNetlist.v",
+                      std::string fileName = "HierNetlist.v",
                       const uint32_t maxHierLevel = UINT32_MAX);
     // Flatten Hierarchical netlist
-    void flattenHierNet(std::vector<Module> &hierNetlist,
+    void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
-                        uint32_t &totalUsedBlackBoxes);
+                        const uint32_t &totalUsedBlackBoxes);
 };
