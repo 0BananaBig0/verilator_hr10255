@@ -573,8 +573,7 @@ void HierNetlistVisitor::visit(AstConst *nodep)
   }
   else
   { // Now, AstConst is a rValue of assign statement or refValue of a
-    // port or
-    // the number of AstReplicate.
+    // port or the number of AstReplicate.
     _multipleBitsRefVarTmp.refVarName = "";
     _multipleBitsRefVarTmp.constValueAndX.value =
       nodep->num().value().getValue32();
