@@ -263,7 +263,7 @@ RAW_OBJS = \
 	V3Width.o \
 	V3WidthSel.o \
 	VerilogNetlist.o \
-	OneBitHierNetlist.o
+	OneBitHierNetlist.o \
 
 # Non-concatable
 NC_OBJS += \
