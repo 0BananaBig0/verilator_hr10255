@@ -4,7 +4,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use, without
 // warranty.
-// SPDX-License-Identifier: CC0-1.0
 
 // Contributed 2012 by M W Lund, Atmel Corporation and Jeremy Bennett, Embecosm.
 

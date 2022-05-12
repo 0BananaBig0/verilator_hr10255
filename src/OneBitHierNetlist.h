@@ -26,7 +26,7 @@ struct PortNameMapPortDefIndex
 {
     std::unordered_map<std::string, uint32_t> ports;
 };
-class HierNetlistVisitor final : public VNVisitor
+class HierNetlistVisitor final : public AstNVisitor
 {
   private:
     // AstNetlist

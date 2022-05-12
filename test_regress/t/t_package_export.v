@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
 // This file ONLY is placed into the Public Domain, for any use,
-// without warranty, 2012 by Jeremy Bennett.
-// SPDX-License-Identifier: CC0-1.0
+// without warranty, 2012 by Jeremy Bennett
 
 // see bug 591
 
@@ -40,9 +39,6 @@ package pkg30;
 `ifdef T_PACKAGE_EXPORT
    export pkg1::PARAM2;
    export pkg1::PARAM3;
-`endif
-`ifdef T_PACKAGE_EXPORT_BAD
-   export pkg1::BAD_DOES_NOT_EXIST;
 `endif
    parameter PARAM1 = 8;
 endpackage

@@ -4,17 +4,15 @@
 #
 # This CMake file is meant to be consumed by regression tests.
 #
-# Copyright 2003-2021 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 #
 ######################################################################
 
 cmake_minimum_required(VERSION 3.8)
-set(TEST_REQUIRED_VARS NAME CSOURCES OPT_FAST OPT_GLOBAL
-                            VERILATOR_ROOT VERILATOR_ARGS
+set(TEST_REQUIRED_VARS NAME CSOURCES OPT_FAST VERILATOR_ROOT VERILATOR_ARGS
                             VERILATOR_SOURCES SYSTEMC VERBOSE VERILATION)
 foreach(var ${TEST_REQUIRED_VARS})
   if (NOT DEFINED TEST_${var})
@@ -52,10 +50,9 @@ string(REGEX REPLACE "(^|;)--" "\\1-"
 
 getarg(TEST_VERILATOR_ARGS_NORM "-prefix" TEST_PREFIX)
 getarg(TEST_VERILATOR_ARGS_NORM "-threads" TEST_THREADS)
-getarg(TEST_VERILATOR_ARGS_NORM "-trace-threads" TEST_TRACE_THREADS)
 
 # Strip unwanted args with 1 parameter
-string(REGEX REPLACE "(^|;)--?(Mdir|make|prefix|threads|trace-threads);[^;]*" ""
+string(REGEX REPLACE "(^|;)--?(Mdir|make|prefix|threads);[^;]*" ""
        TEST_VERILATOR_ARGS
        "${TEST_VERILATOR_ARGS}")
 # Strip unwanted args
@@ -76,14 +73,8 @@ endif()
 if(TEST_OPT_FAST)
   list(APPEND verilate_ARGS OPT_FAST ${TEST_OPT_FAST})
 endif()
-if(TEST_OPT_GLOBAL)
-  list(APPEND verilate_ARGS OPT_GLOBAL ${TEST_OPT_GLOBAL})
-endif()
 if(TEST_THREADS)
   list(APPEND verilate_ARGS THREADS ${TEST_THREADS})
-endif()
-if(TEST_TRACE_THREADS)
-  list(APPEND verilate_ARGS TRACE_THREADS ${TEST_TRACE_THREADS})
 endif()
 if(TEST_SYSTEMC)
   list(APPEND verilate_ARGS SYSTEMC)

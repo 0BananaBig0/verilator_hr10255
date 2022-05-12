@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003-2007 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003-2007 by Wilson Snyder.
 
 `define STRINGIFY(x) `"x`"
 
@@ -64,8 +63,11 @@ module Genit (
       else
 	One ifcell1(); // genblk1.ifcell1
    endgenerate
-   // DISAGREEMENT on this naming
+   // On compliant simulators "Implicit name" not allowed here; IE we can't use "genblk1" etc
+`ifdef verilator
    always @ (posedge clk) if (genblk1.ifcell1.one !== 1'b1) $stop;
+//`else // NOT SUPPORTED accoring to spec - generic block references
+`endif
 
    generate
       begin : namedif2
@@ -73,8 +75,10 @@ module Genit (
 	   One ifcell2();   // namedif2.genblk1.ifcell2
       end
    endgenerate
-   // DISAGREEMENT on this naming
+`ifdef verilator
    always @ (posedge clk) if (namedif2.genblk1.ifcell2.one !== 1'b1) $stop;
+//`else // NOT SUPPORTED accoring to spec - generic block references
+`endif
 
    generate
       if (1'b1)
@@ -86,15 +90,15 @@ module Genit (
 
    // CASE
    generate
-      begin : casecheck
-	 case (1'b1)
-	   1'b1 :
-	     One casecell10();	// genblk4.casecell10
-	 endcase
-      end
+      case (1'b1)
+	1'b1 :
+	  One casecell10();	// genblk3.casecell10
+      endcase
    endgenerate
-   // DISAGREEMENT on this naming
-   always @ (posedge clk) if (casecheck.genblk1.casecell10.one !== 1'b1) $stop;
+`ifdef verilator
+   always @ (posedge clk) if (genblk3.casecell10.one !== 1'b1) $stop;
+//`else // NOT SUPPORTED accoring to spec - generic block references
+`endif
 
    generate
       case (1'b1)
@@ -108,15 +112,16 @@ module Genit (
    genvar i;
    genvar j;
 
+   // IF
    generate
-      begin : genfor
-	 for (i = 0; i < 2; i = i + 1)
-	   One cellfor20 ();	// genfor.genblk1[0..1].cellfor20
-      end
+      for (i = 0; i < 2; i = i + 1)
+	One cellfor20 ();	// genblk4[0..1].cellfor20
    endgenerate
-   // DISAGREEMENT on this naming
-   always @ (posedge clk) if (genfor.genblk1[0].cellfor20.one !== 1'b1) $stop;
-   always @ (posedge clk) if (genfor.genblk1[1].cellfor20.one !== 1'b1) $stop;
+`ifdef verilator
+   always @ (posedge clk) if (genblk4[0].cellfor20.one !== 1'b1) $stop;
+   always @ (posedge clk) if (genblk4[1].cellfor20.one !== 1'b1) $stop;
+//`else // NOT SUPPORTED accoring to spec - generic block references
+`endif
 
    // COMBO
    generate

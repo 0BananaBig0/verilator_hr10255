@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2009 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2009 by Wilson Snyder.
 
 module t;
 
@@ -89,11 +88,6 @@ module t;
       $display("str='%s'",sv_str);
       if (sv_str != "T=1234") $stop;
 
-      sv_str = "none";
-      if ($value$plusargs("IP%%P%b", p_i)!==1) $stop;
-      $display("str='%s'",sv_str);
-      if (p_i != 'b101) $stop;
-
       sv_in = "INT=%d";
 `ifdef VERILATOR
       if ($c1(0)) sv_in = "NEVER"; // Prevent constant propagation
@@ -101,11 +95,6 @@ module t;
       p_i = 0;
       if ($value$plusargs(sv_in, p_i)!==1) $stop;
       $display("i='%d'",p_i);
-      if (p_i !== 32'd1234) $stop;
-
-      // bug3131 - really "if" side effect test
-      p_i = 0;
-      if ($value$plusargs("INT=%d", p_i)) ;
       if (p_i !== 32'd1234) $stop;
 
       $write("*-* All Finished *-*\n");

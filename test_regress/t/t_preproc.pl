@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2003-2009 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003-2009 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 scenarios(vlt => 1);
 
@@ -51,7 +50,7 @@ sub preproc_check {
                 my $check = shift @Line_Checks;
                 if (!$check) { error("$filename2:$.: Extra Line_Preproc_Check\n"); }
                 if ($linecmt != $check) { error("$filename2:$.: __LINE__ inserted $linecmt, exp=$check\n"); }
-                if ($lineno != $check) { error("$filename2:$.: __LINE__ on `line $lineno, exp=$check\n"); }
+                if ($lineno != $check)  { error("$filename2:$.: __LINE__ on `line $lineno, exp=$check\n"); }
             }
         }
         $fh->close;

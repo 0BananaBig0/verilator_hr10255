@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2019 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2019 by Wilson Snyder.
 
 `define stop $stop
 `define checkh(gotv,expv) do if ((gotv) !== (expv)) begin $write("%%Error: %s:%0d:  got='h%x exp='h%x\n", `__FILE__,`__LINE__, (gotv), (expv)); `stop; end while(0);
@@ -19,13 +18,6 @@ module t (/*AUTOARG*/
 
    integer i;
 
-   typedef integer q_t[$];
-
-   initial begin
-      q_t iq;
-      iq.push_back(42);
-   end
-
    always @ (posedge clk) begin
       cyc <= cyc + 1;
 
@@ -41,7 +33,6 @@ module t (/*AUTOARG*/
          `checkh($high(q), -1);
          `checkh($size(q), 0);
          `checkh($dimensions(q), 1);
-         // $bits is unsupported in several other simulators, see bug1646
          // Unsup: `checkh($bits(q), 0);
 
          q.push_back(1'b1);
@@ -131,7 +122,6 @@ module t (/*AUTOARG*/
          v = q[2]; `checks(v, "b1");
          v = q[3]; `checks(v, "b2");
          v = q[4]; `checks(v, "");
-         //Unsup: `checkh(q[$], "b2");
 
          v = $sformatf("%p", q); `checks(v, "'{\"f2\", \"f1\", \"b1\", \"b2\"} ");
 
@@ -179,7 +169,6 @@ module t (/*AUTOARG*/
          q.delete(0);
          i = q.size(); `checkh(i, 1);
          `checks(q[0], "front");
-         //Unsup: `checks(q[$], "front");
 
       end
 
@@ -194,45 +183,6 @@ module t (/*AUTOARG*/
          `checkh($dimensions(q), 2);
          //Unsup: `checkh($bits(q), 0);
 
-      end
-
-      // testing a wide queue
-      begin
-         typedef struct packed {
-            bit [7:0] opcode;
-            bit [23:0] addr;
-            bit [127:0] data;
-         } instructionW; // named structure type
-
-         instructionW inst_push;
-         instructionW inst_pop;
-
-         instructionW q[$];
-         `checkh($dimensions(q), 2);
-
-         `checkh(q[0].opcode, 0);
-         `checkh(q[0].addr, 0);
-         `checkh(q[0].data, 0);
-
-         inst_push.opcode = 1;
-         inst_push.addr = 42;
-         inst_push.data = {4{32'hdeadbeef}};
-         q.push_back(inst_push);
-         `checkh(q[0].opcode, 1);
-         `checkh(q[0].addr, 42);
-         `checkh(q[0].data, {4{32'hdeadbeef}});
-
-
-         inst_pop = q.pop_front();
-         `checkh(inst_pop.opcode, 1);
-         `checkh(inst_pop.addr, 42);
-         `checkh(inst_pop.data, {4{32'hdeadbeef}});
-
-         `checkh(q.size(), 0);
-
-         `checkh(q[0].opcode, 0);
-         `checkh(q[0].addr, 0);
-         `checkh(q[0].data, 0);
       end
 
       /* Unsup:

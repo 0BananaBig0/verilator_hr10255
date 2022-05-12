@@ -560,12 +560,12 @@ void HierNetlistVisitor::visit(AstConst *nodep)
   if(_whichAstSelChildren == 2)
   { // Now, AstConst is a child of AstSel
     _whichAstSelChildren++;
-    _multipleBitsRefVarTmp.refVarRange.start =
-      nodep->num().value().getValue32();
+    // _multipleBitsRefVarTmp.refVarRange.start =
+    //   nodep->num().value().getValue32();
   }
   else if(_whichAstSelChildren == 3)
   { // Now, AstConst is a child of AstSel
-    _multipleBitsRefVarTmp.width = nodep->num().value().getValue32();
+    // _multipleBitsRefVarTmp.width = nodep->num().value().getValue32();
     _multipleBitsRefVarTmp.refVarRange.end =
       _multipleBitsRefVarTmp.refVarRange.start + _multipleBitsRefVarTmp.width -
       1;
@@ -576,30 +576,30 @@ void HierNetlistVisitor::visit(AstConst *nodep)
     // port or
     // the number of AstReplicate.
     _multipleBitsRefVarTmp.refVarName = "";
-    _multipleBitsRefVarTmp.constValueAndX.value =
-      nodep->num().value().getValue32();
+    // _multipleBitsRefVarTmp.constValueAndX.value =
+    //   nodep->num().value().getValue32();
     _multipleBitsRefVarTmp.width = nodep->width();
-    if(nodep->num().isAnyXZ())
-    { // Now, the const value has value x or z.
-      _multipleBitsRefVarTmp.constValueAndX.valueX =
-        nodep->num().value().getValueX32();
-      _multipleBitsRefVarTmp.hasX = true;
-    }
-    else
-    {
-      _multipleBitsRefVarTmp.constValueAndX.valueX = 0;
-      _multipleBitsRefVarTmp.hasX = false;
-    }
+    // if(nodep->num().isAnyXZ())
+    // { // Now, the const value has value x or z.
+    //   _multipleBitsRefVarTmp.constValueAndX.valueX =
+    //     // nodep->num().value().getValueX32();
+    //   _multipleBitsRefVarTmp.hasX = true;
+    // }
+    // else
+    // {
+    //   _multipleBitsRefVarTmp.constValueAndX.valueX = 0;
+    //   _multipleBitsRefVarTmp.hasX = false;
+    // }
     if(_multipleBitsRefVarTmp.width > 32)
-      _multipleBitsRefVarTmp.biggerValues.push_back(
-        nodep->num().value().getValueAndX64());
+      // _multipleBitsRefVarTmp.biggerValues.push_back(
+      //   nodep->num().value().getValueAndX64());
     if(_multipleBitsRefVarTmp.width > 64)
     {
       const std::vector<V3NumberData::ValueAndX> valueAndX128Tmp =
-        nodep->num().value().getValueAndX128();
-      _multipleBitsRefVarTmp.biggerValues.insert(
-        _multipleBitsRefVarTmp.biggerValues.end(), valueAndX128Tmp.begin(),
-        valueAndX128Tmp.end());
+      //   nodep->num().value().getValueAndX128();
+      // _multipleBitsRefVarTmp.biggerValues.insert(
+      //   _multipleBitsRefVarTmp.biggerValues.end(), valueAndX128Tmp.begin(),
+      //   valueAndX128Tmp.end());
     }
     if(_isAssignStatement)
     { // Now, AstConst is a child of AstNodeAssign or AstConcat or AstReplicate

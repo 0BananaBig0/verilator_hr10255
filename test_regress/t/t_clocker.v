@@ -4,7 +4,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2015 by Jie Xu.
-// SPDX-License-Identifier: CC0-1.0
 
 localparam ID_MSB = 1;
 
@@ -18,7 +17,6 @@ module t (/*AUTOARG*/
    );
    input clk;
    output reg        res;
-   // When not inlining the below may trigger CLKDATA
    output reg [7:0]  res8;
    output reg [15:0] res16;
 
@@ -42,19 +40,23 @@ module t (/*AUTOARG*/
    // the following two assignment triggers the CLKDATA warning
    // because on LHS there are a mix of signals both CLOCK and
    // DATA
+   /* verilator lint_off CLKDATA */
    assign res8  = {clk_3, 1'b0, clk_4};
    assign res16 = {count, clk_3, clk_1, clk_4};
+   /* verilator lint_on CLKDATA */
 
 
    initial
-     count = 0;
+       count = 0;
 
 
    always @(posedge clk_final or negedge clk_final) begin
-      count = count + 1;
-      // the following assignment should trigger the CLKDATA warning
-      // because CLOCK signal is used as DATA in sequential block
-      res <= clk_final;
+       count = count + 1;
+       // the following assignment should trigger the CLKDATA warning
+       // because CLOCK signal is used as DATA in sequential block
+       /* verilator lint_off CLKDATA */
+       res <= clk_final;
+       /* verilator lint_on CLKDATA */
       if ( count == 8'hf) begin
 	 $write("*-* All Finished *-*\n");
 	 $finish;

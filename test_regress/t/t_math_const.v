@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -106,9 +105,7 @@ module t (/*AUTOARG*/
 	    w32 = 12; w32 |= 15; if (w32 != 15) $stop;
 	    w32 = 12; w32 ^= 15; if (w32 != 3) $stop;
 	    w32 = 12; w32 >>= 1; if (w32 != 6) $stop;
-	    w32 = 12; w32 >>>= 1; if (w32 != 6) $stop;
 	    w32 = 12; w32 <<= 1; if (w32 != 24) $stop;
-	    w32 = 12; w32 %= 5; if (w32 != 2) $stop;
 
 	    // Increments
 	    v32[1] = 12; v32[1]++;  if (v32[1] != 13) $stop;

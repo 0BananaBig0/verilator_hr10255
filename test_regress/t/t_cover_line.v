@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2008 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2008 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -11,108 +10,54 @@ module t (/*AUTOARG*/
 
    input clk;
 
-   reg   toggle;
-   initial toggle=0;
+   reg 	 toggle; initial toggle=0;
 
-   integer cyc;
-   initial cyc=1;
-
+   integer cyc; initial cyc=1;
    wire [7:0] cyc_copy = cyc[7:0];
 
    alpha a1 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
    alpha a2 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
    beta  b1 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
    beta  b2 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
    tsk   t1 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
    off   o1 (/*AUTOINST*/
-             // Inputs
-             .clk                       (clk),
-             .toggle                    (toggle));
+	     // Inputs
+	     .clk			(clk),
+	     .toggle			(toggle));
 
    always @ (posedge clk) begin
       if (cyc!=0) begin
-         cyc <= cyc + 1;
-         toggle <= '0;
-         // Single and multiline if
-         if (cyc==3) $write("");
-         if (cyc==3)
-           begin
-              $write("");
-           end
-         // Single and multiline else
-         if (cyc==3) ; else $write("");
-         if (cyc==3) ;
-         else
-           begin
-              $write("");
-           end
-         // Single and multiline if else
-         if (cyc==3) $write(""); else $write("");
-         if (cyc==3)
-           begin
-              $write("");
-           end
-         else
-           begin
-              $write("");
-           end
-         //  multiline elseif
-         if (cyc==3)
-           begin
-              $write("");
-           end
-         else if (cyc==4)
-           begin
-              $write("");
-           end
-         else if (cyc==5)
-           begin
-              $write("");
-           end
-         else
-           begin
-              $write("");
-           end
-         // Single and multiline while
-         while (0);
-         while (0) begin
-            $write("");
-         end
-         do ; while (0);
-         do begin
-            $write("");
-         end while (0);
-         //===
-         // Task and complicated
-         if (cyc==3) begin
-            toggle <= '1;
-         end
-         else if (cyc==5) begin
+	 cyc <= cyc + 1;
+	 toggle <= '0;
+	 if (cyc==3) begin
+	    toggle <= '1;
+	 end
+	 else if (cyc==5) begin
 `ifdef VERILATOR
-            $c("this->call_task();");
+	    $c("call_task();");
 `else
-            call_task();
+	    call_task();
 `endif
-         end
-         else if (cyc==10) begin
-            $write("*-* All Finished *-*\n");
-            $finish;
-         end
+	 end
+	 else if (cyc==10) begin
+	    $write("*-* All Finished *-*\n");
+	    $finish;
+	 end
       end
    end
 
@@ -130,16 +75,15 @@ module alpha (/*AUTOARG*/
    input clk;
    input toggle;
    always @ (posedge clk) begin
-      if (toggle) begin  // CHECK_COVER(0,"top.t.a*",2)
-         $write("");
-         // t.a1 and t.a2 collapse to a count of 2
+      if (toggle) begin
+	 // CHECK_COVER(-1,"top.t.a*",2)
+	 // t.a1 and t.a2 collapse to a count of 2
       end
       if (toggle) begin
-         $write("");  // CHECK_COVER_MISSING(0)
-         // This doesn't even get added
-`ifdef ATTRIBUTE
-         // verilator coverage_block_off
-`endif
+	 // CHECK_COVER_MISSING(-1)
+	 // This doesn't even get added
+	 // verilator coverage_block_off
+	 $write("");
       end
    end
 endmodule
@@ -154,23 +98,19 @@ module beta (/*AUTOARG*/
    /* verilator public_module */
 
    always @ (posedge clk) begin
-      $write("");  // Always covered
-      if (0) begin  // CHECK_COVER(0,"top.t.b*",0)
-         // Make sure that we don't optimize away zero buckets
-         $write("");
+      if (0) begin
+	 // CHECK_COVER(-1,"top.t.b*",0)
+	 // Make sure that we don't optimize away zero buckets
       end
-      if (toggle) begin  // CHECK_COVER(0,"top.t.b*",2)
-         // t.b1 and t.b2 collapse to a count of 2
-         $write("");
+      if (toggle) begin
+	 // CHECK_COVER(-1,"top.t.b*",2)
+	 // t.b1 and t.b2 collapse to a count of 2
       end
-      if (toggle) begin : block
-         // This doesn't
-`ifdef ATTRIBUTE
-         // verilator coverage_block_off
-`endif
-         begin end  // Needed for .vlt to attach coverage_block_off
-         if (1) begin end  // CHECK_COVER_MISSING(0)
-         $write("");  // CHECK_COVER_MISSING(0)
+      if (toggle) begin
+	 // CHECK_COVER_MISSING(-1)
+	 // This doesn't
+	 // verilator coverage_block_off
+	 $write("");
       end
    end
 endmodule
@@ -191,12 +131,13 @@ module tsk (/*AUTOARG*/
    task center_task;
       input external;
       begin
-         if (toggle) begin  // CHECK_COVER(0,"top.t.t1",1)
-            $write("");
-         end
-         if (external) begin  // CHECK_COVER(0,"top.t.t1",1)
-            $write("[%0t] Got external pulse\n", $time);
-         end
+	 if (toggle) begin
+	    // CHECK_COVER(-1,"top.t.t1",1)
+	 end
+	 if (external) begin
+	    // CHECK_COVER(-1,"top.t.t1",1)
+	    $write("[%0t] Got external pulse\n", $time);
+	 end
       end
    endtask
 
@@ -212,16 +153,15 @@ module off (/*AUTOARG*/
    // verilator coverage_off
    always @ (posedge clk) begin
       if (toggle) begin
-         $write("");  // CHECK_COVER_MISSING(0)
-         // because under coverage_module_off
+	 // CHECK_COVER_MISSING(-1)
+	 // because under coverage_module_off
       end
    end
    // verilator coverage_on
    always @ (posedge clk) begin
       if (toggle) begin
-         // because under coverage_module_off
-         $write("");
-         if (0) ;  // CHECK_COVER(0,"top.t.o1",1)
+	 // CHECK_COVER(-1,"top.t.o1",1)
+	 // because under coverage_module_off
       end
    end
 

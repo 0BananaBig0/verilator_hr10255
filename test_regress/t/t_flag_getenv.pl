@@ -1,32 +1,25 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2008 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2008 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 scenarios(vlt => 1);
 
-setenv('FOOBARTEST', "gotit");
+$ENV{FOOBARTEST} = "gotit";
 
-run(
-    cmd => ["../bin/verilator --getenv FOOBARTEST"],
-    expect => 'gotit
+compile(
+    v_flags2 => ["--getenv FOOBARTEST"],
+    expect =>
+'gotit
 ',
-    logfile => "$Self->{obj_dir}/simx.log",
-    verilator_run => 1,
+    verilator_make_gmake => 0,
+    make_top_shell => 0,
+    make_main => 0,
     );
-
-foreach my $var (qw(MAKE PERL SYSTEMC SYSTEMC_ARCH SYSTEMC_LIBDIR VERILATOR_ROOT)) {
-    run(
-        cmd => ["../bin/verilator --getenv ${var}"],
-        logfile => "$Self->{obj_dir}/simx.log",
-        verilator_run => 1,
-        );
-}
 
 ok(1);
 1;

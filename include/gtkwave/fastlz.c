@@ -22,8 +22,6 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-
-  SPDX-License-Identifier: MIT
 */
 
 #include "fastlz.h"
@@ -420,7 +418,9 @@ static FASTLZ_INLINE int FASTLZ_DECOMPRESSOR(const void* input, int length, void
   const flzuint8* ip = (const flzuint8*) input;
   const flzuint8* ip_limit  = ip + length;
   flzuint8* op = (flzuint8*) output;
+#ifdef FASTLZ_SAFE
   flzuint8* op_limit = op + maxout;
+#endif
   flzuint32 ctrl = (*ip++) & 31;
   int loop = 1;
 

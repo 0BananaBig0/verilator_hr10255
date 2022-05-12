@@ -5,7 +5,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2016 by Jan Egil Ruud.
-// SPDX-License-Identifier: CC0-1.0
 
 module t (/*AUTOARG*/
    // Inputs
@@ -24,11 +23,12 @@ module t (/*AUTOARG*/
 	byte i, j;
 	// bug1044
 	for ( i = 0; i < 9; i = i + 1 )
-	  // verilator lint_off WIDTH
-          for ( j=0; j<(TEST_PARAM[i*8+:8]); j=j+1) begin
-             in_tmp[TEST_PARAM[i*8+:8]+j] = in[TEST_PARAM[i*8+:8]+j];
-          end
-	// verilator lint_on WIDTH
+          for ( j=0; j<(TEST_PARAM[i*8+:8]); j=j+1 )
+            begin
+	       // verilator lint_off WIDTH
+               in_tmp[TEST_PARAM[i*8+:8]+j] = in[TEST_PARAM[i*8+:8]+j];
+	       // verilator lint_on WIDTH
+            end
 	$write("*-* All Finished *-*\n");
 	$finish;
      end

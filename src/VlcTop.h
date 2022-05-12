@@ -6,16 +6,20 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
-// can redistribute it and/or modify it under the terms of either the GNU
+// Copyright 2003-2019 by Wilson Snyder.  This program is free software; you can
+// redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
-// SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
+//
+// Verilator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#ifndef _VLCTOP_H_
+#define _VLCTOP_H_ 1
 
 #include "config_build.h"
 #include "verilatedos.h"
@@ -28,7 +32,7 @@
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
+class VlcTop {
 public:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
@@ -39,14 +43,15 @@ private:
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
+    void createDir(const string& dirname);
     void annotateCalc();
     void annotateCalcNeeded();
     void annotateOutputFiles(const string& dirname);
 
 public:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    VlcTop() {}
+    ~VlcTop() {}
 
     // ACCESSORS
     VlcTests& tests() { return m_tests; }
@@ -55,9 +60,8 @@ public:
 
     // METHODS
     void annotate(const string& dirname);
-    void readCoverage(const string& filename, bool nonfatal = false);
+    void readCoverage(const string& filename, bool nonfatal=false);
     void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
 
     void rank();
 };

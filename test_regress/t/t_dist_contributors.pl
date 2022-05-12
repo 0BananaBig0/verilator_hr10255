@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2003 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 use IO::File;
 use strict;
@@ -16,12 +15,10 @@ scenarios(dist => 1);
 
 my $root = "..";
 my $Debug;
-my %Contributors = ('github action' => 1);
+my %Contributors;
 my %Authors;
 
-if ($ENV{VERILATOR_TEST_NO_CONTRIBUTORS}) {
-    skip("Skipping due to VERILATOR_TEST_NO_CONTRIBUTORS");
-} elsif (!-r "$root/.git") {
+if (!-r "$root/.git") {
     skip("Not in a git repository");
 } else {
     check();
@@ -37,10 +34,7 @@ sub check {
     for my $author (sort keys %Authors) {
         print "Check: $author\n" if $Self->{verbose};
         if (!$Contributors{$author}) {
-            error("Certify your contribution by sorted-inserting '$author' into docs/CONTRIBUTORS.\n"
-                  . "   If '$author' is not your real name, please fix 'name=' in ~/.gitconfig\n"
-                  . "   Also check your https://github.com account's Settings->Profile->Name\n"
-                  . "   matches your ~/.gitconfig 'name='.\n");
+            error("Certify your contribution by appending '$author' to CONTRIBUTORS");
         }
     }
 }
@@ -77,7 +71,7 @@ sub read_user {
 
 sub read_authors {
     # Check recent commits in case did commit
-    my $git_auths = `git log '--pretty=format:%aN <%aE>' | head -5`;
+    my $git_auths = `git log '--pretty=format:%aN <%aE>' | head -20`;
     foreach my $line (split /\n/, $git_auths) {
         $line =~ s/ *<[^>]*>//;
         $Authors{$line} = 1;

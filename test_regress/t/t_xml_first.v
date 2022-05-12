@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2012 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2012 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Outputs
@@ -14,30 +13,29 @@ module t (/*AUTOARG*/
    input [3:0] d;
    output wire [3:0] q;
 
-   logic [3:0]       between;
+   logic [3:0] 	     between;
 
-   mod1 #(.WIDTH(4))
-   cell1 (.q(between),
-          .clk                          (clk),
-          .d                            (d[3:0]));
+   mod1 cell1 (.q(between),
+	       /*AUTOINST*/
+	       // Inputs
+	       .clk			(clk),
+	       .d			(d[3:0]));
 
-   mod2
-     cell2 (.d(between),
-            .q                          (q[3:0]),
-            .clk                        (clk));
+   mod2 cell2 (.d(between),
+	       /*AUTOINST*/
+	       // Outputs
+	       .q			(q[3:0]),
+	       // Inputs
+	       .clk			(clk));
 
 endmodule
 
 module mod1
-  #(parameter WIDTH = 32)
-   (
-    input              clk,
-    input [WIDTH-1:0]        d,
-    output logic [WIDTH-1:0] q
+  (
+   input clk,
+   input [3:0] d,
+   output logic [3:0] q
    );
-
-   localparam IGNORED = 1;
-
    always @(posedge clk)
      q <= d;
 

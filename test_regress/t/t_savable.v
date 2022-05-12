@@ -1,21 +1,14 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2012 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2012 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
-   clk, model
+   clk
    );
    /*verilator no_inline_module*/   // So we'll get hiearachy we can test
    input clk;
-
-   // Parameter so we can test for different model error
-   parameter MODEL_WIDTH = 10;
-   input [MODEL_WIDTH-1:0] model;
-
-   initial $write("Model width = %0d\n", MODEL_WIDTH);
 
    sub sub (/*AUTOINST*/
 	    // Inputs

@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 module t;
    reg [40:0] quad; initial quad = 41'ha_bbbb_cccc;
@@ -14,10 +13,7 @@ module t;
    reg [31:0] str; initial str = "\000\277\021\n";
    reg [47:0] str2; initial str2 = "\000what!";
    reg [79:0] str3; initial str3 = "\000hmmm!1234";
-   int        n; initial n = 23;
-   reg [7:0]  m; initial m = 24;
    string     svs = "sv-str";
-   reg [31:0] regstr = "meep";
 
    sub sub ();
    sub2 sub2 ();
@@ -128,28 +124,14 @@ module t;
       // Not testing %0s, it does different things in different simulators
       $display("[%0t] %%s=%s %%s=%s %%s=%s", $time,
                str2[7:0], str2, str3);
-      $display("[%0t] %%6s=:%6s: %%6s=:%6s: %%6s=:%6s:", $time,
-               str2[7:0], str2, str3);
-      $display("[%0t] %%8s=:%8s:", $time,
-               svs);
-
-      // Displays without format, must use default
-      $write("d: "); $write(nine); $write(" "); $display(nine);
-      $write; $display;
-      $writeh("h: "); $writeh(nine); $writeh(" "); $displayh(nine);
-      $writeh; $displayh;
-      $writeo("o: "); $writeo(nine); $writeo(" "); $displayo(nine);
-      $writeb; $displayb;
-      $writeb("b: "); $writeb(nine); $writeb(" "); $displayb(nine);
-      $writeo; $displayo;
 
       $display("[%0t] %s%s%s", $time,
                "hel", "lo, fr", "om a very long string. Percent %s are literally substituted in.");
       $display("hel", "lo, fr", "om a concatenated string.");
       $write("hel", "lo, fr", "om a concatenated format string [%0t].\n", $time);
       $display("extra argument: ", $time);
-      $display($time,, ": pre argument",, "after");
-      $write("[%0t] Embedded tab '\t' and \r return\n", $time);
+      $display($time, ": pre argument");
+      $write("[%0t] Embedded \r return\n", $time);
       $display("[%0t] Embedded\
 multiline", $time);
 
@@ -158,36 +140,8 @@ multiline", $time);
       if (str !== 32'h00_bf_11_0a) $stop;
 `endif
 
-      // Padding
-      $write("'%0d %2d %8d'\n", 23, 23, 23);
-      $write("'%-0d %-2d %-8d'\n", 23, 23, 23);
-      $write("'%0d %2d %8d'\n", n, n, n);
-      $write("'%-0d %-2d %-8d'\n", n, n, n);
-      $write("'%8d'\n", m);
-      $write("'%-8d'\n", m);
-      $write("'%8t'\n", $time);
-      $write("'%-8t'\n", $time);
-      $write("'%8s'\n", svs);
-      $write("'%-8s'\n", svs);
-      $write("'%8s'\n", regstr);
-      $write("'%-8s'\n", regstr);
-      $write("'%8s'\n", "beep");
-      $write("'%-8s'\n", "beep");
-
       // $itord conversion bug, note a %d instead of proper float
-      // verilator lint_off REALCVT
       $display("log10(2) = %d", $log10(100));
-      // verilator lint_on REALCVT
-
-      // unknown and high-impedance values
-      $display("%d", 1'bx);
-      $display("%h", 14'bx01010);
-      $display("%h %o", 12'b001xxx101x01, 12'b001xxx101x01);
-      $display("%d", 32'bx);
-      $display("%d", 32'bz);
-      $display("%d", 32'b11x11z111);
-      $display("%d", 32'b11111z111);
-      $display("%h", 12'b1zz1_zzzz_1x1z);
 
       $write("*-* All Finished *-*\n");
       $finish;

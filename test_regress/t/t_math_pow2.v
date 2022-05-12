@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2014 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2014 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -16,9 +15,8 @@ module t (/*AUTOARG*/
 
    // Aggregate outputs into a single result vector
    //wire [31:0] 	pow32b = {24'h0,crc[15:8]}**crc[7:0];  // Overflows
-   wire [3:0] 	pow4b = crc[7:4] ** crc[3:0];
-   wire [31:0] 	pow2 = 2 ** crc[3:0];  // Optimizes to shift
-   wire [63:0] 	result = {pow2, 28'h0, pow4b};
+   wire [3:0] 	pow4b = crc[7:4]**crc[3:0];
+   wire [63:0] 	result = {60'h0, pow4b};
 
    // Test loop
    always @ (posedge clk) begin
@@ -41,7 +39,8 @@ module t (/*AUTOARG*/
       else if (cyc==99) begin
 	 $write("[%0t] cyc==%0d crc=%x sum=%x\n",$time, cyc, crc, sum);
 	 if (crc !== 64'hc77bb9b3784ea091) $stop;
-`define EXPECTED_SUM 64'h056ea1c5a63aff6a
+	 // What checksum will we end up with (above print should match)
+`define EXPECTED_SUM 64'h1fec4b2b71cf8024
 	 if (sum !== `EXPECTED_SUM) $stop;
 	 $write("*-* All Finished *-*\n");
 	 $finish;

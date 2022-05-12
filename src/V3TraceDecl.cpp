@@ -6,360 +6,281 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
-// can redistribute it and/or modify it under the terms of either the GNU
+// Copyright 2003-2019 by Wilson Snyder.  This program is free software; you can
+// redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
-// SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
+//
+// Verilator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 //*************************************************************************
 // V3TraceDecl's Transformations:
-//      Create trace init CFunc
-//      For each VarScope
-//          If appropriate type of signal, create a TraceDecl
+//      Create trace CFUNCs
+//      For each VARSCOPE
+//          If appropriate type of signal, create a TRACE
 //
 //*************************************************************************
 
 #include "config_build.h"
 #include "verilatedos.h"
-#include "verilated_trace_defs.h"  // For VLT_TRACE_SCOPE_*
 
 #include "V3Global.h"
 #include "V3TraceDecl.h"
 #include "V3EmitCBase.h"
 #include "V3Stats.h"
 
-#include <algorithm>
-#include <functional>
-#include <limits>
-#include <vector>
-
-//######################################################################
-// Utility class to emit path adjustments
-
-class PathAdjustor final {
-    FileLine* const m_flp;  // FileLine used for created nodes
-    std::function<void(AstNodeStmt*)> m_emit;  // Function called with adjustment statements
-    std::vector<std::string> m_stack{""};  // Stack of current paths
-
-    static constexpr char SEPARATOR = ' ';
-
-public:
-    explicit PathAdjustor(FileLine* flp, std::function<void(AstNodeStmt*)> emit)
-        : m_flp{flp}
-        , m_emit{emit} {}
-
-    // Emit Prefix adjustments until the current path is 'newPath'
-    void adjust(const string& newPath) {
-        // Move up to enclosing path
-        unsigned toPop = 0;
-        while (!VString::startsWith(newPath, m_stack.back())) {
-            ++toPop;
-            m_stack.pop_back();
-        }
-        if (toPop) m_emit(new AstTracePopNamePrefix{m_flp, toPop});
-        // Move down, one path element at a time
-        if (newPath != m_stack.back()) {
-            const string& extraPrefix = newPath.substr(m_stack.back().size());
-            size_t begin = 0;
-            while (true) {
-                const size_t end = extraPrefix.find(SEPARATOR, begin);
-                if (end == string::npos) break;
-                const string& extra = extraPrefix.substr(begin, end + 1 - begin);
-                m_emit(new AstTracePushNamePrefix{m_flp, extra});
-                m_stack.push_back(m_stack.back() + extra);
-                begin = end + 1;
-            }
-            const string& extra = extraPrefix.substr(begin);
-            if (!extra.empty()) {
-                m_emit(new AstTracePushNamePrefix{m_flp, extra + SEPARATOR});
-                m_stack.push_back(m_stack.back() + extra);
-            }
-        }
-    }
-
-    // Emit Prefix adjustments to unwind the path back to its original state
-    void unwind() {
-        const unsigned toPop = m_stack.size() - 1;
-        if (toPop) m_emit(new AstTracePopNamePrefix{m_flp, toPop});
-    }
-};
+#include <cstdarg>
 
 //######################################################################
 // TraceDecl state, as a visitor of each AstNode
 
-class TraceDeclVisitor final : public EmitCBaseVisitor {
+class TraceDeclVisitor : public EmitCBaseVisitor {
 private:
     // NODE STATE
 
     // STATE
-    AstTopScope* const m_topScopep;  // The singleton AstTopScope
-    const AstScope* m_currScopep = nullptr;  // Current scope being visited
+    AstScope*           m_scopetopp;    // Current top scope
+    AstCFunc*           m_initFuncp;    // Trace function being built
+    AstCFunc*           m_initSubFuncp; // Trace function being built (under m_init)
+    int                 m_initSubStmts; // Number of statements in function
+    AstCFunc*           m_fullFuncp;    // Trace function being built
+    AstCFunc*           m_chgFuncp;     // Trace function being built
+    int                 m_funcNum;      // Function number being built
+    AstVarScope*        m_traVscp;      // Signal being trace constructed
+    AstNode*            m_traValuep;    // Signal being traced's value to trace in it
+    string              m_traShowname;  // Signal being traced's component name
+    bool                m_interface;    // Currently tracing an interface
 
-    std::vector<AstCFunc*> m_topFuncps;  // Top level trace initialization functions
-    std::vector<AstCFunc*> m_subFuncps;  // Trace sub functions for this scope
-    int m_topFuncSize = 0;  // Size of the top function currently being built
-    int m_subFuncSize = 0;  // Size of the sub function currently being built
-    const int m_funcSizeLimit  // Maximum size of a function
-        = v3Global.opt.outputSplitCTrace() ? v3Global.opt.outputSplitCTrace()
-                                           : std::numeric_limits<int>::max();
-    // Trace init sub functions to invoke for path names in the hierarchy. Note path names and
-    // AstScope instances are not one to one due to the presence of AstIntfRef.
-    std::map<std::string, std::vector<AstCFunc*>> m_scopeSubFuncps;
-
-    struct Signal final {
-        AstVarScope* m_vscp;  // AstVarScope being traced (non const to allow copy during sorting)
-        std::string m_path;  // Path to enclosing module in hierarchy
-        std::string m_name;  // Name of signal
-        Signal(AstVarScope* vscp)
-            : m_vscp{vscp} {
-            // Compute path in hierarchy and signal name
-            const string& vcdName = AstNode::vcdName(vscp->varp()->name());
-            const size_t pos = vcdName.rfind(' ');
-            const size_t pathLen = pos == string::npos ? 0 : pos + 1;
-            m_path = vcdName.substr(0, pathLen);
-            m_name = vcdName.substr(pathLen);
-        }
-    };
-    std::vector<Signal> m_signals;  // Signals under current scope
-    AstVarScope* m_traVscp = nullptr;  // Current AstVarScope we are constructing AstTraceDecls for
-    AstNode* m_traValuep = nullptr;  // Value expression for current signal
-    string m_traName;  // Name component for current signal
-
-    VDouble0 m_statSigs;  // Statistic tracking
-    VDouble0 m_statIgnSigs;  // Statistic tracking
+    VDouble0            m_statSigs;     // Statistic tracking
+    VDouble0            m_statIgnSigs;  // Statistic tracking
 
     // METHODS
     VL_DEBUG_FUNC;  // Declare debug()
 
-    const char* vscIgnoreTrace(const AstVarScope* nodep) {
+    const char* vscIgnoreTrace(AstVarScope* nodep) {
         // Return true if this shouldn't be traced
         // See also similar rule in V3Coverage::varIgnoreToggle
-        const AstVar* const varp = nodep->varp();
+        AstVar* varp = nodep->varp();
         if (!varp->isTrace()) {
             return "Verilator trace_off";
-        } else if (!nodep->isTrace()) {
-            return "Verilator instance trace_off";
-        } else if (!v3Global.opt.traceUnderscore()) {
-            const string prettyName = varp->prettyName();
-            if (!prettyName.empty() && prettyName[0] == '_') return "Leading underscore";
-            if (prettyName.find("._") != string::npos) return "Inlined leading underscore";
         }
-        return nullptr;
+        else if (!nodep->isTrace()) {
+            return "Verilator cell trace_off";
+        }
+        else if (!v3Global.opt.traceUnderscore()) {
+            string prettyName = varp->prettyName();
+            if (!prettyName.empty() && prettyName[0] == '_')
+                return "Leading underscore";
+            if (prettyName.find("._") != string::npos)
+                return "Inlined leading underscore";
+        }
+        return NULL;
     }
 
-    AstCFunc* newCFunc(FileLine* flp, const string& name) {
-        AstScope* const topScopep = m_topScopep->scopep();
-        AstCFunc* const funcp = new AstCFunc{flp, name, topScopep};
-        funcp->argTypes(v3Global.opt.traceClassBase() + "* tracep");
-        funcp->isTrace(true);
-        funcp->isStatic(false);
-        funcp->isLoose(true);
-        funcp->slow(true);
-        topScopep->addActivep(funcp);
+    AstCFunc* newCFunc(AstCFuncType type, const string& name, bool slow) {
+        AstCFunc* funcp = new AstCFunc(m_scopetopp->fileline(), name, m_scopetopp);
+        funcp->slow(slow);
+        string argTypes(EmitCBaseVisitor::symClassVar()+", "+v3Global.opt.traceClassBase()
+                        +"* vcdp, uint32_t code");
+        if (m_interface) argTypes += ", const char* scopep";
+        funcp->argTypes(argTypes);
+        funcp->funcType(type);
+        funcp->symProlog(true);
+        m_scopetopp->addActivep(funcp);
+        UINFO(5,"  Newfunc "<<funcp<<endl);
         return funcp;
     }
-
-    void addToTopFunc(AstNodeStmt* stmtp) {
-        if (m_topFuncSize > m_funcSizeLimit || m_topFuncps.empty()) {
-            m_topFuncSize = 0;
-            //
-            const string n = cvtToStr(m_topFuncps.size());
-            const string name{"trace_init_top__" + n};
-            AstCFunc* const funcp = newCFunc(m_topScopep->fileline(), name);
-            m_topFuncps.push_back(funcp);
-        }
-        m_topFuncps.back()->addStmtsp(stmtp);
-        m_topFuncSize += stmtp->nodeCount();
+    void callCFuncSub(AstCFunc* basep, AstCFunc* funcp, AstIntfRef* irp) {
+        AstCCall* callp = new AstCCall(funcp->fileline(), funcp);
+        callp->argTypes("vlSymsp, vcdp, code");
+        if (irp) callp->addArgsp(irp->unlinkFrBack());
+        basep->addStmtsp(callp);
     }
-
-    void addToSubFunc(AstNodeStmt* stmtp) {
-        if (m_subFuncSize > m_funcSizeLimit || m_subFuncps.empty()) {
-            m_subFuncSize = 0;
-            //
-            FileLine* const flp = m_currScopep->fileline();
-            const string n = cvtToStr(m_subFuncps.size());
-            const string name{"trace_init_sub__" + m_currScopep->nameDotless() + "__" + n};
-            AstCFunc* const funcp = newCFunc(flp, name);
-            funcp->addInitsp(new AstCStmt{flp, "const int c = vlSymsp->__Vm_baseCode;\n"});
-            m_subFuncps.push_back(funcp);
+    AstCFunc* newCFuncSub(AstCFunc* basep) {
+        string name = basep->name()+"__"+cvtToStr(++m_funcNum);
+        AstCFunc* funcp = NULL;
+        if (basep->funcType()==AstCFuncType::TRACE_INIT
+            || basep->funcType()==AstCFuncType::TRACE_INIT_SUB) {
+            funcp = newCFunc(AstCFuncType::TRACE_INIT_SUB, name, basep->slow());
+        } else {
+            basep->v3fatalSrc("Strange base function type");
         }
-        m_subFuncps.back()->addStmtsp(stmtp);
-        m_subFuncSize += stmtp->nodeCount();
+        if (!m_interface) callCFuncSub(basep, funcp, NULL);
+        return funcp;
     }
-
-    std::string getScopeChar(VltTraceScope sct) { return std::string(1, (char)(0x80 + sct)); }
-
     void addTraceDecl(const VNumRange& arrayRange,
-                      int widthOverride) {  // If !=0, is packed struct/array where basicp size
-                                            // misreflects one element
+                      int widthOverride) {  // If !=0, is packed struct/array where basicp size misreflects one element
         VNumRange bitRange;
-        if (widthOverride) {
-            bitRange = VNumRange{widthOverride - 1, 0};
-        } else if (const AstBasicDType* const bdtypep = m_traValuep->dtypep()->basicp()) {
-            bitRange = bdtypep->nrange();
-        }
-        addToSubFunc(new AstTraceDecl{m_traVscp->fileline(), m_traName, m_traVscp->varp(),
-                                      m_traValuep->cloneTree(false), bitRange, arrayRange});
-    }
+        AstBasicDType* bdtypep = m_traValuep->dtypep()->basicp();
+        if (widthOverride) bitRange = VNumRange(widthOverride-1, 0, false);
+        else if (bdtypep) bitRange = bdtypep->nrange();
+        AstTraceDecl* declp = new AstTraceDecl(m_traVscp->fileline(), m_traShowname,
+                                               m_traVscp->varp(), m_traValuep,
+                                               bitRange, arrayRange, m_interface);
+        UINFO(9,"Decl "<<declp<<endl);
 
+        if (!m_interface && v3Global.opt.outputSplitCTrace()
+            && m_initSubStmts > v3Global.opt.outputSplitCTrace()) {
+            m_initSubFuncp = newCFuncSub(m_initFuncp);
+            m_initSubStmts = 0;
+        }
+
+        m_initSubFuncp->addStmtsp(declp);
+        m_initSubStmts += EmitCBaseCounterVisitor(declp).count();
+
+        m_chgFuncp->addStmtsp(new AstTraceInc(m_traVscp->fileline(),
+                                              declp, m_traValuep->cloneTree(true)));
+        // The full version will get constructed in V3Trace
+    }
     void addIgnore(const char* why) {
         ++m_statIgnSigs;
-        addToSubFunc(new AstComment{m_traVscp->fileline(),
-                                    "Tracing: " + m_traName + " // Ignored: " + why, true});
+        m_initSubFuncp->addStmtsp(
+            new AstComment(m_traVscp->fileline(),
+                           "Tracing: "+m_traShowname+" // Ignored: "+why, true));
     }
 
     // VISITORS
-    virtual void visit(AstScope* nodep) override {
-        UASSERT_OBJ(!m_currScopep, nodep, "Should not nest");
-        UASSERT_OBJ(m_subFuncps.empty(), nodep, "Should not nest");
-        UASSERT_OBJ(m_signals.empty(), nodep, "Should not nest");
-        UASSERT_OBJ(!m_traVscp, nodep, "Should not nest");
-        UASSERT_OBJ(m_traName.empty(), nodep, "Should not nest");
+    virtual void visit(AstTopScope* nodep) {
+        m_scopetopp = nodep->scopep();
+        // Make containers for TRACEDECLs first
+        m_initFuncp = newCFunc(AstCFuncType::TRACE_INIT, "traceInitThis", true);
+        m_fullFuncp = newCFunc(AstCFuncType::TRACE_FULL, "traceFullThis", true);
+        m_chgFuncp  = newCFunc(AstCFuncType::TRACE_CHANGE, "traceChgThis", false);
+        //
+        m_initSubFuncp = newCFuncSub(m_initFuncp);
+        // And find variables
+        iterateChildren(nodep);
+    }
+    virtual void visit(AstScope* nodep) {
+        AstCell* cellp = VN_CAST(nodep->aboveCellp(), Cell);
+        if (cellp && VN_IS(cellp->modp(), Iface)) {
+            AstCFunc* origSubFunc = m_initSubFuncp;
+            int origSubStmts = m_initSubStmts;
+            {
+                m_interface = true;
+                m_initSubFuncp = newCFuncSub(origSubFunc);
+                string scopeName = nodep->prettyName();
+                size_t lastDot = scopeName.find_last_of('.');
+                UASSERT_OBJ(lastDot != string::npos, nodep,
+                            "Expected an interface scope name to have at least one dot");
+                scopeName = scopeName.substr(0, lastDot+1);
+                size_t scopeLen = scopeName.length();
 
-        FileLine* const flp = nodep->fileline();
-        m_currScopep = nodep;
+                AstIntfRef* nextIrp = cellp->intfRefp();
+                // While instead of for loop because interface references will
+                // be unlinked as we go
+                while (nextIrp) {
+                    AstIntfRef* irp = nextIrp;
+                    nextIrp = VN_CAST(irp->nextp(), IntfRef);
 
-        // Gather all signals under this AstScope
-        iterateChildrenConst(nodep);
-
-        // If nothing to trace in this scope, then job done
-        if (m_signals.empty()) {
-            m_currScopep = nullptr;
-            return;
+                    string irpName = irp->prettyName();
+                    if (scopeLen > irpName.length()) continue;
+                    string intfScopeName = irpName.substr(0, scopeLen);
+                    if (scopeName != intfScopeName) continue;
+                    callCFuncSub(origSubFunc, m_initSubFuncp, irp);
+                    ++origSubStmts;
+                }
+                iterateChildren(nodep);
+            }
+            m_initSubFuncp = origSubFunc;
+            m_initSubStmts = origSubStmts;
+            m_interface = false;
+        } else {
+            iterateChildren(nodep);
         }
+    }
+    virtual void visit(AstVarScope* nodep) {
+        iterateChildren(nodep);
+        // Prefilter - things that get through this if will either get
+        // traced or get a comment as to why not traced.
+        // Generally this equation doesn't need updating, instead use
+        // varp->isTrace() and/or vscIgnoreTrace.
+        if ((!nodep->varp()->isTemp() || nodep->varp()->isTrace())
+            && !nodep->varp()->isFuncLocal()) {
+            UINFO(5, "    vsc "<<nodep<<endl);
+            AstVar* varp = nodep->varp();
+            AstScope* scopep = nodep->scopep();
+            // Compute show name
+            // This code assumes SPTRACEVCDC_VERSION >= 1330;
+            // it uses spaces to separate hierarchy components.
+            if (m_interface) {
+                m_traShowname = AstNode::vcdName(varp->name());
+            } else {
+                m_traShowname = AstNode::vcdName(scopep->name() + " " + varp->name());
+                if (m_traShowname.substr(0, 4) == "TOP ") m_traShowname.replace(0, 4, "");
+            }
+            UASSERT_OBJ(m_initSubFuncp, nodep, "NULL");
 
-        // Sort signals, first by enclosing instance, then by source location, then by name
-        std::stable_sort(m_signals.begin(), m_signals.end(), [](const Signal& a, const Signal& b) {
-            if (const int cmp = a.m_path.compare(b.m_path)) return cmp < 0;
-            const FileLine* const aflp = a.m_vscp->fileline();
-            const FileLine* const bflp = b.m_vscp->fileline();
-            if (const int cmp = aflp->operatorCompare(*bflp)) return cmp < 0;
-            return a.m_name < b.m_name;
-        });
-
-        // Build trace initialization functions for this AstScope
-        PathAdjustor pathAdjustor{flp, [&](AstNodeStmt* stmtp) { addToSubFunc(stmtp); }};
-        for (const Signal& signal : m_signals) {
-            // Adjust name prefix based on path in hierarchy
-            pathAdjustor.adjust(signal.m_path);
-
-            // Build AstTraceDecl for this signal
-            m_traVscp = signal.m_vscp;
-            m_traName = signal.m_name;
-            if (const char* const ignoreReasonp = vscIgnoreTrace(m_traVscp)) {
-                addIgnore(ignoreReasonp);
+            m_traVscp = nodep;
+            m_traValuep = NULL;
+            if (vscIgnoreTrace(nodep)) {
+                addIgnore(vscIgnoreTrace(nodep));
             } else {
                 ++m_statSigs;
-                if (AstNode* const valuep = m_traVscp->valuep()) {
-                    m_traValuep = valuep->cloneTree(false);
-                } else {
-                    m_traValuep = new AstVarRef{m_traVscp->fileline(), m_traVscp, VAccess::READ};
+                if (nodep->valuep()) m_traValuep = nodep->valuep()->cloneTree(true);
+                else m_traValuep = new AstVarRef(nodep->fileline(), nodep, false);
+                {
+                    // Recurse into data type of the signal; the visitors will call addTraceDecl()
+                    iterate(varp->dtypeSkipRefp());
                 }
-                // Recurse into data type of the signal. The visit methods will add AstTraceDecls.
-                iterate(m_traVscp->varp()->dtypep()->skipRefToEnump());
                 // Cleanup
-                if (m_traValuep) VL_DO_DANGLING(m_traValuep->deleteTree(), m_traValuep);
+                if (m_traValuep) { m_traValuep->deleteTree(); m_traValuep = NULL; }
             }
+            m_traVscp = NULL;
+            m_traValuep = NULL;
+            m_traShowname = "";
         }
-        pathAdjustor.unwind();
-        m_traVscp = nullptr;
-        m_traName.clear();
-        UASSERT_OBJ(!m_traValuep, nodep, "Should have been deleted");
-        m_signals.clear();
-
-        // Add sub functions to m_scopeSubFuncps
-        const AstCell* const cellp = nodep->aboveCellp();
-        if (cellp && VN_IS(cellp->modp(), Iface)) {
-            string scopeName = nodep->prettyName();
-            const size_t lastDot = scopeName.find_last_of('.');
-            UASSERT_OBJ(lastDot != string::npos, nodep,
-                        "Expected an interface scope name to have at least one dot");
-            scopeName = scopeName.substr(0, lastDot + 1);
-            const size_t scopeLen = scopeName.length();
-
-            for (AstIntfRef *irp = cellp->intfRefp(), *nextIrp; irp; irp = nextIrp) {
-                nextIrp = VN_AS(irp->nextp(), IntfRef);
-
-                const string irpName = irp->prettyName();
-                if (scopeLen > irpName.length()) continue;
-                const string intfScopeName = irpName.substr(0, scopeLen);
-                if (scopeName != intfScopeName) continue;
-
-                string scopeName = AstNode::vcdName(irp->name());
-                if (scopeName.substr(0, 4) == "TOP ") scopeName.erase(0, 4);
-                scopeName += getScopeChar(VLT_TRACE_SCOPE_INTERFACE) + ' ';
-                m_scopeSubFuncps.emplace(scopeName, m_subFuncps);
-
-                VL_DO_DANGLING(irp->unlinkFrBack(), irp);
-            }
-
-            m_subFuncps.clear();
-        } else {
-            string scopeName = AstNode::vcdName(nodep->name()) + ' ';
-            if (VString::startsWith(scopeName, "TOP ")) scopeName.erase(0, 4);
-            m_scopeSubFuncps.emplace(scopeName, std::move(m_subFuncps));
-        }
-
-        m_currScopep = nullptr;
     }
-    virtual void visit(AstVarScope* nodep) override {
-        UASSERT_OBJ(m_currScopep, nodep, "AstVarScope not under AstScope");
-
-        // Prefilter - things that get added to m_vscps will either get traced or get a comment as
-        // to why they are not traced. Generally these conditions doesn't need updating, instead
-        // use varp->isTrace() and/or vscIgnoreTrace.
-        if (nodep->varp()->isTemp() && !nodep->varp()->isTrace()) return;
-        if (nodep->varp()->isClassMember()) return;
-        if (nodep->varp()->isFuncLocal()) return;
-
-        // Add to traced signal list
-        m_signals.emplace_back(nodep);
-    }
-
     // VISITORS - Data types when tracing
-    virtual void visit(AstConstDType* nodep) override {
-        if (m_traVscp) iterate(nodep->subDTypep()->skipRefToEnump());
+    virtual void visit(AstConstDType* nodep) {
+        if (m_traVscp) {
+            iterate(nodep->subDTypep()->skipRefp());
+        }
     }
-    virtual void visit(AstRefDType* nodep) override {
-        if (m_traVscp) iterate(nodep->subDTypep()->skipRefToEnump());
+    virtual void visit(AstRefDType* nodep) {
+        if (m_traVscp) {
+            iterate(nodep->subDTypep()->skipRefp());
+        }
     }
-    virtual void visit(AstUnpackArrayDType* nodep) override {
+    virtual void visit(AstUnpackArrayDType* nodep) {
         // Note more specific dtypes above
         if (m_traVscp) {
             if (static_cast<int>(nodep->arrayUnpackedElements()) > v3Global.opt.traceMaxArray()) {
                 addIgnore("Wide memory > --trace-max-array ents");
-            } else if (VN_IS(nodep->subDTypep()->skipRefToEnump(),
-                             BasicDType)  // Nothing lower than this array
-                       && m_traVscp->dtypep()->skipRefToEnump()
-                              == nodep) {  // Nothing above this array
+            } else if (VN_IS(nodep->subDTypep()->skipRefp(), BasicDType)  // Nothing lower than this array
+                       && m_traVscp->dtypep()->skipRefp() == nodep) {  // Nothing above this array
                 // Simple 1-D array, use existing V3EmitC runtime loop rather than unrolling
                 // This will put "(index)" at end of signal name for us
-                if (m_traVscp->dtypep()->skipRefToEnump()->isString()) {
+                if (m_traVscp->dtypep()->skipRefp()->isString()) {
                     addIgnore("Unsupported: strings");
                 } else {
                     addTraceDecl(nodep->declRange(), 0);
                 }
             } else {
                 // Unroll now, as have no other method to get right signal names
-                FileLine* const flp = nodep->fileline();
-                AstNodeDType* const subtypep = nodep->subDTypep()->skipRefToEnump();
-                VL_RESTORER(m_traName);
-                addToSubFunc(new AstTracePushNamePrefix{flp, m_traName});
-                for (int i = nodep->lo(); i <= nodep->hi(); ++i) {
-                    VL_RESTORER(m_traValuep);
-                    m_traName = string{"["} + cvtToStr(i) + string{"]"};
-                    m_traValuep = m_traValuep->cloneTree(false);
-                    m_traValuep = new AstArraySel{flp, m_traValuep, i - nodep->lo()};
-                    m_traValuep->dtypep(subtypep);
-                    iterate(subtypep);
-                    VL_DO_CLEAR(m_traValuep->deleteTree(), m_traValuep = nullptr);
+                AstNodeDType* subtypep = nodep->subDTypep()->skipRefp();
+                for (int i=nodep->lsb(); i<=nodep->msb(); ++i) {
+                    string oldShowname = m_traShowname;
+                    AstNode* oldValuep = m_traValuep;
+                    {
+                        m_traShowname += string("(")+cvtToStr(i)+string(")");
+                        m_traValuep = new AstArraySel(nodep->fileline(),
+                                                      m_traValuep->cloneTree(true),
+                                                      i - nodep->lsb());
+
+                        iterate(subtypep);
+                        m_traValuep->deleteTree(); m_traValuep = NULL;
+                    }
+                    m_traShowname = oldShowname;
+                    m_traValuep = oldValuep;
                 }
-                addToSubFunc(new AstTracePopNamePrefix{flp, 1});
             }
         }
     }
-    virtual void visit(AstPackArrayDType* nodep) override {
+    virtual void visit(AstPackArrayDType* nodep) {
         if (m_traVscp) {
             if (!v3Global.opt.traceStructs()) {
                 // Everything downstream is packed, so deal with as one trace unit.
@@ -367,62 +288,60 @@ private:
                 // a much faster way to trace
                 addTraceDecl(VNumRange(), nodep->width());
             } else {
-                FileLine* const flp = nodep->fileline();
-                AstNodeDType* const subtypep = nodep->subDTypep()->skipRefToEnump();
-                VL_RESTORER(m_traName);
-                addToSubFunc(new AstTracePushNamePrefix{flp, m_traName});
-                for (int i = nodep->lo(); i <= nodep->hi(); ++i) {
-                    VL_RESTORER(m_traValuep);
-                    m_traName = string{"["} + cvtToStr(i) + string{"]"};
-                    const int lsb = (i - nodep->lo()) * subtypep->width();
-                    m_traValuep = m_traValuep->cloneTree(false);
-                    m_traValuep = new AstSel{flp, m_traValuep, lsb, subtypep->width()};
-                    m_traValuep->dtypep(subtypep);
-                    iterate(subtypep);
-                    VL_DO_CLEAR(m_traValuep->deleteTree(), m_traValuep = nullptr);
+                AstNodeDType* subtypep = nodep->subDTypep()->skipRefp();
+                for (int i=nodep->lsb(); i<=nodep->msb(); ++i) {
+                    string oldShowname = m_traShowname;
+                    AstNode* oldValuep = m_traValuep;
+                    {
+                        m_traShowname += string("(")+cvtToStr(i)+string(")");
+                        m_traValuep = new AstSel(nodep->fileline(), m_traValuep->cloneTree(true),
+                                                 (i - nodep->lsb())*subtypep->width(),
+                                                 subtypep->width());
+                        iterate(subtypep);
+                        m_traValuep->deleteTree(); m_traValuep = NULL;
+                    }
+                    m_traShowname = oldShowname;
+                    m_traValuep = oldValuep;
                 }
-                addToSubFunc(new AstTracePopNamePrefix{flp, 1});
             }
         }
     }
-    virtual void visit(AstNodeUOrStructDType* nodep) override {
+    virtual void visit(AstNodeUOrStructDType* nodep) {
         if (m_traVscp) {
             if (nodep->packed() && !v3Global.opt.traceStructs()) {
                 // Everything downstream is packed, so deal with as one trace unit
                 // This may not be the nicest for user presentation, but is
                 // a much faster way to trace
                 addTraceDecl(VNumRange(), nodep->width());
-            } else if (!nodep->packed()) {
-                addIgnore("Unsupported: Unpacked struct/union");
             } else {
-                FileLine* const flp = nodep->fileline();
-                const bool isStruct = VN_IS(nodep, StructDType);  // Otherwise union
-                VL_RESTORER(m_traName);
-                string prefix{m_traName};
-                prefix += isStruct ? getScopeChar(VLT_TRACE_SCOPE_STRUCT)  // Mark scope type
-                                   : getScopeChar(VLT_TRACE_SCOPE_UNION);
-                addToSubFunc(new AstTracePushNamePrefix{flp, prefix + ' '});
-                for (const AstMemberDType* itemp = nodep->membersp(); itemp;
-                     itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    AstNodeDType* const subtypep = itemp->subDTypep()->skipRefToEnump();
-                    m_traName = itemp->prettyName();
-                    if (isStruct) {
-                        VL_RESTORER(m_traValuep);
-                        m_traValuep = m_traValuep->cloneTree(false);
-                        m_traValuep
-                            = new AstSel{flp, m_traValuep, itemp->lsb(), subtypep->width()};
-                        m_traValuep->dtypep(subtypep);
-                        iterate(subtypep);
-                        VL_DO_CLEAR(m_traValuep->deleteTree(), m_traValuep = nullptr);
-                    } else {  // Else union, replicate fields
-                        iterate(subtypep);
+                if (!nodep->packed()) {
+                    addIgnore("Unsupported: Unpacked struct/union");
+                } else {
+                    for (AstMemberDType* itemp = nodep->membersp();
+                         itemp; itemp=VN_CAST(itemp->nextp(), MemberDType)) {
+                        AstNodeDType* subtypep = itemp->subDTypep()->skipRefp();
+                        string oldShowname = m_traShowname;
+                        AstNode* oldValuep = m_traValuep;
+                        {
+                            m_traShowname += string(" ")+itemp->prettyName();
+                            if (VN_IS(nodep, StructDType)) {
+                                m_traValuep = new AstSel(nodep->fileline(),
+                                                         m_traValuep->cloneTree(true),
+                                                         itemp->lsb(), subtypep->width());
+                                iterate(subtypep);
+                                m_traValuep->deleteTree(); m_traValuep = NULL;
+                            } else {  // Else union, replicate fields
+                                iterate(subtypep);
+                            }
+                        }
+                        m_traShowname = oldShowname;
+                        m_traValuep = oldValuep;
                     }
                 }
-                addToSubFunc(new AstTracePopNamePrefix{flp, 1});
             }
         }
     }
-    virtual void visit(AstBasicDType* nodep) override {
+    virtual void visit(AstBasicDType* nodep) {
         if (m_traVscp) {
             if (nodep->isString()) {
                 addIgnore("Unsupported: strings");
@@ -431,61 +350,33 @@ private:
             }
         }
     }
-    virtual void visit(AstEnumDType* nodep) override { iterate(nodep->skipRefp()); }
-    virtual void visit(AstNodeDType*) override {
+    virtual void visit(AstNodeDType* nodep) {
         // Note more specific dtypes above
         if (!m_traVscp) return;
         addIgnore("Unsupported: data type");
     }
 
     //--------------------
-    virtual void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    virtual void visit(AstNode* nodep) {
+        iterateChildren(nodep);
+    }
 
 public:
     // CONSTRUCTORS
-    explicit TraceDeclVisitor(AstNetlist* nodep)
-        : m_topScopep{nodep->topScopep()} {
-        FileLine* const flp = nodep->fileline();
-
-        // Iterate modules to build per scope initialization sub functions
-        iterateAndNextConstNull(nodep->modulesp());
-        UASSERT_OBJ(m_subFuncps.empty(), nodep, "Should have been emptied");
-
-        // Build top level trace initialization functions
-        PathAdjustor pathAdjustor{flp, [&](AstNodeStmt* stmtp) { addToTopFunc(stmtp); }};
-        for (const auto& item : m_scopeSubFuncps) {
-            // Adjust name prefix based on path in hierarchy
-            pathAdjustor.adjust(item.first);
-
-            // Call all sub functions for this path
-            for (AstCFunc* const subFuncp : item.second) {
-                AstCCall* const callp = new AstCCall{flp, subFuncp};
-                callp->argTypes("tracep");
-                addToTopFunc(callp);
-            }
-        }
-        pathAdjustor.unwind();
-
-        // Ensure a top function exists, in case there was nothing to trace at all
-        if (m_topFuncps.empty()) addToTopFunc(new AstComment{flp, "Empty"});
-
-        // Create single top level function, if more than one exists
-        if (m_topFuncps.size() > 1) {
-            AstCFunc* const topFuncp = newCFunc(flp, "");
-            for (AstCFunc* funcp : m_topFuncps) {
-                AstCCall* const callp = new AstCCall{flp, funcp};
-                callp->argTypes("tracep");
-                topFuncp->addStmtsp(callp);
-            }
-            m_topFuncps.clear();
-            m_topFuncps.push_back(topFuncp);
-        }
-
-        // Set name of top level function
-        AstCFunc* const topFuncp = m_topFuncps.front();
-        topFuncp->name("trace_init_top");
+    explicit TraceDeclVisitor(AstNetlist* nodep) {
+        m_scopetopp = NULL;
+        m_initFuncp = NULL;
+        m_initSubFuncp = NULL;
+        m_initSubStmts = 0;
+        m_fullFuncp = NULL;
+        m_chgFuncp = NULL;
+        m_funcNum = 0;
+        m_traVscp = NULL;
+        m_traValuep = NULL;
+        m_interface = false;
+        iterate(nodep);
     }
-    virtual ~TraceDeclVisitor() override {
+    virtual ~TraceDeclVisitor() {
         V3Stats::addStat("Tracing, Traced signals", m_statSigs);
         V3Stats::addStat("Tracing, Ignored signals", m_statIgnSigs);
     }
@@ -495,7 +386,9 @@ public:
 // Trace class functions
 
 void V3TraceDecl::traceDeclAll(AstNetlist* nodep) {
-    UINFO(2, __FUNCTION__ << ": " << endl);
-    { TraceDeclVisitor{nodep}; }  // Destruct before checking
+    UINFO(2,__FUNCTION__<<": "<<endl);
+    {
+        TraceDeclVisitor visitor (nodep);
+    }  // Destruct before checking
     V3Global::dumpCheckGlobalTree("tracedecl", 0, v3Global.opt.dumpTreeLevel(__FILE__) >= 3);
 }

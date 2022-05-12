@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2015 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2015 by Wilson Snyder.
 
 `define checkhw(gotv,w,expv) do if (gotv[(w)*32+:$bits(expv)] !== (expv)) begin $write("%%Error: %s:%0d:  got='h%x exp='h%x\n", `__FILE__,`__LINE__, (gotv[(w)*32+:32]), (expv)); $stop; end while(0);
 
@@ -62,7 +61,7 @@ module t (/*AUTOARG*/
 			 ^ bytehash(w17));
    // verilator lint_on WIDTH
 
-`define EXPECTED_SUM 64'h2bc7c2a98a302891
+`define EXPECTED_SUM 64'hb6fdb64085fc17f5
 
    // Test loop
    always @ (posedge clk) begin

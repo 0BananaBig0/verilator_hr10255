@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2007 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2007 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -18,9 +17,6 @@ module t (/*AUTOARG*/
 	      .clk			(clk),
 	      .toggle			(toggle),
 	      .cyc			(cyc[31:0]));
-
-   Sub sub1 (.*);
-   Sub sub2 (.*);
 
    always @ (posedge clk) begin
       if (cyc!=0) begin
@@ -144,15 +140,4 @@ module Test
    counter1 c1 = new();
 `endif
 
-endmodule
-
-module Sub
-  (
-   input clk,
-   input integer cyc
-   );
-
-   // Simple cover, per-instance
-   pi_sub:
-     cover property (@(posedge clk) cyc == 3);
 endmodule

@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2019 by Todd Strader. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2019 by Todd Strader. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 use File::Temp;
 use File::Compare;
@@ -26,10 +25,10 @@ compile(
 my @files = glob($tmp_dir . "/*");
 
 error("Did not produce DPI header") if scalar(@files) == 0;
-error("Too many files created:" . join(', ', @files)) if scalar(@files) > 1;
+error("Too many files created:".join(', ', @files)) if scalar(@files) > 1;
 
 my $tmp_header = $files[0];
-print("============" . $tmp_header . "\n");
+print("============".$tmp_header."\n");
 error("Unexpected file $tmp_header") unless $tmp_header =~ /__Dpi\.h$/;
 
 compile(

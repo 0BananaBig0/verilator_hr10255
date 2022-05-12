@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2005 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2005 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -95,17 +94,10 @@ module file (/*AUTOARG*/
       endcase
    end
 
-`ifdef ISOLATE
    function [31:16] get_31_16   /* verilator isolate_assignments*/;
       input [31:0] t_crc        /* verilator isolate_assignments*/;
       get_31_16 = t_crc[31:16];
    endfunction
-`else
-   function [31:16] get_31_16;
-      input [31:0] t_crc;
-      get_31_16 = t_crc[31:16];
-   endfunction
-`endif
 
    task set_b_d;
 `ifdef ISOLATE

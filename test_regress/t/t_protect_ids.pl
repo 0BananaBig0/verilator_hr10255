@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2003 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 scenarios(vlt_all => 1);
 
@@ -14,8 +13,8 @@ scenarios(vlt_all => 1);
 
 # This test makes randomly named .cpp/.h files, which tend to collect, so remove them first
 foreach my $filename (glob ("$Self->{obj_dir}/*_PS*.cpp"
-                            . " $Self->{obj_dir}/*_PS*.h"
-                            . " $Self->{obj_dir}/*.d")) {
+                            ." $Self->{obj_dir}/*_PS*.h"
+                            ." $Self->{obj_dir}/*.d" )) {
     print "rm $filename\n" if $Self->{verbose};
     unlink $filename;
 }
@@ -40,9 +39,9 @@ file_grep_not("$Self->{obj_dir}/$Self->{VM_PREFIX}__idmap.xml", qr/to="PS/);
 if ($Self->{vlt_all}) {
     # Check for secret in any outputs
     my $any;
-    foreach my $filename (glob $Self->{obj_dir} . "/*.[ch]*") {
+    foreach my $filename (glob $Self->{obj_dir}."/*.[ch]*") {
         if ($filename =~ /secret/i) {
-            $Self->error("Secret found in a filename: " . $filename);
+            $Self->error("Secret found in a filename: ".$filename);
         }
         file_grep_not($filename, qr/secret/i);
         $any = 1;

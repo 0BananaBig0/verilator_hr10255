@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003-2007 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003-2007 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -34,7 +33,7 @@ module t (/*AUTOARG*/
 `ifdef VERILATOR
 	 $c("VL_PRINTF(\"Calling $c, calling $c...\\n\");");
 	 $c("VL_PRINTF(\"Cyc=%d\\n\",",cyc,");");
-	 c_worked <= $c("this->my_function()");
+	 c_worked <= $c("my_function()");
 	 c_wider <= $c9("0x10");
 `else
 	 c_worked <= 1'b1;

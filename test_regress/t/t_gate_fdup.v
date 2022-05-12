@@ -2,7 +2,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2005 by Thomas Dzetkulic.
-// SPDX-License-Identifier: CC0-1.0
 
 module fnor2(f, a, b);
    parameter W = 1;

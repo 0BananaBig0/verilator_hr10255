@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 module t;
 
@@ -44,7 +43,7 @@ module t;
 	 end
       end
       tsk;
-      tsk; // Second time to ensure we reinit the initial value
+      tsk; // Second time to insure we reinit the initial value
       $write("*-* All Finished *-*\n");
       $finish;
    end

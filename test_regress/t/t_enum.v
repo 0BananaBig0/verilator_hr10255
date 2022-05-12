@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2009 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2009 by Wilson Snyder.
 
 typedef enum logic [4:0]
      {
@@ -31,7 +30,6 @@ module t (/*AUTOARG*/);
 	 z5 = e5
 	 } ZN;
 
-   typedef enum three_t;  // Forward
    typedef enum [2:0] { ONES=~0 } three_t;
    three_t three = ONES;
 

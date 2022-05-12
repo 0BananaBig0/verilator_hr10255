@@ -5,9 +5,10 @@
 #
 # This is executed in the object directory, and called by ../Makefile
 #
-# This file ONLY is placed under the Creative Commons Public Domain, for
-# any use, without warranty, 2020 by Wilson Snyder.
-# SPDX-License-Identifier: CC0-1.0
+# Copyright 2003-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
+# Lesser General Public License Version 3 or the Perl Artistic License
+# Version 2.0.
 #
 #######################################################################
 
@@ -22,13 +23,10 @@ COMPILE.cc = $(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 #######################################################################
 # Compile flags
 
-# Turn on creating .d make dependency files
+# Override some default compile flags
 CPPFLAGS += -MMD -MP
-
-# Compile in Verilator runtime debugging, so +verilator+debug works
 CPPFLAGS += -DVL_DEBUG=1
-
-# Turn on some more compiler lint flags (when configured appropriately)
+# Turn on some more flags (when configured appropriately)
 # For testing inside Verilator, "configure --enable-ccwarn" will do this
 # automatically; otherwise you may want this unconditionally enabled
 ifeq ($(CFG_WITH_CCWARN),yes)	# Local... Else don't burden users
@@ -39,11 +37,16 @@ endif
 # Support class optimizations.  This includes the tracing and symbol table.
 # SystemC takes minutes to optimize, thus it is off by default.
 OPT_SLOW =
-
 # Fast path optimizations.  Most time is spent in these classes.
-OPT_FAST = -Os -fstrict-aliasing
+OPT_FAST = -O2 -fstrict-aliasing
 #OPT_FAST = -O
 #OPT_FAST =
+
+#######################################################################
+# Linking final exe -- presumes have a sim_main.cpp
+
+# Special compile rule
+sim_main.o: sim_main.cpp $(VM_PREFIX).h
 
 ######################################################################
 ######################################################################

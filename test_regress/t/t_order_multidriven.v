@@ -2,7 +2,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2013 by Ted Campbell.
-// SPDX-License-Identifier: CC0-1.0
 
 //With MULTI_CLK defined shows bug, without it is hidden
 `define MULTI_CLK

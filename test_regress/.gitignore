@@ -11,7 +11,6 @@ simx*
 ncverilog.*
 INCA_libs
 logs
-transcript
 .vcsmx_rebuild
 vc_hdrs.h
 xsim.*/

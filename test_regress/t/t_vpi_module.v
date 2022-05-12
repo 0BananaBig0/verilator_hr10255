@@ -4,22 +4,19 @@
 // redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
-// SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
-`ifndef IVERILOG
-import "DPI-C" context function int mon_check();
+`ifdef USE_VPI_NOT_DPI
+//We call it via $c so we can verify DPI isn't required - see bug572
+`else
+import "DPI-C" context function integer mon_check();
 `endif
-
-package somepackage;
-   int someint /*verilator public_flat_rw*/;
-endpackage
 
 module t (/*AUTOARG*/
    // Inputs
    clk
    );
 
-`ifdef USE_DOLLAR_C32
+`ifdef VERILATOR
 `systemc_header
 extern "C" int mon_check();
 `verilog
@@ -41,12 +38,14 @@ extern "C" int mon_check();
 
    // Test loop
    initial begin
-`ifdef IVERILOG
-      status = $mon_check();
-`elsif USE_DOLLAR_C32
+`ifdef VERILATOR
       status = $c32("mon_check()");
-`else
-      status = mon_check();
+`endif
+`ifdef iverilog
+     status = $mon_check();
+`endif
+`ifndef USE_VPI_NOT_DPI
+     status = mon_check();
 `endif
       if (status!=0) begin
          $write("%%Error: t_vpi_module.cpp:%0d: C Test failed\n", status);

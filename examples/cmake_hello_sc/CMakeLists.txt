@@ -5,9 +5,10 @@
 # This is an example cmake script to build a verilog to SystemC project
 # using CMake and Verilator.
 #
-# This file ONLY is placed under the Creative Commons Public Domain, for
-# any use, without warranty, 2020 by Wilson Snyder.
-# SPDX-License-Identifier: CC0-1.0
+# Copyright 2003-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
+# Lesser General Public License Version 3 or the Perl Artistic License
+# Version 2.0.
 #
 ######################################################################
 
@@ -20,7 +21,7 @@
 # cmake --build .
 
 cmake_minimum_required(VERSION 3.8)
-project(cmake_hello_sc CXX)
+project(cmake_hello_sc)
 
 find_package(verilator HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
 if (NOT verilator_FOUND)
@@ -36,11 +37,6 @@ find_package(SystemCLanguage QUIET)
 
 # Create a new executable target that will contain all your sources
 add_executable(example ../make_hello_sc/sc_main.cpp)
-
-set_property(
-  TARGET example
-  PROPERTY CXX_STANDARD ${SystemC_CXX_STANDARD}
-  )
 
 # Add the Verilated circuit to the target
 verilate(example SYSTEMC

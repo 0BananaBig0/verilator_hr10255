@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2008 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2008 by Wilson Snyder.
 
 `include "verilated.v"
 
@@ -43,11 +42,6 @@ module t;
       $swrite(str2, "e=%f", r);
       $swrite(str2, "e=%g", r);
 
-      str3 = "hello";
-      $swrite(str2, {str3, str3});
-`ifdef TEST_VERBOSE  $display("str2=%0s",str2);  `endif
-      if (str2 !== "hellohello") $stop;
-
       r = 0.01;
       $swrite(str2, "e=%e f=%f g=%g", r, r, r);
 `ifdef TEST_VERBOSE  $display("str2=%0s",str2);  `endif
@@ -62,26 +56,14 @@ module t;
       if (str2 !== "lib=t") $stop;
 
       str3 = $sformatf("u=%u", {"a","b","c","d"}); // Value selected so is printable
-`ifdef TEST_VERBOSE  $display("chku %s", str3);  `endif
+`ifdef TEST_VERBOSE  $display("chku %s %s",str3,str3);  `endif
       if (str3 !== "u=dcba") $stop;
 
-      str3 = $sformatf("v=%v", 4'b01xz); // Value selected so is printable
-`ifdef TEST_VERBOSE  $display("chkv %s", str3);  `endif
-
-      str3 = $sformatf("z=%z", {"a","b","c","d"}); // Value selected so is printable
-`ifdef TEST_VERBOSE  $display("chkz %s", str3);  `endif
+      str3 = $sformatf("v=%v", {"a","b","c","d"}); // Value selected so is printable
+`ifdef TEST_VERBOSE  $display("chkv %s %s",str3,str3);  `endif
 
       $sformat(ochar,"%s","c");
       if (ochar != "c") $stop;
-
-      $swrite(str2, 4'd12);
-      if (str2 != "12") $stop;
-      $swriteb(str2, 4'd12);
-      if (str2 != "1100") $stop;
-      $swriteh(str2, 4'd12);
-      if (str2 != "c") $stop;
-      $swriteo(str2, 4'd12);
-      if (str2 != "14") $stop;
 
       $write("*-* All Finished *-*\n");
       $finish;

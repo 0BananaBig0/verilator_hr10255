@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2008 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2008 by Wilson Snyder.
 
 module t (
     input  wire CLK,
@@ -34,18 +33,12 @@ module glbl();
 `ifdef PUB_FUNC
    reg GSR;
    task setGSR;
-`ifdef ATTRIBUTES
       /* verilator public */
-`endif
       input value;
       GSR = value;
    endtask
 `else
- `ifdef ATTRIBUTES
    reg GSR /*verilator public*/;
- `else
-   reg GSR;
- `endif
 `endif
 endmodule
 

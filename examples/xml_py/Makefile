@@ -2,9 +2,10 @@
 #
 # DESCRIPTION: Verilator Example: XML tests
 #
-# This file ONLY is placed under the Creative Commons Public Domain, for
-# any use, without warranty, 2020 by Wilson Snyder.
-# SPDX-License-Identifier: CC0-1.0
+# Copyright 2003-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
+# Lesser General Public License Version 3 or the Perl Artistic License
+# Version 2.0.
 #
 ######################################################################
 
@@ -22,9 +23,9 @@ VERILATOR = $(VERILATOR_ROOT)/bin/verilator
 endif
 
 DOT = dot
-PYTHON3 = python3
+PYTHON = python3
 
-PYTHON_VERSION := $(shell ${PYTHON3} --version 2>&1)
+PYTHON_VERSION := $(shell ${PYTHON} --version 2>&1)
 PYTHON_VERSION_FULL := $(wordlist 2,4,$(subst ., ,${PYTHON_VERSION}))
 PYTHON_VERSION_MAJOR := $(word 1,${PYTHON_VERSION_FULL})
 PYTHON_VERSION_MINOR := $(word 2,${PYTHON_VERSION_FULL})
@@ -45,13 +46,13 @@ test: \
 
 test-vl_file_copy:
 	@echo "-- vl_file_copy example"
-	$(PYTHON3) vl_file_copy -odir copied top.v
+	$(PYTHON) vl_file_copy -odir copied top.v
 	@cmp copied/top.v top.v
 	@cmp copied/sub.v sub.v
 
 test-vl_hier_graph:
 	@echo "-- vl_hier_graph example"
-	$(PYTHON3) vl_hier_graph -o graph.dot top.v
+	$(PYTHON) vl_hier_graph -o graph.dot top.v
 	@echo "Manually run: " $(DOT) -Tpdf -o graph.pdf graph.dot
 
 ######################################################################

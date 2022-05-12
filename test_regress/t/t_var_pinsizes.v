@@ -1,17 +1,16 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 // Also check that SystemC is ordering properly
 // verilator lint_on IMPERFECTSCH
 
 module t (/*AUTOARG*/
    // Outputs
-   o1, o8, o16, o32, o64, o65, o128, o513, o1a2, o94a3, obv1, obv16, obv1_vlt, obv16_vlt,
+   o1, o8, o16, o32, o64, o65, o128, o513, o1a2, o94a3, obv1, obv16,
    // Inputs
-   clk, i1, i8, i16, i32, i64, i65, i128, i513, i1a2, i94a3, ibv1, ibv16, ibv1_vlt, ibv16_vlt
+   clk, i1, i8, i16, i32, i64, i65, i128, i513, i1a2, i94a3, ibv1, ibv16
    );
 
    input clk;
@@ -39,14 +38,10 @@ module t (/*AUTOARG*/
    output logic [93:0]  o94a3 [2:0];
 
    input [0:0] 	 ibv1 /*verilator sc_bv*/;
-   input [15:0]    ibv16 /*verilator sc_bv*/;
-   input [0:0]     ibv1_vlt;
-   input [15:0]     ibv16_vlt;
+   input [15:0]  ibv16 /*verilator sc_bv*/;
 
    output logic [0:0]   obv1 /*verilator sc_bv*/;
    output logic [15:0]  obv16 /*verilator sc_bv*/;
-   output logic [0:0]   obv1_vlt;
-   output logic [15:0]  obv16_vlt;
 
    always @ (posedge clk) begin
       o1 <= i1;
@@ -59,8 +54,6 @@ module t (/*AUTOARG*/
       o513 <= i513;
       obv1 <= ibv1;
       obv16 <= ibv16;
-      obv1_vlt <= ibv1_vlt;
-      obv16_vlt <= ibv16_vlt;
       o1a2 <= i1a2;
       o94a3 <= i94a3;
    end

@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -48,40 +47,58 @@ module t (/*AUTOARG*/
 
 endmodule
 
+`ifdef USE_INLINE
+ `define INLINE_MODULE /*verilator inline_module*/
+`else
+ `define INLINE_MODULE /*verilator public_module*/
+`endif
+
+`ifdef USE_PUBLIC
+ `define PUBLIC /*verilator public*/
+`else
+ `define PUBLIC
+`endif
+
 module ps (input printclk);
+   `INLINE_MODULE
    // Check that %m stays correct across inlines
    always @ (posedge printclk) $write("[%0t] %m: Clocked\n", $time);
 endmodule
 
-module l1 (input [7:0] a, output [7:0] z);
-   wire [7:0] z0; wire [7:0] z1;
+module l1 (input [7:0] a, output [7:0] z `PUBLIC);
+   `INLINE_MODULE
+   wire [7:0] z0 `PUBLIC; wire [7:0] z1 `PUBLIC;
    assign z = z0+z1;
    l2 u0 (a, z0);   l2 u1 (a, z1);
 endmodule
 
-module l2 (input [7:0] a, output [7:0] z);
-   wire [7:0] z0; wire [7:0] z1;
+module l2 (input [7:0] a, output [7:0] z `PUBLIC);
+   `INLINE_MODULE
+   wire [7:0] z0 `PUBLIC; wire [7:0] z1 `PUBLIC;
    assign z = z0+z1;
    wire [7:0] a1 = a+8'd1;
    l3 u0 (a, z0);   l3 u1 (a1, z1);
 endmodule
 
-module l3 (input [7:0] a, output [7:0] z);
-   wire [7:0] z0; wire [7:0] z1;
+module l3 (input [7:0] a, output [7:0] z `PUBLIC);
+   `INLINE_MODULE
+   wire [7:0] z0 `PUBLIC; wire [7:0] z1 `PUBLIC;
    assign z = z0+z1;
    wire [7:0] a1 = a+8'd1;
    l4 u0 (a, z0);   l4 u1 (a1, z1);
 endmodule
 
-module l4 (input [7:0] a, output [7:0] z);
-   wire [7:0] z0; wire [7:0] z1;
+module l4 (input [7:0] a, output [7:0] z `PUBLIC);
+   `INLINE_MODULE
+   wire [7:0] z0 `PUBLIC; wire [7:0] z1 `PUBLIC;
    assign z = z0+z1;
    wire [7:0] a1 = a+8'd1;
    l5 #(1) u0 (a, z0);   l5 #(2) u1 (a1, z1);
 endmodule
 
-module l5 (input [7:0] a, output [7:0] z);
+module l5 (input [7:0] a, output [7:0] z `PUBLIC);
+   `INLINE_MODULE
    parameter PARAM = 5;
-   wire [7:0] z0; wire [7:0] z1;
+   wire [7:0] z0 `PUBLIC; wire [7:0] z1 `PUBLIC;
    assign z = a;
 endmodule

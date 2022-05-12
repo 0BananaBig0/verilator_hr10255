@@ -1,19 +1,14 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2008 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2008 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
-   clk,
-   check_real,
-   check_string
+   clk
    );
 
    input clk;
-   input real check_real; // Check issue #2741
-   input string check_string; // Check issue #2766
 
    typedef struct packed {
       union packed {
@@ -62,7 +57,7 @@ module t (/*AUTOARG*/
 
    reg [1:0]  memory[121:110];
 
-   wire [1023:0] largeish = {992'h0, cyc};
+   reg [1023:0] largeish;
    // CHECK_COVER_MISSING(-1)
 
    always @ (posedge clk) begin

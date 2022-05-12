@@ -2,7 +2,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty.
-// SPDX-License-Identifier: CC0-1.0
 
 // Contributed 2012 by Varun Koyyalagunta, Centaur Technology.
 
@@ -41,11 +40,11 @@ endmodule
 module clock_gate_latch (gated_clk, clk, clken);
   output gated_clk;
   input clk, clken;
-  reg clken_latched;
+  reg clken_latched /*verilator clock_enable*/;
   assign gated_clk = clk & clken_latched ;
 
   wire clkb = ~clk;
-  always_latch @(clkb or clken)
+  always @(clkb or clken)
     if(clkb) clken_latched = clken;
 
 endmodule

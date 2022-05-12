@@ -1,27 +1,26 @@
 # DESCRIPTION: Verilator: GDB startup file with useful defines
 #
-# Copyright 2012-2022 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2012-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 define pn
-  call AstNode::dumpGdb($arg0)
+  call $arg0->dumpGdb()
 end
 document pn
   Verilator: Print single AstNode NODEP
 end
 
 define pnt
-  call AstNode::dumpTreeGdb($arg0)
+  call $arg0->dumpTreeGdb()
 end
 document pnt
   Verilator: Print AstNode NODEP's tree
 end
 
 define dtf
-  call AstNode::dumpTreeFileGdb($arg0, 0)
+  call AstNode::dumpTreeFileGdb(0)
 end
 document dtf
   Verilator: Dump AstNode tree to file

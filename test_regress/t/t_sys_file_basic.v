@@ -1,16 +1,13 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 `include "verilated.v"
 
 `define STRINGIFY(x) `"x`"
 `define ratio_error(a,b) (((a)>(b) ? ((a)-(b)) : ((b)-(a))) /(a))
-`define checkr(gotv,expv) do if (`ratio_error((gotv),(expv))>0.0001) begin $write("%%Error: %s:%0d:  got=%f exp=%f\n", `__FILE__,`__LINE__, (gotv), (expv)); $stop; end while(0);
-`define checkh(gotv,expv) do if ((gotv) !== (expv)) begin $write("%%Error: %s:%0d:  got='h%x exp='h%x\n", `__FILE__,`__LINE__, (gotv), (expv)); $stop; end while(0);
-`define checks(gotv,expv) do if ((gotv) !== (expv)) begin $write("%%Error: %s:%0d:  got='%s' exp='%s'\n", `__FILE__,`__LINE__, (gotv), (expv)); $stop; end while(0);
+`define checkr(gotv,expv) do if (`ratio_error((gotv),(expv))>0.0001) begin $write("%%Error: %s:%0d:  got=%g exp=%g\n", `__FILE__,`__LINE__, (gotv), (expv)); $stop; end while(0);
 
 module t;
    integer file;
@@ -18,12 +15,10 @@ module t;
    integer	chars;
    reg [1*8:1]	letterl;
    reg [8*8:1]	letterq;
-   reg signed [8*8:1] letterqs;
    reg [16*8:1]	letterw;
    reg [16*8:1]	letterz;
    real		r;
    string	s;
-   integer 	i;
 
    reg [7:0] 	v_a,v_b,v_c,v_d;
    reg [31:0] 	v_worda;
@@ -56,20 +51,7 @@ module t;
 
       $fdisplay(file, "[%0t] hello v=%x", $time, 32'h12345667);
       $fwrite(file, "[%0t] %s\n", $time, "Hello2");
-
-      i = 12;
-      $fwrite(file, "d: "); $fwrite(file, i); $fwrite(file, " "); $fdisplay(file, i);
-      $fdisplay(file);
-      $fwriteh(file, "h: "); $fwriteh(file, i); $fwriteh(file, " "); $fdisplayh(file, i);
-      $fdisplayh(file);
-      $fwriteo(file, "o: "); $fwriteo(file, i); $fwriteo(file, " "); $fdisplayo(file, i);
-      $fdisplayo(file);
-      $fwriteb(file, "b: "); $fwriteb(file, i); $fwriteb(file, " "); $fdisplayb(file, i);
-      $fdisplayb(file);
-
       $fflush(file);
-      $fflush();
-      $fflush;
 
       $fclose(file);
 `ifdef verilator
@@ -82,11 +64,6 @@ module t;
 	 // The "r" is required so we get a FD not a MFD
          file = $fopen("DOES_NOT_EXIST","r");
 	 if (|file) $stop;	// Should not exist, IE must return 0
-	 // Check error function
-	 s = "";
-	 i = $ferror(file, s);
-	 `checkh(i, 2);
-	 `checks(s, "No such file or directory");
       end
 
       begin
@@ -134,12 +111,6 @@ module t;
 	 if (chars != 10) $stop;
 	 if (letterw != "\0\0\0\0\0\0widestuff\n") $stop;
 
-	 s = "";
-	 chars = $fgets(s, file);
-	 if (`verbose) $write("c=%0d w=%s", chars, s); // Output includes newline
-	 if (chars != 7) $stop;
-	 if (s != "string\n") $stop;
-
 	 // $sscanf
 	 if ($sscanf("x","")!=0) $stop;
 	 if ($sscanf("z","z")!=0) $stop;
@@ -150,8 +121,8 @@ module t;
 	 if (chars != 1) $stop;
 	 if (letterq != "ijklmnop") $stop;
 
-	 chars = $sscanf("xa=1f ign=22 xb=12898971238912389712783490823_abcdef689_02348923",
-			 "xa=%x ign=%*d xb=%x", letterq, letterw);
+	 chars = $sscanf("xa=1f xb=12898971238912389712783490823_abcdef689_02348923",
+			 "xa=%x xb=%x", letterq, letterw);
 	 if (`verbose) $write("c=%0d xa=%x xb=%x\n", chars, letterq, letterw);
 	 if (chars != 2) $stop;
 	 if (letterq != 64'h1f) $stop;
@@ -165,8 +136,8 @@ module t;
 	 if (letterw != 128'hd2a55) $stop;
 	 if (letterz != {"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2"}) $stop;
 
-	 chars = $sscanf("oa=23 oi=11 ob=125634123615234123681236",
-			 "oa=%o oi=%*o ob=%o", letterq, letterw);
+	 chars = $sscanf("oa=23 ob=125634123615234123681236",
+			 "oa=%o ob=%o", letterq, letterw);
 	 if (`verbose) $write("c=%0d oa=%x ob=%x\n", chars, letterq, letterw);
 	 if (chars != 2) $stop;
 	 if (letterq != 64'h13) $stop;
@@ -178,12 +149,6 @@ module t;
 	 if (chars != 2) $stop;
 	 `checkr(r, 0.1);
 	 if (letterq != 64'hfffffffffffc65a5) $stop;
-
-	 chars = $sscanf("scan from string",
-			 "scan %s string", s);
-	 if (`verbose) $write("c=%0d s=%s\n", chars, s);
-	 if (chars != 1) $stop;
-	 if (s != "from") $stop;
 
 	 // Cover quad and %e/%f
 	 chars = $sscanf("r=0.2",
@@ -239,13 +204,6 @@ module t;
 
 	 if (!sync("\n")) $stop;
 	 if (!sync("*")) $stop;
-	 chars = $fscanf(file, "u=%d", letterqs);
-	 if (`verbose) $write("c=%0d u=%0x\n", chars, letterqs);
-	 if (chars != 1) $stop;
-	 if (letterqs != -236124) $stop;
-
-	 if (!sync("\n")) $stop;
-	 if (!sync("*")) $stop;
 	 chars = $fscanf(file, "%c%s", letterl, letterw);
 	 if (`verbose) $write("c=%0d q=%c s=%s\n", chars, letterl, letterw);
 	 if (chars != 2) $stop;
@@ -256,11 +214,6 @@ module t;
 	 if (`verbose) $write("c=%0d l=%x\n", chars, letterl);
 	 if (chars != 1) $stop;
 	 if (letterl != "\n") $stop;
-
-	 chars = $fscanf(file, "%c%s not_included\n", letterl, s);
-	 if (`verbose) $write("c=%0d l=%s\n", chars, s);
-	 if (chars != 2) $stop;
-	 if (s != "BCD") $stop;
 
 	 // msg1229
 	 v_a = $fgetc(file);

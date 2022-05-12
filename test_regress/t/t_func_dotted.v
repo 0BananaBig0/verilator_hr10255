@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2006 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2006 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -53,22 +52,17 @@ module t (/*AUTOARG*/
 
 endmodule
 
-`ifdef ATTRIBUTES
- `ifdef USE_INLINE_MID
-  `define INLINE_MODULE /*verilator inline_module*/
-  `define INLINE_MID_MODULE /*verilator no_inline_module*/
- `else
-  `ifdef USE_INLINE
-   `define INLINE_MODULE /*verilator inline_module*/
-   `define INLINE_MID_MODULE /*verilator inline_module*/
-  `else
-   `define INLINE_MODULE /*verilator public_module*/
-   `define INLINE_MID_MODULE /*verilator public_module*/
-  `endif
- `endif
+`ifdef USE_INLINE_MID
+ `define INLINE_MODULE /*verilator inline_module*/
+ `define INLINE_MID_MODULE /*verilator no_inline_module*/
 `else
- `define INLINE_MODULE
- `define INLINE_MID_MODULE
+ `ifdef USE_INLINE
+  `define INLINE_MODULE /*verilator inline_module*/
+  `define INLINE_MID_MODULE /*verilator inline_module*/
+ `else
+  `define INLINE_MODULE /*verilator public_module*/
+  `define INLINE_MID_MODULE /*verilator public_module*/
+ `endif
 `endif
 
 module global_mod;

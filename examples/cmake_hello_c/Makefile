@@ -6,9 +6,10 @@
 # This makefile is here for testing the examples and should
 # generally not be added to a CMake project.
 #
-# This file ONLY is placed under the Creative Commons Public Domain, for
-# any use, without warranty, 2020 by Wilson Snyder.
-# SPDX-License-Identifier: CC0-1.0
+# Copyright 2003-2019 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
+# Lesser General Public License Version 3 or the Perl Artistic License
+# Version 2.0.
 #
 ######################################################################
 
@@ -49,12 +50,12 @@ run:
 	@echo "-- Verilator CMake hello world example"
 
 	@echo
-	@echo "-- VERILATE ----------------"
+	@echo "-- CMake ----------------"
 	mkdir -p build && cd build && cmake ..
 
 	@echo
-	@echo "-- BUILD -------------------"
-	cmake --build build -j
+	@echo "-- COMPILE -----------------"
+	cmake --build build
 
 	@echo
 	@echo "-- RUN ---------------------"

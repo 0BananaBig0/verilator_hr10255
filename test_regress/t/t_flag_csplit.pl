@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2003 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 
 scenarios(vlt_all => 1);
 
@@ -28,17 +27,17 @@ while (1) {
     # properly build
     run(logfile => "$Self->{obj_dir}/vlt_gcc.log",
         tee => $self->{verbose},
-        cmd=>[$ENV{MAKE},
-              "-C " . $Self->{obj_dir},
+        cmd=>["make",
+              "-C ".$Self->{obj_dir},
               "-f $Self->{VM_PREFIX}.mk",
               "-j 4",
+              "VM_PARALLEL_BUILDS=1",  # Important to this test
               "VM_PREFIX=$Self->{VM_PREFIX}",
               "TEST_OBJ_DIR=$Self->{obj_dir}",
               "CPPFLAGS_DRIVER=-D".uc($Self->{name}),
-              ($opt_verbose ? "CPPFLAGS_DRIVER2=-DTEST_VERBOSE=1" : ""),
-              "OPT_FAST=-O0",
+              ($opt_verbose ? "CPPFLAGS_DRIVER2=-DTEST_VERBOSE=1":""),
+              "OPT_FAST=-O2",
               "OPT_SLOW=-O0",
-              "OPT_GLOBAL=-Os",
               ($param{make_flags}||""),
         ]);
 
@@ -46,16 +45,22 @@ while (1) {
         check_finished => 1,
         );
 
-    # Splitting should set VM_PARALLEL_BUILDS to 1 by default
-    file_grep("$Self->{obj_dir}/$Self->{VM_PREFIX}_classes.mk", qr/VM_PARALLEL_BUILDS\s*=\s*1/);
     check_splits();
-    check_no_all_file();
     check_gcc_flags("$Self->{obj_dir}/vlt_gcc.log");
 
     ok(1);
     last;
 }
 1;
+
+sub make_version {
+    my $ver = `make --version`;
+    if ($ver =~ /make ([0-9]+\.[0-9]+)/i) {
+        return $1;
+    } else {
+        return -1;
+    }
+}
 
 sub check_splits {
     my $got1;
@@ -72,21 +77,13 @@ sub check_splits {
     $gotSyms1 or error("No Syms__1 split file found");
 }
 
-sub check_no_all_file {
-    foreach my $file (glob("$Self->{obj_dir}/*.cpp")) {
-        if ($file =~ qr/__ALL.cpp/) {
-            error("__ALL.cpp file found: $file");
-        }
-    }
-}
-
 sub check_cpp {
     my $filename = shift;
     my $size = -s $filename;
     printf "  File %6d  %s\n", $size, $filename if $Self->{verbose};
     my $fh = IO::File->new("<$filename") or error("$! $filenme");
     my @funcs;
-    while (defined(my $line = $fh->getline)) {
+    while (defined (my $line = $fh->getline)) {
         if ($line =~ /^(void|IData)\s+(.*::.*)/) {
             my $func = $2;
             $func =~ s/\(.*$//;
@@ -96,32 +93,29 @@ sub check_cpp {
                 && $func !~ /::trace$/
                 && $func !~ /::traceInit$/
                 && $func !~ /::traceFull$/
-                && $func !~ /::final$/
                 ) {
                 push @funcs, $func;
             }
         }
     }
     if ($#funcs > 0) {
-        error("Split had multiple functions in $filename\n\t" . join("\n\t", @funcs));
+        error("Split had multiple functions in $filename\n\t".join("\n\t",@funcs));
     }
 }
 
 sub check_gcc_flags {
     my $filename = shift;
     my $fh = IO::File->new("<$filename") or error("$! $filenme");
-    while (defined(my $line = $fh->getline)) {
+    while (defined (my $line = $fh->getline)) {
         chomp $line;
         print ":log: $line\n" if $Self->{verbose};
-        if ($line =~ /$Self->{VM_PREFIX}\S*\.cpp/) {
-            my $filetype = ($line =~ /Slow|Syms/) ? "slow" : "fast";
-            my $opt = ($line !~ /-O0/) ? "slow" : "fast";
+        if ($line =~ /\.cpp/) {
+            my $filetype = ($line =~ /Slow/) ? "slow":"fast";
+            my $opt = ($line !~ /-O2/) ? "slow":"fast";
             print "$filetype, $opt, $line\n" if $Self->{verbose};
             if ($filetype ne $opt) {
                 error("${filetype} file compiled as if was ${opt}: $line");
             }
-        } elsif ($line =~ /\.cpp/ and $line !~ /-Os/) {
-            error("library file not compiled with OPT_GLOBAL: $line");
         }
     }
 }

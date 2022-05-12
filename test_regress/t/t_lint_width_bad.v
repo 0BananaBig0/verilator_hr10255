@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2009 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2009 by Wilson Snyder.
 
 module t ();
 
@@ -30,14 +29,6 @@ module t ();
    // We presently warn here, in theory we could detect if the number of one bit additions could overflow the LHS
    wire                 one = 1;
    wire [2:0]           cnt  = (one + one + one + one);
-
-   // Not harmless > or >= compared with something wider (as different results if "a" wider)
-   localparam [40:0] THREE = 3;
-   int        a;
-   initial for (a = 0; a > THREE; ++a) $display(a);
-   initial for (a = 0; a >= THREE; ++a) $display(a);
-
-   initial if (THREE) $stop;
 
 endmodule
 

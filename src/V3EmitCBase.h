@@ -6,16 +6,20 @@
 //
 //*************************************************************************
 //
-// Copyright 2003-2022 by Wilson Snyder. This program is free software; you
-// can redistribute it and/or modify it under the terms of either the GNU
+// Copyright 2003-2019 by Wilson Snyder.  This program is free software; you can
+// redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
-// SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
+//
+// Verilator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITCBASE_H_
-#define VERILATOR_V3EMITCBASE_H_
+#ifndef _V3EMITCBASE_H_
+#define _V3EMITCBASE_H_ 1
 
 #include "config_build.h"
 #include "verilatedos.h"
@@ -28,89 +32,94 @@
 #include <cmath>
 
 //######################################################################
-// Set user4p in all CFunc and Var to point to the containing AstNodeModule
-
-class EmitCParentModule final {
-    // NODE STATE
-    //   AstFunc::user4p()      AstNodeModule* Parent module pointer
-    //   AstVar::user4p()       AstNodeModule* Parent module pointer
-    const VNUser4InUse user4InUse;
-
-public:
-    EmitCParentModule();
-    VL_UNCOPYABLE(EmitCParentModule);
-
-    static const AstNodeModule* get(const AstNode* nodep) {
-        return VN_AS(nodep->user4p(), NodeModule);
-    }
-};
-
-//######################################################################
 // Base Visitor class -- holds output file pointer
 
-class EmitCBaseVisitor VL_NOT_FINAL : public VNVisitor {
+class EmitCBaseVisitor : public AstNVisitor {
 public:
     // STATE
-    V3OutCFile* m_ofp = nullptr;
-    bool m_trackText = false;  // Always track AstText nodes
+    V3OutCFile* m_ofp;
+    bool m_trackText;  // Always track AstText nodes
     // METHODS
     V3OutCFile* ofp() const { return m_ofp; }
     void puts(const string& str) { ofp()->puts(str); }
     void putbs(const string& str) { ofp()->putbs(str); }
-    void putsDecoration(const string& str) {
-        if (v3Global.opt.decoration()) puts(str);
-    }
+    void putsDecoration(const string& str) { if (v3Global.opt.decoration()) puts(str); }
     void putsQuoted(const string& str) { ofp()->putsQuoted(str); }
-    void ensureNewLine() { ofp()->ensureNewLine(); }
     bool optSystemC() { return v3Global.opt.systemC(); }
     static string protect(const string& name) { return VIdProtect::protectIf(name, true); }
     static string protectIf(const string& name, bool doIt) {
-        return VIdProtect::protectIf(name, doIt);
-    }
+        return VIdProtect::protectIf(name, doIt); }
     static string protectWordsIf(const string& name, bool doIt) {
-        return VIdProtect::protectWordsIf(name, doIt);
-    }
+        return VIdProtect::protectWordsIf(name, doIt); }
     static string ifNoProtect(const string& in) { return v3Global.opt.protectIds() ? "" : in; }
-    static string voidSelfAssign(const AstNodeModule* modp) {
-        const string className = prefixNameProtect(modp);
-        return className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
-               + "*>(voidSelf);\n";
-    }
-    static string symClassName() { return v3Global.opt.prefix() + "_" + protect("_Syms"); }
-    static string symClassVar() { return symClassName() + "* __restrict vlSymsp"; }
-    static string symClassAssign() {
-        return symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
-    }
-    static string funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp = nullptr);
-    static string prefixNameProtect(const AstNode* nodep) {  // C++ name with prefix
-        return v3Global.opt.modPrefix() + "_" + protect(nodep->name());
+    static string symClassName() { return v3Global.opt.prefix()+"_"+protect("_Syms"); }
+    static string symClassVar()  { return symClassName()+"* __restrict vlSymsp"; }
+    static string symTopAssign() {
+        return v3Global.opt.prefix()+"* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;"; }
+    static string modClassName(AstNodeModule* modp) {  // Return name of current module being processed
+        if (modp->isTop()) {
+            return v3Global.opt.prefix();
+        } else {
+            return v3Global.opt.modPrefix()+"_"+protect(modp->name());
+        }
     }
     static string topClassName() {  // Return name of top wrapper module
         return v3Global.opt.prefix();
     }
-
-    static bool isConstPoolMod(const AstNode* modp) {
-        return modp == v3Global.rootp()->constPoolp()->modp();
+    static AstCFile* newCFile(const string& filename, bool slow, bool source) {
+        AstCFile* cfilep = new AstCFile(v3Global.rootp()->fileline(), filename);
+        cfilep->slow(slow);
+        cfilep->source(source);
+        v3Global.rootp()->addFilesp(cfilep);
+        return cfilep;
     }
-
-    static bool isAnonOk(const AstVar* varp) {
-        return v3Global.opt.compLimitMembers() != 0  // Enabled
-               && !varp->isStatic()  // Not a static variable
-               && !varp->isSc()  // Aggregates can't be anon
-               && (varp->basicp() && !varp->basicp()->isOpaque());  // Aggregates can't be anon
+    string cFuncArgs(const AstCFunc* nodep) {
+        // Return argument list for given C function
+        string args = nodep->argTypes();
+        // Might be a user function with argument list.
+        for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp=stmtp->nextp()) {
+            if (const AstVar* portp = VN_CAST_CONST(stmtp, Var)) {
+                if (portp->isIO() && !portp->isFuncReturn()) {
+                    if (args != "") args+= ", ";
+                    if (nodep->dpiImport() || nodep->dpiExportWrapper())
+                        args += portp->dpiArgType(true, false);
+                    else if (nodep->funcPublic())
+                        args += portp->cPubArgType(true, false);
+                    else args += portp->vlArgType(true, false, true);
+                }
+            }
+        }
+        return args;
     }
-
-    static AstCFile* newCFile(const string& filename, bool slow, bool source);
-    string cFuncArgs(const AstCFunc* nodep);
-    void emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp, bool withScope);
-    void emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp, bool cLinkage = false);
-    void emitVarDecl(const AstVar* nodep, bool asRef = false);
-    void emitModCUse(const AstNodeModule* modp, VUseType useType);
-    void emitTextSection(const AstNodeModule* modp, VNType type);
 
     // CONSTRUCTORS
-    EmitCBaseVisitor() = default;
-    virtual ~EmitCBaseVisitor() override = default;
+    EmitCBaseVisitor() {
+        m_ofp = NULL;
+        m_trackText = false;
+    }
+    virtual ~EmitCBaseVisitor() {}
+};
+
+//######################################################################
+// Count operations under the given node, as a visitor of each AstNode
+
+class EmitCBaseCounterVisitor : public AstNVisitor {
+private:
+    // MEMBERS
+    int m_count;  // Number of statements
+    // VISITORS
+    virtual void visit(AstNode* nodep) {
+        m_count++;
+        iterateChildren(nodep);
+    }
+public:
+    // CONSTRUCTORS
+    explicit EmitCBaseCounterVisitor(AstNode* nodep) {
+        m_count = 0;
+        iterate(nodep);
+    }
+    virtual ~EmitCBaseCounterVisitor() {}
+    int count() const { return m_count; }
 };
 
 #endif  // guard

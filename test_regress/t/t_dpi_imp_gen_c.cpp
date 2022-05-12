@@ -6,16 +6,14 @@
 // redistribute it and/or modify it under the terms of either the GNU
 // Lesser General Public License Version 3 or the Perl Artistic License
 // Version 2.0.
-// SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 //*************************************************************************
 
-#include "svdpi.h"
 #include <cstdio>
 #include <cstring>
+#include "svdpi.h"
 
 //======================================================================
 
-// clang-format off
 #if defined(VERILATOR)
 # include "Vt_dpi_imp_gen__Dpi.h"
 #elif defined(VCS)
@@ -25,11 +23,10 @@
 #else
 # error "Unknown simulator for DPI test"
 #endif
-// clang-format on
 
 #ifdef NEED_EXTERNS
 extern "C" {
-extern void dpi_genvarTest();
+    extern void dpi_genvarTest();
 }
 #endif
 
@@ -37,6 +34,6 @@ extern void dpi_genvarTest();
 
 // Called from our Verilog code to run the tests
 void dpi_genvarTest() {
-  const char *scopeName = svGetNameFromScope(svGetScope());
-  printf("scope name : %s\n", scopeName);
+    const char* scopeName = svGetNameFromScope(svGetScope());
+    printf("scope name : %s\n", scopeName);
 }

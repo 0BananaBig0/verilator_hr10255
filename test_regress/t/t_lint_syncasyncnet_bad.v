@@ -1,20 +1,44 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2010 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2010 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
-   clk, rst_both_l, rst_sync_l, rst_async_l, d
+   rst_sync_l, rst_both_l, rst_async_l, d, clk
    );
    /*AUTOINPUT*/
+   // Beginning of automatic inputs (from unused autoinst inputs)
+   input                clk;                    // To sub1 of sub1.v, ...
+   input                d;                      // To sub1 of sub1.v, ...
+   input                rst_async_l;            // To sub2 of sub2.v
+   input                rst_both_l;             // To sub1 of sub1.v, ...
+   input                rst_sync_l;             // To sub1 of sub1.v
+   // End of automatics
+
+   sub1 sub1 (/*AUTOINST*/
+              // Inputs
+              .clk                      (clk),
+              .rst_both_l               (rst_both_l),
+              .rst_sync_l               (rst_sync_l),
+              .d                        (d));
+   sub2 sub2 (/*AUTOINST*/
+              // Inputs
+              .clk                      (clk),
+              .rst_both_l               (rst_both_l),
+              .rst_async_l              (rst_async_l),
+              .d                        (d));
+endmodule
+
+module sub1 (/*AUTOARG*/
+   // Inputs
+   clk, rst_both_l, rst_sync_l, d
+   );
 
    input clk;
    input rst_both_l;
    input rst_sync_l;
-   input rst_async_l;
-
+   //input rst_async_l;
    input d;
    reg q1;
    reg q2;
@@ -35,27 +59,40 @@ module t (/*AUTOARG*/
       if (0 && q1 && q2) ;
    end
 
+endmodule
+
+module sub2 (/*AUTOARG*/
+   // Inputs
+   clk, rst_both_l, rst_async_l, d
+   );
+
+   input clk;
+   input rst_both_l;
+   //input rst_sync_l;
+   input rst_async_l;
+   input d;
+   reg   q1;
+   reg   q2;
    reg   q3;
+
    always @(posedge clk or negedge rst_async_l) begin
       if (~rst_async_l) begin
          /*AUTORESET*/
          // Beginning of autoreset for uninitialized flops
-         q3 <= 1'h0;
+         q1 <= 1'h0;
          // End of automatics
       end else begin
-         q3 <= d;
+         q1 <= d;
       end
    end
 
-   reg q4;
    always @(posedge clk or negedge rst_both_l) begin
-      q4 <= (~rst_both_l) ? 1'b0 : d;
+      q2 <= (~rst_both_l) ? 1'b0 : d;
    end
    // Make there be more async uses than sync uses
-   reg q5;
    always @(posedge clk or negedge rst_both_l) begin
-      q5 <= (~rst_both_l) ? 1'b0 : d;
-      if (0 && q3 && q4 && q5) ;
+      q3 <= (~rst_both_l) ? 1'b0 : d;
+      if (0 && q1 && q2 && q3) ;
    end
 
 endmodule

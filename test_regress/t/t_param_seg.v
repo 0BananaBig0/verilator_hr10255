@@ -2,7 +2,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2016 by Mandy Xu.
-// SPDX-License-Identifier: CC0-1.0
 
 // verilator lint_off WIDTH
 

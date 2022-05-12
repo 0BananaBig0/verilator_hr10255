@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 if (!$::Driver) { use FindBin; exec("$FindBin::Bin/bootstrap.pl", @ARGV, $0); die; }
 # DESCRIPTION: Verilator: Verilog Test driver/expect definition
 #
-# Copyright 2003 by Wilson Snyder. This program is free software; you
-# can redistribute it and/or modify it under the terms of either the GNU
+# Copyright 2003 by Wilson Snyder. This program is free software; you can
+# redistribute it and/or modify it under the terms of either the GNU
 # Lesser General Public License Version 3 or the Perl Artistic License
 # Version 2.0.
-# SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 use IO::File;
 
 scenarios(simulator => 1);
@@ -24,7 +23,7 @@ sub gen {
     $fh->print("\n");
     my $prev = "i";
     my $n = 9000;
-    for (my $i = 1; $i < $n; ++$i) {
+    for (my $i=1; $i<$n; ++$i) {
         $fh->printf("  wire [63:0] ass%04x = (sel == 16'h%04x) ? 64'h0 : $prev;\n", $i, $i);
         $prev = sprintf("ass%04x", $i);
     }
@@ -34,8 +33,8 @@ sub gen {
 
     $fh->print("\n");
     $fh->print("  always @ (posedge clk) begin\n");
-    $fh->print('    $write("*-* All Finished *-*\n");', "\n");
-    $fh->print('    $finish;', "\n");
+    $fh->print('    $write("*-* All Finished *-*\n");',"\n");
+    $fh->print('    $finish;',"\n");
     $fh->print("  end\n");
     $fh->print("endmodule\n");
 }
@@ -45,8 +44,8 @@ top_filename("$Self->{obj_dir}/t_gate_chained.v");
 gen($Self->{top_filename});
 
 compile(
-    verilator_flags2 => ["--stats --x-assign fast --x-initial fast",
-                         "-Wno-UNOPTTHREADS"],
+    verilator_flags2=>["--stats --x-assign fast --x-initial fast",
+                       "-Wno-UNOPTTHREADS"],
     );
 
 execute(

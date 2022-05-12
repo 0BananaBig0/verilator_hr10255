@@ -2,7 +2,6 @@
 //
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2016 by Ian Thompson.
-// SPDX-License-Identifier: CC0-1.0
 
 //bug1099
 

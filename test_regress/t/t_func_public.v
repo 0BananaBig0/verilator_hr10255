@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2003 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2003 by Wilson Snyder.
 
 module t (clk);
    input clk;
@@ -16,7 +15,7 @@ module t (clk);
 	 cyc <= cyc + 1;
 	 if (cyc==1) begin
 `ifdef verilator
-	    $c("this->publicTop();");
+	    $c("publicTop();");
 `endif
 	 end
 	 if (cyc==20) begin
@@ -84,32 +83,32 @@ module tpub (
 	 //
 `ifdef VERILATOR_PUBLIC_TASKS
 	 if (cyc==11) begin
-	    $c("this->publicNoArgs();");
-	    $c("this->publicSetBool(true);");
-	    $c("this->publicSetLong(0x11bca);");
-	    $c("this->publicSetQuad(0x66655554444ULL);");
-	    $c("this->publicSetFlop(0x321);");
+	    $c("publicNoArgs();");
+	    $c("publicSetBool(true);");
+	    $c("publicSetLong(0x11bca);");
+	    $c("publicSetQuad(VL_ULL(0x66655554444));");
+	    $c("publicSetFlop(0x321);");
 	    //Unsupported: $c("WData w[3] = {0x12, 0x5678_9123, 0x1245_2352}; publicSetWide(w);");
 	 end
 	 if (cyc==12) begin
-	    $c("this->got_bool = this->publicGetSetBool(true);");
-	    $c("this->got_long = this->publicGetSetLong(0x11bca);");
-	    $c("this->got_quad = this->publicGetSetQuad(0xaaaabbbbccccULL);");
+	    $c("got_bool = publicGetSetBool(true);");
+	    $c("got_long = publicGetSetLong(0x11bca);");
+	    $c("got_quad = publicGetSetQuad(VL_ULL(0xaaaabbbbcccc));");
 	 end
 	 if (cyc==13) begin
-	    $c("{ bool gb; this->publicGetBool(gb); this->got_bool=gb; }");
+	    $c("{ bool gb; publicGetBool(gb); got_bool=gb; }");
 	    if (1'b1 != got_bool) $stop;
-	    $c("this->publicGetLong(this->got_long);");
+	    $c("publicGetLong(got_long);");
 	    if (24'h11bca != got_long) $stop;
-	    $c("{ vluint64_t qq; this->publicGetQuad(qq); this->got_quad=qq; }");
+	    $c("{ vluint64_t qq; publicGetQuad(qq); got_quad=qq; }");
 	    if (60'haaaa_bbbb_cccc != got_quad) $stop;
-	    $c("{ WData gw[3]; this->publicGetWide(gw); VL_ASSIGN_W(72,this->got_wide,gw); }");
+	    $c("{ WData gw[3]; publicGetWide(gw); VL_ASSIGN_W(72,got_wide,gw); }");
 	    if (72'hac_abca_aaaa_bbbb_1234 != got_wide) $stop;
 	    //Below doesn't work, because we're calling it inside the loop that sets var_flop
 	    // if (12'h321 != var_flop) $stop;
 	 end
 	 if (cyc==14) begin
-	    if ($c32("this->publicInstNum()") != i) $stop;
+	    if ($c32("publicInstNum()") != i) $stop;
 	 end
 `endif
       end

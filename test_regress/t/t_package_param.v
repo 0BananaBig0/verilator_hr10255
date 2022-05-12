@@ -5,8 +5,7 @@
 // below is valid SystemVerilog.
 //
 // This file ONLY is placed into the Public Domain, for any use, without
-// warranty, 2013 by Jie Xu.
-// SPDX-License-Identifier: CC0-1.0
+// warranty, 2013 by Jie Xu
 
 package defs;
    parameter NUMBER = 8;

@@ -1,8 +1,7 @@
 // DESCRIPTION: Verilator: Verilog Test module
 //
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2018 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
+// This file ONLY is placed into the Public Domain, for any use,
+// without warranty, 2018 by Wilson Snyder.
 
 module t (/*AUTOARG*/
    // Inputs
@@ -76,8 +75,6 @@ module Test (/*AUTOARG*/
       if (dly0 != $past(in)) $stop;
       if (dly0 != $past(in,1)) $stop;
       if (dly1 != $past(in,2)) $stop;
-      // $sampled(expression) -> expression
-      if (in != $sampled(in)) $stop;
    end
 
    assert property (@(posedge clk) dly0 == $past(in));
