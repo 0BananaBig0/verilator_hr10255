@@ -6,7 +6,6 @@
  ************************************************************************/
 #pragma once
 
-#include "V3Number.h"
 #include <cstdint>
 #include <string>
 #include <vector>
