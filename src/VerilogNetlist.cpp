@@ -394,9 +394,9 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 }
 
 // Use case2 as a example to demonstrate.
-void VerilogNetlist::flattenHierNet(std::vector<Module> &hierNetlist,
+void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                                     std::vector<Module> &flatNetlist,
-                                    uint32_t &totalUsedBlackBoxes)
+                                    const uint32_t &totalUsedBlackBoxes)
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have standard cells or assign

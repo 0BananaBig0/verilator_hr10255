@@ -6,16 +6,6 @@
  ************************************************************************/
 #include "OneBitHierNetlist.h"
 
-// When writing visit functions, there are some keys we should know:
-// (1)Everytime we only write either AstAssignW/AstAssign or AstPin information
-// until all its information have been obtained.
-// (2)Only AstVarRef or AstSel can be lValue of assign statement.
-// (3)AstConst, AstExtend and AstConcat can't be lValue of assign statement.
-// (4)Know about the difference between m_nextp and m_opxp, some information
-// about them I have written before the declaration of visit function.
-// (5)We are only allowed to writ one AstVarRef information at the same time.
-// (6)Only such AstNode that has children pointed by m_opxp and we need the
-// information of its children can call iterateChildren(nodep) function.
 void HierNetlistVisitor::visit(AstNode *nodep) { iterateChildren(nodep); };
 
 void HierNetlistVisitor::visit(AstNetlist *nodep)
@@ -37,9 +27,8 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   // cells from AstCell, AstModule and AstVar
   _theTimesOfVisit = 4;
   iterateChildren(nodep);
-  // Before the fifth time visit, adjust the module order.
+  // Before the fifth time visit, adjust the stdcells order.
   swapEmptyAndNotEmptyStdCellPosition();
-  // std::cout << _totalUsedNotEmptyStdCells << std::endl;
   // Fifth time visit: Get information of all modules including standard cells
   // from AstConst, AstVarRef, AstCell and so on.
   _theTimesOfVisit = 5;
@@ -81,8 +70,8 @@ void HierNetlistVisitor::visit(AstModule *nodep)
   }
   else if(_theTimesOfVisit > 1 && _theTimesOfVisit < 5)
   {
-    // The first two times visit AST, we only visit AstModule and AstVar and
-    // count the number of AstCell of Every AstModule.
+    // The second to fourth time visit AST, we only visit AstModule and AstVar
+    // and count the number of AstCell of Every AstModule.
     auto visitAstModuleAndAstVar = [this](AstModule *nodep)
     {
       Module curModule;
@@ -93,7 +82,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       curModule.level = nodep->level();
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
-      // Initial value for all ports of every module.
+      // Initial value for all ports of current module.
       _portNameMapPortDefIndex.ports.clear();
       _curPortDefIndex = 0;
       // visit input
@@ -112,7 +101,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // visit wire
       _theTimesOfVisitAstVar = 4;
       iterateChildren(nodep);
-      // Store LUT, the number of SubModuleInstance.
+      // Store LUT
       _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
       // Prepare for the next visit to AstModule.
       _curModuleIndex++;
@@ -217,7 +206,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     _isAssignStatement = true;
     _multipleBitsAssignStatementTmp.rValue.clear();
     iterateChildren(nodep);
-    // Convert multi bits wide assign statement into unit wide assign
+    // Convert multi bits wide assign statement into one bit assign
     // statement.
     BitSlicedAssignStatement bitSlicedAssignStatementTmp;
     // Use int type, not uint32_t, because of start = end = 0 may occur.
@@ -407,15 +396,14 @@ void HierNetlistVisitor::visit(AstSel *nodep)
   _whichAstSelChildren = 1;
   iterateChildren(nodep);
   if(_isAssignStatement)
-  { // Now, AstSel is a child or a descendant of
-    // AstAssignW
+  { // Now, AstSel is a child or a descendant of AstNodeAssign
     if(_isAssignStatementLvalue)
-    { // Now, AstSel is a child of AstAssignW
+    { // Now, AstSel is a child of AstNodeAssign
       _multipleBitsAssignStatementTmp.lValue = _multipleBitsRefVarTmp;
       _isAssignStatementLvalue = false;
     }
     else
-    { // Now, AstSel is a child of AstAssign or AstExtend or AstConcat
+    { // Now, AstSel is a child of AstNodeAssign or AstExtend or AstConcat
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
     }
   }
@@ -474,14 +462,14 @@ void HierNetlistVisitor::visit(AstVarRef *nodep)
                                    _multipleBitsRefVarTmp.refVarRange.start +
                                    1;
     if(_isAssignStatement)
-    { // Now, AstVarRef is a child of AstAssign or a
-      // descendant of AstAssignW
+    { // Now, AstVarRef is a child of AstNodeAssign or a
+      // descendant of AstNodeAssign
       if(nodep->access() == VAccess::WRITE)
-      { // Now, AstVarRef is a child of AstAssign
+      { // Now, AstVarRef is a child of AstNodeAssign
         _multipleBitsAssignStatementTmp.lValue = _multipleBitsRefVarTmp;
       }
       else
-      { // Now, AstVarRef is a child of AstAssign or AstExtend or
+      { // Now, AstVarRef is a child of AstNodeAssign or AstExtend or
         // AstConcat or AstReplicate
         _multipleBitsAssignStatementTmp.rValue.push_back(
           _multipleBitsRefVarTmp);
@@ -506,8 +494,7 @@ void HierNetlistVisitor::visit(AstExtend *nodep)
   _multipleBitsRefVarTmp.hasX = false;
   _multipleBitsRefVarTmp.width = std::move(extendWidth);
   if(_isAssignStatement)
-  { // Now, AstExtend is a child of AstAssign or
-    // AstAssignW or AstConcat
+  { // Now, AstExtend is a child of AstNodeAssign or AstConcat
     _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
   }
   else
@@ -527,8 +514,7 @@ void HierNetlistVisitor::visit(AstExtendS *nodep)
   _multipleBitsRefVarTmp.hasX = false;
   _multipleBitsRefVarTmp.width = std::move(extendSWidth);
   if(_isAssignStatement)
-  { // Now, AstExtend is a child of AstAssign or
-    // AstAssignW or AstConcat
+  { // Now, AstExtend is a child of AstNodeAssign or AstConcat
     _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
   }
   else
@@ -543,8 +529,7 @@ void HierNetlistVisitor::visit(AstReplicate *nodep)
 {
   iterateChildren(nodep);
   if(_isAssignStatement)
-  { // Now, AstReplicate is a child of AstAssignW or
-    // AstExtend or AstConcat
+  { // Now, AstReplicate is a child of AstNodeAssign or AstExtend or AstConcat
     uint32_t replicateTimes =
       _multipleBitsAssignStatementTmp.rValue.back().constValueAndX.value;
     _multipleBitsAssignStatementTmp.rValue.pop_back();
@@ -617,9 +602,7 @@ void HierNetlistVisitor::visit(AstConst *nodep)
         valueAndX128Tmp.end());
     }
     if(_isAssignStatement)
-    { // Now, AstConst is a child of AstAssign or
-      // AstAssignW or AstConcat or
-      // AstReplicate
+    { // Now, AstConst is a child of AstNodeAssign or AstConcat or AstReplicate
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
       if(_multipleBitsRefVarTmp.width > 32)
         _multipleBitsRefVarTmp.biggerValue.clear();

@@ -28,8 +28,8 @@ struct ConstValueAndX
     // 1       | 1      | 0      | 0
     uint32_t value, valueX;
 };
-// It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 // MultipleBitsRefVar =Multiple Bits Referenced Variable
+// It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 struct MultipleBitsRefVar
 {
     std::string refVarName = ""; // Referenced Variable Name
