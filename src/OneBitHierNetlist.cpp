@@ -39,6 +39,7 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   iterateChildren(nodep);
   // Before the fifth time visit, adjust the module order.
   swapEmptyAndNotEmptyStdCellPosition();
+  // std::cout << _totalUsedNotEmptyStdCells << std::endl;
   // Fifth time visit: Get information of all modules including standard cells
   // from AstConst, AstVarRef, AstCell and so on.
   _theTimesOfVisit = 5;
@@ -672,21 +673,19 @@ bool HierNetlistVisitor::isAnEmptyStdCellInJson(const std::string &stdCellName)
   return emptyStdCells.find(stdCellName) != emptyStdCells.end() ? true : false;
 };
 
+// In LibBlackbox.v, all stdcells is empty, we regard them as black boxes.
+// But in stdcells.json file, only a few of them is empty(For example, "PLL"),
+// we need to find them to regard them as black boxes, too.
 void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
 {
-  if(_totalUsedStdCells > 0)
-    _totalUsedNotEmptyStdCells = _totalUsedStdCells - 1;
-  else
-  {
-    _totalUsedNotEmptyStdCells = 0;
-    return;
-  }
+  _totalUsedNotEmptyStdCells = _totalUsedStdCells;
   std::string notEmptyStdCellName, emptyStdCellName;
   uint32_t notEmptyStdCellIndex, emptyStdCellIndex;
   for(auto i = 0; i < _totalUsedNotEmptyStdCells; i++)
   {
     if(isAnEmptyStdCellInJson(_hierNetlist[i].moduleDefName))
     {
+      _totalUsedNotEmptyStdCells--;
       emptyStdCellName = _hierNetlist[i].moduleDefName;
       emptyStdCellIndex = i;
       while(isAnEmptyStdCellInJson(
@@ -708,8 +707,6 @@ void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
                 _hierNetlist[notEmptyStdCellIndex]);
       std::swap(_portNameMapPortDefIndexs[emptyStdCellIndex],
                 _portNameMapPortDefIndexs[notEmptyStdCellIndex]);
-      _totalUsedNotEmptyStdCells--;
     }
   }
-  _totalUsedNotEmptyStdCells++;
 };

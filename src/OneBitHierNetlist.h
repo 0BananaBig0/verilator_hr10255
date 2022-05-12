@@ -119,6 +119,10 @@ class HierNetlistVisitor final : public VNVisitor
 
   public:
     const std::vector<Module> &getHierNetlist() const { return _hierNetlist; };
+    const uint32_t &getTotalUsedNotEmptyStdCells() const
+    {
+      return _totalUsedNotEmptyStdCells;
+    };
     const uint32_t &getTotalUsedStdCells() const
     {
       return _totalUsedStdCells;
