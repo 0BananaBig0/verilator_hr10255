@@ -33,6 +33,7 @@ class VerilogNetlist final
     {
       return _totalUsedBlackBoxes;
     };
+    void parseHierNet(int argc, char **argv, char **env);
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
@@ -47,7 +48,10 @@ class VerilogNetlist final
                    "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level);
     };
     // Get a hierarchical netlist from ast
-    void genHierNet();
+    void genHierNet(std::vector<Module> &hierNetlist,
+                    uint32_t &totalUsedStdCells,
+                    uint32_t &totalUsedNotEmptyStdCells,
+                    uint32_t &totalUsedBlackBoxes);
     // Print a Netlist
     void printNetlist(const std::vector<Module> &hierNetlist,
                       const uint32_t &totalUsedStdCells,

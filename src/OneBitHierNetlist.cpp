@@ -4,10 +4,7 @@
   > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Mon 11 Apr 2022 08:18:10 PM CST
  ************************************************************************/
-#include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
-#include <cstdint>
-#include <vector>
 
 void HierNetlistVisitor::visit(AstNode *nodep) { iterateChildren(nodep); };
 
@@ -243,8 +240,9 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           {
             // Store rValue
             bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-              getOneBitValueFromDecimalNumber(
-                biggerValue.value, biggerValue.valueX, position, rValue.hasX);
+              getOneBitValueFromDecimalNumber(biggerValue.m_value,
+                                              biggerValue.m_valueX, position,
+                                              rValue.hasX);
             bitSlicedAssignStatementTmp.lValue.bitIndex = lEnd;
             _hierNetlist[_curModuleIndex].assigns.push_back(
               bitSlicedAssignStatementTmp);
@@ -355,7 +353,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         while(position >= 1)
         {
           refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
-            biggerValue.value, biggerValue.valueX, position, mRefVar.hasX);
+            biggerValue.m_value, biggerValue.m_valueX, position, mRefVar.hasX);
           portAssignment.refVars.insert(portAssignment.refVars.begin(),
                                         refVar);
           position--;
@@ -429,7 +427,7 @@ void HierNetlistVisitor::visit(AstVarRef *nodep)
   if(_whichAstSelChildren)
   { // Now, AstVarRef is a child of AstSel
     _whichAstSelChildren++;
-    if(_isAssignStatement && (nodep->lvalue()))
+    if(_isAssignStatement && (nodep->access() == VAccess::WRITE))
     {
       _isAssignStatementLvalue = true;
     }
@@ -466,7 +464,7 @@ void HierNetlistVisitor::visit(AstVarRef *nodep)
     if(_isAssignStatement)
     { // Now, AstVarRef is a child of AstNodeAssign or a
       // descendant of AstNodeAssign
-      if(nodep->lvalue())
+      if(nodep->access() == VAccess::WRITE)
       { // Now, AstVarRef is a child of AstNodeAssign
         _multipleBitsAssignStatementTmp.lValue = _multipleBitsRefVarTmp;
       }
@@ -562,11 +560,12 @@ void HierNetlistVisitor::visit(AstConst *nodep)
   if(_whichAstSelChildren == 2)
   { // Now, AstConst is a child of AstSel
     _whichAstSelChildren++;
-    _multipleBitsRefVarTmp.refVarRange.start = nodep->num().getValue32();
+    // _multipleBitsRefVarTmp.refVarRange.start =
+    //   nodep->num().value().getValue32();
   }
   else if(_whichAstSelChildren == 3)
   { // Now, AstConst is a child of AstSel
-    _multipleBitsRefVarTmp.width = nodep->num().getValue32();
+    // _multipleBitsRefVarTmp.width = nodep->num().value().getValue32();
     _multipleBitsRefVarTmp.refVarRange.end =
       _multipleBitsRefVarTmp.refVarRange.start + _multipleBitsRefVarTmp.width -
       1;
@@ -574,43 +573,47 @@ void HierNetlistVisitor::visit(AstConst *nodep)
   }
   else
   { // Now, AstConst is a rValue of assign statement or refValue of a
-    // port or the number of AstReplicate.
+    // port or
+    // the number of AstReplicate.
     _multipleBitsRefVarTmp.refVarName = "";
-    _multipleBitsRefVarTmp.constValueAndX.value = nodep->num().getValue32();
-    _multipleBitsRefVarTmp.constValueAndX.valueX = nodep->num().getValueX32();
-    _multipleBitsRefVarTmp.width = nodep->num().width();
-    if(_multipleBitsRefVarTmp.constValueAndX.valueX > 0)
-    { // Now, the const value has value x or z.
-      _multipleBitsRefVarTmp.hasX = true;
-    }
-    else
-    {
-      _multipleBitsRefVarTmp.hasX = false;
-    }
+    // _multipleBitsRefVarTmp.constValueAndX.value =
+    //   nodep->num().value().getValue32();
+    _multipleBitsRefVarTmp.width = nodep->width();
+    // if(nodep->num().isAnyXZ())
+    // { // Now, the const value has value x or z.
+    //   _multipleBitsRefVarTmp.constValueAndX.valueX =
+    //     // nodep->num().value().getValueX32();
+    //   _multipleBitsRefVarTmp.hasX = true;
+    // }
+    // else
+    // {
+    //   _multipleBitsRefVarTmp.constValueAndX.valueX = 0;
+    //   _multipleBitsRefVarTmp.hasX = false;
+    // }
     if(_multipleBitsRefVarTmp.width > 32)
+      // _multipleBitsRefVarTmp.biggerValues.push_back(
+      //   nodep->num().value().getValueAndX64());
+    if(_multipleBitsRefVarTmp.width > 64)
     {
-      const std::vector<uint32_t> &values = nodep->num().getValue();
-      const std::vector<uint32_t> &valueXs = nodep->num().getValueX();
-      ConstValueAndX constValueAndX;
-      for(uint32_t i = 1; i < values.size(); i++)
-      {
-        constValueAndX.value = values[i];
-        constValueAndX.valueX = valueXs[i];
-        _multipleBitsRefVarTmp.biggerValues.push_back(constValueAndX);
-      }
+      const std::vector<V3NumberData::ValueAndX> valueAndX128Tmp =
+      //   nodep->num().value().getValueAndX128();
+      // _multipleBitsRefVarTmp.biggerValues.insert(
+      //   _multipleBitsRefVarTmp.biggerValues.end(), valueAndX128Tmp.begin(),
+      //   valueAndX128Tmp.end());
     }
     if(_isAssignStatement)
-    { // Now, AstConst is a child of AstNodeAssign or AstConcat or
-      // AstReplicate
+    { // Now, AstConst is a child of AstNodeAssign or AstConcat or AstReplicate
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
+      if(_multipleBitsRefVarTmp.width > 32)
+        _multipleBitsRefVarTmp.biggerValues.clear();
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
       _multipleBitsPortAssignmentTmp.multipleBitsRefVars.push_back(
         _multipleBitsRefVarTmp);
+      if(_multipleBitsRefVarTmp.width > 32)
+        _multipleBitsRefVarTmp.biggerValues.clear();
     }
-    if(_multipleBitsRefVarTmp.width > 32)
-      _multipleBitsRefVarTmp.biggerValues.clear();
   }
 }
 
@@ -654,8 +657,8 @@ bool HierNetlistVisitor::isAnEmptyStdCellInJson(const std::string &stdCellName)
 };
 
 // In LibBlackbox.v, all stdcells is empty, we regard them as black boxes.
-// But in stdcells.json file, only a few of them is empty(For example,
-// "PLL"), we need to find them to regard them as black boxes, too.
+// But in stdcells.json file, only a few of them is empty(For example, "PLL"),
+// we need to find them to regard them as black boxes, too.
 void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
 {
   _totalUsedNotEmptyStdCells = _totalUsedStdCells;

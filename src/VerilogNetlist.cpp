@@ -12,14 +12,17 @@
 #include <iostream>
 #include <unordered_set>
 
-void VerilogNetlist::genHierNet()
+void VerilogNetlist::genHierNet(std::vector<Module> &hierNetlist,
+                                uint32_t &totalUsedStdCells,
+                                uint32_t &totalUsedNotEmptyStdCells,
+                                uint32_t &totalUsedBlackBoxes)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
-  _hierNetlist = hierNetlistVisitor.getHierNetlist();
-  _totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
-  _totalUsedNotEmptyStdCells =
+  hierNetlist = hierNetlistVisitor.getHierNetlist();
+  totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
+  totalUsedNotEmptyStdCells =
     hierNetlistVisitor.getTotalUsedNotEmptyStdCells();
-  _totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
+  totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
 }
 
 void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
@@ -559,4 +562,280 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
       }
     }
   }
+}
+
+#include "V3Ast.h"
+#include "V3Global.h"
+
+#include "V3Active.h"
+#include "V3ActiveTop.h"
+#include "V3Assert.h"
+#include "V3AssertPre.h"
+#include "V3Begin.h"
+#include "V3Branch.h"
+#include "V3Case.h"
+#include "V3Cast.h"
+#include "V3Changed.h"
+#include "V3Clean.h"
+#include "V3Clock.h"
+#include "V3Combine.h"
+#include "V3Const.h"
+#include "V3Coverage.h"
+#include "V3CoverageJoin.h"
+#include "V3CCtors.h"
+#include "V3Dead.h"
+#include "V3Delayed.h"
+#include "V3Depth.h"
+#include "V3DepthBlock.h"
+#include "V3Descope.h"
+#include "V3EmitC.h"
+#include "V3EmitCMake.h"
+#include "V3EmitMk.h"
+#include "V3EmitV.h"
+#include "V3EmitXml.h"
+#include "PrintNetFile.h"
+#include "V3Expand.h"
+#include "V3File.h"
+#include "V3Cdc.h"
+#include "V3Gate.h"
+#include "V3GenClk.h"
+#include "V3Graph.h"
+#include "V3Inline.h"
+#include "V3Inst.h"
+#include "V3Life.h"
+#include "V3LifePost.h"
+#include "V3LinkCells.h"
+#include "V3LinkDot.h"
+#include "V3LinkJump.h"
+#include "V3LinkLValue.h"
+#include "V3LinkLevel.h"
+#include "V3LinkParse.h"
+#include "V3LinkResolve.h"
+#include "V3Localize.h"
+#include "V3Name.h"
+#include "V3Order.h"
+#include "V3Os.h"
+#include "V3Param.h"
+#include "V3Parse.h"
+#include "V3ParseSym.h"
+#include "V3Partition.h"
+#include "V3PreShell.h"
+#include "V3Premit.h"
+#include "V3ProtectLib.h"
+#include "V3Reloop.h"
+#include "V3Scope.h"
+#include "V3Scoreboard.h"
+#include "V3Slice.h"
+#include "V3Split.h"
+#include "V3SplitAs.h"
+#include "V3Stats.h"
+#include "V3String.h"
+#include "V3Subst.h"
+#include "V3Table.h"
+#include "V3Task.h"
+#include "V3Trace.h"
+#include "V3TraceDecl.h"
+#include "V3Tristate.h"
+#include "V3TSP.h"
+#include "V3Undriven.h"
+#include "V3Unknown.h"
+#include "V3Unroll.h"
+#include "V3Width.h"
+
+#include <ctime>
+#include <sys/stat.h>
+
+V3Global v3Global;
+
+//######################################################################
+// V3 Class -- top level
+
+AstNetlist *V3Global::makeNetlist()
+{
+  AstNetlist *newp = new AstNetlist();
+  newp->addTypeTablep(new AstTypeTable(newp->fileline()));
+  return newp;
+}
+
+void V3Global::checkTree() { rootp()->checkTree(); }
+
+void V3Global::clear()
+{
+  if(m_rootp)
+  {
+    m_rootp->deleteTree();
+    m_rootp = NULL;
+    opt.clear();
+  }
+}
+
+void V3Global::readFiles()
+{
+  // NODE STATE
+  //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
+  AstUser4InUse inuser4;
+
+  VInFilter filter(v3Global.opt.pipeFilter());
+  V3ParseSym parseSyms(
+    v3Global.rootp()); // Symbol table must be common across all parsing
+
+  V3Parse parser(v3Global.rootp(), &filter, &parseSyms);
+  // Read top module
+  const V3StringList &vFiles = v3Global.opt.vFiles();
+  for(V3StringList::const_iterator it = vFiles.begin(); it != vFiles.end();
+      ++it)
+  {
+    string filename = *it;
+    parser.parseFile(new FileLine(FileLine::commandLineFilename()), filename,
+                     false, "Cannot find file containing module: ");
+  }
+
+  // Read libraries
+  // To be compatible with other simulators,
+  // this needs to be done after the top file is read
+  const V3StringSet &libraryFiles = v3Global.opt.libraryFiles();
+  for(V3StringSet::const_iterator it = libraryFiles.begin();
+      it != libraryFiles.end(); ++it)
+  {
+    string filename = *it;
+    parser.parseFile(new FileLine(FileLine::commandLineFilename()), filename,
+                     true, "Cannot find file containing library module: ");
+  }
+#ifdef HT_DEBUG
+  v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("parse.tree"));
+#endif
+  V3Error::abortIfErrors();
+
+  if(!v3Global.opt.preprocOnly())
+  {
+    // Resolve all modules cells refer to
+    V3LinkCells::link(v3Global.rootp(), &filter, &parseSyms);
+  }
+}
+
+void V3Global::dumpCheckGlobalTree(const string &stagename, int newNumber,
+                                   bool doDump)
+{
+  v3Global.rootp()->dumpTreeFile(
+    v3Global.debugFilename(stagename + ".tree", newNumber), false, doDump);
+  // if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
+}
+
+//######################################################################
+
+void process()
+{
+  // Sort modules by level so later algorithms don't need to care
+  V3LinkLevel::modSortByLevel();
+  V3Error::abortIfErrors();
+
+  // Convert parseref's to varrefs, and other directly post parsing fixups
+  V3LinkParse::linkParse(v3Global.rootp());
+  // Cross-link signal names
+  // Cross-link dotted hierarchical references
+  V3LinkDot::linkDotPrimary(v3Global.rootp());
+  v3Global
+    .checkTree(); // Force a check, as link is most likely place for problems
+  // Check if all parameters have been found
+  v3Global.opt.checkParameters();
+  // Correct state we couldn't know at parse time, repair SEL's
+  V3LinkResolve::linkResolve(v3Global.rootp());
+  // Set Lvalue's in variable refs
+  V3LinkLValue::linkLValue(v3Global.rootp());
+  // Convert return/continue/disable to jumps
+  V3LinkJump::linkJump(v3Global.rootp());
+  V3Error::abortIfErrors();
+
+  // Calculate and check widths, edit tree to TRUNC/EXTRACT any width
+  // mismatches
+  V3Width::width(v3Global.rootp());
+
+  // Check XML when debugging to make sure no missing node types
+  // V3EmitXml::emitxml();
+
+#ifdef HT_DEBUG
+  // write a file (.net) about the netlist infomation
+  PrintNetFile::printNetFile();
+#endif
+}
+
+//######################################################################
+
+void VerilogNetlist::parseHierNet(int comnum, char **command)
+{
+  // General initialization
+  // std::ios::sync_with_stdio();
+
+  auto t_start = std::chrono::system_clock::now();
+
+  // Post-constructor initialization of netlists
+  v3Global.boot();
+
+  // Preprocessor
+  // Before command parsing so we can handle -Ds on command line.
+  V3PreShell::boot(NULL);
+
+  // Command option parsing
+  // v3Global.opt.bin(argv[0]);
+  // string argString = V3Options::argString(argc-1, argv+1);
+  v3Global.opt.parseOpts(new FileLine(FileLine::commandLineFilename()), comnum,
+                         command);
+
+  V3Error::abortIfErrors();
+
+  /*     // Can we skip doing everything if times are ok?
+   V3File::addSrcDepend(v3Global.opt.bin());
+   if (v3Global.opt.skipIdentical().isTrue()
+       && V3File::checkTimes(v3Global.opt.makeDir()+"/"+v3Global.opt.prefix()
+                             +"__verFiles.dat", argString)) {
+       UINFO(1,"--skip-identical: No change to any source files, exiting\n");
+       exit(0);
+   } */
+
+  //--FRONTEND------------------
+
+  // Cleanup
+  V3Os::unlinkRegexp(v3Global.opt.makeDir(),
+                     v3Global.opt.prefix() + "_*.tree");
+  V3Os::unlinkRegexp(v3Global.opt.makeDir(), v3Global.opt.prefix() + "_*.dot");
+  V3Os::unlinkRegexp(v3Global.opt.makeDir(), v3Global.opt.prefix() + "_*.txt");
+
+  // Internal tests (after option parsing as need debug() setting,
+  // and after removing files as may make debug output)
+  AstBasicDTypeKwd::selfTest();
+  /*     if (v3Global.opt.debugSelfTest()) {
+       VHashSha256::selfTest();
+       VSpellCheck::selfTest();
+       V3Graph::selfTest();
+       V3TSP::selfTest();
+       V3ScoreboardBase::selfTest();
+       V3Partition::selfTest();
+   } */
+
+  // Read first filename
+  v3Global.readFiles();
+
+  // Link, etc, if needed
+  if(!v3Global.opt.preprocOnly())
+  {
+    process();
+  }
+
+  // 1,Obtain a hierarchical netlist from AST.
+  genHierNet(_hierNetlist, _totalUsedStdCells, _totalUsedNotEmptyStdCells,
+             _totalUsedBlackBoxes);
+
+  // Final steps
+  // V3Global::dumpCheckGlobalTree("final", 990,
+  // v3Global.opt.dumpTreeLevel(__FILE__) >= 3);
+  V3Error::abortIfWarnings();
+  v3Global.clear();
+
+  FileLine::deleteAllRemaining();
+
+  // UINFO(1, "Done, Exiting...\n");
+
+  auto t_end = std::chrono::system_clock::now();
+  HLog << InfoCont << "Verilog parser run time (s): "
+       << elapsedSysTimeInSeconds(t_start, t_end) << endl;
 }
