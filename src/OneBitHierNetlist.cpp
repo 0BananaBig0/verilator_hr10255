@@ -603,16 +603,14 @@ void HierNetlistVisitor::visit(AstConst *nodep)
     if(_isAssignStatement)
     { // Now, AstConst is a child of AstNodeAssign or AstConcat or AstReplicate
       _multipleBitsAssignStatementTmp.rValue.push_back(_multipleBitsRefVarTmp);
-      if(_multipleBitsRefVarTmp.width > 32)
-        _multipleBitsRefVarTmp.biggerValues.clear();
     }
     else
     { // Now, AstConst is a child of AstPin or AstConcat or AstReplicate
       _multipleBitsPortAssignmentTmp.multipleBitsRefVars.push_back(
         _multipleBitsRefVarTmp);
-      if(_multipleBitsRefVarTmp.width > 32)
-        _multipleBitsRefVarTmp.biggerValues.clear();
     }
+    if(_multipleBitsRefVarTmp.width > 32)
+      _multipleBitsRefVarTmp.biggerValues.clear();
   }
 }
 
