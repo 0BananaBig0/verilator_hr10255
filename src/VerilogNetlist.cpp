@@ -14,11 +14,14 @@
 
 void VerilogNetlist::genHierNet(std::vector<Module> &hierNetlist,
                                 uint32_t &totalUsedStdCells,
+                                uint32_t &totalUsedNotEmptyStdCells,
                                 uint32_t &totalUsedBlackBoxes)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlist = hierNetlistVisitor.getHierNetlist();
   totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
+  totalUsedNotEmptyStdCells =
+    hierNetlistVisitor.getTotalUsedNotEmptyStdCells();
   totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
 }
 
@@ -799,7 +802,8 @@ void VerilogNetlist::parseHierNet(int argc, char **argv, char **env)
 
   verilate(argString);
   // 1,Obtain a hierarchical netlist from AST.
-  genHierNet(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes);
+  genHierNet(_hierNetlist, _totalUsedStdCells, _totalUsedNotEmptyStdCells,
+             _totalUsedBlackBoxes);
 
   // Explicitly release resources
   v3Global.shutdown();
