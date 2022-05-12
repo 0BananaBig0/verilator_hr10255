@@ -51,8 +51,10 @@ class V3Number {
     V3Number& setString(const string& str) { m_isString = true; m_stringVal = str; return *this; }
     void opCleanThis(bool warnOnTruncation = false);
 public:
-    const std::vector<uint32_t>& getValue() const { return m_value;}
-    const std::vector<uint32_t>& getValueX() const { return m_valueX;}
+    const std::vector<uint32_t>& getValue() const{ return m_value; }
+    const uint32_t& getValue32() const{ return m_value[0]; }
+    const std::vector<uint32_t>& getValueX() const{ return m_valueX; }
+    const uint32_t& getValueX32() const{ return m_valueX[0]; }
     void nodep(AstNode* nodep) { setNames(nodep); }
     FileLine* fileline() const { return m_fileline; }
     V3Number& setZero();
