@@ -19,7 +19,7 @@ module blackbox(a,b,c);
   input a;
   inout b;
   output c;
-endmodule;
+endmodule
 
 module full_adder_co(co, a, b, ci);
    input a;
