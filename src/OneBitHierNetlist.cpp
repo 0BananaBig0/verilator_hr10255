@@ -593,7 +593,7 @@ void HierNetlistVisitor::visit(AstConst *nodep)
       const std::vector<uint32_t> &values = nodep->num().getValue();
       const std::vector<uint32_t> &valueXs = nodep->num().getValueX();
       ConstValueAndX constValueAndX;
-      for(uint32_t i = 1; i < ceil(_multipleBitsRefVarTmp.width/32.0); i++)
+      for(uint32_t i = 1; i < ceil(_multipleBitsRefVarTmp.width / 32.0); i++)
       {
         constValueAndX.value = values[i];
         constValueAndX.valueX = valueXs[i];
