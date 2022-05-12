@@ -33,6 +33,7 @@ class VerilogNetlist final
     {
       return _totalUsedBlackBoxes;
     };
+    void parseHierNet(int argc, char **argv, char **env);
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);

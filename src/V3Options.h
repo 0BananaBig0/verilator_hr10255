@@ -494,6 +494,11 @@ class V3Options {
 
     // METHODS (other OS)
     static void throwSigsegv();
+    void clear() {
+        m_vFiles.clear();
+        m_modPrefix.clear();
+        m_prefix.clear();
+    }
 };
 
 //######################################################################
