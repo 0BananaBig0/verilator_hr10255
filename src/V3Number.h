@@ -51,6 +51,7 @@ class V3Number {
     V3Number& setString(const string& str) { m_isString = true; m_stringVal = str; return *this; }
     void opCleanThis(bool warnOnTruncation = false);
 public:
+    // It's add by HuaxiaoLiang to get some data.
     const std::vector<uint32_t>& getValue() const{ return m_value; }
     const uint32_t& getValue32() const{ return m_value[0]; }
     const std::vector<uint32_t>& getValueX() const{ return m_valueX; }

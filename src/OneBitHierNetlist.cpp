@@ -627,17 +627,17 @@ char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
     bool bValueX =
       ((valueX & (hotCode >> (32 - position))) > 0) ? true : false;
     if(bValue & bValueX)
-      return X;
+      return CHAR_X;
     else if((!bValue) & (!bValueX))
-      return ZERO;
+      return CHAR_ZERO;
     else if(bValue)
-      return ONE;
+      return CHAR_ONE;
     else
-      return Z;
+      return CHAR_Z;
   }
   else
   {
-    return bValue ? ONE : ZERO;
+    return bValue ? CHAR_ONE : CHAR_ZERO;
   }
 }
 

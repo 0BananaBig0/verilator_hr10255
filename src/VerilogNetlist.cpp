@@ -174,16 +174,16 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
         {
           switch(oneAssign.rValue.valueAndValueX)
           {
-          case ONE:
+          case CHAR_ONE:
             ofs << "1'b1";
             break;
-          case ZERO:
+          case CHAR_ZERO:
             ofs << "1'b0";
             break;
-          case X:
+          case CHAR_X:
             ofs << "1'bx";
             break;
-          case Z:
+          case CHAR_Z:
             ofs << "1'bz";
             break;
           default:
@@ -292,16 +292,16 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
               }
               switch(refVar.valueAndValueX)
               {
-              case ONE:
+              case CHAR_ONE:
                 ofs << "1'b1";
                 break;
-              case ZERO:
+              case CHAR_ZERO:
                 ofs << "1'b0";
                 break;
-              case X:
+              case CHAR_X:
                 ofs << "1'bx";
                 break;
-              case Z:
+              case CHAR_Z:
                 ofs << "1'bz";
                 break;
               default:
