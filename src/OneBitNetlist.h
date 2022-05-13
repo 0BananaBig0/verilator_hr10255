@@ -15,10 +15,21 @@
 #include <unordered_set>
 #include <vector>
 
+#ifndef CHAR_ZERO
 #define CHAR_ZERO char(0x00)
+#endif
+
+#ifndef CHAR_ONE
 #define CHAR_ONE  char(0xFF)
+#endif
+
+#ifndef CHAR_X
 #define CHAR_X    char(0x0F)
+#endif
+
+#ifndef CHAR_Z
 #define CHAR_Z    char(0xF0)
+#endif
 
 enum class PortType
 {
