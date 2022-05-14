@@ -7,8 +7,7 @@ endmodule
 
 module PADBID (I, OEN, C, PAD);
 input I, OEN;
-inout PAD;
-output C; 
+output C, PAD;
 endmodule
 
 module PADCLK (PAD, C);
@@ -193,11 +192,14 @@ input A;
 output Z;
 endmodule
 
-module MemGen_16_10 (rd_data, chip_en, wr_en, addr, wr_data, clock, rd_en);
-input chip_en, wr_en, clock, rd_en;
-input[9:0] addr;
-input[15:0] wr_data;
-output[15:0] rd_data;
+module MemGen_16_10 (chip_en, wr_en, addr, wr_data, clock, rd_en, rd_data);
+input chip_en;
+input wr_en;
+input [9:0]addr;
+input [15:0]wr_data;
+input clock;
+input rd_en;
+output [15:0]rd_data;
 endmodule
 
 module AND2_X1 (A1, A2, ZN);

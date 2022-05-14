@@ -28,7 +28,7 @@ module submodule(rd_data, chip_en, wr_en, addr, wr_data, clock, rd_en);
   input[9:0] addr;
   input[15:0] wr_data;
   output[15:0] rd_data;
-  MemGen_16_10 U0(rd_data, chip_en, wr_en, addr, wr_data, clock, rd_en);
+  MemGen_16_10 U0(chip_en, wr_en, addr, wr_data, clock, rd_en, rd_data);;
 endmodule
 
 module blackbox(a,b,c);
