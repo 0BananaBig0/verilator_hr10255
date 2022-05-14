@@ -1151,7 +1151,7 @@ void process()
      || (v3Global.opt.debugCheck() && !v3Global.opt.lintOnly() &&
          !v3Global.opt.dpiHdrOnly()))
   {
-    V3EmitXml::emitxml();
+    // V3EmitXml::emitxml();
   }
 
   // Output DPI protected library files
