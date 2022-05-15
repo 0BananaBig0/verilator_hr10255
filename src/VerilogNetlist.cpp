@@ -490,6 +490,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
           for(auto oneAssign: oneSubMod.assigns)
           {
             bool _curAssignConnectToEmptySignal = false;
+            // lValue is a wire
             if(oneAssign.lValue.refVarDefIndex >=
                  oneSubMod.totalPortsExcludingWires &&
                oneAssign.lValue.refVarDefIndex < UINT_MAX)
@@ -498,6 +499,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 oneAssign.lValue.refVarDefIndex -
                 oneSubMod.totalPortsExcludingWires + oneModFPortsNum;
             }
+            // lValue is a inout or output
             else if(oneAssign.lValue.refVarDefIndex <
                     oneSubMod.totalPortsExcludingWires)
             {
@@ -509,6 +511,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                   portAssignmentsOfSubModIns[oneAssign.lValue.refVarDefIndex]
                     .refVars[oneAssign.lValue.bitIndex];
             }
+            // rValue is a wire
             if(oneAssign.rValue.refVarDefIndex >=
                  oneSubMod.totalPortsExcludingWires &&
                oneAssign.rValue.refVarDefIndex < UINT_MAX)
@@ -517,6 +520,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 oneAssign.rValue.refVarDefIndex -
                 oneSubMod.totalPortsExcludingWires + oneModFPortsNum;
             }
+            // rValue is a input, inout or output
             else if(oneAssign.rValue.refVarDefIndex <
                     oneSubMod.totalPortsExcludingWires)
             {
