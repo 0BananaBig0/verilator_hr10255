@@ -399,73 +399,66 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
   // Use to not flatten such module which only have standard cells or assign
   // statement; Sometimes, totalUsedBlackBoxes = 0.
   auto &theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level;
-  for(uint32_t moduleDefIndex = hierNetlist.size() - 1;
-      moduleDefIndex >= totalUsedBlackBoxes && moduleDefIndex != UINT_MAX;
-      moduleDefIndex--)
+  for(uint32_t modDefIndex = hierNetlist.size() - 1;
+      modDefIndex >= totalUsedBlackBoxes && modDefIndex != UINT_MAX;
+      modDefIndex--)
   {
     // full_adder definition
-    const auto &oneModuleH = hierNetlist[moduleDefIndex];
-    auto &oneModuleF = flatNetlist[moduleDefIndex];
-    if(oneModuleH.level < theMostDepthLevelExcludingBlackBoxes)
+    const auto &oneModH = hierNetlist[modDefIndex];
+    auto &oneModF = flatNetlist[modDefIndex];
+    if(oneModH.level < theMostDepthLevelExcludingBlackBoxes)
     {
-      oneModuleF.subModuleInstanceNames.clear();
-      oneModuleF.subModuleDefIndex.clear();
-      oneModuleF.portAssignmentsOfSubModuleInstances.clear();
-      uint32_t subModuleInstanceIndex = 0;
+      oneModF.subModuleInstanceNames.clear();
+      oneModF.subModuleDefIndex.clear();
+      oneModF.portAssignmentsOfSubModuleInstances.clear();
+      uint32_t subModInsIndex = 0;
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
-      for(auto &subModuleDefIndex: oneModuleH.subModuleDefIndex)
+      for(auto &subModDefIndex: oneModH.subModuleDefIndex)
       {
         // subModule is a stdCell or an other black box
-        if(subModuleDefIndex < totalUsedBlackBoxes)
+        if(subModDefIndex < totalUsedBlackBoxes)
         {
-          oneModuleF.subModuleInstanceNames.push_back(
-            oneModuleH.subModuleInstanceNames[subModuleInstanceIndex]);
-          oneModuleF.subModuleDefIndex.push_back(subModuleDefIndex);
-          oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
-            oneModuleH
-              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex]);
+          oneModF.subModuleInstanceNames.push_back(
+            oneModH.subModuleInstanceNames[subModInsIndex]);
+          oneModF.subModuleDefIndex.push_back(subModDefIndex);
+          oneModF.portAssignmentsOfSubModuleInstances.push_back(
+            oneModH.portAssignmentsOfSubModuleInstances[subModInsIndex]);
         }
         else
         { // U1, subModule is not a stdCell nor an other black box
-          const std::string &subModuleInstanceName =
-            oneModuleH.subModuleInstanceNames[subModuleInstanceIndex];
+          const std::string &subModInsName =
+            oneModH.subModuleInstanceNames[subModInsIndex];
           // (.co(co), .a(a), .b(b), .ci(ci));
-          const auto &portAssignmentsOfSubModuleInstance =
-            oneModuleH
-              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex];
+          const auto &portAssignmentsOfSubModIns =
+            oneModH.portAssignmentsOfSubModuleInstances[subModInsIndex];
           // full_adder_co definition
-          auto &oneSubModule = flatNetlist[subModuleDefIndex];
-          uint32_t oneModuleFPortsNumber = oneModuleF.ports.size();
-          uint32_t oneSubModuleWirePosition =
-            oneSubModule.totalPortsExcludingWires;
-          oneModuleF.ports.resize(oneModuleFPortsNumber +
-                                  oneSubModule.ports.size() -
-                                  oneSubModuleWirePosition);
+          auto &oneSubMod = flatNetlist[subModDefIndex];
+          uint32_t oneModFPortsNum = oneModF.ports.size();
+          uint32_t oneSubModWirePos = oneSubMod.totalPortsExcludingWires;
+          oneModF.ports.resize(oneModFPortsNum + oneSubMod.ports.size() -
+                               oneSubModWirePos);
           // full_adder_co wires,n_0_0 become U1_n_0_0
-          for(uint32_t i = oneModuleFPortsNumber; i < oneModuleF.ports.size();
-              i++)
+          for(uint32_t i = oneModFPortsNum; i < oneModF.ports.size(); i++)
           {
-            oneModuleF.ports[i] = oneSubModule.ports[oneSubModuleWirePosition];
-            oneModuleF.ports[i].portDefName.insert(0, "_");
-            oneModuleF.ports[i].portDefName.insert(0, subModuleInstanceName);
-            oneSubModuleWirePosition++;
+            oneModF.ports[i] = oneSubMod.ports[oneSubModWirePos];
+            oneModF.ports[i].portDefName.insert(0, "_");
+            oneModF.ports[i].portDefName.insert(0, subModInsName);
+            oneSubModWirePos++;
           }
-          oneModuleF.subModuleDefIndex.insert(
-            oneModuleF.subModuleDefIndex.end(),
-            oneSubModule.subModuleDefIndex.begin(),
-            oneSubModule.subModuleDefIndex.end());
-          uint32_t blackBoxInstanceNameIndex = 0;
+          oneModF.subModuleDefIndex.insert(oneModF.subModuleDefIndex.end(),
+                                           oneSubMod.subModuleDefIndex.begin(),
+                                           oneSubMod.subModuleDefIndex.end());
+          uint32_t blackBoxInsNameIndex = 0;
           // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
           for(auto oneBlackBoxIns:
-              oneSubModule.portAssignmentsOfSubModuleInstances)
+              oneSubMod.portAssignmentsOfSubModuleInstances)
           {
-            // stdInstanceName i_0_0 becomes U1_i_0_0
-            oneModuleF.subModuleInstanceNames.push_back(
-              oneSubModule.subModuleInstanceNames[blackBoxInstanceNameIndex]);
-            blackBoxInstanceNameIndex++;
-            oneModuleF.subModuleInstanceNames.back().insert(0, "_");
-            oneModuleF.subModuleInstanceNames.back().insert(
-              0, subModuleInstanceName);
+            // blackBoxInsName i_0_0 becomes U1_i_0_0
+            oneModF.subModuleInstanceNames.push_back(
+              oneSubMod.subModuleInstanceNames[blackBoxInsNameIndex]);
+            blackBoxInsNameIndex++;
+            oneModF.subModuleInstanceNames.back().insert(0, "_");
+            oneModF.subModuleInstanceNames.back().insert(0, subModInsName);
             // .A(a)
             for(auto &portAssignmentOfBlackBox: oneBlackBoxIns)
             {
@@ -473,20 +466,18 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
               {
                 // Now, oneRefVar is a wire
                 if(oneRefVar.refVarDefIndex >=
-                     oneSubModule.totalPortsExcludingWires &&
+                     oneSubMod.totalPortsExcludingWires &&
                    oneRefVar.refVarDefIndex < UINT_MAX)
                 {
                   oneRefVar.refVarDefIndex =
                     oneRefVar.refVarDefIndex -
-                    oneSubModule.totalPortsExcludingWires +
-                    oneModuleFPortsNumber;
+                    oneSubMod.totalPortsExcludingWires + oneModFPortsNum;
                 }
                 // Now,oneRefVar is a input, output or inout
                 else if(oneRefVar.refVarDefIndex <
-                        oneSubModule.totalPortsExcludingWires)
+                        oneSubMod.totalPortsExcludingWires)
                 { // If the port of full_adder_co instance is empty.
-                  if(portAssignmentsOfSubModuleInstance[oneRefVar
-                                                          .refVarDefIndex]
+                  if(portAssignmentsOfSubModIns[oneRefVar.refVarDefIndex]
                        .refVars.empty())
                   {
                     portAssignmentOfBlackBox.refVars.clear();
@@ -494,69 +485,64 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                   }
                   else
                     oneRefVar =
-                      portAssignmentsOfSubModuleInstance[oneRefVar
-                                                           .refVarDefIndex]
+                      portAssignmentsOfSubModIns[oneRefVar.refVarDefIndex]
                         .refVars[oneRefVar.bitIndex];
                 }
                 // Now,oneRefVar is a const value or x or z
                 // else{}
               }
             }
-            oneModuleF.portAssignmentsOfSubModuleInstances.push_back(
+            oneModF.portAssignmentsOfSubModuleInstances.push_back(
               std::move(oneBlackBoxIns));
           }
-          for(auto oneAssign: oneSubModule.assigns)
+          for(auto oneAssign: oneSubMod.assigns)
           {
             bool _curAssignConnectToEmptySignal = false;
             if(oneAssign.lValue.refVarDefIndex >=
-                 oneSubModule.totalPortsExcludingWires &&
+                 oneSubMod.totalPortsExcludingWires &&
                oneAssign.lValue.refVarDefIndex < UINT_MAX)
             {
               oneAssign.lValue.refVarDefIndex =
                 oneAssign.lValue.refVarDefIndex -
-                oneSubModule.totalPortsExcludingWires + oneModuleFPortsNumber;
+                oneSubMod.totalPortsExcludingWires + oneModFPortsNum;
             }
             else if(oneAssign.lValue.refVarDefIndex <
-                    oneSubModule.totalPortsExcludingWires)
+                    oneSubMod.totalPortsExcludingWires)
             {
-              if(portAssignmentsOfSubModuleInstance[oneAssign.lValue
-                                                      .refVarDefIndex]
+              if(portAssignmentsOfSubModIns[oneAssign.lValue.refVarDefIndex]
                    .refVars.empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.lValue =
-                  portAssignmentsOfSubModuleInstance[oneAssign.lValue
-                                                       .refVarDefIndex]
+                  portAssignmentsOfSubModIns[oneAssign.lValue.refVarDefIndex]
                     .refVars[oneAssign.lValue.bitIndex];
             }
             if(oneAssign.rValue.refVarDefIndex >=
-                 oneSubModule.totalPortsExcludingWires &&
+                 oneSubMod.totalPortsExcludingWires &&
                oneAssign.rValue.refVarDefIndex < UINT_MAX)
             {
               oneAssign.rValue.refVarDefIndex =
                 oneAssign.rValue.refVarDefIndex -
-                oneSubModule.totalPortsExcludingWires + oneModuleFPortsNumber;
+                oneSubMod.totalPortsExcludingWires + oneModFPortsNum;
             }
             else if(oneAssign.rValue.refVarDefIndex <
-                    oneSubModule.totalPortsExcludingWires)
+                    oneSubMod.totalPortsExcludingWires)
             {
-              if(portAssignmentsOfSubModuleInstance[oneAssign.rValue
-                                                      .refVarDefIndex]
+              if(portAssignmentsOfSubModIns[oneAssign.rValue.refVarDefIndex]
                    .refVars.empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.rValue =
-                  portAssignmentsOfSubModuleInstance[oneAssign.rValue
-                                                       .refVarDefIndex]
+                  portAssignmentsOfSubModIns[oneAssign.rValue.refVarDefIndex]
                     .refVars[oneAssign.rValue.bitIndex];
             }
             if(_curAssignConnectToEmptySignal)
               _curAssignConnectToEmptySignal = false;
             else
-              oneModuleF.assigns.push_back(std::move(oneAssign));
+              oneModF.assigns.push_back(std::move(oneAssign));
           }
         }
-        subModuleInstanceIndex++;
+        subModInsIndex++;
       }
     }
   }
