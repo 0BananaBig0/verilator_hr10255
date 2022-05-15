@@ -100,8 +100,7 @@ struct Module
     // Instance name of all sub modules of current module
     std::vector<std::string> subModuleInstanceNames;
     // All sub modules definition index in hierNetlist of current module
-    std::vector<uint32_t> subModuleDefIndex;
-    std::vector<std::vector<PortAssignment>>
-      portAssignmentsOfSubModuleInstances;
+    std::vector<uint32_t> subModuleDefIndexs;
+    std::vector<std::vector<PortAssignment>> portAssignmentsOfSubModInss;
     /* Netlist Instance Information(END) */
 };
