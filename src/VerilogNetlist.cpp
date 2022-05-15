@@ -215,7 +215,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
       {
         totalCharsEveryLine = 0;
         ofs << "  "
-            << hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+            << hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
                  .moduleDefName
             << " ";
         if(hasVerilogKeyWordOrOperator(onesubModInsName))
@@ -227,16 +227,16 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
             << "(";
         totalCharsEveryLine =
           totalCharsEveryLine + 5 +
-          hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+          hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
             .moduleDefName.size() +
           onesubModInsName.size();
         // Every time print one port assignment
         uint32_t portDefIndex = 0;
         for(const auto &onePortAssignment:
-            oneMod.portAssignmentsOfSubModuleInstances[subModInsIndex])
+            oneMod.portAssignmentsOfSubModInss[subModInsIndex])
         {
           if(totalCharsEveryLine + 1 +
-               hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+               hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
                  .ports[portDefIndex]
                  .portDefName.size() >
              maxCharsEveryLine)
@@ -246,7 +246,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
           }
           ofs << ".";
           if(hasVerilogKeyWordOrOperator(
-               hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+               hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
                  .ports[portDefIndex]
                  .portDefName))
           {
@@ -254,7 +254,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
             ofs << "\\";
             totalCharsEveryLine++;
           }
-          ofs << hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+          ofs << hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
                    .ports[portDefIndex]
                    .portDefName;
           if(shouldHaveEscapeChar)
@@ -266,7 +266,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
           ofs << "(";
           totalCharsEveryLine =
             totalCharsEveryLine + 2 +
-            hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+            hierNetlist[oneMod.subModuleDefIndexs[subModInsIndex]]
               .ports[portDefIndex]
               .portDefName.size();
           if(onePortAssignment.refVars.size() > 1)
@@ -401,20 +401,20 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
     if(oneModH.level < theMostDepthLevelExcludingBlackBoxes)
     {
       oneModF.subModuleInstanceNames.clear();
-      oneModF.subModuleDefIndex.clear();
-      oneModF.portAssignmentsOfSubModuleInstances.clear();
+      oneModF.subModuleDefIndexs.clear();
+      oneModF.portAssignmentsOfSubModInss.clear();
       uint32_t subModInsIndex = 0;
       // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
-      for(auto &subModDefIndex: oneModH.subModuleDefIndex)
+      for(auto &subModDefIndex: oneModH.subModuleDefIndexs)
       {
         // subModule is a stdCell or an other black box
         if(subModDefIndex < totalUsedBlackBoxes)
         {
           oneModF.subModuleInstanceNames.push_back(
             oneModH.subModuleInstanceNames[subModInsIndex]);
-          oneModF.subModuleDefIndex.push_back(subModDefIndex);
-          oneModF.portAssignmentsOfSubModuleInstances.push_back(
-            oneModH.portAssignmentsOfSubModuleInstances[subModInsIndex]);
+          oneModF.subModuleDefIndexs.push_back(subModDefIndex);
+          oneModF.portAssignmentsOfSubModInss.push_back(
+            oneModH.portAssignmentsOfSubModInss[subModInsIndex]);
         }
         else
         { // U1, subModule is not a stdCell nor an other black box
@@ -422,7 +422,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             oneModH.subModuleInstanceNames[subModInsIndex];
           // (.co(co), .a(a), .b(b), .ci(ci));
           const auto &portAssignmentsOfSubModIns =
-            oneModH.portAssignmentsOfSubModuleInstances[subModInsIndex];
+            oneModH.portAssignmentsOfSubModInss[subModInsIndex];
           // full_adder_co definition
           auto &oneSubMod = flatNetlist[subModDefIndex];
           uint32_t oneModFPortsNum = oneModF.ports.size();
@@ -437,13 +437,13 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             oneModF.ports[i].portDefName.insert(0, subModInsName);
             oneSubModWirePos++;
           }
-          oneModF.subModuleDefIndex.insert(oneModF.subModuleDefIndex.end(),
-                                           oneSubMod.subModuleDefIndex.begin(),
-                                           oneSubMod.subModuleDefIndex.end());
+          oneModF.subModuleDefIndexs.insert(
+            oneModF.subModuleDefIndexs.end(),
+            oneSubMod.subModuleDefIndexs.begin(),
+            oneSubMod.subModuleDefIndexs.end());
           uint32_t blackBoxInsNameIndex = 0;
           // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
-          for(auto oneBlackBoxIns:
-              oneSubMod.portAssignmentsOfSubModuleInstances)
+          for(auto oneBlackBoxIns: oneSubMod.portAssignmentsOfSubModInss)
           {
             // blackBoxInsName i_0_0 becomes U1_i_0_0
             oneModF.subModuleInstanceNames.push_back(
@@ -484,7 +484,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 // else{}
               }
             }
-            oneModF.portAssignmentsOfSubModuleInstances.push_back(
+            oneModF.portAssignmentsOfSubModInss.push_back(
               std::move(oneBlackBoxIns));
           }
           for(auto oneAssign: oneSubMod.assigns)

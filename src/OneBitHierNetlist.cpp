@@ -313,11 +313,10 @@ void HierNetlistVisitor::visit(AstCell *nodep)
     iterateChildren(nodep);
     _hierNetlist[_curModuleIndex].subModuleInstanceNames.push_back(
       _curSubmoduleInstanceName);
-    _hierNetlist[_curModuleIndex].subModuleDefIndex.push_back(
+    _hierNetlist[_curModuleIndex].subModuleDefIndexs.push_back(
       _moduleNameMapIndex[_curSubmoduleName]);
-    _hierNetlist[_curModuleIndex]
-      .portAssignmentsOfSubModuleInstances.push_back(
-        _curSubModInsPortAssignmentsTmp);
+    _hierNetlist[_curModuleIndex].portAssignmentsOfSubModInss.push_back(
+      _curSubModInsPortAssignmentsTmp);
     _curSubmoduleInstanceIndex++;
   }
   else if(_theTimesOfVisit == 1 && _isABlackBoxButNotAStdCell)
