@@ -1,13 +1,13 @@
 /*************************************************************************
   > File Name: VerilogNetlistVerilator.cpp
   > Author: 16hxliang3
-  > Mail: 16hxliang3@stu.edu.cn 
+  > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Sun 15 May 2022 08:57:08 AM CST
  ************************************************************************/
 
-#include "VerilogNetlist.h"
 #include "V3Ast.h"
 #include "V3Global.h"
+#include "VerilogNetlist.h"
 
 #include "V3Active.h"
 #include "V3ActiveTop.h"
