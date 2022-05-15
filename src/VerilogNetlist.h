@@ -19,6 +19,9 @@ class VerilogNetlist final
     // blackBoxes : including all stdCells and some empty module which
     // are written by hardware designer.
     uint32_t _totalUsedBlackBoxes;
+    // notEmptyInstance : all stdCells Instances whose definition are
+    // not empty in stdcells.json
+    uint32_t _totalUsedNotEmptyInsInTop;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
 
@@ -62,5 +65,6 @@ class VerilogNetlist final
     void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
                         const uint32_t &totalUsedBlackBoxes);
+    void sortInsOrderInTop();
     void parseHierNet(int argc, char **argv, char **env);
 };

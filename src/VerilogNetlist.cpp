@@ -543,3 +543,39 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
     }
   }
 }
+
+// make all empty black boxes store at the end of vector.
+void VerilogNetlist::sortInsOrderInTop()
+{
+  auto &top = _flatNetlist[_totalUsedBlackBoxes];
+  auto &subModDefIndexs = top.subModuleDefIndexs;
+  auto &subModInsNames = top.subModuleInstanceNames;
+  auto &subModPortAssignments = top.portAssignmentsOfSubModInss;
+  _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
+  for(uint32_t i = 0; i < _totalUsedNotEmptyInsInTop; i++)
+  {
+    if(subModDefIndexs[i] >= _totalUsedNotEmptyStdCells)
+    {
+      _totalUsedNotEmptyInsInTop--;
+      while(subModDefIndexs[_totalUsedNotEmptyInsInTop] >=
+            _totalUsedNotEmptyStdCells)
+      {
+        if(_totalUsedNotEmptyInsInTop > i)
+          _totalUsedNotEmptyInsInTop--;
+        else
+          return;
+      }
+      std::swap(subModDefIndexs[i],
+                subModDefIndexs[_totalUsedNotEmptyInsInTop]);
+      std::swap(subModInsNames[i], subModInsNames[_totalUsedNotEmptyInsInTop]);
+      std::swap(subModPortAssignments[i],
+                subModPortAssignments[_totalUsedNotEmptyInsInTop]);
+    }
+    else if(subModDefIndexs[i] >= _totalUsedBlackBoxes)
+      std::cout << "After flattening, no instanced module index will bigger "
+                   "than _totalUsedBlackBoxes. You should check the module "
+                << _flatNetlist[subModDefIndexs[i]].moduleDefName
+                << "whose instance name is " << subModInsNames[i] << "in "
+                << top.moduleDefName << "of FlatNetlist.v.";
+  }
+}
