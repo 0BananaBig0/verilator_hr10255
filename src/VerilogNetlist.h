@@ -12,8 +12,12 @@
 class VerilogNetlist final
 {
   private:
+    // stdCells : all written into LibBlackbox.v or stdcells.json
     uint32_t _totalUsedStdCells;
+    // emptyStdCells : like PLL, which is empty in stdcells.json
     uint32_t _totalUsedNotEmptyStdCells;
+    // blackBoxes : including all stdCells and some empty module which
+    // are written by hardware designer.
     uint32_t _totalUsedBlackBoxes;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
@@ -33,7 +37,6 @@ class VerilogNetlist final
     {
       return _totalUsedBlackBoxes;
     };
-    void parseHierNet(int argc, char **argv, char **env);
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
@@ -59,4 +62,5 @@ class VerilogNetlist final
     void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
                         const uint32_t &totalUsedBlackBoxes);
+    void parseHierNet(int argc, char **argv, char **env);
 };
