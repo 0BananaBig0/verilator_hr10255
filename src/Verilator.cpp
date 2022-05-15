@@ -23,7 +23,7 @@ int main(int argc, char **argv, char **env)
   verilogNetlist.printHierNet();
   // 3,Flatten a hierarchical netlist
   verilogNetlist.callFlattenHierNet();
-  verilogNetlist.sortInsOrderInTop();
+  // verilogNetlist.sortInsOrderInTop();
   // 4,Print a flattened netlist to a verilog file.
   verilogNetlist.printFlatNet();
   return 0;
