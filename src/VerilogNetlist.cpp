@@ -490,6 +490,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                        .refVars.empty())
                   {
                     portAssignmentOfBlackBox.refVars.clear();
+                    break;
                   }
                   else
                     oneRefVar =
