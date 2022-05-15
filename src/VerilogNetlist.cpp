@@ -29,8 +29,8 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                                   const uint32_t maxHierLevel)
 {
   std::ofstream ofs(fileName);
-  bool shouldHaveEscapeCharacter;
-  uint32_t totalCharactersEveryLine;
+  bool shouldHaveEscapeChar;
+  uint32_t totalCharsEveryLine;
   auto getDecimalNumberLength = [](uint32_t number)
   {
     uint32_t length = 0;
@@ -41,7 +41,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
     }
     return length;
   };
-  auto haveVerilogKeyWordOrOperator = [](const string &name)
+  auto hasVerilogKeyWordOrOperator = [](const string &name)
   {
     // If there are too many kinds of keywords(more than 14) will be used in
     // port name, instance name, module name, variable name and so on, use map
@@ -60,53 +60,51 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
     }
     return false;
   };
-  const uint32_t maxCharactersEveryLine = 80;
-  uint32_t moduleIndex = totalUsedStdCells;
+  const uint32_t maxCharsEveryLine = 80;
+  uint32_t modIndex = totalUsedStdCells;
   // Every time print one module defintion
-  for(uint32_t moduleIndex = totalUsedStdCells;
-      moduleIndex < hierNetlist.size(); moduleIndex++)
+  for(uint32_t modIndex = totalUsedStdCells; modIndex < hierNetlist.size();
+      modIndex++)
   {
-    const auto &oneModule = hierNetlist[moduleIndex];
-    totalCharactersEveryLine = 0;
-    if(oneModule.level <= maxHierLevel || moduleIndex < totalUsedBlackBoxes)
+    const auto &oneMod = hierNetlist[modIndex];
+    totalCharsEveryLine = 0;
+    if(oneMod.level <= maxHierLevel || modIndex < totalUsedBlackBoxes)
     { // Print one module declaration
-      ofs << "module " << oneModule.moduleDefName << "(";
-      totalCharactersEveryLine =
-        totalCharactersEveryLine + 7 + oneModule.moduleDefName.size() + 1;
-      for(const auto &port: oneModule.ports)
+      ofs << "module " << oneMod.moduleDefName << "(";
+      totalCharsEveryLine =
+        totalCharsEveryLine + 7 + oneMod.moduleDefName.size() + 1;
+      for(const auto &port: oneMod.ports)
       {
         if(port.portType != PortType::WIRE &&
            port.portType != PortType::LAST_PORT_TYPE)
         {
-          if(totalCharactersEveryLine + port.portDefName.size() >
-             maxCharactersEveryLine)
+          if(totalCharsEveryLine + port.portDefName.size() > maxCharsEveryLine)
           {
             ofs << std::endl << "      ";
-            totalCharactersEveryLine = 6;
+            totalCharsEveryLine = 6;
           }
-          totalCharactersEveryLine =
-            port.portDefName.size() + totalCharactersEveryLine;
-          if(haveVerilogKeyWordOrOperator(port.portDefName))
+          totalCharsEveryLine = port.portDefName.size() + totalCharsEveryLine;
+          if(hasVerilogKeyWordOrOperator(port.portDefName))
           {
-            shouldHaveEscapeCharacter = true;
+            shouldHaveEscapeChar = true;
             ofs << "\\";
-            totalCharactersEveryLine++;
+            totalCharsEveryLine++;
           }
           ofs << port.portDefName;
-          if(shouldHaveEscapeCharacter)
+          if(shouldHaveEscapeChar)
           {
             ofs << " ";
-            totalCharactersEveryLine++;
-            shouldHaveEscapeCharacter = false;
+            totalCharsEveryLine++;
+            shouldHaveEscapeChar = false;
           }
           ofs << ",";
-          totalCharactersEveryLine++;
+          totalCharsEveryLine++;
         }
       }
       ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
       ofs << ");" << std::endl;
       // Every time print one port definition
-      for(const auto &port: oneModule.ports)
+      for(const auto &port: oneMod.ports)
       {
         switch(port.portType)
         {
@@ -127,40 +125,40 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
         {
           ofs << "[" << port.bitWidth - 1 << ":0]";
         }
-        if(haveVerilogKeyWordOrOperator(port.portDefName))
+        if(hasVerilogKeyWordOrOperator(port.portDefName))
         {
-          shouldHaveEscapeCharacter = true;
+          shouldHaveEscapeChar = true;
           ofs << "\\";
         }
         ofs << port.portDefName;
-        if(shouldHaveEscapeCharacter)
+        if(shouldHaveEscapeChar)
         {
           ofs << " ";
-          shouldHaveEscapeCharacter = false;
+          shouldHaveEscapeChar = false;
         }
         ofs << ";" << std::endl;
       }
 
       // Every time print one assign statement, every assign statement only has
       // one bit data;
-      for(auto oneAssign: oneModule.assigns)
+      for(auto oneAssign: oneMod.assigns)
       {
         ofs << "  assign ";
-        if(haveVerilogKeyWordOrOperator(
-             oneModule.ports[oneAssign.lValue.refVarDefIndex].portDefName))
+        if(hasVerilogKeyWordOrOperator(
+             oneMod.ports[oneAssign.lValue.refVarDefIndex].portDefName))
         {
-          shouldHaveEscapeCharacter = true;
+          shouldHaveEscapeChar = true;
           ofs << "\\";
         }
-        ofs << oneModule.ports[oneAssign.lValue.refVarDefIndex].portDefName;
-        if(shouldHaveEscapeCharacter)
+        ofs << oneMod.ports[oneAssign.lValue.refVarDefIndex].portDefName;
+        if(shouldHaveEscapeChar)
         {
           ofs << " ";
-          shouldHaveEscapeCharacter = false;
+          shouldHaveEscapeChar = false;
         }
         if(oneAssign.lValue.refVarDefIndex != UINT_MAX)
         {
-          if(oneModule.ports[oneAssign.lValue.refVarDefIndex].isVector)
+          if(oneMod.ports[oneAssign.lValue.refVarDefIndex].isVector)
             ofs << "[" << oneAssign.lValue.bitIndex << "]";
         }
         else
@@ -193,91 +191,88 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
         }
         else
         {
-          if(haveVerilogKeyWordOrOperator(
-               oneModule.ports[oneAssign.rValue.refVarDefIndex].portDefName))
+          if(hasVerilogKeyWordOrOperator(
+               oneMod.ports[oneAssign.rValue.refVarDefIndex].portDefName))
           {
-            shouldHaveEscapeCharacter = true;
+            shouldHaveEscapeChar = true;
             ofs << "\\";
           }
-          ofs << oneModule.ports[oneAssign.rValue.refVarDefIndex].portDefName;
-          if(shouldHaveEscapeCharacter)
+          ofs << oneMod.ports[oneAssign.rValue.refVarDefIndex].portDefName;
+          if(shouldHaveEscapeChar)
           {
             ofs << " ";
-            shouldHaveEscapeCharacter = false;
+            shouldHaveEscapeChar = false;
           }
-          if(oneModule.ports[oneAssign.rValue.refVarDefIndex].isVector)
+          if(oneMod.ports[oneAssign.rValue.refVarDefIndex].isVector)
             ofs << "[" << oneAssign.rValue.bitIndex << "]";
         }
         ofs << ";" << std::endl;
       }
 
       // Every time print one submodule instance
-      uint32_t subModuleInstanceIndex = 0;
-      for(const auto &onesubModuleInstanceName:
-          oneModule.subModuleInstanceNames)
+      uint32_t subModInsIndex = 0;
+      for(const auto &onesubModInsName: oneMod.subModuleInstanceNames)
       {
-        totalCharactersEveryLine = 0;
+        totalCharsEveryLine = 0;
         ofs << "  "
-            << hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+            << hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
                  .moduleDefName
             << " ";
-        if(haveVerilogKeyWordOrOperator(onesubModuleInstanceName))
+        if(hasVerilogKeyWordOrOperator(onesubModInsName))
         {
           ofs << "\\";
-          totalCharactersEveryLine++;
+          totalCharsEveryLine++;
         }
-        ofs << onesubModuleInstanceName << " "
+        ofs << onesubModInsName << " "
             << "(";
-        totalCharactersEveryLine =
-          totalCharactersEveryLine + 5 +
-          hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+        totalCharsEveryLine =
+          totalCharsEveryLine + 5 +
+          hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
             .moduleDefName.size() +
-          onesubModuleInstanceName.size();
+          onesubModInsName.size();
         // Every time print one port assignment
         uint32_t portDefIndex = 0;
         for(const auto &onePortAssignment:
-            oneModule
-              .portAssignmentsOfSubModuleInstances[subModuleInstanceIndex])
+            oneMod.portAssignmentsOfSubModuleInstances[subModInsIndex])
         {
-          if(totalCharactersEveryLine + 1 +
-               hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+          if(totalCharsEveryLine + 1 +
+               hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
                  .ports[portDefIndex]
                  .portDefName.size() >
-             maxCharactersEveryLine)
+             maxCharsEveryLine)
           {
             ofs << std::endl << "      ";
-            totalCharactersEveryLine = 6;
+            totalCharsEveryLine = 6;
           }
           ofs << ".";
-          if(haveVerilogKeyWordOrOperator(
-               hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+          if(hasVerilogKeyWordOrOperator(
+               hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
                  .ports[portDefIndex]
                  .portDefName))
           {
-            shouldHaveEscapeCharacter = true;
+            shouldHaveEscapeChar = true;
             ofs << "\\";
-            totalCharactersEveryLine++;
+            totalCharsEveryLine++;
           }
-          ofs
-            << hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
-                 .ports[portDefIndex]
-                 .portDefName;
-          if(shouldHaveEscapeCharacter)
+          ofs << hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
+                   .ports[portDefIndex]
+                   .portDefName;
+          if(shouldHaveEscapeChar)
           {
             ofs << " ";
-            totalCharactersEveryLine++;
-            shouldHaveEscapeCharacter = false;
+            totalCharsEveryLine++;
+            shouldHaveEscapeChar = false;
           }
           ofs << "(";
-          totalCharactersEveryLine =
-            totalCharactersEveryLine + 2 +
-            hierNetlist[oneModule.subModuleDefIndex[subModuleInstanceIndex]]
+          totalCharsEveryLine =
+            totalCharsEveryLine + 2 +
+            hierNetlist[oneMod.subModuleDefIndex[subModInsIndex]]
               .ports[portDefIndex]
               .portDefName.size();
           if(onePortAssignment.refVars.size() > 1)
           {
             ofs << "{";
-            totalCharactersEveryLine++;
+            totalCharsEveryLine++;
           }
           for(uint32_t indexOfRefVars = onePortAssignment.refVars.size();
               indexOfRefVars > 0; indexOfRefVars--)
@@ -285,10 +280,10 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
             auto &refVar = onePortAssignment.refVars[indexOfRefVars - 1];
             if(refVar.refVarDefIndex == UINT_MAX)
             {
-              if(totalCharactersEveryLine + 4 > maxCharactersEveryLine)
+              if(totalCharsEveryLine + 4 > maxCharsEveryLine)
               {
                 ofs << std::endl << "      ";
-                totalCharactersEveryLine = 6;
+                totalCharsEveryLine = 6;
               }
               switch(refVar.valueAndValueX)
               {
@@ -308,81 +303,78 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                 ofs << "1'be"; // e = error valuex
                 break;
               }
-              totalCharactersEveryLine = totalCharactersEveryLine + 4;
+              totalCharsEveryLine = totalCharsEveryLine + 4;
             }
             else
             {
-              if(oneModule.ports[refVar.refVarDefIndex].isVector)
+              if(oneMod.ports[refVar.refVarDefIndex].isVector)
               {
-                if(totalCharactersEveryLine +
-                     oneModule.ports[refVar.refVarDefIndex]
-                       .portDefName.size() +
+                if(totalCharsEveryLine +
+                     oneMod.ports[refVar.refVarDefIndex].portDefName.size() +
                      2 + getDecimalNumberLength(refVar.bitIndex) >
-                   maxCharactersEveryLine)
+                   maxCharsEveryLine)
                 {
                   ofs << std::endl << "      ";
-                  totalCharactersEveryLine = 6;
+                  totalCharsEveryLine = 6;
                 }
               }
               else
               {
-                if(totalCharactersEveryLine +
-                     oneModule.ports[refVar.refVarDefIndex]
-                       .portDefName.size() >
-                   maxCharactersEveryLine)
+                if(totalCharsEveryLine +
+                     oneMod.ports[refVar.refVarDefIndex].portDefName.size() >
+                   maxCharsEveryLine)
                 {
                   ofs << std::endl << "      ";
-                  totalCharactersEveryLine = 6;
+                  totalCharsEveryLine = 6;
                 }
               }
-              if(haveVerilogKeyWordOrOperator(
-                   oneModule.ports[refVar.refVarDefIndex].portDefName))
+              if(hasVerilogKeyWordOrOperator(
+                   oneMod.ports[refVar.refVarDefIndex].portDefName))
               {
-                shouldHaveEscapeCharacter = true;
+                shouldHaveEscapeChar = true;
                 ofs << "\\";
-                totalCharactersEveryLine++;
+                totalCharsEveryLine++;
               }
-              ofs << oneModule.ports[refVar.refVarDefIndex].portDefName;
-              totalCharactersEveryLine =
-                totalCharactersEveryLine +
-                oneModule.ports[refVar.refVarDefIndex].portDefName.size();
-              if(shouldHaveEscapeCharacter)
+              ofs << oneMod.ports[refVar.refVarDefIndex].portDefName;
+              totalCharsEveryLine =
+                totalCharsEveryLine +
+                oneMod.ports[refVar.refVarDefIndex].portDefName.size();
+              if(shouldHaveEscapeChar)
               {
                 ofs << " ";
-                totalCharactersEveryLine++;
-                shouldHaveEscapeCharacter = false;
+                totalCharsEveryLine++;
+                shouldHaveEscapeChar = false;
               }
-              if(oneModule.ports[refVar.refVarDefIndex].isVector)
+              if(oneMod.ports[refVar.refVarDefIndex].isVector)
               {
                 ofs << "[" << refVar.bitIndex << "]";
-                totalCharactersEveryLine =
-                  totalCharactersEveryLine + 2 +
-                  getDecimalNumberLength(refVar.bitIndex);
+                totalCharsEveryLine = totalCharsEveryLine + 2 +
+                                      getDecimalNumberLength(refVar.bitIndex);
               }
             }
             ofs << ",";
-            totalCharactersEveryLine++;
+            totalCharsEveryLine++;
           }
           if(onePortAssignment.refVars.size() >= 1)
           {
             ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
-            totalCharactersEveryLine--;
+            totalCharsEveryLine--;
           }
           if(onePortAssignment.refVars.size() > 1)
           {
             ofs << "}";
-            totalCharactersEveryLine++;
+            totalCharsEveryLine++;
           }
           ofs << ")";
           ofs << ", ";
-          totalCharactersEveryLine = totalCharactersEveryLine + 3;
+          totalCharsEveryLine = totalCharsEveryLine + 3;
           portDefIndex++;
         }
         ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
         ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one " "
         ofs << ");";
         ofs << std::endl;
-        subModuleInstanceIndex++;
+        subModInsIndex++;
       }
       ofs << "endmodule" << std::endl << std::endl;
     }
