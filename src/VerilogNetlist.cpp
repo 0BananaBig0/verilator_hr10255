@@ -490,7 +490,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
               }
             }
             oneModF.portAssignmentsOfSubModInss[portAssignmentsIndex] =
-              std::move(oneBlackBoxIns);
+              oneBlackBoxIns;
             portAssignmentsIndex++;
           }
           uint32_t assignsIndex = oneModF.assigns.size();
@@ -548,7 +548,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             }
             else
             {
-              oneModF.assigns[assignsIndex] = std::move(oneAssign);
+              oneModF.assigns[assignsIndex] = oneAssign;
               assignsIndex++;
             }
           }
