@@ -37,7 +37,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   // Clear data that is no longer in use.
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
-  freeContainerBySwap(_curModuleName);
   freeContainerBySwap(_portNameMapPortDefIndexs);
   freeContainerBySwap(_portNameMapPortDefIndex.ports);
   freeContainerBySwap(_curSubmoduleName);
@@ -53,18 +52,16 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
 // Create LUT.
 void HierNetlistVisitor::visit(AstModule *nodep)
 {
-  _curModuleName = nodep->prettyName();
+  const auto &curModuleName = nodep->prettyName();
   const bool &inLibrary = nodep->inLibrary();
-  if(_curModuleName == "@CONST-POOL@")
-    return;
   // The first time visit
-  else if(_theTimesOfVisit == 1 && !inLibrary)
+  if(_theTimesOfVisit == 1 && !inLibrary)
   {
     _isABlackBoxButNotAStdCell = true;
     iterateChildren(nodep);
     if(_isABlackBoxButNotAStdCell)
     {
-      _blackBoxesNameExcludingStdCells.insert(_curModuleName);
+      _blackBoxesNameExcludingStdCells.insert(curModuleName);
       _totalUsedBlackBoxes++;
     }
   }
@@ -72,13 +69,13 @@ void HierNetlistVisitor::visit(AstModule *nodep)
   {
     // The second to fourth time visit AST, we only visit AstModule and AstVar
     // and count the number of AstCell of Every AstModule.
-    auto visitAstModuleAndAstVar = [this](AstModule *nodep)
+    auto visitAstModuleAndAstVar = [this, &curModuleName, &nodep]()
     {
       Module curModule;
       // Create a LUT.
-      _moduleNameMapIndex[_curModuleName] = _curModuleIndex;
+      _moduleNameMapIndex[curModuleName] = _curModuleIndex;
       // Store name and level for current module.
-      curModule.moduleDefName = _curModuleName;
+      curModule.moduleDefName = curModuleName;
       curModule.level = nodep->level();
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
@@ -110,27 +107,27 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     // The second time visit
     if(_theTimesOfVisit == 2 && inLibrary)
     {
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
       _totalUsedStdCells++;
     }
     // The third time visit
     else if(_theTimesOfVisit == 3 &&
-            _blackBoxesNameExcludingStdCells.find(_curModuleName) !=
+            _blackBoxesNameExcludingStdCells.find(curModuleName) !=
               _blackBoxesNameExcludingStdCells.end())
     {
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
     }
     // The fourth time visit
     else if(_theTimesOfVisit == 4 && !inLibrary &&
-            _blackBoxesNameExcludingStdCells.find(_curModuleName) ==
+            _blackBoxesNameExcludingStdCells.find(curModuleName) ==
               _blackBoxesNameExcludingStdCells.end())
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
     return;
   }
   // The fifth time visit AST, we visit all AstNode, except AstVar.
   else
   {
-    _curModuleIndex = _moduleNameMapIndex[_curModuleName];
+    _curModuleIndex = _moduleNameMapIndex[curModuleName];
     _curSubmoduleInstanceIndex = 0;
     iterateChildren(nodep);
     return;
@@ -233,10 +230,10 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           // pop up its remaining data, from left to right.
           auto &biggerValue = rValue.biggerValues[biggerValuesSize - 1];
           if(biggerValuesSize == rValue.biggerValues.size())
-            position = rWidth - 32 * biggerValuesSize;
+            position = rWidth - 32 * biggerValuesSize - 1;
           else
-            position = 32;
-          while(position >= 1)
+            position = 31;
+          while(position != UINT_MAX)
           {
             // Store rValue
             bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -252,10 +249,10 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           biggerValuesSize--;
         }
         if(rWidth > 32)
-          position = 32;
+          position = 31;
         else
-          position = rWidth;
-        while(position >= 1)
+          position = rWidth - 1;
+        while(position != UINT_MAX)
         {
           // Store rValue
           bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -329,59 +326,69 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->prettyName();
   iterateChildren(nodep);
   // Convert multi bits wide port assignment into unit wide port assignment.
-  PortAssignment portAssignment;
-  RefVar refVar;
   auto &curSubModuleIndex = _moduleNameMapIndex[_curSubmoduleName];
   auto &portDefIndex = _portNameMapPortDefIndexs[curSubModuleIndex]
                          .ports[_multipleBitsPortAssignmentTmp.portDefName];
-  for(auto &mRefVar: _multipleBitsPortAssignmentTmp.multipleBitsRefVars)
+  PortAssignment portAssignment;
+  if(_multipleBitsPortAssignmentTmp.multipleBitsRefVars.empty())
   {
+    _curSubModInsPortAssignmentsTmp[portDefIndex] = portAssignment;
+    return;
+  }
+  portAssignment.refVars.resize(
+    _hierNetlist[curSubModuleIndex].ports[portDefIndex].bitWidth);
+  uint32_t portBitIndex = 0;
+  RefVar refVar;
+  for(int i = _multipleBitsPortAssignmentTmp.multipleBitsRefVars.size() - 1;
+      i >= 0; i--)
+  {
+    auto &mRefVar = _multipleBitsPortAssignmentTmp.multipleBitsRefVars[i];
     if(mRefVar.refVarName == "")
     {
       auto &rWidth = mRefVar.width;
-      uint32_t position;
-      uint32_t biggerValuesSize = mRefVar.biggerValues.size();
+      uint32_t positionLimit, position = 0;
       refVar.refVarDefIndex = UINT_MAX;
-      while(biggerValuesSize > 0)
-      {
-        auto &biggerValue = mRefVar.biggerValues[biggerValuesSize - 1];
-        if(biggerValuesSize == mRefVar.biggerValues.size())
-          position = rWidth - 32 * biggerValuesSize;
-        else
-          position = 32;
-        while(position >= 1)
-        {
-          refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
-            biggerValue.m_value, biggerValue.m_valueX, position, mRefVar.hasX);
-          portAssignment.refVars.insert(portAssignment.refVars.begin(),
-                                        refVar);
-          position--;
-        }
-        biggerValuesSize--;
-      }
       if(rWidth > 32)
-        position = 32;
+        positionLimit = 32;
       else
-        position = rWidth;
-      while(position >= 1)
+        positionLimit = rWidth;
+      while(position < positionLimit)
       {
         refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
           mRefVar.constValueAndX.value, mRefVar.constValueAndX.valueX,
           position, mRefVar.hasX);
-        portAssignment.refVars.insert(portAssignment.refVars.begin(), refVar);
-        position--;
+        portAssignment.refVars[portBitIndex] = refVar;
+        portBitIndex++;
+        position++;
+      }
+      for(auto &biggerValue: mRefVar.biggerValues)
+      {
+        if(&biggerValue == &mRefVar.biggerValues.back())
+          positionLimit = rWidth - 32 * mRefVar.biggerValues.size();
+        else
+          positionLimit = 32;
+        position = 0;
+        while(position < positionLimit)
+        {
+          refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
+            biggerValue.m_value, biggerValue.m_valueX, position, mRefVar.hasX);
+          portAssignment.refVars[portBitIndex] = refVar;
+          portBitIndex++;
+          position++;
+        }
       }
     }
     else
     {
-      int rEnd = mRefVar.refVarRange.end;
+      uint32_t rStart = mRefVar.refVarRange.start;
       refVar.refVarDefIndex =
         _portNameMapPortDefIndexs[_curModuleIndex].ports[mRefVar.refVarName];
-      while(rEnd >= int(mRefVar.refVarRange.start))
+      while(rStart <= mRefVar.refVarRange.end)
       {
-        refVar.bitIndex = rEnd;
-        portAssignment.refVars.insert(portAssignment.refVars.begin(), refVar);
-        rEnd--;
+        refVar.bitIndex = rStart;
+        portAssignment.refVars[portBitIndex] = refVar;
+        portBitIndex++;
+        rStart++;
       }
     }
   }
@@ -618,12 +625,11 @@ char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
                                                          uint32_t &position,
                                                          bool &hasX) const
 {
-  uint32_t hotCode = 1 << 31;
-  bool bValue = ((value & (hotCode >> (32 - position))) > 0) ? true : false;
+  uint32_t hotCode = 1;
+  bool bValue = ((value & (hotCode << position)) > 0) ? true : false;
   if(hasX)
   {
-    bool bValueX =
-      ((valueX & (hotCode >> (32 - position))) > 0) ? true : false;
+    bool bValueX = ((valueX & (hotCode << position)) > 0) ? true : false;
     if(bValue & bValueX)
       return CHAR_X;
     else if((!bValue) & (!bValueX))
