@@ -38,7 +38,6 @@ class HierNetlistVisitor final : public VNVisitor
     // AstModule
     uint32_t _totalUsedStdCells;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
-    std::string _curModuleName;
     uint32_t _curModuleIndex;
     uint32_t _totalUsedBlackBoxes;
     std::unordered_set<std::string> _blackBoxesNameExcludingStdCells;
@@ -114,6 +113,7 @@ class HierNetlistVisitor final : public VNVisitor
     virtual void visit(AstConst *nodep) override;
     // Prevent idling iteration
     virtual void visit(AstTypeTable *nodep) override { return; }
+    virtual void visit(AstConstPool *nodep) override { return; }
 
     // reuse some codes.
     char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
