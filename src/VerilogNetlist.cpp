@@ -442,6 +442,11 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             oneSubMod.subModuleDefIndexs.begin(),
             oneSubMod.subModuleDefIndexs.end());
           uint32_t blackBoxInsNameIndex = 0;
+          uint32_t portAssignmentsIndex =
+            oneModF.portAssignmentsOfSubModInss.size();
+          oneModF.portAssignmentsOfSubModInss.resize(
+            portAssignmentsIndex +
+            oneSubMod.portAssignmentsOfSubModInss.size());
           // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
           for(auto oneBlackBoxIns: oneSubMod.portAssignmentsOfSubModInss)
           {
@@ -484,9 +489,13 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 // else{}
               }
             }
-            oneModF.portAssignmentsOfSubModInss.push_back(
-              std::move(oneBlackBoxIns));
+            oneModF.portAssignmentsOfSubModInss[portAssignmentsIndex] =
+              std::move(oneBlackBoxIns);
+            portAssignmentsIndex++;
           }
+          uint32_t assignsIndex = oneModF.assigns.size();
+          uint32_t totalAssigns = assignsIndex + oneSubMod.assigns.size();
+          oneModF.assigns.resize(totalAssigns);
           for(auto oneAssign: oneSubMod.assigns)
           {
             bool _curAssignConnectToEmptySignal = false;
@@ -533,10 +542,17 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                     .refVars[oneAssign.rValue.bitIndex];
             }
             if(_curAssignConnectToEmptySignal)
+            {
               _curAssignConnectToEmptySignal = false;
+              totalAssigns--;
+            }
             else
-              oneModF.assigns.push_back(std::move(oneAssign));
+            {
+              oneModF.assigns[assignsIndex] = std::move(oneAssign);
+              assignsIndex++;
+            }
           }
+          oneModF.assigns.resize(totalAssigns);
         }
         subModInsIndex++;
       }
