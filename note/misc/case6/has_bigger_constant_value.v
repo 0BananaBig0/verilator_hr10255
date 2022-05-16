@@ -7,22 +7,23 @@
 module has_bigger_constant_value(A,B,C);
   input[120:0] A;
   inout[120:0] B;
-  output[122:0] C;
+  output[333:0] C;
   wire[63:0] slongv;
   wire[127:0] longv;
   wire[255:0] llongv;
   assign slongv = 64'd8589934593;// 64'h00000002_00000001
   assign longv = {slongv+1,slongv};// 128'h00000002_00000002 00000002_00000001
   assign llongv = {slongv,longv,slongv};// 256'h00000002_00000001 00000002_00000002 00000002_00000001 00000002_00000001
-  submodule1 U1(.A(A[40:0]),.B(B[40:0]),.C(C[40:0]));
-  submodule1 U2(.A(A[81:41]),.B(B[81:41]),.C(C[81:41]));
-  submodule1 U3(.A(slongv[40:0]),.B(longv[81:41]),.C(C[122:82]));
+  submodule1 U1(.A(A[64:0]),.B(B[64:0]),.C(C[64:0]));
+  submodule1 U2(.A(A[105:41]),.B(B[105:41]),.C(C[105:41]));
+  submodule1 U3(.A(65'h1_00000002_00000002),.B(longv[105:41]),.C(C[170:106]));
 endmodule
 
 module submodule1(A,B,C);
-  input [40:0] A;
-  inout [40:0] B;
-  output [40:0] C;
+  input [64:0] A;
+  inout [64:0] B;
+  output [64:0] C;
+  assign C[64:36] = B[64:36];
   submodule2 U1(.A(A[11:0]),.B(B[11:0]),.C(C[11:0]));
   submodule2 U2(.A(A[23:12]),.B(B[23:12]),.C(C[23:12]));
   submodule2 U3(.A(A[35:24]),.B(B[35:24]),.C(C[35:24]));
