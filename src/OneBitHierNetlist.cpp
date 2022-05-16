@@ -41,7 +41,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   // Clear data that is no longer in use.
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
-  freeContainerBySwap(_curModuleName);
   freeContainerBySwap(_portNameMapPortDefIndexs);
   freeContainerBySwap(_portNameMapPortDefIndex.ports);
   freeContainerBySwap(_curSubmoduleName);
@@ -57,18 +56,16 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
 // Create LUT.
 void HierNetlistVisitor::visit(AstModule *nodep)
 {
-  _curModuleName = nodep->prettyName();
+  const auto &curModuleName = nodep->prettyName();
   const bool &inLibrary = nodep->inLibrary();
-  if(_curModuleName == "@CONST-POOL@")
-    return;
   // The first time visit
-  else if(_theTimesOfVisit == 1 && !inLibrary)
+  if(_theTimesOfVisit == 1 && !inLibrary)
   {
     _isABlackBoxButNotAStdCell = true;
     iterateChildren(nodep);
     if(_isABlackBoxButNotAStdCell)
     {
-      _blackBoxesNameExcludingStdCells.insert(_curModuleName);
+      _blackBoxesNameExcludingStdCells.insert(curModuleName);
       _totalUsedBlackBoxes++;
     }
   }
@@ -76,13 +73,13 @@ void HierNetlistVisitor::visit(AstModule *nodep)
   {
     // The second to fourth time visit AST, we only visit AstModule and AstVar
     // and count the number of AstCell of Every AstModule.
-    auto visitAstModuleAndAstVar = [this](AstModule *nodep)
+    auto visitAstModuleAndAstVar = [this, &curModuleName, &nodep]()
     {
       Module curModule;
       // Create a LUT.
-      _moduleNameMapIndex[_curModuleName] = _curModuleIndex;
+      _moduleNameMapIndex[curModuleName] = _curModuleIndex;
       // Store name and level for current module.
-      curModule.moduleDefName = _curModuleName;
+      curModule.moduleDefName = curModuleName;
       curModule.level = nodep->level();
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
@@ -114,27 +111,27 @@ void HierNetlistVisitor::visit(AstModule *nodep)
     // The second time visit
     if(_theTimesOfVisit == 2 && inLibrary)
     {
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
       _totalUsedStdCells++;
     }
     // The third time visit
     else if(_theTimesOfVisit == 3 &&
-            _blackBoxesNameExcludingStdCells.find(_curModuleName) !=
+            _blackBoxesNameExcludingStdCells.find(curModuleName) !=
               _blackBoxesNameExcludingStdCells.end())
     {
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
     }
     // The fourth time visit
     else if(_theTimesOfVisit == 4 && !inLibrary &&
-            _blackBoxesNameExcludingStdCells.find(_curModuleName) ==
+            _blackBoxesNameExcludingStdCells.find(curModuleName) ==
               _blackBoxesNameExcludingStdCells.end())
-      visitAstModuleAndAstVar(nodep);
+      visitAstModuleAndAstVar();
     return;
   }
   // The fifth time visit AST, we visit all AstNode, except AstVar.
   else
   {
-    _curModuleIndex = _moduleNameMapIndex[_curModuleName];
+    _curModuleIndex = _moduleNameMapIndex[curModuleName];
     _curSubmoduleInstanceIndex = 0;
     iterateChildren(nodep);
     return;
