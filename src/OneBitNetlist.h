@@ -82,6 +82,9 @@ struct BitSlicedAssignStatement
     RefVar rValue; // right value (read value)
 };
 
+// The oreder in ports, subModuleInstanceNames, subModuleDefIndexs,
+// portAssignmentsOfSubModInss, std::vector<PortAssignment>,
+// std::vector<RefVar> and std::vector<Module> are important.
 struct Module
 {
   public:
