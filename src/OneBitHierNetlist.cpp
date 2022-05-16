@@ -4,11 +4,7 @@
   > Mail: 16hxliang3@stu.edu.cn
   > Created Time: Mon 11 Apr 2022 08:18:10 PM CST
  ************************************************************************/
-#include "MultipleBitsNetlist.h"
 #include "OneBitHierNetlist.h"
-#include <cstdint>
-#include <math.h>
-#include <vector>
 
 void HierNetlistVisitor::visit(AstNode *nodep) { iterateChildren(nodep); };
 
@@ -234,10 +230,10 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           // pop up its remaining data, from left to right.
           auto &biggerValue = rValue.biggerValues[biggerValuesSize - 1];
           if(biggerValuesSize == rValue.biggerValues.size())
-            position = rWidth - 32 * biggerValuesSize;
+            position = rWidth - 32 * biggerValuesSize - 1;
           else
-            position = 32;
-          while(position >= 1)
+            position = 31;
+          while(position != UINT_MAX)
           {
             // Store rValue
             bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -252,10 +248,10 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           biggerValuesSize--;
         }
         if(rWidth > 32)
-          position = 32;
+          position = 31;
         else
-          position = rWidth;
-        while(position >= 1)
+          position = rWidth - 1;
+        while(position != UINT_MAX)
         {
           // Store rValue
           bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -329,59 +325,69 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   _multipleBitsPortAssignmentTmp.portDefName = nodep->modVarp()->prettyName();
   iterateChildren(nodep);
   // Convert multi bits wide port assignment into unit wide port assignment.
-  PortAssignment portAssignment;
-  RefVar refVar;
   auto &curSubModuleIndex = _moduleNameMapIndex[_curSubmoduleName];
   auto &portDefIndex = _portNameMapPortDefIndexs[curSubModuleIndex]
                          .ports[_multipleBitsPortAssignmentTmp.portDefName];
-  for(auto &mRefVar: _multipleBitsPortAssignmentTmp.multipleBitsRefVars)
+  PortAssignment portAssignment;
+  if(_multipleBitsPortAssignmentTmp.multipleBitsRefVars.empty())
   {
+    _curSubModInsPortAssignmentsTmp[portDefIndex] = portAssignment;
+    return;
+  }
+  portAssignment.refVars.resize(
+    _hierNetlist[curSubModuleIndex].ports[portDefIndex].bitWidth);
+  uint32_t portBitIndex = 0;
+  RefVar refVar;
+  for(int i = _multipleBitsPortAssignmentTmp.multipleBitsRefVars.size() - 1;
+      i >= 0; i--)
+  {
+    auto &mRefVar = _multipleBitsPortAssignmentTmp.multipleBitsRefVars[i];
     if(mRefVar.refVarName == "")
     {
       auto &rWidth = mRefVar.width;
-      uint32_t position;
-      uint32_t biggerValuesSize = mRefVar.biggerValues.size();
+      uint32_t positionLimit, position = 0;
       refVar.refVarDefIndex = UINT_MAX;
-      while(biggerValuesSize > 0)
-      {
-        auto &biggerValue = mRefVar.biggerValues[biggerValuesSize - 1];
-        if(biggerValuesSize == mRefVar.biggerValues.size())
-          position = rWidth - 32 * biggerValuesSize;
-        else
-          position = 32;
-        while(position >= 1)
-        {
-          refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
-            biggerValue.value, biggerValue.valueX, position, mRefVar.hasX);
-          portAssignment.refVars.insert(portAssignment.refVars.begin(),
-                                        refVar);
-          position--;
-        }
-        biggerValuesSize--;
-      }
       if(rWidth > 32)
-        position = 32;
+        positionLimit = 32;
       else
-        position = rWidth;
-      while(position >= 1)
+        positionLimit = rWidth;
+      while(position < positionLimit)
       {
         refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
           mRefVar.constValueAndX.value, mRefVar.constValueAndX.valueX,
           position, mRefVar.hasX);
-        portAssignment.refVars.insert(portAssignment.refVars.begin(), refVar);
-        position--;
+        portAssignment.refVars[portBitIndex] = refVar;
+        portBitIndex++;
+        position++;
+      }
+      for(auto &biggerValue: mRefVar.biggerValues)
+      {
+        if(&biggerValue == &mRefVar.biggerValues.back())
+          positionLimit = rWidth - 32 * mRefVar.biggerValues.size();
+        else
+          positionLimit = 32;
+        position = 0;
+        while(position < positionLimit)
+        {
+          refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
+            biggerValue.value, biggerValue.valueX, position, mRefVar.hasX);
+          portAssignment.refVars[portBitIndex] = refVar;
+          portBitIndex++;
+          position++;
+        }
       }
     }
     else
     {
-      int rEnd = mRefVar.refVarRange.end;
+      uint32_t rStart = mRefVar.refVarRange.start;
       refVar.refVarDefIndex =
         _portNameMapPortDefIndexs[_curModuleIndex].ports[mRefVar.refVarName];
-      while(rEnd >= int(mRefVar.refVarRange.start))
+      while(rStart <= mRefVar.refVarRange.end)
       {
-        refVar.bitIndex = rEnd;
-        portAssignment.refVars.insert(portAssignment.refVars.begin(), refVar);
-        rEnd--;
+        refVar.bitIndex = rStart;
+        portAssignment.refVars[portBitIndex] = refVar;
+        portBitIndex++;
+        rStart++;
       }
     }
   }
@@ -616,12 +622,11 @@ char HierNetlistVisitor::getOneBitValueFromDecimalNumber(uint32_t &value,
                                                          uint32_t &position,
                                                          bool &hasX) const
 {
-  uint32_t hotCode = 1 << 31;
-  bool bValue = ((value & (hotCode >> (32 - position))) > 0) ? true : false;
+  uint32_t hotCode = 1;
+  bool bValue = ((value & (hotCode << position)) > 0) ? true : false;
   if(hasX)
   {
-    bool bValueX =
-      ((valueX & (hotCode >> (32 - position))) > 0) ? true : false;
+    bool bValueX = ((valueX & (hotCode << position)) > 0) ? true : false;
     if(bValue & bValueX)
       return CHAR_X;
     else if((!bValue) & (!bValueX))
