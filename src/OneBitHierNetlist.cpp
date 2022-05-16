@@ -211,6 +211,11 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     bitSlicedAssignStatementTmp.lValue.refVarDefIndex =
       _portNameMapPortDefIndexs[_curModuleIndex]
         .ports[_multipleBitsAssignStatementTmp.lValue.refVarName];
+    auto &assigns = _hierNetlist[_curModuleIndex].assigns;
+    uint32_t assignsIndex = assigns.size();
+    assigns.resize(assignsIndex + lEnd -
+                   _multipleBitsAssignStatementTmp.lValue.refVarRange.start +
+                   1);
     // Maybe, in this, the boundary between port and var will become blurred.
     // But, we should remember that, port can be input, output and inout.(In
     // fact, we regard wire as port,too. Look at PortType enum.) Var can be
@@ -241,8 +246,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
                                               biggerValue.m_valueX, position,
                                               rValue.hasX);
             bitSlicedAssignStatementTmp.lValue.bitIndex = lEnd;
-            _hierNetlist[_curModuleIndex].assigns.push_back(
-              bitSlicedAssignStatementTmp);
+            assigns[assignsIndex] = bitSlicedAssignStatementTmp;
+            assignsIndex++;
             position--;
             lEnd--;
           }
@@ -260,8 +265,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
                                             rValue.constValueAndX.valueX,
                                             position, rValue.hasX);
           bitSlicedAssignStatementTmp.lValue.bitIndex = lEnd;
-          _hierNetlist[_curModuleIndex].assigns.push_back(
-            bitSlicedAssignStatementTmp);
+          assigns[assignsIndex] = bitSlicedAssignStatementTmp;
+          assignsIndex++;
           position--;
           lEnd--;
         }
@@ -277,8 +282,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           {
             bitSlicedAssignStatementTmp.rValue.bitIndex = rEnd;
             bitSlicedAssignStatementTmp.lValue.bitIndex = lEnd;
-            _hierNetlist[_curModuleIndex].assigns.push_back(
-              bitSlicedAssignStatementTmp);
+            assigns[assignsIndex] = bitSlicedAssignStatementTmp;
+            assignsIndex++;
             rEnd--;
             lEnd--;
           }
