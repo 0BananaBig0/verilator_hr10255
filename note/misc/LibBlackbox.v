@@ -5,9 +5,10 @@ input BYPASS, DIVF0, DIVF1, DIVF2, DIVF3, DIVF4, DIVF5, DIVF6, DIVF7, DIVQ0, DIV
 output LOCK, PLLOUT;
 endmodule
 
-module PADBID (I, OEN, C, PAD);
+module PADBID (I, OEN, PAD, C);
 input I, OEN;
-output C, PAD;
+inout PAD;
+output C;
 endmodule
 
 module PADCLK (PAD, C);
