@@ -229,7 +229,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         uint32_t position;
         uint32_t biggerValuesSize = rValue.biggerValues.size();
         // Store rValue
-        bitSlicedAssignStatementTmp.rValue.refVarDefIndex = UINT_MAX;
+        bitSlicedAssignStatementTmp.rValue.refVarDefIndex = UINT32_MAX;
         while(biggerValuesSize > 0)
         { // If the width of const value, X or Z is bigger than 32, we should
           // pop up its remaining data, from left to right.
@@ -238,7 +238,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
             position = rWidth - 32 * biggerValuesSize - 1;
           else
             position = 31;
-          while(position != UINT_MAX)
+          while(position != UINT32_MAX)
           {
             // Store rValue
             bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -256,7 +256,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
           position = 31;
         else
           position = rWidth - 1;
-        while(position != UINT_MAX)
+        while(position != UINT32_MAX)
         {
           // Store rValue
           bitSlicedAssignStatementTmp.rValue.valueAndValueX =
@@ -351,7 +351,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     {
       auto &rWidth = mRefVar.width;
       uint32_t positionLimit, position = 0;
-      refVar.refVarDefIndex = UINT_MAX;
+      refVar.refVarDefIndex = UINT32_MAX;
       if(rWidth > 32)
         positionLimit = 32;
       else
