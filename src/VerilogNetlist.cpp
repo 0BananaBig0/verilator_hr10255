@@ -156,7 +156,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
           ofs << " ";
           shouldHaveEscapeChar = false;
         }
-        if(oneAssign.lValue.refVarDefIndex != UINT_MAX)
+        if(oneAssign.lValue.refVarDefIndex != UINT32_MAX)
         {
           if(oneMod.ports[oneAssign.lValue.refVarDefIndex].isVector)
             ofs << "[" << oneAssign.lValue.bitIndex << "]";
@@ -168,7 +168,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
         }
         ofs << " = ";
         // rValue is a consta value or x or z
-        if(oneAssign.rValue.refVarDefIndex == UINT_MAX)
+        if(oneAssign.rValue.refVarDefIndex == UINT32_MAX)
         {
           switch(oneAssign.rValue.valueAndValueX)
           {
@@ -278,7 +278,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
               indexOfRefVars > 0; indexOfRefVars--)
           {
             auto &refVar = onePortAssignment.refVars[indexOfRefVars - 1];
-            if(refVar.refVarDefIndex == UINT_MAX)
+            if(refVar.refVarDefIndex == UINT32_MAX)
             {
               if(totalCharsEveryLine + 4 > maxCharsEveryLine)
               {
@@ -392,7 +392,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
   // statement; Sometimes, totalUsedBlackBoxes = 0.
   auto &theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level;
   for(uint32_t modDefIndex = hierNetlist.size() - 1;
-      modDefIndex >= totalUsedBlackBoxes && modDefIndex != UINT_MAX;
+      modDefIndex >= totalUsedBlackBoxes && modDefIndex != UINT32_MAX;
       modDefIndex--)
   {
     // full_adder definition
@@ -464,7 +464,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 // Now, oneRefVar is a wire
                 if(oneRefVar.refVarDefIndex >=
                      oneSubMod.totalPortsExcludingWires &&
-                   oneRefVar.refVarDefIndex < UINT_MAX)
+                   oneRefVar.refVarDefIndex < UINT32_MAX)
                 {
                   oneRefVar.refVarDefIndex =
                     oneRefVar.refVarDefIndex -
@@ -502,7 +502,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             // lValue is a wire
             if(oneAssign.lValue.refVarDefIndex >=
                  oneSubMod.totalPortsExcludingWires &&
-               oneAssign.lValue.refVarDefIndex < UINT_MAX)
+               oneAssign.lValue.refVarDefIndex < UINT32_MAX)
             {
               oneAssign.lValue.refVarDefIndex =
                 oneAssign.lValue.refVarDefIndex -
@@ -523,7 +523,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             // rValue is a wire
             if(oneAssign.rValue.refVarDefIndex >=
                  oneSubMod.totalPortsExcludingWires &&
-               oneAssign.rValue.refVarDefIndex < UINT_MAX)
+               oneAssign.rValue.refVarDefIndex < UINT32_MAX)
             {
               oneAssign.rValue.refVarDefIndex =
                 oneAssign.rValue.refVarDefIndex -

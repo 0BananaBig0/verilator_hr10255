@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
-#include <limits.h>
 #include <string>
 #include <unistd.h>
 #include <unordered_set>
@@ -55,8 +54,8 @@ struct PortDefinition
 struct RefVar
 {
     // Referenced Variable Definition Index in std::vector<PortDefinition>
-    // If refVarDefIndex == UINT_MAX, it means it is a const value, X or Z.
-    uint32_t refVarDefIndex = UINT_MAX;
+    // If refVarDefIndex == UINT32_MAX, it means it is a const value, X or Z.
+    uint32_t refVarDefIndex = UINT32_MAX;
     union
     {
         uint32_t bitIndex; // Like C[1], bitIndex = 1;
