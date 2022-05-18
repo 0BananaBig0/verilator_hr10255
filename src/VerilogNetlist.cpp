@@ -388,7 +388,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                                     const uint32_t &totalUsedBlackBoxes)
 {
   flatNetlist = hierNetlist;
-  // Use to not flatten such module which only have standard cells or assign
+  // Use to not flatten such module which only have black boxes or assign
   // statement; Sometimes, totalUsedBlackBoxes = 0.
   auto &theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level;
   for(uint32_t modDefIndex = hierNetlist.size() - 1;
