@@ -12,9 +12,11 @@
 #include <iostream>
 #include <unordered_set>
 
-void VerilogNetlist::genHierNet()
+void VerilogNetlist::genHierNet(
+  std::unordered_set<std::string> emptyStdCellsInJson)
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
+  hierNetlistVisitor.setEmptyStdCells(emptyStdCellsInJson);
   _hierNetlist = hierNetlistVisitor.getHierNetlist();
   _totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
   _totalUsedNotEmptyStdCells =
