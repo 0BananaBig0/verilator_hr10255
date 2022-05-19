@@ -35,6 +35,7 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   iterateChildren(nodep);
   _totalUsedBlackBoxes = _totalUsedBlackBoxes + _totalUsedStdCells;
   // Clear data that is no longer in use.
+  freeContainerBySwap(_emptyStdCellsInJson);
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
   freeContainerBySwap(_portNameMapPortDefIndexs);
@@ -656,8 +657,9 @@ void HierNetlistVisitor::freeContainerBySwap(T &rContainer)
 
 bool HierNetlistVisitor::isAnEmptyStdCellInJson(const std::string &stdCellName)
 {
-  std::unordered_set<std::string> emptyStdCells = { "MemGen_16_10", "PLL" };
-  return emptyStdCells.find(stdCellName) != emptyStdCells.end() ? true : false;
+  return _emptyStdCellsInJson.find(stdCellName) != _emptyStdCellsInJson.end()
+           ? true
+           : false;
 };
 
 // In LibBlackbox.v, all stdcells is empty, we regard them as black boxes.

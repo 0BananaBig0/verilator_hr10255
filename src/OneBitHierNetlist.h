@@ -33,6 +33,7 @@ class HierNetlistVisitor final : public AstNVisitor
     std::vector<Module> _hierNetlist;
     uint32_t _theTimesOfVisit;
     uint32_t _totalUsedNotEmptyStdCells;
+    std::unordered_set<std::string> _emptyStdCellsInJson;
 
     // A module = ItsName + Port  + Wire + Assign staement + Submodule Instance
     // AstModule
@@ -139,6 +140,11 @@ class HierNetlistVisitor final : public AstNVisitor
     const uint32_t &getTotalUsedBlackBoxes() const
     {
       return _totalUsedBlackBoxes;
+    };
+    void setEmptyStdCells(
+      const std::unordered_set<std::string> &emptyStdCellsInJson)
+    {
+      _emptyStdCellsInJson = emptyStdCellsInJson;
     };
 
   public:

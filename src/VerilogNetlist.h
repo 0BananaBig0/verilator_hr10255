@@ -14,7 +14,7 @@ class VerilogNetlist final
   private:
     // stdCells : all written into LibBlackbox.v or stdcells.json
     uint32_t _totalUsedStdCells;
-    // emptyStdCells : like PLL, which is empty in stdcells.json
+    // emptyStdCellsInjson : like PLL, which is empty in stdcells.json
     uint32_t _totalUsedNotEmptyStdCells;
     // blackBoxes : including all stdCells and some empty module which
     // are written by hardware designer.
@@ -54,7 +54,8 @@ class VerilogNetlist final
                    "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level);
     };
     // Get a hierarchical netlist from ast
-    void genHierNet();
+    void genHierNet(std::unordered_set<std::string> emptyStdCellsInJson = {
+                      "MemGen_16_10", "PLL" });
     // Print a Netlist
     void printNetlist(const std::vector<Module> &hierNetlist,
                       const uint32_t &totalUsedStdCells,
