@@ -14,7 +14,7 @@ module has_notempty_empty_blackbox(chip_en,wr_en,clock,rd_en,addr,wr_data,
    input [15:0]wr_data;
    output [15:0]rd_data;
    output [15:0]c;
-  MemGen_16_10 U1_U0 (.chip_en(chip_en), .wr_en(wr_en), .addr({addr[9],addr[8],
+  MemGen_16_10 U1/U0 (.chip_en(chip_en), .wr_en(wr_en), .addr({addr[9],addr[8],
       addr[7],addr[6],addr[5],addr[4],addr[3],addr[2],addr[1],addr[0]}), .wr_data({
       wr_data[15],wr_data[14],wr_data[13],wr_data[12],wr_data[11],wr_data[10],
       wr_data[9],wr_data[8],wr_data[7],wr_data[6],wr_data[5],wr_data[4],
