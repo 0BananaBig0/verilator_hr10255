@@ -435,7 +435,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
           for(uint32_t i = oneModFPortsNum; i < oneModF.ports.size(); i++)
           {
             oneModF.ports[i] = oneSubMod.ports[oneSubModWirePos];
-            oneModF.ports[i].portDefName.insert(0, "_");
+            oneModF.ports[i].portDefName.insert(0, "/");
             oneModF.ports[i].portDefName.insert(0, subModInsName);
             oneSubModWirePos++;
           }
@@ -456,7 +456,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             oneModF.subModuleInstanceNames.push_back(
               oneSubMod.subModuleInstanceNames[blackBoxInsNameIndex]);
             blackBoxInsNameIndex++;
-            oneModF.subModuleInstanceNames.back().insert(0, "_");
+            oneModF.subModuleInstanceNames.back().insert(0, "/");
             oneModF.subModuleInstanceNames.back().insert(0, subModInsName);
             // .A(a)
             for(auto &portAssignmentOfBlackBox: oneBlackBoxIns)
