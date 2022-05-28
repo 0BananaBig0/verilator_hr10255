@@ -277,15 +277,15 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
             hierNetlist[oneMod.subModuleDefIndexs()[subModInsIndex]]
               .ports()[portDefIndex]
               .portDefName.size();
-          if(onePortAssignment.refVars.size() > 1)
+          if(onePortAssignment.size() > 1)
           {
             ofs << "{";
             totalCharsEveryLine++;
           }
-          for(uint32_t indexOfRefVars = onePortAssignment.refVars.size();
+          for(uint32_t indexOfRefVars = onePortAssignment.size();
               indexOfRefVars > 0; indexOfRefVars--)
           {
-            auto &refVar = onePortAssignment.refVars[indexOfRefVars - 1];
+            auto &refVar = onePortAssignment[indexOfRefVars - 1];
             if(refVar.refVarDefIndex == UINT32_MAX)
             {
               if(totalCharsEveryLine + 4 > maxCharsEveryLine)
@@ -363,12 +363,12 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
             ofs << ",";
             totalCharsEveryLine++;
           }
-          if(onePortAssignment.refVars.size() >= 1)
+          if(onePortAssignment.size() >= 1)
           {
             ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
             totalCharsEveryLine--;
           }
-          if(onePortAssignment.refVars.size() > 1)
+          if(onePortAssignment.size() > 1)
           {
             ofs << "}";
             totalCharsEveryLine++;
@@ -467,7 +467,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             // .A(a)
             for(auto &portAssignmentOfBlackBox: oneBlackBoxIns)
             {
-              for(auto &oneRefVar: portAssignmentOfBlackBox.refVars)
+              for(auto &oneRefVar: portAssignmentOfBlackBox)
               {
                 // Now, oneRefVar is a wire
                 if(oneRefVar.refVarDefIndex >=
@@ -483,15 +483,15 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                         oneSubMod.totalPortsExcludingWires())
                 { // If the port of full_adder_co instance is empty.
                   if(portAssignmentsOfSubModIns[oneRefVar.refVarDefIndex]
-                       .refVars.empty())
+                       .empty())
                   {
-                    portAssignmentOfBlackBox.refVars.clear();
+                    portAssignmentOfBlackBox.clear();
                     break;
                   }
                   else
                     oneRefVar =
                       portAssignmentsOfSubModIns[oneRefVar.refVarDefIndex]
-                        .refVars[oneRefVar.bitIndex];
+                                                [oneRefVar.bitIndex];
                 }
                 // Now,oneRefVar is a const value or x or z
                 // else{}
@@ -521,12 +521,12 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                     oneSubMod.totalPortsExcludingWires())
             {
               if(portAssignmentsOfSubModIns[oneAssign.lValue.refVarDefIndex]
-                   .refVars.empty())
+                   .empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.lValue =
                   portAssignmentsOfSubModIns[oneAssign.lValue.refVarDefIndex]
-                    .refVars[oneAssign.lValue.bitIndex];
+                                            [oneAssign.lValue.bitIndex];
             }
             // rValue is a wire
             if(oneAssign.rValue.refVarDefIndex >=
@@ -542,12 +542,12 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                     oneSubMod.totalPortsExcludingWires())
             {
               if(portAssignmentsOfSubModIns[oneAssign.rValue.refVarDefIndex]
-                   .refVars.empty())
+                   .empty())
                 _curAssignConnectToEmptySignal = true;
               else
                 oneAssign.rValue =
                   portAssignmentsOfSubModIns[oneAssign.rValue.refVarDefIndex]
-                    .refVars[oneAssign.rValue.bitIndex];
+                                            [oneAssign.rValue.bitIndex];
             }
             if(_curAssignConnectToEmptySignal)
             {

@@ -65,12 +65,13 @@ struct RefVar
 
 //.A({1'b0,ci,C[1],C[2]})
 // Used in module instantiation
-struct PortAssignment
-{
-    // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
-    // not store C[1:0],which will be broken into C[1], C[0]
-    std::vector<RefVar> refVars;
-};
+// struct PortAssignment
+// {
+//     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
+//     // not store C[1:0],which will be broken into C[1], C[0]
+//     std::vector<RefVar> refVars;
+// };
+typedef std::vector<RefVar> PortAssignment;
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0],
@@ -173,6 +174,10 @@ class Module
     std::vector<std::string> _subModuleInstanceNames;
     // All sub modules definition index in hierNetlist of current module
     std::vector<uint32_t> _subModuleDefIndexs;
+    // The following structure is a three dimensions vector.
+    // The first dimension: submodule
+    // The second dimension: portAssignments of one submodule
+    // The third dimension: one port assignment
     std::vector<std::vector<PortAssignment>> _portAssignmentsOfSubModInss;
     /* Netlist Instance Information(END) */
 };

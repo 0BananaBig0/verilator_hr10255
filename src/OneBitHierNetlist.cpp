@@ -340,7 +340,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     _curSubModInsPortAssignmentsTmp[portDefIndex] = portAssignment;
     return;
   }
-  portAssignment.refVars.resize(
+  portAssignment.resize(
     _hierNetlist[curSubModuleIndex].ports()[portDefIndex].bitWidth);
   uint32_t portBitIndex = 0;
   RefVar refVar;
@@ -362,7 +362,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
           mRefVar.constValueAndX.value, mRefVar.constValueAndX.valueX,
           position, mRefVar.hasX);
-        portAssignment.refVars[portBitIndex] = refVar;
+        portAssignment[portBitIndex] = refVar;
         portBitIndex++;
         position++;
       }
@@ -377,7 +377,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
         {
           refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
             biggerValue.value, biggerValue.valueX, position, mRefVar.hasX);
-          portAssignment.refVars[portBitIndex] = refVar;
+          portAssignment[portBitIndex] = refVar;
           portBitIndex++;
           position++;
         }
@@ -391,7 +391,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       while(rStart <= mRefVar.refVarRange.end)
       {
         refVar.bitIndex = rStart;
-        portAssignment.refVars[portBitIndex] = refVar;
+        portAssignment[portBitIndex] = refVar;
         portBitIndex++;
         rStart++;
       }
