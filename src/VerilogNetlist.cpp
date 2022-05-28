@@ -443,6 +443,8 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
             oneModF.ports()[i] = oneSubMod.ports()[oneSubModWirePos];
             oneModF.ports()[i].portDefName.insert(0, "/");
             oneModF.ports()[i].portDefName.insert(0, subModInsName);
+            oneModF.portNameMapPortDefIndex()[oneModF.ports()[i].portDefName] =
+              i;
             oneSubModWirePos++;
           }
           oneModF.subModuleDefIndexs().insert(
