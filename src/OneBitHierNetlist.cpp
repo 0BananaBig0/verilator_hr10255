@@ -38,8 +38,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   freeContainerBySwap(_emptyStdCellsInJson);
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
-  freeContainerBySwap(_portNameMapPortDefIndexs);
-  freeContainerBySwap(_portNameMapPortDefIndex);
   freeContainerBySwap(_curSubmoduleName);
   freeContainerBySwap(_curSubmoduleInstanceName);
   freeContainerBySwap(_multipleBitsAssignStatementTmp.lValue().biggerValues());
@@ -81,7 +79,6 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
       // Initial value for all ports of current module.
-      _portNameMapPortDefIndex.clear();
       _curPortDefIndex = 0;
       // visit input
       _theTimesOfVisitAstVar = 1;
@@ -98,8 +95,6 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // visit wire
       _theTimesOfVisitAstVar = 4;
       iterateChildren(nodep);
-      // Store LUT
-      _portNameMapPortDefIndexs.push_back(_portNameMapPortDefIndex);
       // Prepare for the next visit to AstModule.
       _curModuleIndex++;
       _theTimesOfVisitAstVar = 0;
@@ -186,11 +181,13 @@ void HierNetlistVisitor::visit(AstVar *nodep)
         portDefinition.bitWidth = nodep->basicp()->width();
       }
       // Create LUT
-      _portNameMapPortDefIndex[portDefinition.portDefName] = _curPortDefIndex;
+      _hierNetlist[_curModuleIndex]
+        .portNameMapPortDefIndex()[portDefinition.portDefName] =
+        _curPortDefIndex;
       _curPortDefIndex++;
       // Store port definition
-      auto &ports = _hierNetlist[_curModuleIndex].ports();
-      ports.push_back(std::move(portDefinition));
+      _hierNetlist[_curModuleIndex].ports().push_back(
+        std::move(portDefinition));
     }
   }
 }
@@ -209,9 +206,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     // Use int type, not uint32_t, because of start = end = 0 may occur.
     int lEnd = _multipleBitsAssignStatementTmp.lValue().refVarRange().end;
     bitSlicedAssignStatementTmp.lValue.refVarDefIndex =
-      _portNameMapPortDefIndexs[_curModuleIndex]
-                               [_multipleBitsAssignStatementTmp.lValue()
-                                  .refVarName()];
+      _hierNetlist[_curModuleIndex].portNameMapPortDefIndex()
+        [_multipleBitsAssignStatementTmp.lValue().refVarName()];
     auto &assigns = _hierNetlist[_curModuleIndex].assigns();
     uint32_t assignsIndex = assigns.size();
     assigns.resize(
@@ -277,7 +273,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         {
           int rEnd = rValue.refVarRange().end;
           bitSlicedAssignStatementTmp.rValue.refVarDefIndex =
-            _portNameMapPortDefIndexs[_curModuleIndex][rValue.refVarName()];
+            _hierNetlist[_curModuleIndex]
+              .portNameMapPortDefIndex()[rValue.refVarName()];
           while(rEnd >= int(rValue.refVarRange().start))
           {
             bitSlicedAssignStatementTmp.rValue.bitIndex = rEnd;
@@ -333,8 +330,8 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   // Convert multi bits wide port assignment into unit wide port assignment.
   auto &curSubModuleIndex = _moduleNameMapIndex[_curSubmoduleName];
   auto &portDefIndex =
-    _portNameMapPortDefIndexs[curSubModuleIndex]
-                             [_multipleBitsPortAssignmentTmp.portDefName()];
+    _hierNetlist[curSubModuleIndex]
+      .portNameMapPortDefIndex()[_multipleBitsPortAssignmentTmp.portDefName()];
   PortAssignment portAssignment;
   if(_multipleBitsPortAssignmentTmp.multipleBitsRefVars().empty())
   {
@@ -388,7 +385,8 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     {
       uint32_t rStart = mRefVar.refVarRange().start;
       refVar.refVarDefIndex =
-        _portNameMapPortDefIndexs[_curModuleIndex][mRefVar.refVarName()];
+        _hierNetlist[_curModuleIndex]
+          .portNameMapPortDefIndex()[mRefVar.refVarName()];
       while(rStart <= mRefVar.refVarRange().end)
       {
         refVar.bitIndex = rStart;
@@ -699,8 +697,6 @@ void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
       _moduleNameMapIndex[notEmptyStdCellName] = emptyStdCellIndex;
       std::swap(_hierNetlist[emptyStdCellIndex],
                 _hierNetlist[notEmptyStdCellIndex]);
-      std::swap(_portNameMapPortDefIndexs[emptyStdCellIndex],
-                _portNameMapPortDefIndexs[notEmptyStdCellIndex]);
     }
   }
 };

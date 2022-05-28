@@ -11,6 +11,7 @@
 #include <exception>
 #include <string>
 #include <unistd.h>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -84,7 +85,8 @@ struct BitSlicedAssignStatement
 
 // The oreder in ports, subModuleInstanceNames, subModuleDefIndexs,
 // portAssignmentsOfSubModInss, std::vector<PortAssignment>,
-// std::vector<RefVar> and std::vector<Module> are important.
+// and std::vector<Module> are important.
+typedef std::unordered_map<std::string, uint32_t> PortNameMapPortDefIndex;
 class Module
 {
   public:
@@ -157,6 +159,11 @@ class Module
       return _portAssignmentsOfSubModInss;
     }
 
+    PortNameMapPortDefIndex &portNameMapPortDefIndex()
+    {
+      return _portNameMapPortDefIndex;
+    }
+
   private:
     std::string _moduleDefName; // Module Defined Name
     uint32_t _level = 0;        // the maximal depth in the hierarchical tree
@@ -180,4 +187,5 @@ class Module
     // The third dimension: one port assignment
     std::vector<std::vector<PortAssignment>> _portAssignmentsOfSubModInss;
     /* Netlist Instance Information(END) */
+    PortNameMapPortDefIndex _portNameMapPortDefIndex;
 };
