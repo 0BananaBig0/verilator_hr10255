@@ -117,8 +117,10 @@ class HierNetlistVisitor final : public AstNVisitor
     virtual void visit(AstTypeTable *nodep) override { return; }
 
     // reuse some codes.
-    char getOneBitValueFromDecimalNumber(uint32_t &value, uint32_t &valueX,
-                                         uint32_t &position, bool &hasX) const;
+    char getOneBitValueFromDecimalNumber(const uint32_t &value,
+                                         const uint32_t &valueX,
+                                         const uint32_t &position,
+                                         const bool &hasX) const;
 
     // Clear data and free ram
     template<typename T>
