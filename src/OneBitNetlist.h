@@ -84,25 +84,95 @@ struct BitSlicedAssignStatement
 // The oreder in ports, subModuleInstanceNames, subModuleDefIndexs,
 // portAssignmentsOfSubModInss, std::vector<PortAssignment>,
 // std::vector<RefVar> and std::vector<Module> are important.
-struct Module
+class Module
 {
   public:
-    std::string moduleDefName; // Module Defined Name
-    uint32_t level = 0;        // the maximal depth in the hierarchical tree
+    Module() :
+      _level(0), _totalInputs(0), _totalInputsAndInouts(0),
+      _totalPortsExcludingWires(0)
+    {
+      ;
+    }
+    ~Module() { ; }
+
+    void moduleDefName(const std::string &name) { _moduleDefName = name; }
+    const std::string &moduleDefName() const { return _moduleDefName; }
+
+    void level(const uint32_t &level) { _level = level; }
+    const uint32_t &level() const { return _level; }
+
+    const std::vector<PortDefinition> &ports() const { return _ports; }
+    std::vector<PortDefinition> &ports() { return _ports; }
+
+    void totalInputs(const uint32_t &number) { _totalInputs = number; }
+    const uint32_t &totalInputs() const { return _totalInputs; }
+
+    void totalInputsAndInouts(const uint32_t &number)
+    {
+      _totalInputsAndInouts = number;
+    }
+    const uint32_t &totalInputsAndInouts() const
+    {
+      return _totalInputsAndInouts;
+    }
+
+    void totalPortsExcludingWires(const uint32_t &number)
+    {
+      _totalPortsExcludingWires = number;
+    }
+    const uint32_t &totalPortsExcludingWires() const
+    {
+      return _totalPortsExcludingWires;
+    }
+
+    std::vector<BitSlicedAssignStatement> &assigns() { return _assigns; }
+    const std::vector<BitSlicedAssignStatement> &assigns() const
+    {
+      return _assigns;
+    }
+
+    std::vector<std::string> &subModuleInstanceNames()
+    {
+      return _subModuleInstanceNames;
+    }
+    const std::vector<std::string> &subModuleInstanceNames() const
+    {
+      return _subModuleInstanceNames;
+    }
+
+    std::vector<uint32_t> &subModuleDefIndexs() { return _subModuleDefIndexs; }
+    const std::vector<uint32_t> &subModuleDefIndexs() const
+    {
+      return _subModuleDefIndexs;
+    }
+
+    std::vector<std::vector<PortAssignment>> &portAssignmentsOfSubModInss()
+    {
+      return _portAssignmentsOfSubModInss;
+    }
+    const std::vector<std::vector<PortAssignment>> &
+    portAssignmentsOfSubModInss() const
+    {
+      return _portAssignmentsOfSubModInss;
+    }
+
+  private:
+    std::string _moduleDefName; // Module Defined Name
+    uint32_t _level = 0;        // the maximal depth in the hierarchical tree
 
     /* Netlist Definition Information(START) */
-    std::vector<PortDefinition> ports;
-    uint32_t totalInputs;
-    uint32_t totalInputsAndInouts;
-    uint32_t totalPortsExcludingWires;
-    std::vector<BitSlicedAssignStatement> assigns;
+    std::vector<PortDefinition> _ports;
+    uint32_t _totalInputs;
+    uint32_t _totalInputsAndInouts;
+    uint32_t _totalPortsExcludingWires;
+    std::vector<BitSlicedAssignStatement> _assigns;
     /* Netlist Definition Information(END) */
 
     /* Netlist Instance Information(START) */
     // Instance name of all sub modules of current module
-    std::vector<std::string> subModuleInstanceNames;
+    std::vector<std::string> _subModuleInstanceNames;
     // All sub modules definition index in hierNetlist of current module
-    std::vector<uint32_t> subModuleDefIndexs;
-    std::vector<std::vector<PortAssignment>> portAssignmentsOfSubModInss;
+    std::vector<uint32_t> _subModuleDefIndexs;
+    std::vector<std::vector<PortAssignment>> _portAssignmentsOfSubModInss;
     /* Netlist Instance Information(END) */
 };

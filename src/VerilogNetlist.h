@@ -51,7 +51,7 @@ class VerilogNetlist final
     void printFlatNet()
     {
       printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
-                   "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level);
+                   "FlatNetlist.v", _hierNetlist[_totalUsedBlackBoxes].level());
     };
     // Get a hierarchical netlist from ast
     void genHierNet(std::unordered_set<std::string> emptyStdCellsInJson = {

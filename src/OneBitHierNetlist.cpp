@@ -76,8 +76,8 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // Create a LUT.
       _moduleNameMapIndex[curModuleName] = _curModuleIndex;
       // Store name and level for current module.
-      curModule.moduleDefName = curModuleName;
-      curModule.level = nodep->level();
+      curModule.moduleDefName(curModuleName);
+      curModule.level(nodep->level());
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
       // Initial value for all ports of current module.
@@ -86,16 +86,15 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // visit input
       _theTimesOfVisitAstVar = 1;
       iterateChildren(nodep);
-      _hierNetlist[_curModuleIndex].totalInputs = _curPortDefIndex;
+      _hierNetlist[_curModuleIndex].totalInputs(_curPortDefIndex);
       // visit inout
       _theTimesOfVisitAstVar = 2;
       iterateChildren(nodep);
-      _hierNetlist[_curModuleIndex].totalInputsAndInouts = _curPortDefIndex;
+      _hierNetlist[_curModuleIndex].totalInputsAndInouts(_curPortDefIndex);
       // visit output
       _theTimesOfVisitAstVar = 3;
       iterateChildren(nodep);
-      _hierNetlist[_curModuleIndex].totalPortsExcludingWires =
-        _curPortDefIndex;
+      _hierNetlist[_curModuleIndex].totalPortsExcludingWires(_curPortDefIndex);
       // visit wire
       _theTimesOfVisitAstVar = 4;
       iterateChildren(nodep);
@@ -191,7 +190,8 @@ void HierNetlistVisitor::visit(AstVar *nodep)
         _curPortDefIndex;
       _curPortDefIndex++;
       // Store port definition
-      _hierNetlist[_curModuleIndex].ports.push_back(std::move(portDefinition));
+      auto &ports = _hierNetlist[_curModuleIndex].ports();
+      ports.push_back(std::move(portDefinition));
     }
   }
 }
@@ -212,7 +212,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     bitSlicedAssignStatementTmp.lValue.refVarDefIndex =
       _portNameMapPortDefIndexs[_curModuleIndex]
         .ports[_multipleBitsAssignStatementTmp.lValue.refVarName];
-    auto &assigns = _hierNetlist[_curModuleIndex].assigns;
+    auto &assigns = _hierNetlist[_curModuleIndex].assigns();
     uint32_t assignsIndex = assigns.size();
     assigns.resize(assignsIndex + lEnd -
                    _multipleBitsAssignStatementTmp.lValue.refVarRange.start +
@@ -308,13 +308,13 @@ void HierNetlistVisitor::visit(AstCell *nodep)
     _curSubModInsPortAssignmentsTmp.clear();
     _curSubModInsPortAssignmentsTmp.resize(
       _hierNetlist[_moduleNameMapIndex[_curSubmoduleName]]
-        .totalPortsExcludingWires);
+        .totalPortsExcludingWires());
     iterateChildren(nodep);
-    _hierNetlist[_curModuleIndex].subModuleInstanceNames.push_back(
+    _hierNetlist[_curModuleIndex].subModuleInstanceNames().push_back(
       _curSubmoduleInstanceName);
-    _hierNetlist[_curModuleIndex].subModuleDefIndexs.push_back(
+    _hierNetlist[_curModuleIndex].subModuleDefIndexs().push_back(
       _moduleNameMapIndex[_curSubmoduleName]);
-    _hierNetlist[_curModuleIndex].portAssignmentsOfSubModInss.push_back(
+    _hierNetlist[_curModuleIndex].portAssignmentsOfSubModInss().push_back(
       _curSubModInsPortAssignmentsTmp);
     _curSubmoduleInstanceIndex++;
   }
@@ -341,7 +341,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     return;
   }
   portAssignment.refVars.resize(
-    _hierNetlist[curSubModuleIndex].ports[portDefIndex].bitWidth);
+    _hierNetlist[curSubModuleIndex].ports()[portDefIndex].bitWidth);
   uint32_t portBitIndex = 0;
   RefVar refVar;
   for(int i = _multipleBitsPortAssignmentTmp.multipleBitsRefVars.size() - 1;
@@ -672,13 +672,13 @@ void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
   uint32_t notEmptyStdCellIndex, emptyStdCellIndex;
   for(auto i = 0; i < _totalUsedNotEmptyStdCells; i++)
   {
-    if(isAnEmptyStdCellInJson(_hierNetlist[i].moduleDefName))
+    if(isAnEmptyStdCellInJson(_hierNetlist[i].moduleDefName()))
     {
       _totalUsedNotEmptyStdCells--;
-      emptyStdCellName = _hierNetlist[i].moduleDefName;
+      emptyStdCellName = _hierNetlist[i].moduleDefName();
       emptyStdCellIndex = i;
       while(isAnEmptyStdCellInJson(
-        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName))
+        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName()))
       {
         if(_totalUsedNotEmptyStdCells > i)
           _totalUsedNotEmptyStdCells--;
@@ -687,7 +687,7 @@ void HierNetlistVisitor::swapEmptyAndNotEmptyStdCellPosition()
       }
       notEmptyStdCellIndex = _totalUsedNotEmptyStdCells;
       notEmptyStdCellName =
-        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName;
+        _hierNetlist[_totalUsedNotEmptyStdCells].moduleDefName();
       _moduleNameMapIndex.erase(emptyStdCellName);
       _moduleNameMapIndex.erase(notEmptyStdCellName);
       _moduleNameMapIndex[emptyStdCellName] = notEmptyStdCellIndex;
