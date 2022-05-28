@@ -39,7 +39,7 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
   freeContainerBySwap(_portNameMapPortDefIndexs);
-  freeContainerBySwap(_portNameMapPortDefIndex.ports);
+  freeContainerBySwap(_portNameMapPortDefIndex);
   freeContainerBySwap(_curSubmoduleName);
   freeContainerBySwap(_curSubmoduleInstanceName);
   freeContainerBySwap(_multipleBitsAssignStatementTmp.lValue.biggerValues);
@@ -81,7 +81,7 @@ void HierNetlistVisitor::visit(AstModule *nodep)
       // Push current module to hierarchical netlist.
       _hierNetlist.push_back(std::move(curModule));
       // Initial value for all ports of current module.
-      _portNameMapPortDefIndex.ports.clear();
+      _portNameMapPortDefIndex.clear();
       _curPortDefIndex = 0;
       // visit input
       _theTimesOfVisitAstVar = 1;
@@ -186,8 +186,7 @@ void HierNetlistVisitor::visit(AstVar *nodep)
         portDefinition.bitWidth = nodep->basicp()->width();
       }
       // Create LUT
-      _portNameMapPortDefIndex.ports[portDefinition.portDefName] =
-        _curPortDefIndex;
+      _portNameMapPortDefIndex[portDefinition.portDefName] = _curPortDefIndex;
       _curPortDefIndex++;
       // Store port definition
       auto &ports = _hierNetlist[_curModuleIndex].ports();
@@ -210,8 +209,8 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
     // Use int type, not uint32_t, because of start = end = 0 may occur.
     int lEnd = _multipleBitsAssignStatementTmp.lValue.refVarRange.end;
     bitSlicedAssignStatementTmp.lValue.refVarDefIndex =
-      _portNameMapPortDefIndexs[_curModuleIndex]
-        .ports[_multipleBitsAssignStatementTmp.lValue.refVarName];
+      _portNameMapPortDefIndexs
+        [_curModuleIndex][_multipleBitsAssignStatementTmp.lValue.refVarName];
     auto &assigns = _hierNetlist[_curModuleIndex].assigns();
     uint32_t assignsIndex = assigns.size();
     assigns.resize(assignsIndex + lEnd -
@@ -276,8 +275,7 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         {
           int rEnd = rValue.refVarRange.end;
           bitSlicedAssignStatementTmp.rValue.refVarDefIndex =
-            _portNameMapPortDefIndexs[_curModuleIndex]
-              .ports[rValue.refVarName];
+            _portNameMapPortDefIndexs[_curModuleIndex][rValue.refVarName];
           while(rEnd >= int(rValue.refVarRange.start))
           {
             bitSlicedAssignStatementTmp.rValue.bitIndex = rEnd;
@@ -332,8 +330,9 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   iterateChildren(nodep);
   // Convert multi bits wide port assignment into unit wide port assignment.
   auto &curSubModuleIndex = _moduleNameMapIndex[_curSubmoduleName];
-  auto &portDefIndex = _portNameMapPortDefIndexs[curSubModuleIndex]
-                         .ports[_multipleBitsPortAssignmentTmp.portDefName];
+  auto &portDefIndex =
+    _portNameMapPortDefIndexs[curSubModuleIndex]
+                             [_multipleBitsPortAssignmentTmp.portDefName];
   PortAssignment portAssignment;
   if(_multipleBitsPortAssignmentTmp.multipleBitsRefVars.empty())
   {
@@ -387,7 +386,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
     {
       uint32_t rStart = mRefVar.refVarRange.start;
       refVar.refVarDefIndex =
-        _portNameMapPortDefIndexs[_curModuleIndex].ports[mRefVar.refVarName];
+        _portNameMapPortDefIndexs[_curModuleIndex][mRefVar.refVarName];
       while(rStart <= mRefVar.refVarRange.end)
       {
         refVar.bitIndex = rStart;

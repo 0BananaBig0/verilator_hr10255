@@ -22,10 +22,11 @@
 // (5)We are only allowed to writ one AstVarRef information at the same time.
 // (6)Only such AstNode that has children pointed by m_opxp and we need the
 // information of its children can call iterateChildren(nodep) function.
-struct PortNameMapPortDefIndex
-{
-    std::unordered_map<std::string, uint32_t> ports;
-};
+// struct PortNameMapPortDefIndex
+// {
+//     std::unordered_map<std::string, uint32_t> ports;
+// };
+typedef std::unordered_map<std::string, uint32_t> PortNameMapPortDefIndex;
 class HierNetlistVisitor final : public AstNVisitor
 {
   private:
