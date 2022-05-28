@@ -435,8 +435,10 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
           auto &oneSubMod = flatNetlist[subModDefIndex];
           uint32_t oneModFPortsNum = oneModF.ports().size();
           uint32_t oneSubModWirePos = oneSubMod.totalPortsExcludingWires();
-          oneModF.ports().resize(oneModFPortsNum + oneSubMod.ports().size() -
-                                 oneSubModWirePos);
+          uint32_t newSize =
+            oneModFPortsNum + oneSubMod.ports().size() - oneSubModWirePos;
+          oneModF.ports().resize(newSize);
+          oneModF.portNameMapPortDefIndex().reserve(newSize);
           // full_adder_co wires,n_0_0 become U1_n_0_0
           for(uint32_t i = oneModFPortsNum; i < oneModF.ports().size(); i++)
           {
