@@ -49,10 +49,14 @@ struct PortDefinition
     uint32_t bitWidth = 1;
 };
 
-// RefVar = Referenced Variable
+// Referenced1bitVariable = Referenced 1-bit Variable
+// This means single-bit referenced variable used in Verilog module
+// instantiation
+//   or variable assignment. In Verilog standard, the referenced variable can
+//   be a vector type, which need to be converted to multiple 1-bit variables.
 // Everytime it stores only one bit information, for example, C[1], ci, 1'b0,
-// not store C[3:0], which will be broken into C[3], C[2], C[1], C[0].
-struct RefVar
+//   not store C[3:0], which will be broken into C[3], C[2], C[1], C[0].
+struct Referenced1bitVariable
 {
     // Referenced Variable Definition Index in std::vector<PortDefinition>
     // If refVarDefIndex == UINT32_MAX, it means it is a const value, X or Z.
@@ -68,19 +72,20 @@ struct RefVar
 // Used in module instantiation
 // struct PortAssignment
 // {
-//     // Everytime, it only pushes one bit information, for example, C[1], 1'b0,
+//     // Everytime, it only pushes one bit information, for example, C[1],
+//     1'b0,
 //     // not store C[1:0],which will be broken into C[1], C[0]
 //     std::vector<RefVar> refVars;
 // };
-typedef std::vector<RefVar> PortAssignment;
+typedef std::vector<Referenced1bitVariable> PortAssignment;
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
 // C[2] = ci, not sotre C[1:0] = {1'b0, co} or C[1:0] = B[1:0],
 // which will be broken into C[1] = 1'b0, C[0] = co or C[1] = B[1], C[0] = B[0]
 struct BitSlicedAssignStatement
 {
-    RefVar lValue; // left value (locator value)
-    RefVar rValue; // right value (read value)
+    Referenced1bitVariable lValue; // left value (locator value)
+    Referenced1bitVariable rValue; // right value (read value)
 };
 
 // The oreder in ports, subModuleInstanceNames, subModuleDefIndexs,

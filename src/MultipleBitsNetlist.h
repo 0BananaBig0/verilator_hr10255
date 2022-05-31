@@ -13,7 +13,8 @@
 struct RefVarRange
 {
     // For example, C[end:start];
-    uint32_t end, start;
+    uint32_t start;
+    uint32_t end;
 };
 struct ConstValueAndX
 {
@@ -25,7 +26,8 @@ struct ConstValueAndX
     // 1       | 0      | 0      | 1
     //   <=> x |  <=> z |  <=> 0 |  <=> 1
     // 1       | 1      | 0      | 0
-    uint32_t value, valueX;
+    uint32_t value;
+    uint32_t valueX;
 };
 // MultipleBitsRefVar =Multiple Bits Referenced Variable
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
@@ -46,20 +48,15 @@ class MultipleBitsRefVar
 
     RefVarRange &refVarRange() { return _refVarRange; }
 
-    ConstValueAndX &constValueAndX() { return _constValueAndX; }
-
     std::vector<ConstValueAndX> &biggerValues() { return _biggerValues; }
 
   private:
     std::string _refVarName; // Referenced Variable Name
     bool _hasX;              // Are there x or z?
     uint32_t _width;
-    union
-    {
-        RefVarRange _refVarRange;
-        ConstValueAndX _constValueAndX;
-    };
-    // Only when width > 32 and refVarName = "", it will be used.
+    // Only when _refVarName != "", it will be used.
+    RefVarRange _refVarRange;
+    // Only when _refVarName = "", it will be used.
     std::vector<ConstValueAndX> _biggerValues;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.

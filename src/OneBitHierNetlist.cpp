@@ -228,11 +228,10 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
         // Store rValue
         bitSlicedAssignStatementTmp.rValue.refVarDefIndex = UINT32_MAX;
         while(biggerValuesSize > 0)
-        { // If the width of const value, X or Z is bigger than 32, we should
-          // pop up its remaining data, from left to right.
+        {
           auto &biggerValue = rValue.biggerValues()[biggerValuesSize - 1];
           if(biggerValuesSize == rValue.biggerValues().size())
-            position = rWidth - 32 * biggerValuesSize - 1;
+            position = rWidth - 32 * (biggerValuesSize - 1) - 1;
           else
             position = 31;
           while(position != UINT32_MAX)
@@ -249,23 +248,6 @@ void HierNetlistVisitor::visit(AstNodeAssign *nodep)
             lEnd--;
           }
           biggerValuesSize--;
-        }
-        if(rWidth > 32)
-          position = 31;
-        else
-          position = rWidth - 1;
-        while(position != UINT32_MAX)
-        {
-          // Store rValue
-          bitSlicedAssignStatementTmp.rValue.valueAndValueX =
-            getOneBitValueFromDecimalNumber(rValue.constValueAndX().value,
-                                            rValue.constValueAndX().valueX,
-                                            position, rValue.hasX());
-          bitSlicedAssignStatementTmp.lValue.bitIndex = lEnd;
-          assigns[assignsIndex] = bitSlicedAssignStatementTmp;
-          assignsIndex++;
-          position--;
-          lEnd--;
         }
       }
       else
@@ -341,7 +323,7 @@ void HierNetlistVisitor::visit(AstPin *nodep)
   portAssignment.resize(
     _hierNetlist[curSubModuleIndex].ports()[portDefIndex].bitWidth);
   uint32_t portBitIndex = 0;
-  RefVar refVar;
+  Referenced1bitVariable refVar;
   for(int i = _multipleBitsPortAssignmentTmp.multipleBitsRefVars().size() - 1;
       i >= 0; i--)
   {
@@ -351,23 +333,10 @@ void HierNetlistVisitor::visit(AstPin *nodep)
       auto &rWidth = mRefVar.width();
       uint32_t positionLimit, position = 0;
       refVar.refVarDefIndex = UINT32_MAX;
-      if(rWidth > 32)
-        positionLimit = 32;
-      else
-        positionLimit = rWidth;
-      while(position < positionLimit)
-      {
-        refVar.valueAndValueX = getOneBitValueFromDecimalNumber(
-          mRefVar.constValueAndX().value, mRefVar.constValueAndX().valueX,
-          position, mRefVar.hasX());
-        portAssignment[portBitIndex] = refVar;
-        portBitIndex++;
-        position++;
-      }
       for(auto &biggerValue: mRefVar.biggerValues())
       {
         if(&biggerValue == &mRefVar.biggerValues().back())
-          positionLimit = rWidth - 32 * mRefVar.biggerValues().size();
+          positionLimit = rWidth - 32 * (mRefVar.biggerValues().size() - 1);
         else
           positionLimit = 32;
         position = 0;
@@ -500,8 +469,9 @@ void HierNetlistVisitor::visit(AstExtend *nodep)
 {
   uint32_t extendWidth = nodep->width() - nodep->lhsp()->width();
   _multipleBitsRefVarTmp.refVarName("");
-  _multipleBitsRefVarTmp.constValueAndX().value = 0;
-  _multipleBitsRefVarTmp.constValueAndX().valueX = 0;
+  _multipleBitsRefVarTmp.biggerValues().resize(1);
+  _multipleBitsRefVarTmp.biggerValues()[0].value = 0;
+  _multipleBitsRefVarTmp.biggerValues()[0].valueX = 0;
   _multipleBitsRefVarTmp.hasX(false);
   _multipleBitsRefVarTmp.width(std::move(extendWidth));
   if(_isAssignStatement)
@@ -520,8 +490,9 @@ void HierNetlistVisitor::visit(AstExtendS *nodep)
 {
   uint32_t extendSWidth = nodep->width() - nodep->lhsp()->width();
   _multipleBitsRefVarTmp.refVarName("");
-  _multipleBitsRefVarTmp.constValueAndX().value = (1 << extendSWidth) - 1;
-  _multipleBitsRefVarTmp.constValueAndX().valueX = 0;
+  _multipleBitsRefVarTmp.biggerValues().resize(1);
+  _multipleBitsRefVarTmp.biggerValues()[0].value = (1 << extendSWidth) - 1;
+  _multipleBitsRefVarTmp.biggerValues()[0].valueX = 0;
   _multipleBitsRefVarTmp.hasX(false);
   _multipleBitsRefVarTmp.width(std::move(extendSWidth));
   if(_isAssignStatement)
@@ -542,7 +513,7 @@ void HierNetlistVisitor::visit(AstReplicate *nodep)
   if(_isAssignStatement)
   { // Now, AstReplicate is a child of AstNodeAssign or AstExtend or AstConcat
     uint32_t replicateTimes =
-      _multipleBitsAssignStatementTmp.rValue().back().constValueAndX().value;
+      _multipleBitsAssignStatementTmp.rValue().back().biggerValues()[0].value;
     _multipleBitsAssignStatementTmp.rValue().pop_back();
     while(replicateTimes != 1)
     {
@@ -556,7 +527,7 @@ void HierNetlistVisitor::visit(AstReplicate *nodep)
     uint32_t replicateTimes =
       _multipleBitsPortAssignmentTmp.multipleBitsRefVars()
         .back()
-        .constValueAndX()
+        .biggerValues()[0]
         .value;
     _multipleBitsPortAssignmentTmp.multipleBitsRefVars().pop_back();
     while(replicateTimes != 1)
@@ -587,28 +558,19 @@ void HierNetlistVisitor::visit(AstConst *nodep)
   { // Now, AstConst is a rValue of assign statement or refValue of a
     // port or the number of AstReplicate.
     _multipleBitsRefVarTmp.refVarName("");
-    _multipleBitsRefVarTmp.constValueAndX().value = nodep->num().getValue32();
-    _multipleBitsRefVarTmp.constValueAndX().valueX =
-      nodep->num().getValueX32();
     _multipleBitsRefVarTmp.width(nodep->num().width());
-    if(_multipleBitsRefVarTmp.constValueAndX().valueX > 0)
-    { // Now, the const value has value x or z.
-      _multipleBitsRefVarTmp.hasX(true);
-    }
-    else
+    const std::vector<uint32_t> &values = nodep->num().getValue();
+    const std::vector<uint32_t> &valueXs = nodep->num().getValueX();
+    ConstValueAndX constValueAndX;
+    _multipleBitsRefVarTmp.biggerValues().clear();
+    for(uint32_t i = 0; i < ceil(_multipleBitsRefVarTmp.width() / 32.0); i++)
     {
-      _multipleBitsRefVarTmp.hasX(false);
-    }
-    if(_multipleBitsRefVarTmp.width() > 32)
-    {
-      const std::vector<uint32_t> &values = nodep->num().getValue();
-      const std::vector<uint32_t> &valueXs = nodep->num().getValueX();
-      ConstValueAndX constValueAndX;
-      for(uint32_t i = 1; i < ceil(_multipleBitsRefVarTmp.width() / 32.0); i++)
-      {
-        constValueAndX.value = values[i];
-        constValueAndX.valueX = valueXs[i];
-        _multipleBitsRefVarTmp.biggerValues().push_back(constValueAndX);
+      constValueAndX.value = values[i];
+      constValueAndX.valueX = valueXs[i];
+      _multipleBitsRefVarTmp.biggerValues().push_back(constValueAndX);
+      if(constValueAndX.valueX > 0 && _multipleBitsRefVarTmp.hasX() == false)
+      { // Now, the const value has value x or z.
+        _multipleBitsRefVarTmp.hasX(true);
       }
     }
     if(_isAssignStatement)
@@ -622,8 +584,6 @@ void HierNetlistVisitor::visit(AstConst *nodep)
       _multipleBitsPortAssignmentTmp.multipleBitsRefVars().push_back(
         _multipleBitsRefVarTmp);
     }
-    if(_multipleBitsRefVarTmp.width() > 32)
-      _multipleBitsRefVarTmp.biggerValues().clear();
   }
 }
 
