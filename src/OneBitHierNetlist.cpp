@@ -36,7 +36,6 @@ void HierNetlistVisitor::visit(AstNetlist *nodep)
   _totalUsedBlackBoxes = _totalUsedBlackBoxes + _totalUsedStdCells;
   // Clear data that is no longer in use.
   freeContainerBySwap(_emptyStdCellsInJson);
-  freeContainerBySwap(_moduleNameMapIndex);
   freeContainerBySwap(_blackBoxesNameExcludingStdCells);
   freeContainerBySwap(_curSubmoduleName);
   freeContainerBySwap(_curSubmoduleInstanceName);

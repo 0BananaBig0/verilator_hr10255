@@ -124,19 +124,20 @@ class HierNetlistVisitor final : public AstNVisitor
     void swapEmptyAndNotEmptyStdCellPosition();
 
   public:
-    const std::vector<Module> &getHierNetlist() const { return _hierNetlist; };
-    const uint32_t &getTotalUsedNotEmptyStdCells() const
+    const std::vector<Module> &hierNetlist() const { return _hierNetlist; };
+    const uint32_t &totalUsedNotEmptyStdCells() const
     {
       return _totalUsedNotEmptyStdCells;
     };
-    const uint32_t &getTotalUsedStdCells() const
-    {
-      return _totalUsedStdCells;
-    };
-    const uint32_t &getTotalUsedBlackBoxes() const
+    const uint32_t &totalUsedStdCells() const { return _totalUsedStdCells; };
+    const uint32_t &totalUsedBlackBoxes() const
     {
       return _totalUsedBlackBoxes;
     };
+    std::unordered_map<std::string, uint32_t> moduleNameMapIndex()
+    {
+      return _moduleNameMapIndex;
+    }
     void setEmptyStdCells(
       const std::unordered_set<std::string> &emptyStdCellsInJson)
     {

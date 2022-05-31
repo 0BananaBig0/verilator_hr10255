@@ -50,8 +50,7 @@ struct PortDefinition
 };
 
 // Referenced1bitVariable = Referenced 1-bit Variable
-// This means single-bit referenced variable used in Verilog module
-// instantiation
+// This means single-bit referenced variable used in Verilog module instantiation
 //   or variable assignment. In Verilog standard, the referenced variable can
 //   be a vector type, which need to be converted to multiple 1-bit variables.
 // Everytime it stores only one bit information, for example, C[1], ci, 1'b0,

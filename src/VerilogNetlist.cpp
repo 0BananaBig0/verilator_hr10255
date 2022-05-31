@@ -17,11 +17,11 @@ void VerilogNetlist::genHierNet(
 {
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlistVisitor.setEmptyStdCells(emptyStdCellsInJson);
-  _hierNetlist = hierNetlistVisitor.getHierNetlist();
-  _totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
-  _totalUsedNotEmptyStdCells =
-    hierNetlistVisitor.getTotalUsedNotEmptyStdCells();
-  _totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
+  _hierNetlist = hierNetlistVisitor.hierNetlist();
+  _totalUsedStdCells = hierNetlistVisitor.totalUsedStdCells();
+  _totalUsedNotEmptyStdCells = hierNetlistVisitor.totalUsedNotEmptyStdCells();
+  _totalUsedBlackBoxes = hierNetlistVisitor.totalUsedBlackBoxes();
+  _moduleNameMapIndex = hierNetlistVisitor.moduleNameMapIndex();
 }
 
 void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,

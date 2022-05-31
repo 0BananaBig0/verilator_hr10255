@@ -24,22 +24,24 @@ class VerilogNetlist final
     uint32_t _totalUsedNotEmptyInsInTop;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
+    std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
 
   public:
-    const std::vector<Module> &getHierNet() const { return _hierNetlist; };
-    const std::vector<Module> &getFlatNet() const { return _flatNetlist; };
-    const uint32_t &getTotalUsedStdCells() const
-    {
-      return _totalUsedStdCells;
-    };
-    const uint32_t &getTotalUsedNotEmptyStdCells()
+    const std::vector<Module> &hierNet() const { return _hierNetlist; };
+    const std::vector<Module> &flatNet() const { return _flatNetlist; };
+    const uint32_t &totalUsedStdCells() const { return _totalUsedStdCells; };
+    const uint32_t &totalUsedNotEmptyStdCells()
     {
       return _totalUsedNotEmptyStdCells;
     };
-    const uint32_t &getTotalUsedBlackBoxes() const
+    const uint32_t &totalUsedBlackBoxes() const
     {
       return _totalUsedBlackBoxes;
     };
+    const std::unordered_map<std::string, uint32_t> &moduleNameMapIndex() const
+    {
+      return _moduleNameMapIndex;
+    }
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
