@@ -573,12 +573,12 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
 }
 
 // make all empty black boxes store at the end of vector.
-void VerilogNetlist::sortInsOrderInTop()
+void VerilogNetlist::sortInsOrderInOneModule(uint32_t &moduleIndex)
 {
-  auto &top = _flatNetlist[_totalUsedBlackBoxes];
-  auto &subModDefIndexs = top.subModuleDefIndexs();
-  auto &subModInsNames = top.subModuleInstanceNames();
-  auto &subModPortAssignments = top.portAssignmentsOfSubModInss();
+  auto &oneModule = _flatNetlist[moduleIndex];
+  auto &subModDefIndexs = oneModule.subModuleDefIndexs();
+  auto &subModInsNames = oneModule.subModuleInstanceNames();
+  auto &subModPortAssignments = oneModule.portAssignmentsOfSubModInss();
   _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
   for(uint32_t i = 0; i < _totalUsedNotEmptyInsInTop; i++)
   {
@@ -604,6 +604,6 @@ void VerilogNetlist::sortInsOrderInTop()
                    "than _totalUsedBlackBoxes. You should check the module "
                 << _flatNetlist[subModDefIndexs[i]].moduleDefName()
                 << "whose instance name is " << subModInsNames[i] << "in "
-                << top.moduleDefName() << "of FlatNetlist.v.";
+                << oneModule.moduleDefName() << "of FlatNetlist.v.";
   }
 }
