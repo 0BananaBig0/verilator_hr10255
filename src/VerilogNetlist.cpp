@@ -579,25 +579,26 @@ void VerilogNetlist::sortInsOrderInOneModule(uint32_t &moduleIndex)
   auto &subModDefIndexs = oneModule.subModuleDefIndexs();
   auto &subModInsNames = oneModule.subModuleInstanceNames();
   auto &subModPortAssignments = oneModule.portAssignmentsOfSubModInss();
-  _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
-  for(uint32_t i = 0; i < _totalUsedNotEmptyInsInTop; i++)
+  _totalUsedNotEmptyInsInOneMod = subModDefIndexs.size();
+  for(uint32_t i = 0; i < _totalUsedNotEmptyInsInOneMod; i++)
   {
     if(subModDefIndexs[i] >= _totalUsedNotEmptyStdCells)
     {
-      _totalUsedNotEmptyInsInTop--;
-      while(subModDefIndexs[_totalUsedNotEmptyInsInTop] >=
+      _totalUsedNotEmptyInsInOneMod--;
+      while(subModDefIndexs[_totalUsedNotEmptyInsInOneMod] >=
             _totalUsedNotEmptyStdCells)
       {
-        if(_totalUsedNotEmptyInsInTop > i)
-          _totalUsedNotEmptyInsInTop--;
+        if(_totalUsedNotEmptyInsInOneMod > i)
+          _totalUsedNotEmptyInsInOneMod--;
         else
           return;
       }
       std::swap(subModDefIndexs[i],
-                subModDefIndexs[_totalUsedNotEmptyInsInTop]);
-      std::swap(subModInsNames[i], subModInsNames[_totalUsedNotEmptyInsInTop]);
+                subModDefIndexs[_totalUsedNotEmptyInsInOneMod]);
+      std::swap(subModInsNames[i],
+                subModInsNames[_totalUsedNotEmptyInsInOneMod]);
       std::swap(subModPortAssignments[i],
-                subModPortAssignments[_totalUsedNotEmptyInsInTop]);
+                subModPortAssignments[_totalUsedNotEmptyInsInOneMod]);
     }
     else if(subModDefIndexs[i] >= _totalUsedBlackBoxes)
       std::cout << "After flattening, no instanced module index will bigger "

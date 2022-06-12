@@ -21,7 +21,7 @@ class VerilogNetlist final
     uint32_t _totalUsedBlackBoxes;
     // notEmptyInstance : all stdCells Instances whose definition are
     // not empty in stdcells.json
-    uint32_t _totalUsedNotEmptyInsInTop;
+    uint32_t _totalUsedNotEmptyInsInOneMod;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
