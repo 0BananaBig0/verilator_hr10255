@@ -573,7 +573,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
 }
 
 // make all empty black boxes store at the end of vector.
-void VerilogNetlist::sortInsOrderInOneModule(uint32_t &moduleIndex)
+void VerilogNetlist::sortInsOrderInOneModule(const uint32_t &moduleIndex)
 {
   auto &oneModule = _flatNetlist[moduleIndex];
   auto &subModDefIndexs = oneModule.subModuleDefIndexs();

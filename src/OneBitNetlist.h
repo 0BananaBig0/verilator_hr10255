@@ -50,7 +50,8 @@ struct PortDefinition
 };
 
 // Referenced1bitVariable = Referenced 1-bit Variable
-// This means single-bit referenced variable used in Verilog module instantiation
+// This means single-bit referenced variable used in Verilog module
+// instantiation
 //   or variable assignment. In Verilog standard, the referenced variable can
 //   be a vector type, which need to be converted to multiple 1-bit variables.
 // Everytime it stores only one bit information, for example, C[1], ci, 1'b0,
@@ -168,12 +169,18 @@ class Module
       return _portNameMapPortDefIndex;
     }
 
+    std::vector<uint32_t> &portsPositionInStdCellNetlist()
+    {
+      return _portsPositionInStdCellNetlist;
+    }
+
   private:
     std::string _moduleDefName; // Module Defined Name
     uint32_t _level = 0;        // the maximal depth in the hierarchical tree
 
     /* Netlist Definition Information(START) */
     std::vector<PortDefinition> _ports;
+    std::vector<uint32_t> _portsPositionInStdCellNetlist;
     uint32_t _totalInputs;
     uint32_t _totalInputsAndInouts;
     uint32_t _totalPortsExcludingWires;

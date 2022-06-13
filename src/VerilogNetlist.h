@@ -69,6 +69,6 @@ class VerilogNetlist final
     void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
                         const uint32_t &totalUsedBlackBoxes);
-    void sortInsOrderInOneModule(uint32_t &moduleIndex);
+    void sortInsOrderInOneModule(const uint32_t &moduleIndex);
     void parseHierNet(int argc, char **argv, char **env);
 };
