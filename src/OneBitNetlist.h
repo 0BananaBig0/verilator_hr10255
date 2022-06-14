@@ -113,13 +113,13 @@ class Module
     std::vector<PortDefinition> &ports() { return _ports; }
 
     void totalInouts(const uint32_t &number) { _totalInouts = number; }
-    const uint32_t &totalInputs() const { return _totalInouts; }
+    const uint32_t &totalInouts() const { return _totalInouts; }
 
     void totalInoutsAndInputs(const uint32_t &number)
     {
       _totalInoutsAndInputs = number;
     }
-    const uint32_t &totalInputsAndInouts() const
+    const uint32_t &totalInoutsAndInputs() const
     {
       return _totalInoutsAndInputs;
     }
