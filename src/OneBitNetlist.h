@@ -96,7 +96,7 @@ class Module
 {
   public:
     Module() :
-      _level(0), _totalInputs(0), _totalInputsAndInouts(0),
+      _level(0), _totalInouts(0), _totalInoutsAndInputs(0),
       _totalPortsExcludingWires(0)
     {
       ;
@@ -112,16 +112,16 @@ class Module
     const std::vector<PortDefinition> &ports() const { return _ports; }
     std::vector<PortDefinition> &ports() { return _ports; }
 
-    void totalInputs(const uint32_t &number) { _totalInputs = number; }
-    const uint32_t &totalInputs() const { return _totalInputs; }
+    void totalInouts(const uint32_t &number) { _totalInouts = number; }
+    const uint32_t &totalInputs() const { return _totalInouts; }
 
-    void totalInputsAndInouts(const uint32_t &number)
+    void totalInoutsAndInputs(const uint32_t &number)
     {
-      _totalInputsAndInouts = number;
+      _totalInoutsAndInputs = number;
     }
     const uint32_t &totalInputsAndInouts() const
     {
-      return _totalInputsAndInouts;
+      return _totalInoutsAndInputs;
     }
 
     void totalPortsExcludingWires(const uint32_t &number)
@@ -181,8 +181,8 @@ class Module
     /* Netlist Definition Information(START) */
     std::vector<PortDefinition> _ports;
     std::vector<uint32_t> _portsPositionInStdCellNetlist;
-    uint32_t _totalInputs;
-    uint32_t _totalInputsAndInouts;
+    uint32_t _totalInouts;
+    uint32_t _totalInoutsAndInputs;
     uint32_t _totalPortsExcludingWires;
     std::vector<BitSlicedAssignStatement> _assigns;
     /* Netlist Definition Information(END) */
