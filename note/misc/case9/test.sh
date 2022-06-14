@@ -8,5 +8,5 @@
 ../../../bin/verilator -Wno-implicit instance_no_port_name.v ../LibBlackbox.v --xml-only
 hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
 flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
-[ $hier ] && echo "In case6,$hier." && error=true
-[ $flat ] && echo "In case6,$flat." && error=true
+[ $hier ] && echo "In case9,$hier." && error=true
+[ $flat ] && echo "In case9,$flat." && error=true

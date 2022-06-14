@@ -1,6 +1,6 @@
-module blackbox(a,b,c);
-   input a;
+module blackbox(b,a,c);
    inout b;
+   input a;
    output c;
 endmodule
 
@@ -17,7 +17,7 @@ module BBTOP(a,b,c,d,e);
   assign full_adder_co_U1/d = 1'b0;
   XOR2_X2_HVT XOR2_X2_HVT_U1 (.A(a), .B(b), .Z(d));
   XNOR2_X2_HVT XNOR2_X2_HVT_U2 (.A(b), .B(c), .ZN(e));
-  blackbox blackbox_U1 (.a(), .b(), .c());
+  blackbox blackbox_U1 (.b(), .a(), .c());
   INV_X1_LVT full_adder_co_U1/i_0_0 (.A(), .ZN(\full_adder_co_U1/n_0[0] ));
   INV_X1_LVT full_adder_co_U1/i_0_1 (.A(), .ZN(\full_adder_co_U1/n_0[1] ));
   INV_X1_LVT full_adder_co_U1/i_0_2 (.A(), .ZN(\full_adder_co_U1/n_0[2] ));

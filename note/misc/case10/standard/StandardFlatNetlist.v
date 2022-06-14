@@ -1,6 +1,6 @@
-module vector_combination(A,B,C);
-   input [40:0]A;
+module vector_combination(B,A,C);
    inout [40:0]B;
+   input [40:0]A;
    output [40:0]C;
    wire [12:0]D;
    wire [12:0]E;

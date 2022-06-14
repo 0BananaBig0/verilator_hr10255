@@ -164,9 +164,9 @@ void HierNetlistVisitor::visit(AstVar *nodep)
     {
       portDefinition.portType = PortType::WIRE;
     }
-    if((portDefinition.portType == PortType::INPUT &&
+    if((portDefinition.portType == PortType::INOUT &&
         _theTimesOfVisitAstVar == 1) ||
-       (portDefinition.portType == PortType::INOUT &&
+       (portDefinition.portType == PortType::INPUT &&
         _theTimesOfVisitAstVar == 2) ||
        (portDefinition.portType == PortType::OUTPUT &&
         _theTimesOfVisitAstVar == 3) ||

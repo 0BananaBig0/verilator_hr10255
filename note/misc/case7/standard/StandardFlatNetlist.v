@@ -1,6 +1,6 @@
-module some_ports_empty(A,B,C);
-   input [40:0]A;
+module some_ports_empty(B,A,C);
    inout [40:0]B;
+   input [40:0]A;
    output [40:0]C;
   INV_X1_LVT U1/i_0_0 (.A(), .ZN(C[0]));
   INV_X1_LVT U1/i_0_1 (.A(B[0]), .ZN());

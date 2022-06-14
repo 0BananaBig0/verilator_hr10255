@@ -1,6 +1,6 @@
-module instance_no_port_name(A,B,C);
-   input [40:0]A;
+module instance_no_port_name(B,A,C);
    inout [40:0]B;
+   input [40:0]A;
    output [40:0]C;
   INV_X1_LVT U1/i_0_0 (.A(A[0]), .ZN(C[0]));
   INV_X1_LVT U1/i_0_1 (.A(B[0]), .ZN(C[1]));

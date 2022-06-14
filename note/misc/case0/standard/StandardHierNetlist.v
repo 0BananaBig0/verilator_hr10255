@@ -1,8 +1,8 @@
-module top(A,B,ci,cco,co,SUM);
+module top(cco,A,B,ci,co,SUM);
+   inout cco;
    input [23:0]A;
    input [23:0]B;
    input ci;
-   inout cco;
    output co;
    output [29:0]SUM;
    wire [9:0]C;

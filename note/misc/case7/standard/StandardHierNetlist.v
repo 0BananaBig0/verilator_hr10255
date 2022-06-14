@@ -1,6 +1,6 @@
-module some_ports_empty(A,B,C);
-   input [40:0]A;
+module some_ports_empty(B,A,C);
    inout [40:0]B;
+   input [40:0]A;
    output [40:0]C;
   submodule1 U1 (.A({A[11],A[10],A[9],A[8],A[7],A[6],A[5],A[4],A[3],A[2],A[1],
       A[0]}), .B({B[11],B[10],B[9],B[8],B[7],B[6],B[5],B[4],B[3],B[2],B[1],B[0]}), 

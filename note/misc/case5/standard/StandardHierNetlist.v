@@ -1,7 +1,7 @@
-module top(a,b,c,d);
+module top(c,a,b,d);
+   inout c;
    input a;
    input b;
-   inout c;
    output d;
   XOR2_X1_HVT U1 (.A(a), .B(b), .Z(c));
   submodule1 U2 (.a(a), .b(c), .c(d));

@@ -1,6 +1,6 @@
-module has_bigger_constant_value(A,B,C);
-   input [120:0]A;
+module has_bigger_constant_value(B,A,C);
    inout [120:0]B;
+   input [120:0]A;
    output [333:0]C;
    wire [63:0]slongv;
    wire [127:0]longv;
