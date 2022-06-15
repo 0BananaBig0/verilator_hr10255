@@ -40,6 +40,14 @@ enum class PortType
   LAST_PORT_TYPE // The number of port type
 };
 
+enum class IoStatus
+{
+  USEDASINOUT,
+  USEDASINPUT,
+  USEDASOUTPUT,
+  UNKNOWN
+};
+
 // It is used to store input, output, inout and wire definition.
 struct PortDefinition
 {
@@ -173,6 +181,10 @@ class Module
     {
       return _portsPositionInStdCellNetlist;
     }
+    std::vector<std::vector<IoStatus>> &instanceIoStatus()
+    {
+      return _instanceIoStatuss;
+    }
 
   private:
     std::string _moduleDefName; // Module Defined Name
@@ -197,6 +209,7 @@ class Module
     // The second dimension: portAssignments of one submodule
     // The third dimension: one port assignment
     std::vector<std::vector<PortAssignment>> _portAssignmentsOfSubModInss;
+    std::vector<std::vector<IoStatus>> _instanceIoStatuss;
     /* Netlist Instance Information(END) */
     PortNameMapPortDefIndex _portNameMapPortDefIndex;
 };
