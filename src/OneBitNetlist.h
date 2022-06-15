@@ -181,7 +181,7 @@ class Module
     {
       return _portsPositionInStdCellNetlist;
     }
-    std::vector<std::vector<IoStatus>> &instanceIoStatus()
+    std::vector<std::vector<std::vector<IoStatus>>> &instanceIoStatus()
     {
       return _instanceIoStatuss;
     }
@@ -205,11 +205,14 @@ class Module
     // All sub modules definition index in hierNetlist of current module
     std::vector<uint32_t> _subModuleDefIndexs;
     // The following structure is a three dimensions vector.
-    // The first dimension: submodule
-    // The second dimension: portAssignments of one submodule
-    // The third dimension: one port assignment
+    // The first dimension: which instance
+    // The second dimension: which port
+    // The third dimension: which bit
     std::vector<std::vector<PortAssignment>> _portAssignmentsOfSubModInss;
-    std::vector<std::vector<IoStatus>> _instanceIoStatuss;
+    // The first dimension: which instance
+    // The second dimension: which port
+    // The third dimension: which bit
+    std::vector<std::vector<std::vector<IoStatus>>> _instanceIoStatuss;
     /* Netlist Instance Information(END) */
     PortNameMapPortDefIndex _portNameMapPortDefIndex;
 };
