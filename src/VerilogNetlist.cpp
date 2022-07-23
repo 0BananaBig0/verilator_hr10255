@@ -18,9 +18,9 @@ void VerilogNetlist::genHierNet(
   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
   hierNetlistVisitor.setEmptyStdCells(emptyStdCellsInJson);
   _hierNetlist = hierNetlistVisitor.getHierNetlist();
-  _totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
   _totalUsedNotEmptyStdCells =
     hierNetlistVisitor.getTotalUsedNotEmptyStdCells();
+  _totalUsedStdCells = hierNetlistVisitor.getTotalUsedStdCells();
   _totalUsedBlackBoxes = hierNetlistVisitor.getTotalUsedBlackBoxes();
 }
 

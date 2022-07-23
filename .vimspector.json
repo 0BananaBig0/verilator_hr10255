@@ -2,23 +2,30 @@
   "configurations": {
     "cpp:launch": {
       "adapter": "vscode-cpptools",
+        "breakpoints": {
+          "exception": {
+            "all": "Y"
+          }
+        },
       "configuration": {
         "name": "cpp:launch",
         "stopAtEntry": true,
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceRoot}/bin/verilator_bin_dbg",
-        "args": ["-Wno-implicit","--xml-only","--language","1364-2005","-Wno-litendian","-Od","-Wno-assignin","${workspaceRoot}/note/misc/case0/ripple_adder_modified.v","${workspaceRoot}/note/misc/LibBlackbox.v"],
+        "args": ["-Wno-implicit",
+                 "--xml-only",
+                 "--language",
+                 "1364-2005",
+                 "-Wno-litendian",
+                 "-Od",
+                 "-Wno-assignin",
+                 "${workspaceRoot}/note/misc/case11/has_memory_PLL_blackbox.v",
+                 "${workspaceRoot}/note/misc/LibBlackbox.v"],
         "cwd": "${workspaceRoot}",
         "environment": [],
         "externalConsole": true,
         "MIMode": "gdb",
-        "breakpointers": {
-          "exception": {
-            "cpp_throw": "Y",
-            "cpp_catch": "Y"
-          }
-        },
         "setupCommands": [
           {
             "description": "Enable pretty-printing for gdb",

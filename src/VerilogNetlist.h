@@ -12,10 +12,10 @@
 class VerilogNetlist final
 {
   private:
-    // stdCells : all written into LibBlackbox.v or stdcells.json
-    uint32_t _totalUsedStdCells;
     // emptyStdCellsInjson : like PLL, which is empty in stdcells.json
     uint32_t _totalUsedNotEmptyStdCells;
+    // stdCells : all written into LibBlackbox.v or stdcells.json
+    uint32_t _totalUsedStdCells;
     // blackBoxes : including all stdCells and some empty module which
     // are written by hardware designer.
     uint32_t _totalUsedBlackBoxes;
