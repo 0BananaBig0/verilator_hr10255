@@ -21,23 +21,39 @@ class VerilogNetlist final
     uint32_t _totalUsedBlackBoxes;
     // notEmptyInstance : all stdCells Instances whose definition are
     // not empty in stdcells.json
-    uint32_t _totalUsedNotEmptyInsInOneMod;
+    uint32_t _totalUsedNotEmptyInsInTop;
+    // notTieConstantAssign : all assignments whose rvalue is not a constant,
+    // for example, assing a = b, not a = 1'b1 or 1'b0 or 1'bz or 1'bx;
+    uint32_t _totalNotTieConstantAssign;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
+    // given a moduel name, map it to the corresponding index in _hierNetlist
+    // or _flatNetlist.
     std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
 
   public:
-    const std::vector<Module> &hierNet() const { return _hierNetlist; };
-    const std::vector<Module> &flatNet() const { return _flatNetlist; };
-    const uint32_t &totalUsedStdCells() const { return _totalUsedStdCells; };
+    VerilogNetlist() :
+      _totalUsedStdCells(0), _totalUsedNotEmptyStdCells(0),
+      _totalUsedBlackBoxes(0), _totalUsedNotEmptyInsInTop(0),
+      _totalNotTieConstantAssign(0)
+    {
+      ;
+    }
+    const std::vector<Module> &hierNet() const { return _hierNetlist; }
+    const std::vector<Module> &flatNet() const { return _flatNetlist; }
+    const uint32_t &totalUsedStdCells() const { return _totalUsedStdCells; }
     const uint32_t &totalUsedNotEmptyStdCells()
     {
       return _totalUsedNotEmptyStdCells;
-    };
+    }
     const uint32_t &totalUsedBlackBoxes() const
     {
       return _totalUsedBlackBoxes;
-    };
+    }
+    const uint32_t &totalNotTieConstantAssign() const
+    {
+      return _totalNotTieConstantAssign;
+    }
     const std::unordered_map<std::string, uint32_t> &moduleNameMapIndex() const
     {
       return _moduleNameMapIndex;
@@ -45,17 +61,17 @@ class VerilogNetlist final
     void callFlattenHierNet()
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
-    };
+    }
     void printHierNet()
     {
       printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes);
-    };
+    }
     void printFlatNet()
     {
       printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
                    "FlatNetlist.v",
                    _hierNetlist[_totalUsedBlackBoxes].level());
-    };
+    }
     // Get a hierarchical netlist from ast
     void genHierNet(std::unordered_set<std::string> emptyStdCellsInJson = {
                       "MemGen_16_10", "PLL" });
@@ -69,6 +85,9 @@ class VerilogNetlist final
     void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
                         const uint32_t &totalUsedBlackBoxes);
-    void sortInsOrderInOneModule(const uint32_t &moduleIndex);
     void parseHierNet(int argc, char **argv, char **env);
+  private:
+    void sortInsOrderInTop(const uint32_t &moduleIndex);
+    void sortAssignOrderInTop(const uint32_t &moduleIndex);
+    void computePortsPositionInOneMod(const uint32_t &moduleIndex);
 };

@@ -40,11 +40,11 @@ enum class PortType
   LAST_PORT_TYPE // The number of port type
 };
 
-enum class IoStatus
+enum class IOStatus
 {
-  USEDASINOUT,
-  USEDASINPUT,
-  USEDASOUTPUT,
+  USED_AS_INOUT,
+  USED_AS_INPUT,
+  USED_AS_OUTPUT,
   UNKNOWN
 };
 
@@ -177,13 +177,13 @@ class Module
       return _portNameMapPortDefIndex;
     }
 
-    std::vector<uint32_t> &portsPositionInStdCellNetlist()
+    std::vector<uint32_t> &portPositionInStdCellNetlists()
     {
-      return _portsPositionInStdCellNetlist;
+      return _portPositionInStdCellNetlists;
     }
-    std::vector<std::vector<std::vector<IoStatus>>> &instanceIoStatus()
+    std::vector<std::vector<std::vector<IOStatus>>> &instanceIOStatuss()
     {
-      return _instanceIoStatuss;
+      return _instanceIOStatuss;
     }
 
   private:
@@ -192,7 +192,7 @@ class Module
 
     /* Netlist Definition Information(START) */
     std::vector<PortDefinition> _ports;
-    std::vector<uint32_t> _portsPositionInStdCellNetlist;
+    std::vector<uint32_t> _portPositionInStdCellNetlists;
     uint32_t _totalInouts;
     uint32_t _totalInoutsAndInputs;
     uint32_t _totalPortsExcludingWires;
@@ -212,7 +212,7 @@ class Module
     // The first dimension: which instance
     // The second dimension: which port
     // The third dimension: which bit
-    std::vector<std::vector<std::vector<IoStatus>>> _instanceIoStatuss;
+    std::vector<std::vector<std::vector<IOStatus>>> _instanceIOStatuss;
     /* Netlist Instance Information(END) */
     PortNameMapPortDefIndex _portNameMapPortDefIndex;
 };
