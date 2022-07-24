@@ -3,7 +3,7 @@ module typical_example(inout0,inout1,inout2,input3,input4,input5,input6,input7,
       output17,output18);
    inout inout0;
    inout inout1;
-   inout [3:0]inout2;
+   inout [4:0]inout2;
    input input3;
    input input4;
    input input5;
@@ -33,6 +33,17 @@ module typical_example(inout0,inout1,inout2,input3,input4,input5,input6,input7,
    wire wire29;
    wire wire30x;
    wire wire31z;
+   wire wire32;
+   wire wire33;
+   wire wire34;
+   wire wire35;
+   wire wire36;
+  assign wire34 = input3;
+  assign wire35 = 1'bx;
+  assign wire36 = 1'bz;
+  assign inout2[4] = 1'b1;
+  assign wire32 = 1'b0;
+  assign wire33 = 1'b1;
   PADBID PADBID_U0 (.PAD(output14), .I(input3), .OEN(input4), .C(wire19[0]));
   PADBID PADBID_U1 (.PAD(inout1), .I(), .OEN(inout1), .C());
   PADBID PADBID_U2 (.PAD(inout0), .I(input3), .OEN(input4), .C(wire19[2]));

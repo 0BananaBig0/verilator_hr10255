@@ -4,7 +4,7 @@ module typical_example(inout0,inout1,inout2,input3,input4,input5,input6,
   output18);
    inout inout0;
    inout inout1;
-   inout [3:0] inout2;
+   inout [4:0] inout2;
    input input3;
    input input4;
    input input5;
@@ -82,5 +82,10 @@ module typical_example(inout0,inout1,inout2,input3,input4,input5,input6,
   INV_X1_LVT INV_X1_LVT_U33 (.A(1'b1), .ZN(wire29));
   INV_X1_LVT INV_X1_LVT_U34 (.A(1'bx), .ZN(wire30x));
   INV_X1_LVT INV_X1_LVT_U35 (.A(1'bz), .ZN(wire31z));
+  assign wire32 = 1'b0;
+  assign wire33 = 1'b1;
+  assign wire34 = input3;
+  assign wire35 = 1'bx;
+  assign wire36 = 1'bz;
+  assign inout2[4] = 1'b1;
 endmodule
-
