@@ -103,7 +103,8 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
           totalCharsEveryLine++;
         }
       }
-      ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+      if(!curMod.ports().empty())
+        ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
       ofs << ");" << std::endl;
       // Every time print one port definition
       for(const auto &curPort: curMod.ports())
@@ -577,6 +578,8 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t &topModIndex)
 {
   auto &topMod = _flatNetlist[topModIndex];
   auto &subModDefIndexs = topMod.subModuleDefIndexs();
+  if(subModDefIndexs.empty())
+    return;
   auto &subModInsNames = topMod.subModuleInstanceNames();
   auto &subModPortAssignments = topMod.portAssignmentsOfSubModInss();
   _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
@@ -615,6 +618,8 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t &topModIndex)
 void VerilogNetlist::sortAssignOrderInTop(const uint32_t &moduleIndex)
 {
   auto &assigns = _flatNetlist[moduleIndex].assigns();
+  if(assigns.empty())
+    return;
   _totalNotTieConstantAssign = assigns.size();
   for(uint32_t curAssignIndex = 0; curAssignIndex < _totalNotTieConstantAssign;
       curAssignIndex++)
@@ -639,6 +644,8 @@ void VerilogNetlist::sortAssignOrderInTop(const uint32_t &moduleIndex)
 void VerilogNetlist::computePortsPositionInOneMod(const uint32_t &moduleIndex)
 {
   auto &curMod = _flatNetlist[moduleIndex];
+  if(curMod.ports().empty())
+    return;
   curMod.portPositionInStdCellNetlists().resize(
     curMod.totalPortsExcludingWires(), 0);
   auto i = 0;

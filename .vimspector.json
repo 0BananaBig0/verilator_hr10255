@@ -20,7 +20,7 @@
                  "-Wno-litendian",
                  "-Od",
                  "-Wno-assignin",
-                 "${workspaceRoot}/note/misc/case19/typical_example_many_inout.v",
+                 "${workspaceRoot}/note/misc/case20/empty.v",
                  "${workspaceRoot}/note/misc/LibBlackbox.v"],
         "cwd": "${workspaceRoot}",
         "environment": [],
