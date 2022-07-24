@@ -625,19 +625,18 @@ void VerilogNetlist::sortAssignOrderInTop(const uint32_t &moduleIndex)
       curAssignIndex++)
   {
     auto &curAssign = assigns[curAssignIndex];
-    if(!(curAssign.rValue.refVarDefIndex ^ UINT32_MAX))
+    if(curAssign.rValue.refVarDefIndex ^ UINT32_MAX)
+      continue;
+    _totalNotTieConstantAssign--;
+    while(!(assigns[_totalNotTieConstantAssign].rValue.refVarDefIndex ^
+            UINT32_MAX))
     {
-      _totalNotTieConstantAssign--;
-      while(!(assigns[_totalNotTieConstantAssign].rValue.refVarDefIndex ^
-              UINT32_MAX))
-      {
-        if(_totalNotTieConstantAssign >= curAssignIndex)
-          _totalNotTieConstantAssign--;
-        else
-          return;
-      }
-      std::swap(curAssign, assigns[_totalNotTieConstantAssign]);
+      if(_totalNotTieConstantAssign > curAssignIndex)
+        _totalNotTieConstantAssign--;
+      else
+        return;
     }
+    std::swap(curAssign, assigns[_totalNotTieConstantAssign]);
   }
 }
 
