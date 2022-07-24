@@ -31,7 +31,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                                   const uint32_t maxHierLevel)
 {
   std::ofstream ofs(fileName);
-  bool shouldHaveEscapeChar;
+  bool shouldHaveEscapeChar = false;
   uint32_t totalCharsEveryLine;
   auto getDecimalNumberLength = [](uint32_t number)
   {
