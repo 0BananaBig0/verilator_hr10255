@@ -1,83 +1,86 @@
-module typical_example(f,d,e,a,b,ci,CK,D,RN,SN,input_x,enable,co,sum,Q,QN,CO,S,output_x);
-   inout d;
-   inout e;
-   inout [3:0] f;
-   input a;
-   input b;
-   input ci;
-   input CK;
-   input D;
-   input RN;
-   input SN;
-   input [4:0]input_x;
-   input [4:0]enable;
-   output co;
-   output sum;
-   output Q;
-   output QN;
-   output CO;
-   output S;
-   output [4:0]output_x;
-   wire [13:0]C;
+module typical_example(inout0,inout1,inout2,input3,input4,input5,input6,
+  input7,input8,input9,input10,input11,output12,
+  output13,output14,output15,output16,output17,
+  output18);
+   inout inout0;
+   inout inout1;
+   inout [3:0] inout2;
+   input input3;
+   input input4;
+   input input5;
+   input input6;
+   input input7;
+   input input8;
+   input input9;
+   input [4:0]input10;
+   input [4:0]input11;
+   output output12;
+   output output13;
+   output output14;
+   output output15;
+   output output16;
+   output output17;
+   output [4:0]output18;
+   wire [13:0]wire19;
   // Top port is input connecting to an ins inout: the ins inout is used as
   // input.
-  // PADBID PADBID_U1 (.PAD(input_x[0]), .I(a), .OEN(b), .C(C[1]));
+  // PADBID PADBID_U1 (.PAD(input10[0]), .I(a), .OEN(input4), .C(wire19[1]));
 
   // Top port is output connecting to an ins inout: the ins inout is used as
   // output.
-  PADBID PADBID_U0 (.PAD(Q), .I(a), .OEN(b), .C(C[0]));
+  PADBID PADBID_U0 (.PAD(output14), .I(input3), .OEN(input4), .C(wire19[0]));
 
   // Top port is inout connecting to an ins inout and an ins input: the ins
   // inout and top inout are both used as inout.
-  PADBID PADBID_U1 (.PAD(e), .I(), .OEN(e), .C());
+  PADBID PADBID_U1 (.PAD(inout1), .I(), .OEN(inout1), .C());
   // Top port is inout connecting to an ins inout: the ins inout and top
   // inout are both used as inout.
-  PADBID PADBID_U2 (.PAD(d), .I(a), .OEN(b), .C(C[2]));
+  PADBID PADBID_U2 (.PAD(inout0), .I(input3), .OEN(input4), .C(wire19[2]));
   // Top port is inout connecting to multiple ins inouts: all inouts
   // including top inout are used as input.
-  PADBID PADBID_U3 (.PAD(f[1]), .I(a), .OEN(b), .C());
-  PADBID PADBID_U4 (.PAD(f[1]), .I(a), .OEN(b), .C());
-  PADBID PADBID_U5 (.PAD(f[1]), .I(a), .OEN(b), .C());
+  PADBID PADBID_U3 (.PAD(inout2[1]), .I(input3), .OEN(input4), .C());
+  PADBID PADBID_U4 (.PAD(inout2[1]), .I(input3), .OEN(input4), .C());
+  PADBID PADBID_U5 (.PAD(inout2[1]), .I(input3), .OEN(input4), .C());
   // Top port is inout connecting to an ins inout and an ins output: the ins
   // inout is used as input and the top inout is used as inout.
-  PADBID PADBID_U6 (.PAD(f[2]), .I(a), .OEN(b), .C(f[3]));
-  PADBID PADBID_U7 (.PAD(f[3]), .I(a), .OEN(b), .C());
+  PADBID PADBID_U6 (.PAD(inout2[2]), .I(input3), .OEN(input4), .C(inout2[3]));
+  PADBID PADBID_U7 (.PAD(inout2[3]), .I(input3), .OEN(input4), .C());
 
   // Top port is wire connection to an ins inout and an ins input: the ins
   // inout is used as output.
-  PADBID PADBID_U8 (.PAD(C[6]), .I(a), .OEN(b), .C(C[5]));
-  PADBID PADBID_U9 (.PAD(C[7]), .I(C[6]), .OEN(b), .C(C[4]));
+  PADBID PADBID_U8 (.PAD(wire19[6]), .I(input3), .OEN(input4), .C(wire19[5]));
+  PADBID PADBID_U9 (.PAD(wire19[7]), .I(wire19[6]), .OEN(input4), .C(wire19[4]));
   // Top port is wire connecting to an ins inout and an ins output: the ins
   // inout is used as input.
-  PADBID PADBID_U10 (.PAD(C[1]), .I(a), .OEN(b), .C(C[3]));
-  PADBID PADBID_U11 (.PAD(C[3]), .I(a), .OEN(b), .C(C[8]));
+  PADBID PADBID_U10 (.PAD(wire19[1]), .I(input3), .OEN(input4), .C(wire19[3]));
+  PADBID PADBID_U11 (.PAD(wire19[3]), .I(input3), .OEN(input4), .C(wire19[8]));
   // Top port is wire connecting to two ins inouts: both ins
   // inouts are used as inout.
-  PADBID PADBID_U12 (.PAD(C[9]), .I(a), .OEN(b), .C(C[13]));
-  PADBID PADBID_U13 (.PAD(C[9]), .I(a), .OEN(b), .C(C[13]));
-  PADBID PADBID_U14 (.PAD(C[10]), .I(a), .OEN(b), .C(C[13]));
-  DFFRS_X1 DFFRS_X1_U15 (.CK(CK), .D(D), .RN(RN), .SN(SN), .Q(Q), .QN(QN));
-  FA_X1 FA_X1_U16 (.A(a), .B(b), .CI(ci), .CO(CO), .S(S));
-  AON_BUF_X1 AON_BUF_X1_U17 (.A(output_x[3]), .Z(output_x[4]));
-  INV_X1_LVT INV_X1_LVT_U18 (.A(enable[3]), .ZN(U1_n_0));
-  TBUF_X1_LVT TBUF_X1_LVT_U19 (.A(input_x[3]), .EN(U1_n_0), .Z(output_x[3]));
-  INV_X1_LVT INV_X1_LVT_U20 (.A(enable[4]), .ZN(U2_n_0));
-  TBUF_X1_LVT TBUF_X1_LVT_U21 (.A(input_x[4]), .EN(U2_n_0), .Z(output_x[3]));
-  OR3_X1_LVT OR3_X1_LVT_U22 (.A1(enable[0]), .A2(enable[1]), .A3(enable[2]), .ZN(
-      U0_n_3_0));
-  INV_X1_LVT INV_X1_LVT_U23 (.A(U0_n_3_0), .ZN(U0_n_0));
-  TBUF_X1_LVT TBUF_X1_LVT_U24 (.A(input_x[2]), .EN(U0_n_0), .Z(output_x[2]));
-  TBUF_X1_LVT TBUF_X1_LVT_U25 (.A(input_x[1]), .EN(U0_n_0), .Z(output_x[1]));
-  TBUF_X1_LVT TBUF_X1_LVT_U26 (.A(input_x[0]), .EN(U0_n_0), .Z(output_x[0]));
-  INV_X1_LVT INV_X1_LVT_U27 (.A(a), .ZN(U1_n_0_0));
-  INV_X1_LVT INV_X1_LVT_U28 (.A(ci), .ZN(U1_n_0_2));
-  OAI222_X1_LVT OAI222_X1_LVT_U29 (.A1(U1_n_0_0), .A2(U1_n_0_1), .B1(U1_n_0_1), .B2(
-      U1_n_0_2), .C1(U1_n_0_0), .C2(U1_n_0_2), .ZN(co));
-  XNOR2_X1_LVT XNOR2_X1_LVT_U30 (.A(a), .B(ci), .ZN(U0_n_0_0));
-  XNOR2_X1_LVT XNOR2_X1_LVT_U31 (.A(U0_n_0_0), .B(b), .ZN(sum));
-  INV_X1_LVT INV_X1_LVT_U32 (.A(1'b0), .ZN(U1_n_0_i0));
-  INV_X1_LVT INV_X1_LVT_U33 (.A(1'b1), .ZN(U1_n_0_i1));
-  INV_X1_LVT INV_X1_LVT_U34 (.A(1'bx), .ZN(U1_n_0_ix));
-  INV_X1_LVT INV_X1_LVT_U35 (.A(1'bz), .ZN(U1_n_0_iz));
+  PADBID PADBID_U12 (.PAD(wire19[9]), .I(input3), .OEN(input4), .C(wire19[13]));
+  PADBID PADBID_U13 (.PAD(wire19[9]), .I(input3), .OEN(input4), .C(wire19[13]));
+  PADBID PADBID_U14 (.PAD(wire19[10]), .I(input3), .OEN(input4), .C(wire19[13]));
+  DFFRS_X1 DFFRS_X1_U15 (.CK(input6), .D(input7), .RN(input8), .SN(input9), .Q(output14), .QN(output15));
+  FA_X1 FA_X1_U16 (.A(input3), .B(input4), .CI(input5), .CO(output16), .S(output17));
+  AON_BUF_X1 AON_BUF_X1_U17 (.A(output18[3]), .Z(output18[4]));
+  INV_X1_LVT INV_X1_LVT_U18 (.A(input11[3]), .ZN(wire20));
+  TBUF_X1_LVT TBUF_X1_LVT_U19 (.A(input10[3]), .EN(wire20), .Z(output18[3]));
+  INV_X1_LVT INV_X1_LVT_U20 (.A(input11[4]), .ZN(wire21));
+  TBUF_X1_LVT TBUF_X1_LVT_U21 (.A(input10[4]), .EN(wire21), .Z(output18[3]));
+  OR3_X1_LVT OR3_X1_LVT_U22 (.A1(input11[0]), .A2(input11[1]), .A3(input11[2]), .ZN(
+      wire22));
+  INV_X1_LVT INV_X1_LVT_U23 (.A(wire22), .ZN(wire23));
+  TBUF_X1_LVT TBUF_X1_LVT_U24 (.A(input10[2]), .EN(wire23), .Z(output18[2]));
+  TBUF_X1_LVT TBUF_X1_LVT_U25 (.A(input10[1]), .EN(wire23), .Z(output18[1]));
+  TBUF_X1_LVT TBUF_X1_LVT_U26 (.A(input10[0]), .EN(wire23), .Z(output18[0]));
+  INV_X1_LVT INV_X1_LVT_U27 (.A(input3), .ZN(wire24));
+  INV_X1_LVT INV_X1_LVT_U28 (.A(input5), .ZN(wire25));
+  OAI222_X1_LVT OAI222_X1_LVT_U29 (.A1(wire24), .A2(wire26), .B1(wire26), .B2(
+      wire25), .C1(wire24), .C2(wire25), .ZN(output12));
+  XNOR2_X1_LVT XNOR2_X1_LVT_U30 (.A(input3), .B(input5), .ZN(wire27));
+  XNOR2_X1_LVT XNOR2_X1_LVT_U31 (.A(wire27), .B(input4), .ZN(output13));
+  INV_X1_LVT INV_X1_LVT_U32 (.A(1'b0), .ZN(wire28));
+  INV_X1_LVT INV_X1_LVT_U33 (.A(1'b1), .ZN(wire29));
+  INV_X1_LVT INV_X1_LVT_U34 (.A(1'bx), .ZN(wire30x));
+  INV_X1_LVT INV_X1_LVT_U35 (.A(1'bz), .ZN(wire31z));
 endmodule
 
