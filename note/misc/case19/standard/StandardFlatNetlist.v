@@ -38,7 +38,7 @@ module typical_example(d,e,f,a,b,ci,CK,D,RN,SN,input_x,enable,co,sum,Q,QN,CO,S,
   PADBID PADBID_U9 (.PAD(f[1]), .I(a), .OEN(b), .C());
   PADBID PADBID_U10 (.PAD(f[1]), .I(a), .OEN(b), .C());
   PADBID PADBID_U11 (.PAD(f[1]), .I(a), .OEN(b), .C());
-  PADBID PADBID_U12 (.PAD(f[2]), .I(a), .OEN(b), .C());
+  PADBID PADBID_U12 (.PAD(f[2]), .I(a), .OEN(b), .C(f[3]));
   PADBID PADBID_U13 (.PAD(f[3]), .I(a), .OEN(b), .C());
   PADBID PADBID_U4 (.PAD(C[6]), .I(a), .OEN(b), .C(C[5]));
   PADBID PADBID_U7 (.PAD(C[7]), .I(C[6]), .OEN(b), .C(C[4]));

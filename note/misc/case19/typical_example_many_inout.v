@@ -22,9 +22,11 @@ module typical_example(f,d,e,a,b,ci,CK,D,RN,SN,input_x,enable,co,sum,Q,QN,CO,S,o
   // Top port is input connecting to an ins inout: the ins inout is used as
   // input.
   // PADBID PADBID_U1 (.PAD(input_x[0]), .I(a), .OEN(b), .C(C[1]));
+
   // Top port is output connecting to an ins inout: the ins inout is used as
   // output.
   PADBID PADBID_U0 (.PAD(Q), .I(a), .OEN(b), .C(C[0]));
+
   // Top port is inout connecting to an ins inout and an ins input: the ins
   // inout and top inout are both used as inout.
   PADBID PADBID_U8 (.PAD(e), .I(), .OEN(e), .C());
@@ -38,8 +40,9 @@ module typical_example(f,d,e,a,b,ci,CK,D,RN,SN,input_x,enable,co,sum,Q,QN,CO,S,o
   PADBID PADBID_U11 (.PAD(f[1]), .I(a), .OEN(b), .C());
   // Top port is inout connecting to an ins inout and an ins output: the ins
   // inout is used as input and the top inout is used as inout.
-  PADBID PADBID_U12 (.PAD(f[2]), .I(a), .OEN(b), .C());
+  PADBID PADBID_U12 (.PAD(f[2]), .I(a), .OEN(b), .C(f[3]));
   PADBID PADBID_U13 (.PAD(f[3]), .I(a), .OEN(b), .C());
+
   // Top port is wire connection to an ins inout and an ins input: the ins
   // inout is used as output.
   PADBID PADBID_U4 (.PAD(C[6]), .I(a), .OEN(b), .C(C[5]));
