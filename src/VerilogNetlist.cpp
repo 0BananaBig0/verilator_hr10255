@@ -25,8 +25,8 @@ void VerilogNetlist::genHierNet(
 }
 
 void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
-                                  const uint32_t &totalUsedStdCells,
-                                  const uint32_t &totalUsedBlackBoxes,
+                                  const uint32_t totalUsedStdCells,
+                                  const uint32_t totalUsedBlackBoxes,
                                   std::string fileName,
                                   const uint32_t maxHierLevel)
 {
@@ -394,7 +394,7 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 // Use case2 as a example to demonstrate.
 void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                                     std::vector<Module> &flatNetlist,
-                                    const uint32_t &totalUsedBlackBoxes)
+                                    const uint32_t totalUsedBlackBoxes)
 {
   flatNetlist = hierNetlist;
   // Use to not flatten such module which only have black boxes or assign
@@ -574,7 +574,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
 }
 
 // make all empty black boxes store at the end of vector.
-void VerilogNetlist::sortInsOrderInTop(const uint32_t &topModIndex)
+void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex)
 {
   auto &topMod = _flatNetlist[topModIndex];
   auto &subModDefIndexs = topMod.subModuleDefIndexs();
@@ -615,7 +615,7 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t &topModIndex)
 
 // make all constant assignments( assign a = 1'b1 or 1'b0 or 1'bz or 1'bx)
 // store at the end of vector.
-void VerilogNetlist::sortAssignOrderInTop(const uint32_t &moduleIndex)
+void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex)
 {
   auto &assigns = _flatNetlist[moduleIndex].assigns();
   if(assigns.empty())
@@ -640,7 +640,7 @@ void VerilogNetlist::sortAssignOrderInTop(const uint32_t &moduleIndex)
   }
 }
 
-void VerilogNetlist::computePortsPositionInOneMod(const uint32_t &moduleIndex)
+void VerilogNetlist::computePortsPositionInOneMod(const uint32_t moduleIndex)
 {
   auto &curMod = _flatNetlist[moduleIndex];
   if(curMod.ports().empty())

@@ -41,16 +41,10 @@ class VerilogNetlist final
     }
     const std::vector<Module> &hierNet() const { return _hierNetlist; }
     const std::vector<Module> &flatNet() const { return _flatNetlist; }
-    const uint32_t &totalUsedStdCells() const { return _totalUsedStdCells; }
-    const uint32_t &totalUsedNotEmptyStdCells()
-    {
-      return _totalUsedNotEmptyStdCells;
-    }
-    const uint32_t &totalUsedBlackBoxes() const
-    {
-      return _totalUsedBlackBoxes;
-    }
-    const uint32_t &totalNotTieConstantAssign() const
+    uint32_t totalUsedStdCells() const { return _totalUsedStdCells; }
+    uint32_t totalUsedNotEmptyStdCells() { return _totalUsedNotEmptyStdCells; }
+    uint32_t totalUsedBlackBoxes() const { return _totalUsedBlackBoxes; }
+    uint32_t totalNotTieConstantAssign() const
     {
       return _totalNotTieConstantAssign;
     }
@@ -77,17 +71,18 @@ class VerilogNetlist final
                       "MemGen_16_10", "PLL" });
     // Print a Netlist
     void printNetlist(const std::vector<Module> &hierNetlist,
-                      const uint32_t &totalUsedStdCells,
-                      const uint32_t &totalUsedBlackBoxes,
+                      const uint32_t totalUsedStdCells,
+                      const uint32_t totalUsedBlackBoxes,
                       std::string fileName = "HierNetlist.v",
                       const uint32_t maxHierLevel = UINT32_MAX);
     // Flatten Hierarchical netlist
     void flattenHierNet(const std::vector<Module> &hierNetlist,
                         std::vector<Module> &flatNetlist,
-                        const uint32_t &totalUsedBlackBoxes);
+                        const uint32_t totalUsedBlackBoxes);
     void parseHierNet(int argc, char **argv, char **env);
+
   private:
-    void sortInsOrderInTop(const uint32_t &moduleIndex);
-    void sortAssignOrderInTop(const uint32_t &moduleIndex);
-    void computePortsPositionInOneMod(const uint32_t &moduleIndex);
+    void sortInsOrderInTop(const uint32_t moduleIndex);
+    void sortAssignOrderInTop(const uint32_t moduleIndex);
+    void computePortsPositionInOneMod(const uint32_t moduleIndex);
 };
