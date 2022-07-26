@@ -120,6 +120,12 @@ class Module
     const std::vector<PortDefinition> &ports() const { return _ports; }
     std::vector<PortDefinition> &ports() { return _ports; }
 
+    const std::vector<std::vector<IOStatus>> &ioStatuss() const
+    {
+      return _ioStatuss;
+    }
+    std::vector<std::vector<IOStatus>> &ioStatuss() { return _ioStatuss; }
+
     void totalInouts(const uint32_t &number) { _totalInouts = number; }
     const uint32_t &totalInouts() const { return _totalInouts; }
 
@@ -181,9 +187,9 @@ class Module
     {
       return _portPositionInStdCellNetlists;
     }
-    std::vector<std::vector<std::vector<IOStatus>>> &instanceIOStatuss()
+    std::vector<std::vector<std::vector<IOStatus>>> &subModInsIOStatuss()
     {
-      return _instanceIOStatuss;
+      return _subModInsIOStatuss;
     }
 
   private:
@@ -192,6 +198,7 @@ class Module
 
     /* Netlist Definition Information(START) */
     std::vector<PortDefinition> _ports;
+    std::vector<std::vector<IOStatus>> _ioStatuss;
     std::vector<uint32_t> _portPositionInStdCellNetlists;
     uint32_t _totalInouts;
     uint32_t _totalInoutsAndInputs;
@@ -212,7 +219,7 @@ class Module
     // The first dimension: which instance
     // The second dimension: which port
     // The third dimension: which bit
-    std::vector<std::vector<std::vector<IOStatus>>> _instanceIOStatuss;
+    std::vector<std::vector<std::vector<IOStatus>>> _subModInsIOStatuss;
     /* Netlist Instance Information(END) */
     PortNameMapPortDefIndex _portNameMapPortDefIndex;
 };
