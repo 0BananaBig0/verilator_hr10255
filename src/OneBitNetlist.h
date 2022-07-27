@@ -78,13 +78,8 @@ struct Referenced1bitVariable
 
 //.A({1'b0,ci,C[1],C[2]})
 // Used in module instantiation
-// struct PortAssignment
-// {
-//     // Everytime, it only pushes one bit information, for example, C[1],
-//     1'b0,
-//     // not store C[1:0],which will be broken into C[1], C[0]
-//     std::vector<RefVar> refVars;
-// };
+// Everytime, it only pushes one bit information, for example, C[1], 1'b0,
+// not store C[1:0],which will be broken into C[1], C[0]
 typedef std::vector<Referenced1bitVariable> PortAssignment;
 
 // It is used to store one bit assign statement, for example, C[1]=1'b0,
@@ -194,7 +189,7 @@ class Module
 
   private:
     std::string _moduleDefName; // Module Defined Name
-    uint32_t _level = 0;        // the maximal depth in the hierarchical tree
+    uint32_t _level;            // the maximal depth in the hierarchical tree
 
     /* Netlist Definition Information(START) */
     std::vector<PortDefinition> _ports;

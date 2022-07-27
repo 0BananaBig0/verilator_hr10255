@@ -486,7 +486,10 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                 // Now,curRefVar is a input, output or inout
                 else if(curRefVar.refVarDefIndex <
                         curSubMod.totalPortsExcludingWires())
-                { // If the port of full_adder_co instance is empty.
+                { // If the port of
+                  // full_adder_co
+                  // instance is
+                  // empty.
                   if(portAssignmentsOfSubModIns[curRefVar.refVarDefIndex]
                        .empty())
                   {
@@ -578,8 +581,6 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex)
 {
   auto &topMod = _flatNetlist[topModIndex];
   auto &subModDefIndexs = topMod.subModuleDefIndexs();
-  if(subModDefIndexs.empty())
-    return;
   auto &subModInsNames = topMod.subModuleInstanceNames();
   auto &subModPortAssignments = topMod.portAssignmentsOfSubModInss();
   _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
@@ -618,8 +619,6 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex)
 void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex)
 {
   auto &assigns = _flatNetlist[moduleIndex].assigns();
-  if(assigns.empty())
-    return;
   _totalNotTieConstantAssign = assigns.size();
   for(uint32_t curAssignIndex = 0; curAssignIndex < _totalNotTieConstantAssign;
       curAssignIndex++)
@@ -643,11 +642,9 @@ void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex)
 void VerilogNetlist::computePortsPositionInOneMod(const uint32_t moduleIndex)
 {
   auto &curMod = _flatNetlist[moduleIndex];
-  if(curMod.ports().empty())
-    return;
   curMod.portPositionInStdCellNetlists().resize(
     curMod.totalPortsExcludingWires(), 0);
-  auto i = 0;
+  uint32_t i = 0;
   while(i < (curMod.totalInoutsAndInputs() - 1) &&
         curMod.totalInoutsAndInputs() > 0)
   {
