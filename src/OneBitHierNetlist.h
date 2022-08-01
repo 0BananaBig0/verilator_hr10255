@@ -138,14 +138,15 @@ class HierNetlistVisitor final : public AstNVisitor
     {
       return _moduleNameMapIndex;
     }
-    void setEmptyStdCells(
-      const std::unordered_set<std::string> &emptyStdCellsInJson)
-    {
-      _emptyStdCellsInJson = emptyStdCellsInJson;
-    };
 
   public:
     // AstNetlist is the root of HierNetlist
-    HierNetlistVisitor(AstNetlist *nodep) { nodep->accept(*this); }
+    HierNetlistVisitor(
+      AstNetlist *nodep,
+      const std::unordered_set<std::string> &emptyStdCellsInJson)
+    {
+      _emptyStdCellsInJson = emptyStdCellsInJson;
+      nodep->accept(*this);
+    }
     virtual ~HierNetlistVisitor() override{};
 };

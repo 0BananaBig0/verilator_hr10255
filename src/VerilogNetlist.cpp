@@ -15,8 +15,7 @@
 void VerilogNetlist::genHierNet(
   std::unordered_set<std::string> emptyStdCellsInJson)
 {
-  HierNetlistVisitor hierNetlistVisitor(v3Global.rootp());
-  hierNetlistVisitor.setEmptyStdCells(emptyStdCellsInJson);
+  HierNetlistVisitor hierNetlistVisitor(v3Global.rootp(), emptyStdCellsInJson);
   _hierNetlist = hierNetlistVisitor.hierNetlist();
   _totalUsedNotEmptyStdCells = hierNetlistVisitor.totalUsedNotEmptyStdCells();
   _totalUsedStdCells = hierNetlistVisitor.totalUsedStdCells();
@@ -620,8 +619,8 @@ void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex)
 {
   auto &assigns = _flatNetlist[moduleIndex].assigns();
   _totalNotTieConstantAssignInTop = assigns.size();
-  for(uint32_t curAssignIndex = 0; curAssignIndex < _totalNotTieConstantAssignInTop;
-      curAssignIndex++)
+  for(uint32_t curAssignIndex = 0;
+      curAssignIndex < _totalNotTieConstantAssignInTop; curAssignIndex++)
   {
     auto &curAssign = assigns[curAssignIndex];
     if(curAssign.rValue.refVarDefIndex ^ UINT32_MAX)
