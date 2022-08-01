@@ -619,23 +619,23 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex)
 void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex)
 {
   auto &assigns = _flatNetlist[moduleIndex].assigns();
-  _totalNotTieConstantAssign = assigns.size();
-  for(uint32_t curAssignIndex = 0; curAssignIndex < _totalNotTieConstantAssign;
+  _totalNotTieConstantAssignInTop = assigns.size();
+  for(uint32_t curAssignIndex = 0; curAssignIndex < _totalNotTieConstantAssignInTop;
       curAssignIndex++)
   {
     auto &curAssign = assigns[curAssignIndex];
     if(curAssign.rValue.refVarDefIndex ^ UINT32_MAX)
       continue;
-    _totalNotTieConstantAssign--;
-    while(!(assigns[_totalNotTieConstantAssign].rValue.refVarDefIndex ^
+    _totalNotTieConstantAssignInTop--;
+    while(!(assigns[_totalNotTieConstantAssignInTop].rValue.refVarDefIndex ^
             UINT32_MAX))
     {
-      if(_totalNotTieConstantAssign > curAssignIndex)
-        _totalNotTieConstantAssign--;
+      if(_totalNotTieConstantAssignInTop > curAssignIndex)
+        _totalNotTieConstantAssignInTop--;
       else
         return;
     }
-    std::swap(curAssign, assigns[_totalNotTieConstantAssign]);
+    std::swap(curAssign, assigns[_totalNotTieConstantAssignInTop]);
   }
 }
 

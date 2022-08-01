@@ -24,7 +24,7 @@ class VerilogNetlist final
     uint32_t _totalUsedNotEmptyInsInTop;
     // notTieConstantAssign : all assignments whose rvalue is not a constant,
     // for example, assing a = b, not a = 1'b1 or 1'b0 or 1'bz or 1'bx;
-    uint32_t _totalNotTieConstantAssign;
+    uint32_t _totalNotTieConstantAssignInTop;
     std::vector<Module> _hierNetlist;
     std::vector<Module> _flatNetlist;
     // given a moduel name, map it to the corresponding index in _hierNetlist
@@ -35,7 +35,7 @@ class VerilogNetlist final
     VerilogNetlist() :
       _totalUsedStdCells(0), _totalUsedNotEmptyStdCells(0),
       _totalUsedBlackBoxes(0), _totalUsedNotEmptyInsInTop(0),
-      _totalNotTieConstantAssign(0)
+      _totalNotTieConstantAssignInTop(0)
     {
       ;
     }
@@ -44,9 +44,9 @@ class VerilogNetlist final
     uint32_t totalUsedStdCells() const { return _totalUsedStdCells; }
     uint32_t totalUsedNotEmptyStdCells() { return _totalUsedNotEmptyStdCells; }
     uint32_t totalUsedBlackBoxes() const { return _totalUsedBlackBoxes; }
-    uint32_t totalNotTieConstantAssign() const
+    uint32_t totalNotTieConstantAssignInTop() const
     {
-      return _totalNotTieConstantAssign;
+      return _totalNotTieConstantAssignInTop;
     }
     const std::unordered_map<std::string, uint32_t> &moduleNameMapIndex() const
     {
