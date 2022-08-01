@@ -177,12 +177,25 @@ class Module
     {
       return _portNameMapPortDefIndex;
     }
+    const PortNameMapPortDefIndex &portNameMapPortDefIndex() const
+    {
+      return _portNameMapPortDefIndex;
+    }
 
     std::vector<uint32_t> &portPositionInStdCellNetlists()
     {
       return _portPositionInStdCellNetlists;
     }
+    const std::vector<uint32_t> &portPositionInStdCellNetlists() const
+    {
+      return _portPositionInStdCellNetlists;
+    }
+
     std::vector<std::vector<std::vector<IOStatus>>> &subModInsIOStatuss()
+    {
+      return _subModInsIOStatuss;
+    }
+    const std::vector<std::vector<std::vector<IOStatus>>> &subModInsIOStatuss() const
     {
       return _subModInsIOStatuss;
     }
