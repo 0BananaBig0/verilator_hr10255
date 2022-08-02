@@ -12,6 +12,9 @@
 class VerilogNetlist final
 {
   private:
+    // Netlist Order: EmptyStdCells, BalckBoxesDeignedByHardwareDesigner,
+    // NotEmptyStdCells, other Modules(From Top to Bttom)
+
     // emptyStdCellsInjson : like PLL, which is empty in stdcells.json
     uint32_t _totalUsedNotEmptyStdCells;
     // stdCells : all written into LibBlackbox.v or stdcells.json
@@ -56,15 +59,15 @@ class VerilogNetlist final
     {
       flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
     }
-    void printHierNet()
+    void printHierNet(const std::string &fileName)
     {
-      printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes);
+      printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
+                   fileName);
     }
-    void printFlatNet()
+    void printFlatNet(const std::string &fileName)
     {
       printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
-                   "FlatNetlist.v",
-                   _hierNetlist[_totalUsedBlackBoxes].level());
+                   fileName, _hierNetlist[_totalUsedBlackBoxes].level());
     }
     // Get a hierarchical netlist from ast
     void genHierNet(std::unordered_set<std::string> emptyStdCellsInJson = {
@@ -73,7 +76,7 @@ class VerilogNetlist final
     void printNetlist(const std::vector<Module> &hierNetlist,
                       const uint32_t totalUsedStdCells,
                       const uint32_t totalUsedBlackBoxes,
-                      std::string fileName = "HierNetlist.v",
+                      const std::string &fileName,
                       const uint32_t maxHierLevel = UINT32_MAX);
     // Flatten Hierarchical netlist
     void flattenHierNet(const std::vector<Module> &hierNetlist,

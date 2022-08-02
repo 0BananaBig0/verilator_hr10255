@@ -26,10 +26,15 @@ void VerilogNetlist::genHierNet(
 void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                                   const uint32_t totalUsedStdCells,
                                   const uint32_t totalUsedBlackBoxes,
-                                  std::string fileName,
+                                  const std::string &fileName,
                                   const uint32_t maxHierLevel)
 {
   std::ofstream ofs(fileName);
+  if(!ofs.is_open())
+  {
+    std::cout << "Error: cannot print " << fileName << "." << std::endl;
+    return;
+  }
   bool shouldHaveEscapeChar = false;
   uint32_t totalCharsEveryLine;
   auto getDecimalNumberLength = [](uint32_t number)

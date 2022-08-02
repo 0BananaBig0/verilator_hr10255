@@ -20,11 +20,11 @@ int main(int argc, char **argv, char **env)
   // 1,Obtain a hierarchical netlist from AST.
   verilogNetlist.parseHierNet(argc, argv, env);
   // 2,Print a hierarchical netlist to a verilog file.
-  verilogNetlist.printHierNet();
+  verilogNetlist.printHierNet("HierNetlist.v");
   // 3,Flatten a hierarchical netlist
   verilogNetlist.callFlattenHierNet();
   // verilogNetlist.sortInsOrderInTop();
   // 4,Print a flattened netlist to a verilog file.
-  verilogNetlist.printFlatNet();
+  verilogNetlist.printFlatNet("FlatNetlist.v");
   return 0;
 }
