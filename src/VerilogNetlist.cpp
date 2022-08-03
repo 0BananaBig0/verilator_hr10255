@@ -40,6 +40,8 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
   auto getDecimalNumberLength = [](uint32_t number)
   {
     uint32_t length = 0;
+    if(!(number ^ 0))
+      length = 1;
     while(number)
     {
       number /= 10;
