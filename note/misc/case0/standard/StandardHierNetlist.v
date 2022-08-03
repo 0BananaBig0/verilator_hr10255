@@ -511,10 +511,11 @@ module top(cco,A,B,ci,co,SUM);
       A[5],A[4]}), .B({1'b0,1'b0,1'b1,1'b1,B[0],B[11],B[10],B[9],B[22],B[21],
       B[20],B[19]}), .ci(C[9]), .co(C[5]), .SUM({SUM[13],SUM[12],SUM[11],SUM[10],
       SUM[9],SUM[8],SUM[7],SUM[6],SUM[5],SUM[4],SUM[3],SUM[2]}));
-  ripple_adder_twelve U2 (.A({A[0],A[2],A[18],A[17],A[16],A[15],A[14],A[13],A[12],
-      A[11],A[10],A[9]}), .B({B[8],B[7],B[6],B[5],B[4],B[18],B[17],B[16],B[15],
-      B[14],B[13],B[12]}), .ci(C[5]), .co(C[6]), .SUM({SUM[25],SUM[24],SUM[23],
-      SUM[22],SUM[21],SUM[20],SUM[19],SUM[18],SUM[17],SUM[16],SUM[15],SUM[14]}));
+  ripple_adder_twelve U2 (.A({A[0],A[2],A[18],A[17],A[16],A[15],A[14],A[13],
+      A[12],A[11],A[10],A[9]}), .B({B[8],B[7],B[6],B[5],B[4],B[18],B[17],B[16],
+      B[15],B[14],B[13],B[12]}), .ci(C[5]), .co(C[6]), .SUM({SUM[25],SUM[24],
+      SUM[23],SUM[22],SUM[21],SUM[20],SUM[19],SUM[18],SUM[17],SUM[16],SUM[15],
+      SUM[14]}));
   full_adder U3 (.a(1'b1), .b(1'b0), .ci(C[2]), .co(C[1]), .sum(SUM[0]));
   full_adder U4 (.a(C[0]), .b(C[3]), .ci(C[1]), .co(C[9]), .sum(SUM[1]));
   full_adder_co U5 (.a(A[23]), .b(B[23]), .ci(cci), .co(C[7]));
@@ -538,8 +539,8 @@ module ripple_adder_twelve(A,B,ci,co,SUM);
    wire c_no_defined;
   assign C[0] = ci;
   assign co = c_no_defined;
-  ripple_adder U0 (.A({A[3],A[2],A[1],A[0]}), .B({B[3],B[2],B[1],B[0]}), .ci(C[0]), 
-      .co(C[1]), .SUM({SUM[3],SUM[2],SUM[1],SUM[0]}));
+  ripple_adder U0 (.A({A[3],A[2],A[1],A[0]}), .B({B[3],B[2],B[1],B[0]}), .ci(
+      C[0]), .co(C[1]), .SUM({SUM[3],SUM[2],SUM[1],SUM[0]}));
   ripple_adder U1 (.A({A[7],A[6],A[5],A[4]}), .B({B[7],B[6],B[5],B[4]}), .ci(
       C[1]), .co(C[2]), .SUM({SUM[7],SUM[6],SUM[5],SUM[4]}));
   ripple_adder U2 (.A({A[11],A[10],A[9],A[8]}), .B({B[11],B[10],B[9],B[8]}), .ci(

@@ -367,14 +367,14 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       per_addr[4],per_addr[3],per_addr[2],per_addr[1],per_addr[0]}), .per_din({
       per_din[15],per_din[14],per_din[13],per_din[12],per_din[11],per_din[10],
       per_din[9],per_din[8],per_din[7],per_din[6],per_din[5],per_din[4],
-      per_din[3],per_din[2],per_din[1],per_din[0]}), .per_we({per_we[1],per_we[0]}), 
-      .per_en(per_en), .pmem_addr({pmem_addr[10],pmem_addr[9],pmem_addr[8],
-      pmem_addr[7],pmem_addr[6],pmem_addr[5],pmem_addr[4],pmem_addr[3],
-      pmem_addr[2],pmem_addr[1],pmem_addr[0]}), .pmem_cen(pmem_cen), .pmem_din({
-      pmem_din[15],pmem_din[14],pmem_din[13],pmem_din[12],pmem_din[11],
-      pmem_din[10],pmem_din[9],pmem_din[8],pmem_din[7],pmem_din[6],pmem_din[5],
-      pmem_din[4],pmem_din[3],pmem_din[2],pmem_din[1],pmem_din[0]}), .pmem_wen({
-      pmem_wen[1],pmem_wen[0]}));
+      per_din[3],per_din[2],per_din[1],per_din[0]}), .per_we({per_we[1],
+      per_we[0]}), .per_en(per_en), .pmem_addr({pmem_addr[10],pmem_addr[9],
+      pmem_addr[8],pmem_addr[7],pmem_addr[6],pmem_addr[5],pmem_addr[4],
+      pmem_addr[3],pmem_addr[2],pmem_addr[1],pmem_addr[0]}), .pmem_cen(pmem_cen), 
+      .pmem_din({pmem_din[15],pmem_din[14],pmem_din[13],pmem_din[12],
+      pmem_din[11],pmem_din[10],pmem_din[9],pmem_din[8],pmem_din[7],pmem_din[6],
+      pmem_din[5],pmem_din[4],pmem_din[3],pmem_din[2],pmem_din[1],pmem_din[0]}), 
+      .pmem_wen({pmem_wen[1],pmem_wen[0]}));
   omsp_frontend frontend_0 (.cpu_en_s(cpu_en_s), .cpu_halt_cmd(cpu_halt_cmd), 
       .cpuoff(cpuoff), .dbg_reg_sel({dbg_mem_addr[3],dbg_mem_addr[2],
       dbg_mem_addr[1],dbg_mem_addr[0]}), .dma_en(dma_en), .dma_wkup(dma_wkup), 
@@ -2269,7 +2269,8 @@ module omsp_dbg(cpu_en_s,cpu_id,cpu_nr_inst,cpu_nr_total,dbg_clk,dbg_en_s,
   NAND2_X1_LVT i_78_23 (.A1(n_97), .A2(mem_data[2]), .ZN(n_78_21));
   NAND2_X1_LVT i_78_24 (.A1(n_95), .A2(mem_ctl[1]), .ZN(n_78_22));
   INV_X1_LVT i_76_0 (.A(dbg_din[2]), .ZN(n_76_0));
-  AOI21_X1_LVT i_76_1 (.A(puc_pnd_set), .B1(n_76_0), .B2(cpu_stat[0]), .ZN(n_76_1));
+  AOI21_X1_LVT i_76_1 (.A(puc_pnd_set), .B1(n_76_0), .B2(cpu_stat[0]), .ZN(
+      n_76_1));
   NOR2_X1_LVT i_76_3 (.A1(cpu_stat[0]), .A2(puc_pnd_set), .ZN(n_76_3));
   OAI22_X1_LVT i_76_4 (.A1(n_76_1), .A2(n_76_2), .B1(n_76_3), .B2(n_100), .ZN(
       n_154));
@@ -2300,14 +2301,14 @@ module omsp_dbg(cpu_en_s,cpu_id,cpu_nr_inst,cpu_nr_total,dbg_clk,dbg_en_s,
   NAND4_X1_LVT i_78_17 (.A1(n_78_12), .A2(n_78_13), .A3(n_78_14), .A4(n_78_15), 
       .ZN(dbg_dout[1]));
   NAND2_X1_LVT i_78_0 (.A1(dbg_mem_addr[0]), .A2(n_96), .ZN(n_78_0));
-  AOI22_X1_LVT i_68_1 (.A1(n_68_0), .A2(dbg_mem_din[0]), .B1(dbg_mem_din[8]), .B2(
-      n_117), .ZN(n_68_1));
+  AOI22_X1_LVT i_68_1 (.A1(n_68_0), .A2(dbg_mem_din[0]), .B1(dbg_mem_din[8]), 
+      .B2(n_117), .ZN(n_68_1));
   INV_X1_LVT i_68_2 (.A(n_68_1), .ZN(n_118));
   AOI222_X1_LVT i_71_0 (.A1(dbg_din[0]), .A2(mem_data_wr), .B1(dbg_reg_din[0]), 
       .B2(n_136), .C1(n_118), .C2(n_135), .ZN(n_71_0));
   INV_X1_LVT i_71_1 (.A(n_71_0), .ZN(n_137));
-  DFFR_X1_LVT \mem_data_reg[0] (.CK(n_134), .D(n_137), .RN(n_104), .Q(mem_data[0]), 
-      .QN());
+  DFFR_X1_LVT \mem_data_reg[0] (.CK(n_134), .D(n_137), .RN(n_104), .Q(
+      mem_data[0]), .QN());
   NAND2_X1_LVT i_78_1 (.A1(mem_data[0]), .A2(n_97), .ZN(n_78_1));
   NAND2_X1_LVT i_78_2 (.A1(dbg_halt_st), .A2(n_94), .ZN(n_78_2));
   NAND2_X1_LVT i_78_3 (.A1(cpu_id[16]), .A2(n_92), .ZN(n_78_3));
@@ -3628,8 +3629,8 @@ module omsp_multiplier(mclk,per_addr,per_din,per_en,per_we,puc_rst,scan_enable,
   AND2_X1_LVT i_8_0 (.A1(per_din[8]), .A2(per_we[1]), .ZN(per_din_msk[8]));
   DFFR_X1_LVT \op2_reg[8] (.CK(n_21), .D(per_din_msk[8]), .RN(n_38), .Q(
       op2_reg[8]), .QN());
-  AOI22_X1_LVT i_29_1 (.A1(n_29_0), .A2(op2_reg[0]), .B1(op2_reg[8]), .B2(cycle[0]), 
-      .ZN(n_29_1));
+  AOI22_X1_LVT i_29_1 (.A1(n_29_0), .A2(op2_reg[0]), .B1(op2_reg[8]), .B2(
+      cycle[0]), .ZN(n_29_1));
   INV_X1_LVT i_29_2 (.A(n_29_1), .ZN(op2_xp[0]));
   NAND2_X1_LVT i_32_4 (.A1(op2_xp[0]), .A2(op1[4]), .ZN(n_32_4));
   XNOR2_X1_LVT i_32_173 (.A(n_32_20), .B(n_32_4), .ZN(n_32_173));
@@ -4176,8 +4177,8 @@ module omsp_multiplier(mclk,per_addr,per_din,per_en,per_we,puc_rst,scan_enable,
   INV_X1_LVT i_32_585 (.A(n_32_0), .ZN(n_42));
   INV_X1_LVT i_34_0 (.A(n_42), .ZN(n_34_0));
   INV_X1_LVT i_34_17 (.A(n_50), .ZN(n_34_9));
-  OAI22_X1_LVT i_34_18 (.A1(n_34_0), .A2(n_34_8), .B1(n_34_9), .B2(cycle[0]), .ZN(
-      product_xp[8]));
+  OAI22_X1_LVT i_34_18 (.A1(n_34_0), .A2(n_34_8), .B1(n_34_9), .B2(cycle[0]), 
+      .ZN(product_xp[8]));
   AOI22_X1_LVT i_45_17 (.A1(n_45_0), .A2(n_130), .B1(reslo_wr), .B2(
       per_din_msk[8]), .ZN(n_45_9));
   INV_X1_LVT i_45_18 (.A(n_45_9), .ZN(n_113));
@@ -4838,8 +4839,8 @@ module omsp_multiplier(mclk,per_addr,per_din,per_en,per_we,puc_rst,scan_enable,
   AND2_X1_LVT i_12_0 (.A1(op2_reg[0]), .A2(n_12), .ZN(n_22));
   NOR4_X1_LVT i_60_5 (.A1(n_60_3), .A2(n_60_4), .A3(n_146), .A4(n_22), .ZN(
       n_60_5));
-  AOI22_X1_LVT i_60_6 (.A1(n_60_0), .A2(reshi[0]), .B1(reshi_nxt[0]), .B2(cycle[1]), 
-      .ZN(n_60_6));
+  AOI22_X1_LVT i_60_6 (.A1(n_60_0), .A2(reshi[0]), .B1(reshi_nxt[0]), .B2(
+      cycle[1]), .ZN(n_60_6));
   OAI21_X1_LVT i_60_8 (.A(n_60_5), .B1(n_60_6), .B2(n_60_7), .ZN(per_dout[0]));
 endmodule
 
@@ -7338,8 +7339,8 @@ module omsp_frontend(cpu_en_s,cpu_halt_cmd,cpuoff,dbg_reg_sel,dma_en,dma_wkup,
   INV_X1_LVT i_99_6 (.A(mdb_in[3]), .ZN(n_99_4));
   XNOR2_X1_LVT i_99_19 (.A(mdb_in[15]), .B(n_99_4), .ZN(n_99_17));
   INV_X1_LVT i_98_0 (.A(i_state_nxt_reg[2]), .ZN(n_98_0));
-  OR3_X1_LVT i_98_1 (.A1(n_98_0), .A2(i_state_nxt_reg[0]), .A3(i_state_nxt_reg[1]), 
-      .ZN(n_98_1));
+  OR3_X1_LVT i_98_1 (.A1(n_98_0), .A2(i_state_nxt_reg[0]), .A3(
+      i_state_nxt_reg[1]), .ZN(n_98_1));
   INV_X1_LVT i_98_2 (.A(inst_as[4]), .ZN(n_98_2));
   AND4_X1_LVT i_98_3 (.A1(n_98_1), .A2(n_98_2), .A3(n_6), .A4(inst_ad[4]), .ZN(
       n_98_3));
@@ -7599,7 +7600,8 @@ module omsp_frontend(cpu_en_s,cpu_halt_cmd,cpuoff,dbg_reg_sel,dma_en,dma_wkup,
       .QN());
   NOR2_X1_LVT i_115_0 (.A1(inst_so[6]), .A2(inst_type[2]), .ZN(n_115_0));
   INV_X1_LVT i_115_1 (.A(inst_so[7]), .ZN(n_115_1));
-  AND3_X1_LVT i_115_2 (.A1(n_115_0), .A2(n_115_1), .A3(inst_type[0]), .ZN(n_115_2));
+  AND3_X1_LVT i_115_2 (.A1(n_115_0), .A2(n_115_1), .A3(inst_type[0]), .ZN(
+      n_115_2));
   CLKGATETST_X1_LVT clk_gate_inst_src_bin_reg (.CK(mclk), .E(decode), .SE(1'b0), 
       .GCK(n_181));
   DFFR_X1_LVT \inst_src_bin_reg[0] (.CK(n_181), .D(mdb_in[8]), .RN(n_91), .Q(
@@ -9001,14 +9003,15 @@ module omsp_execution_unit(dbg_halt_st,dbg_mem_dout,dbg_reg_wr,e_state,exec_done
       scan_enable), .cpuoff(cpuoff), .gie(gie), .oscoff(oscoff), .pc_sw({
       pc_sw[15],pc_sw[14],pc_sw[13],pc_sw[12],pc_sw[11],pc_sw[10],pc_sw[9],
       pc_sw[8],pc_sw[7],pc_sw[6],pc_sw[5],pc_sw[4],pc_sw[3],pc_sw[2],pc_sw[1],
-      pc_sw[0]}), .pc_sw_wr(pc_sw_wr), .reg_dest({dbg_reg_din[15],dbg_reg_din[14],
-      dbg_reg_din[13],dbg_reg_din[12],dbg_reg_din[11],dbg_reg_din[10],
-      dbg_reg_din[9],dbg_reg_din[8],dbg_reg_din[7],dbg_reg_din[6],dbg_reg_din[5],
-      dbg_reg_din[4],dbg_reg_din[3],dbg_reg_din[2],dbg_reg_din[1],dbg_reg_din[0]}), 
-      .reg_src({reg_src[15],reg_src[14],reg_src[13],reg_src[12],reg_src[11],
-      reg_src[10],reg_src[9],reg_src[8],reg_src[7],reg_src[6],reg_src[5],
-      reg_src[4],reg_src[3],reg_src[2],reg_src[1],reg_src[0]}), .scg0(scg0), 
-      .scg1(scg1), .status({status[3],status[2],status[1],status[0]}));
+      pc_sw[0]}), .pc_sw_wr(pc_sw_wr), .reg_dest({dbg_reg_din[15],
+      dbg_reg_din[14],dbg_reg_din[13],dbg_reg_din[12],dbg_reg_din[11],
+      dbg_reg_din[10],dbg_reg_din[9],dbg_reg_din[8],dbg_reg_din[7],
+      dbg_reg_din[6],dbg_reg_din[5],dbg_reg_din[4],dbg_reg_din[3],dbg_reg_din[2],
+      dbg_reg_din[1],dbg_reg_din[0]}), .reg_src({reg_src[15],reg_src[14],
+      reg_src[13],reg_src[12],reg_src[11],reg_src[10],reg_src[9],reg_src[8],
+      reg_src[7],reg_src[6],reg_src[5],reg_src[4],reg_src[3],reg_src[2],
+      reg_src[1],reg_src[0]}), .scg0(scg0), .scg1(scg1), .status({status[3],
+      status[2],status[1],status[0]}));
   OR2_X1_LVT i_8_0 (.A1(inst_bw), .A2(inst_alu[11]), .ZN(n_8_0));
   INV_X1_LVT i_8_1 (.A(inst_alu[11]), .ZN(n_8_1));
   NAND2_X1_LVT i_8_2 (.A1(n_8_1), .A2(inst_bw), .ZN(n_8_2));
@@ -9410,8 +9413,8 @@ module omsp_clock_module(cpu_en,cpuoff,dbg_cpu_reset,dbg_en,dco_clk,lfxt_clk,
   omsp_scan_mux__2_63 scan_mux_puc_rst (.data_in_scan(por_a), .data_in_func(
       puc_pnd_set), .scan_mode(scan_mode), .data_out(puc_rst));
   INV_X1_LVT i_18_0 (.A(puc_rst), .ZN(n_10));
-  DFFR_X1_LVT \bcsctl1_reg[0] (.CK(n_9), .D(per_din[8]), .RN(n_10), .Q(bcsctl1[0]), 
-      .QN());
+  DFFR_X1_LVT \bcsctl1_reg[0] (.CK(n_9), .D(per_din[8]), .RN(n_10), .Q(
+      bcsctl1[0]), .QN());
   omsp_and_gate__2_31 and_cpuoff_mclk_dma_en (.a(bcsctl1[0]), .b(mclk_dma_enable), 
       .y(cpuoff_and_mclk_dma_enable));
   omsp_and_gate__2_29 and_cpuoff_mclk_dma_wkup (.a(bcsctl1[0]), .b(mclk_dma_wkup), 
@@ -9552,7 +9555,8 @@ module omsp_clock_module(cpu_en,cpuoff,dbg_cpu_reset,dbg_en,dco_clk,lfxt_clk,
   DFFR_X1_LVT \bcsctl2_reg[1] (.CK(n_8), .D(per_din[1]), .RN(n_10), .Q(
       bcsctl2[1]), .QN());
   AND2_X1_LVT i_20_1 (.A1(n_7), .A2(bcsctl2[1]), .ZN(per_dout[1]));
-  DFFR_X1_LVT \bcsctl2_reg[0] (.CK(n_8), .D(1'b0), .RN(n_10), .Q(bcsctl2[0]), .QN());
+  DFFR_X1_LVT \bcsctl2_reg[0] (.CK(n_8), .D(1'b0), .RN(n_10), .Q(bcsctl2[0]), 
+      .QN());
   AND2_X1_LVT i_20_0 (.A1(bcsctl2[0]), .A2(n_7), .ZN(per_dout[0]));
   INV_X1_LVT i_54_0 (.A(scg1), .ZN(n_54_0));
   omsp_and_gate__2_57 and_scg1_mclk_dma_wkup (.a(bcsctl1[3]), .b(mclk_dma_wkup), 
@@ -10131,8 +10135,8 @@ module omsp_dbg_uart(dbg_clk,dbg_dout,dbg_rd_rdy,dbg_rst,dbg_uart_rxd,mem_burst,
   NAND3_X1_LVT i_42_3 (.A1(n_42_2), .A2(n_42_0), .A3(n_42_1), .ZN(n_128));
   CLKGATETST_X1_LVT clk_gate_xfer_bit_reg (.CK(dbg_clk), .E(n_128), .SE(1'b0), 
       .GCK(n_118));
-  DFFR_X1_LVT \xfer_bit_reg[0] (.CK(n_118), .D(n_124), .RN(n_130), .Q(xfer_bit[0]), 
-      .QN());
+  DFFR_X1_LVT \xfer_bit_reg[0] (.CK(n_118), .D(n_124), .RN(n_130), .Q(
+      xfer_bit[0]), .QN());
   HA_X1_LVT i_39_1 (.A(xfer_bit[1]), .B(xfer_bit[0]), .CO(n_39_0), .S(n_120));
   AND2_X1_LVT i_41_3 (.A1(n_41_0), .A2(n_120), .ZN(n_125));
   DFFR_X1_LVT \xfer_bit_reg[1] (.CK(n_118), .D(n_125), .RN(n_130), .Q(
@@ -10215,8 +10219,8 @@ module omsp_dbg_uart(dbg_clk,dbg_dout,dbg_rd_rdy,dbg_rst,dbg_uart_rxd,mem_burst,
       .C2(mem_bw), .ZN(n_8_23));
   OAI211_X1_LVT i_8_25 (.A(n_8_11), .B(n_8_14), .C1(n_8_23), .C2(n_8_24), .ZN(
       uart_state_nxt_reg[0]));
-  DFFR_X1_LVT \uart_state_reg[0] (.CK(n_23), .D(uart_state_nxt_reg[0]), .RN(n_130), 
-      .Q(uart_state[0]), .QN());
+  DFFR_X1_LVT \uart_state_reg[0] (.CK(n_23), .D(uart_state_nxt_reg[0]), .RN(
+      n_130), .Q(uart_state[0]), .QN());
   NOR3_X1_LVT i_13_7 (.A1(uart_state[0]), .A2(uart_state[1]), .A3(uart_state[2]), 
       .ZN(n_29));
   AND2_X1_LVT i_17_0 (.A1(n_29), .A2(rxd_fe), .ZN(n_33));
@@ -11673,7 +11677,8 @@ module omsp_alu(dbg_halt_st,exec_cycle,inst_alu,inst_bw,inst_jmp,inst_so,op_dst,
       alu_out[7]), .ZN(n_51_10));
   OR4_X1_LVT i_51_12 (.A1(n_51_10), .A2(alu_out[2]), .A3(alu_out[3]), .A4(
       alu_out[4]), .ZN(n_51_11));
-  OR3_X1_LVT i_51_13 (.A1(n_51_11), .A2(alu_out[0]), .A3(alu_out[1]), .ZN(n_51_12));
+  OR3_X1_LVT i_51_13 (.A1(n_51_11), .A2(alu_out[0]), .A3(alu_out[1]), .ZN(
+      n_51_12));
   NOR4_X1_LVT i_51_14 (.A1(alu_out[13]), .A2(alu_out[14]), .A3(alu_out[15]), .A4(
       inst_bw), .ZN(n_51_13));
   NOR4_X1_LVT i_51_15 (.A1(alu_out[4]), .A2(alu_out[5]), .A3(alu_out[6]), .A4(
@@ -13389,7 +13394,8 @@ module omsp_register_file(alu_stat,alu_stat_wr,inst_bw,inst_dest,inst_src,mclk,
   INV_X1_LVT i_24_2 (.A(n_24_1), .ZN(n_28));
   DFFR_X1_LVT \r4_reg[0] (.CK(n_27), .D(n_28), .RN(n_8), .Q(r4[0]), .QN());
   NAND2_X1_LVT i_105_0 (.A1(r4[0]), .A2(n_24), .ZN(n_105_0));
-  DFFR_X1_LVT \r3_reg[0] (.CK(n_23), .D(reg_dest_val[0]), .RN(n_8), .Q(r3[0]), .QN());
+  DFFR_X1_LVT \r3_reg[0] (.CK(n_23), .D(reg_dest_val[0]), .RN(n_8), .Q(r3[0]), 
+      .QN());
   NAND2_X1_LVT i_105_1 (.A1(r3[0]), .A2(n_22), .ZN(n_105_1));
   INV_X1_LVT i_5_1 (.A(alu_stat_wr[0]), .ZN(n_5_1));
   NAND3_X1_LVT i_5_2 (.A1(n_5_0), .A2(n_5_1), .A3(status[0]), .ZN(n_5_2));

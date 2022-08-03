@@ -1283,7 +1283,8 @@ module top(cco,A,B,ci,co,SUM);
   OAI222_X1_LVT U6/U0/U1/i_0_3 (.A1(\U6/U0/U1/n_0[0] ), .A2(\U6/U0/U1/n_0[1] ), 
       .B1(\U6/U0/U1/n_0[1] ), .B2(\U6/U0/U1/n_0[2] ), .C1(\U6/U0/U1/n_0[0] ), 
       .C2(\U6/U0/U1/n_0[2] ), .ZN(U6/C[1]));
-  XNOR2_X1_LVT U6/U0/U0/i_0_0 (.A(A[19]), .B(C[0]), .ZN(\U6/U0/U0/DC_output[1] [15]));
+  XNOR2_X1_LVT U6/U0/U0/i_0_0 (.A(A[19]), .B(C[0]), .ZN(
+      \U6/U0/U0/DC_output[1] [15]));
   XNOR2_X1_LVT U6/U0/U0/i_0_1 (.A(\U6/U0/U0/DC_output[1] [15]), .B(1'b1), .ZN(
       SUM[26]));
   INV_X1_LVT U6/U1/U1/i_0_0 (.A(A[20]), .ZN(\U6/U1/U1/n_0[0] ));

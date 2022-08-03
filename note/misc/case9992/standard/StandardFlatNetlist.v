@@ -5763,7 +5763,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       watchdog_0/n_0));
   AND2_X1_LVT watchdog_0/i_2_0 (.A1(watchdog_0/n_1), .A2(watchdog_0/n_0), .ZN(
       per_dout_wdog[5]));
-  OR2_X1_LVT watchdog_0/i_3_0 (.A1(per_we[0]), .A2(per_we[1]), .ZN(watchdog_0/n_2));
+  OR2_X1_LVT watchdog_0/i_3_0 (.A1(per_we[0]), .A2(per_we[1]), .ZN(
+      watchdog_0/n_2));
   AND2_X1_LVT watchdog_0/i_4_0 (.A1(watchdog_0/n_2), .A2(watchdog_0/n_0), .ZN(
       watchdog_0/reg_wr));
   CLKGATETST_X1_LVT watchdog_0/clk_gate_wdtctl_reg (.CK(mclk), .E(
@@ -5793,8 +5794,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       .RN(watchdog_0/n_4), .Q(watchdog_0/wdtctl[1]), .QN());
   AND2_X1_LVT watchdog_0/i_7_1 (.A1(per_dout_wdog[5]), .A2(watchdog_0/wdtctl[1]), 
       .ZN(per_dout_wdog[1]));
-  DFFR_X1_LVT \watchdog_0/wdtctl_reg[0] (.CK(watchdog_0/n_3), .D(per_din[0]), .RN(
-      watchdog_0/n_4), .Q(watchdog_0/wdtctl[0]), .QN());
+  DFFR_X1_LVT \watchdog_0/wdtctl_reg[0] (.CK(watchdog_0/n_3), .D(per_din[0]), 
+      .RN(watchdog_0/n_4), .Q(watchdog_0/wdtctl[0]), .QN());
   AND2_X1_LVT watchdog_0/i_7_0 (.A1(watchdog_0/wdtctl[0]), .A2(per_dout_wdog[5]), 
       .ZN(per_dout_wdog[0]));
   INV_X1_LVT watchdog_0/i_32_0 (.A(watchdog_0/wdt_evt_toggle), .ZN(
@@ -5816,8 +5817,9 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   INV_X1_LVT watchdog_0/i_30_0 (.A(watchdog_0/wdt_rst), .ZN(watchdog_0/n_29));
   DFFR_X1_LVT \watchdog_0/wdtisx_s_reg[0] (.CK(smclk), .D(watchdog_0/wdtctl[0]), 
       .RN(watchdog_0/n_29), .Q(watchdog_0/wdtisx_s[0]), .QN());
-  DFFR_X1_LVT \watchdog_0/wdtisx_ss_reg[0] (.CK(smclk), .D(watchdog_0/wdtisx_s[0]), 
-      .RN(watchdog_0/n_29), .Q(watchdog_0/wdtisx_ss[0]), .QN());
+  DFFR_X1_LVT \watchdog_0/wdtisx_ss_reg[0] (.CK(smclk), .D(
+      watchdog_0/wdtisx_s[0]), .RN(watchdog_0/n_29), .Q(watchdog_0/wdtisx_ss[0]), 
+      .QN());
   INV_X1_LVT watchdog_0/i_28_0 (.A(watchdog_0/wdtisx_ss[0]), .ZN(
       watchdog_0/n_28_0));
   DFFR_X1_LVT \watchdog_0/wdtisx_s_reg[1] (.CK(smclk), .D(watchdog_0/wdtctl[1]), 
@@ -6208,7 +6210,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   OR2_X1_LVT sfr_0/i_27_1 (.A1(sfr_0/n_27_0), .A2(sfr_0/n_29), .ZN(
       per_dout_sfr[0]));
   INV_X1_LVT sfr_0/i_28_0 (.A(sfr_0/ifg1_wr), .ZN(sfr_0/n_28_0));
-  NOR2_X1_LVT sfr_0/i_28_1 (.A1(sfr_0/n_28_0), .A2(per_din[0]), .ZN(wdtifg_sw_clr));
+  NOR2_X1_LVT sfr_0/i_28_1 (.A1(sfr_0/n_28_0), .A2(per_din[0]), .ZN(
+      wdtifg_sw_clr));
   AND2_X1_LVT sfr_0/i_29_0 (.A1(sfr_0/ifg1_wr), .A2(per_din[0]), .ZN(
       wdtifg_sw_set));
   INV_X1_LVT dbg_0/i_48_2 (.A(dbg_0/dbg_addr[1]), .ZN(dbg_0/n_48_1));
@@ -6433,8 +6436,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       .B2(cpu_halt_st), .ZN(dbg_0/mem_state_nxt_reg[0]));
   DFFR_X1_LVT \dbg_0/mem_state_reg[0] (.CK(dbg_clk), .D(
       dbg_0/mem_state_nxt_reg[0]), .RN(dbg_0/n_104), .Q(dbg_0/mem_state[0]), .QN());
-  AND2_X1_LVT dbg_0/i_12_0 (.A1(dbg_0/mem_state[0]), .A2(dbg_0/mem_state[1]), .ZN(
-      dbg_0/n_6));
+  AND2_X1_LVT dbg_0/i_12_0 (.A1(dbg_0/mem_state[0]), .A2(dbg_0/mem_state[1]), 
+      .ZN(dbg_0/n_6));
   INV_X1_LVT dbg_0/i_12_1 (.A(dbg_0/mem_state[1]), .ZN(dbg_0/n_12_0));
   NOR2_X1_LVT dbg_0/i_12_2 (.A1(dbg_0/n_12_0), .A2(dbg_0/mem_state[0]), .ZN(
       dbg_0/n_7));
@@ -6487,7 +6490,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   NAND2_X1_LVT dbg_0/i_22_1 (.A1(dbg_0/n_22_0), .A2(dbg_0/mem_ctl[2]), .ZN(
       dbg_0/n_45));
   AND2_X1_LVT dbg_0/i_26_1 (.A1(dbg_0/n_48), .A2(dbg_0/n_45), .ZN(dbg_mem_wr[1]));
-  OR2_X1_LVT dbg_0/i_27_0 (.A1(dbg_mem_wr[0]), .A2(dbg_mem_wr[1]), .ZN(dbg_0/n_49));
+  OR2_X1_LVT dbg_0/i_27_0 (.A1(dbg_mem_wr[0]), .A2(dbg_mem_wr[1]), .ZN(
+      dbg_0/n_49));
   OR2_X1_LVT dbg_0/i_31_0 (.A1(dbg_0/mem_burst), .A2(dbg_0/mem_burst_rd), .ZN(
       dbg_0/n_51));
   INV_X1_LVT dbg_0/i_32_0 (.A(dbg_0/n_51), .ZN(dbg_0/n_32_0));
@@ -6508,7 +6512,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   AOI21_X1_LVT dbg_0/i_34_0 (.A(dbg_0/n_49), .B1(dbg_0/dbg_rd_rdy), .B2(
       dbg_0/n_47), .ZN(dbg_0/n_34_0));
   INV_X1_LVT dbg_0/i_34_1 (.A(dbg_0/n_34_0), .ZN(dbg_0/dbg_mem_acc));
-  AND2_X1_LVT dbg_0/i_15_0 (.A1(dbg_0/mem_ctl[0]), .A2(dbg_0/n_9), .ZN(dbg_reg_wr));
+  AND2_X1_LVT dbg_0/i_15_0 (.A1(dbg_0/mem_ctl[0]), .A2(dbg_0/n_9), .ZN(
+      dbg_reg_wr));
   NOR2_X1_LVT dbg_0/i_35_0 (.A1(dbg_0/dbg_mem_acc), .A2(dbg_reg_wr), .ZN(
       dbg_0/n_35_0));
   NAND2_X1_LVT dbg_0/i_35_1 (.A1(dbg_0/mem_ctl[1]), .A2(dbg_0/dbg_rd_rdy), .ZN(
@@ -7417,8 +7422,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       dbg_0/dbg_uart_0/n_8_14), .C1(dbg_0/dbg_uart_0/n_8_23), .C2(
       dbg_0/dbg_uart_0/n_8_24), .ZN(dbg_0/dbg_uart_0/uart_state_nxt_reg[0]));
   DFFR_X1_LVT \dbg_0/dbg_uart_0/uart_state_reg[0] (.CK(dbg_0/dbg_uart_0/n_23), 
-      .D(dbg_0/dbg_uart_0/uart_state_nxt_reg[0]), .RN(dbg_0/dbg_uart_0/n_130), .Q(
-      dbg_0/dbg_uart_0/uart_state[0]), .QN());
+      .D(dbg_0/dbg_uart_0/uart_state_nxt_reg[0]), .RN(dbg_0/dbg_uart_0/n_130), 
+      .Q(dbg_0/dbg_uart_0/uart_state[0]), .QN());
   NOR3_X1_LVT dbg_0/dbg_uart_0/i_13_7 (.A1(dbg_0/dbg_uart_0/uart_state[0]), .A2(
       dbg_0/dbg_uart_0/uart_state[1]), .A3(dbg_0/dbg_uart_0/uart_state[2]), .ZN(
       dbg_0/dbg_uart_0/n_29));
@@ -8113,8 +8118,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       dbg_0/dbg_uart_0/n_3), .RN(dbg_0/dbg_uart_0/n_130), .Q(
       dbg_0/dbg_uart_0/xfer_buf[2]), .QN());
   AOI22_X1_LVT dbg_0/dbg_uart_0/i_4_2 (.A1(dbg_0/dbg_uart_0/n_4_0), .A2(
-      dbg_0/dbg_uart_0/xfer_buf[2]), .B1(dbg_0/dbg_rd_rdy), .B2(dbg_0/dbg_dout[0]), 
-      .ZN(dbg_0/dbg_uart_0/n_4_1));
+      dbg_0/dbg_uart_0/xfer_buf[2]), .B1(dbg_0/dbg_rd_rdy), .B2(
+      dbg_0/dbg_dout[0]), .ZN(dbg_0/dbg_uart_0/n_4_1));
   INV_X1_LVT dbg_0/dbg_uart_0/i_4_3 (.A(dbg_0/dbg_uart_0/n_4_1), .ZN(
       dbg_0/dbg_uart_0/n_2));
   DFFR_X1_LVT \dbg_0/dbg_uart_0/xfer_buf_reg[1] (.CK(dbg_0/dbg_uart_0/n_0), .D(
@@ -8133,8 +8138,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   CLKGATETST_X1_LVT dbg_0/dbg_uart_0/clk_gate_dbg_uart_txd_reg (.CK(dbg_clk), .E(
       dbg_0/dbg_uart_0/n_135), .SE(1'b0), .GCK(dbg_0/dbg_uart_0/n_134));
   DFFS_X1_LVT dbg_0/dbg_uart_0/dbg_uart_txd_reg (.CK(dbg_0/dbg_uart_0/n_134), .D(
-      dbg_0/dbg_uart_0/xfer_buf[0]), .SN(dbg_0/dbg_uart_0/n_130), .Q(dbg_uart_txd), 
-      .QN());
+      dbg_0/dbg_uart_0/xfer_buf[0]), .SN(dbg_0/dbg_uart_0/n_130), .Q(
+      dbg_uart_txd), .QN());
   AND2_X1_LVT dbg_0/dbg_uart_0/i_56_0 (.A1(dbg_0/dbg_uart_0/xfer_done), .A2(
       dbg_0/dbg_uart_0/n_26), .ZN(dbg_0/dbg_wr));
   CLKGATETST_X1_LVT dbg_0/clk_gate_cpu_ctl_reg (.CK(dbg_clk), .E(
@@ -8149,8 +8154,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   NAND3_X1_LVT dbg_0/i_55_1 (.A1(dbg_0/n_55_0), .A2(dbg_0/cpu_ctl_wr), .A3(
       dbg_0/dbg_din[0]), .ZN(dbg_0/n_55_1));
   INV_X1_LVT dbg_0/i_55_2 (.A(dbg_0/mem_state_nxt_reg[1]), .ZN(dbg_0/n_55_2));
-  NOR2_X1_LVT dbg_0/i_12_3 (.A1(dbg_0/mem_state[0]), .A2(dbg_0/mem_state[1]), .ZN(
-      dbg_0/n_8));
+  NOR2_X1_LVT dbg_0/i_12_3 (.A1(dbg_0/mem_state[0]), .A2(dbg_0/mem_state[1]), 
+      .ZN(dbg_0/n_8));
   NAND3_X1_LVT dbg_0/i_55_3 (.A1(dbg_0/n_55_2), .A2(dbg_0/mem_state_nxt_reg[0]), 
       .A3(dbg_0/n_8), .ZN(dbg_0/n_55_3));
   NAND3_X1_LVT dbg_0/i_55_4 (.A1(puc_pnd_set), .A2(dbg_0/cpu_ctl[2]), .A3(
@@ -10221,8 +10226,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[8] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_79), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[8]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_48 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_16), .B1(multiplier_0/n_34_24), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[23]));
+      multiplier_0/n_34_16), .B1(multiplier_0/n_34_24), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[23]));
   AOI22_X1_LVT multiplier_0/i_41_15 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[7]), .B1(multiplier_0/reshi_wr), .B2(per_din[7]), 
       .ZN(multiplier_0/n_41_8));
@@ -10231,8 +10236,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[7] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_78), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[7]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_46 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_15), .B1(multiplier_0/n_34_23), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[22]));
+      multiplier_0/n_34_15), .B1(multiplier_0/n_34_23), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[22]));
   AOI22_X1_LVT multiplier_0/i_41_13 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[6]), .B1(multiplier_0/reshi_wr), .B2(per_din[6]), 
       .ZN(multiplier_0/n_41_7));
@@ -10241,8 +10246,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[6] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_77), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[6]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_44 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_14), .B1(multiplier_0/n_34_22), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[21]));
+      multiplier_0/n_34_14), .B1(multiplier_0/n_34_22), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[21]));
   AOI22_X1_LVT multiplier_0/i_41_11 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[5]), .B1(multiplier_0/reshi_wr), .B2(per_din[5]), 
       .ZN(multiplier_0/n_41_6));
@@ -10251,8 +10256,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[5] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_76), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[5]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_42 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_13), .B1(multiplier_0/n_34_21), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[20]));
+      multiplier_0/n_34_13), .B1(multiplier_0/n_34_21), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[20]));
   AOI22_X1_LVT multiplier_0/i_41_9 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[4]), .B1(multiplier_0/reshi_wr), .B2(per_din[4]), 
       .ZN(multiplier_0/n_41_5));
@@ -10261,8 +10266,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[4] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_75), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[4]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_40 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_12), .B1(multiplier_0/n_34_20), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[19]));
+      multiplier_0/n_34_12), .B1(multiplier_0/n_34_20), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[19]));
   AOI22_X1_LVT multiplier_0/i_41_7 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[3]), .B1(multiplier_0/reshi_wr), .B2(per_din[3]), 
       .ZN(multiplier_0/n_41_4));
@@ -10270,8 +10275,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[3] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_74), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[3]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_38 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_11), .B1(multiplier_0/n_34_19), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[18]));
+      multiplier_0/n_34_11), .B1(multiplier_0/n_34_19), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[18]));
   AOI22_X1_LVT multiplier_0/i_41_5 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[2]), .B1(multiplier_0/reshi_wr), .B2(per_din[2]), 
       .ZN(multiplier_0/n_41_3));
@@ -10279,8 +10284,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   DFFR_X1_LVT \multiplier_0/reshi_reg[2] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_73), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[2]), .QN());
   OAI22_X1_LVT multiplier_0/i_34_36 (.A1(multiplier_0/n_34_8), .A2(
-      multiplier_0/n_34_10), .B1(multiplier_0/n_34_18), .B2(multiplier_0/cycle[0]), 
-      .ZN(multiplier_0/product_xp[17]));
+      multiplier_0/n_34_10), .B1(multiplier_0/n_34_18), .B2(
+      multiplier_0/cycle[0]), .ZN(multiplier_0/product_xp[17]));
   AOI22_X1_LVT multiplier_0/i_41_3 (.A1(multiplier_0/n_41_0), .A2(
       multiplier_0/reshi_nxt[1]), .B1(multiplier_0/reshi_wr), .B2(per_din[1]), 
       .ZN(multiplier_0/n_41_2));
@@ -10291,14 +10296,14 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       multiplier_0/n_34_9), .B1(multiplier_0/n_34_17), .B2(multiplier_0/cycle[0]), 
       .ZN(multiplier_0/product_xp[16]));
   AOI22_X1_LVT multiplier_0/i_41_1 (.A1(multiplier_0/n_41_0), .A2(
-      multiplier_0/reshi_nxt[0]), .B1(per_din[0]), .B2(multiplier_0/reshi_wr), .ZN(
-      multiplier_0/n_41_1));
+      multiplier_0/reshi_nxt[0]), .B1(per_din[0]), .B2(multiplier_0/reshi_wr), 
+      .ZN(multiplier_0/n_41_1));
   INV_X1_LVT multiplier_0/i_41_2 (.A(multiplier_0/n_41_1), .ZN(multiplier_0/n_71));
   DFFR_X1_LVT \multiplier_0/reshi_reg[0] (.CK(multiplier_0/n_70), .D(
       multiplier_0/n_71), .RN(multiplier_0/n_38), .Q(multiplier_0/reshi[0]), .QN());
   FA_X1_LVT multiplier_0/i_48_16 (.A(multiplier_0/product_xp[16]), .B(
-      multiplier_0/reshi[0]), .CI(multiplier_0/n_48_15), .CO(multiplier_0/n_48_16), 
-      .S(multiplier_0/reshi_nxt[0]));
+      multiplier_0/reshi[0]), .CI(multiplier_0/n_48_15), .CO(
+      multiplier_0/n_48_16), .S(multiplier_0/reshi_nxt[0]));
   FA_X1_LVT multiplier_0/i_48_17 (.A(multiplier_0/product_xp[17]), .B(
       multiplier_0/reshi[1]), .CI(multiplier_0/n_48_16), .CO(
       multiplier_0/n_48_17), .S(multiplier_0/reshi_nxt[1]));
@@ -10941,7 +10946,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       mem_backbone_0/ext_mem_din_sel[1]), .B1(mem_backbone_0/per_dout_val[0]), 
       .B2(mem_backbone_0/n_4), .C1(dmem_dout[0]), .C2(mem_backbone_0/n_3), .ZN(
       mem_backbone_0/n_16_0));
-  INV_X1_LVT mem_backbone_0/i_16_1 (.A(mem_backbone_0/n_16_0), .ZN(dbg_mem_din[0]));
+  INV_X1_LVT mem_backbone_0/i_16_1 (.A(mem_backbone_0/n_16_0), .ZN(
+      dbg_mem_din[0]));
   INV_X1_LVT mem_backbone_0/i_19_0 (.A(mem_backbone_0/ext_mem_addr[11]), .ZN(
       mem_backbone_0/n_19_0));
   INV_X1_LVT mem_backbone_0/i_19_1 (.A(mem_backbone_0/ext_mem_addr[12]), .ZN(
@@ -11615,9 +11621,9 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       eu_mb_wr[1]), .B1(mem_backbone_0/ext_per_en), .B2(
       mem_backbone_0/ext_mem_wr[1]), .ZN(mem_backbone_0/n_47_2));
   INV_X1_LVT mem_backbone_0/i_47_4 (.A(mem_backbone_0/n_47_2), .ZN(per_we[1]));
-  AOI22_X1_LVT mem_backbone_0/i_47_1 (.A1(mem_backbone_0/n_47_0), .A2(eu_mb_wr[0]), 
-      .B1(mem_backbone_0/ext_mem_wr[0]), .B2(mem_backbone_0/ext_per_en), .ZN(
-      mem_backbone_0/n_47_1));
+  AOI22_X1_LVT mem_backbone_0/i_47_1 (.A1(mem_backbone_0/n_47_0), .A2(
+      eu_mb_wr[0]), .B1(mem_backbone_0/ext_mem_wr[0]), .B2(
+      mem_backbone_0/ext_per_en), .ZN(mem_backbone_0/n_47_1));
   INV_X1_LVT mem_backbone_0/i_47_2 (.A(mem_backbone_0/n_47_1), .ZN(per_we[0]));
   OR2_X1_LVT mem_backbone_0/i_48_0 (.A1(mem_backbone_0/ext_per_en), .A2(
       mem_backbone_0/eu_per_en), .ZN(per_en));
@@ -12547,8 +12553,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       frontend_0/inst_dest_bin[3]), .ZN(frontend_0/n_94_11));
   NOR2_X1_LVT frontend_0/i_94_27 (.A1(frontend_0/n_94_5), .A2(frontend_0/n_94_11), 
       .ZN(frontend_0/n_127));
-  NAND2_X1_LVT frontend_0/i_95_5 (.A1(dbg_mem_addr[0]), .A2(dbg_mem_addr[1]), .ZN(
-      frontend_0/n_95_5));
+  NAND2_X1_LVT frontend_0/i_95_5 (.A1(dbg_mem_addr[0]), .A2(dbg_mem_addr[1]), 
+      .ZN(frontend_0/n_95_5));
   NAND2_X1_LVT frontend_0/i_95_11 (.A1(dbg_mem_addr[2]), .A2(dbg_mem_addr[3]), 
       .ZN(frontend_0/n_95_11));
   NOR2_X1_LVT frontend_0/i_95_27 (.A1(frontend_0/n_95_5), .A2(frontend_0/n_95_11), 
@@ -15029,8 +15035,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   NAND3_X1_LVT execution_unit_0/alu_0/i_5_3 (.A1(execution_unit_0/alu_0/n_5_1), 
       .A2(inst_bw), .A3(execution_unit_0/n_116), .ZN(
       execution_unit_0/alu_0/n_5_3));
-  NAND2_X1_LVT execution_unit_0/alu_0/i_5_4 (.A1(execution_unit_0/status[0]), .A2(
-      inst_so[0]), .ZN(execution_unit_0/alu_0/n_5_4));
+  NAND2_X1_LVT execution_unit_0/alu_0/i_5_4 (.A1(execution_unit_0/status[0]), 
+      .A2(inst_so[0]), .ZN(execution_unit_0/alu_0/n_5_4));
   NAND3_X1_LVT execution_unit_0/alu_0/i_5_5 (.A1(execution_unit_0/alu_0/n_5_2), 
       .A2(execution_unit_0/alu_0/n_5_3), .A3(execution_unit_0/alu_0/n_5_4), .ZN(
       execution_unit_0/alu_0/n_20));
@@ -15144,8 +15150,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
   OAI21_X1_LVT execution_unit_0/alu_0/i_7_120 (.A(inst_alu[5]), .B1(
       execution_unit_0/alu_0/X[0]), .B2(execution_unit_0/alu_0/n_4), .ZN(
       execution_unit_0/alu_0/n_7_108));
-  XOR2_X1_LVT execution_unit_0/alu_0/i_7_121 (.A(execution_unit_0/alu_0/X[0]), .B(
-      execution_unit_0/alu_0/n_4), .Z(execution_unit_0/alu_0/n_7_109));
+  XOR2_X1_LVT execution_unit_0/alu_0/i_7_121 (.A(execution_unit_0/alu_0/X[0]), 
+      .B(execution_unit_0/alu_0/n_4), .Z(execution_unit_0/alu_0/n_7_109));
   NAND2_X1_LVT execution_unit_0/alu_0/i_7_122 (.A1(
       execution_unit_0/alu_0/n_7_109), .A2(inst_alu[6]), .ZN(
       execution_unit_0/alu_0/n_7_110));
@@ -16999,7 +17005,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_105_16), .A2(
       execution_unit_0/register_file_0/n_105_17), .A3(
       execution_unit_0/register_file_0/n_105_18), .A4(
-      execution_unit_0/register_file_0/n_105_19), .ZN(execution_unit_0/reg_src[0]));
+      execution_unit_0/register_file_0/n_105_19), .ZN(
+      execution_unit_0/reg_src[0]));
   HA_X1_LVT execution_unit_0/register_file_0/i_22_0 (.A(
       execution_unit_0/register_file_0/n_25), .B(execution_unit_0/reg_src[0]), 
       .CO(execution_unit_0/register_file_0/n_22_0), .S(
@@ -20811,8 +20818,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_314), .A4(
       execution_unit_0/register_file_0/n_112_315), .ZN(
       execution_unit_0/register_file_0/n_112_316));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_332 (.A1(inst_dest[0]), .A2(
-      pc[15]), .ZN(execution_unit_0/register_file_0/n_112_317));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_332 (.A1(inst_dest[0]), 
+      .A2(pc[15]), .ZN(execution_unit_0/register_file_0/n_112_317));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_333 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[15]), .ZN(
       execution_unit_0/register_file_0/n_112_318));
@@ -20887,8 +20894,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_294), .A4(
       execution_unit_0/register_file_0/n_112_295), .ZN(
       execution_unit_0/register_file_0/n_112_296));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_311 (.A1(inst_dest[0]), .A2(
-      pc[14]), .ZN(execution_unit_0/register_file_0/n_112_297));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_311 (.A1(inst_dest[0]), 
+      .A2(pc[14]), .ZN(execution_unit_0/register_file_0/n_112_297));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_312 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[14]), .ZN(
       execution_unit_0/register_file_0/n_112_298));
@@ -20963,8 +20970,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_274), .A4(
       execution_unit_0/register_file_0/n_112_275), .ZN(
       execution_unit_0/register_file_0/n_112_276));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_290 (.A1(inst_dest[0]), .A2(
-      pc[13]), .ZN(execution_unit_0/register_file_0/n_112_277));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_290 (.A1(inst_dest[0]), 
+      .A2(pc[13]), .ZN(execution_unit_0/register_file_0/n_112_277));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_291 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[13]), .ZN(
       execution_unit_0/register_file_0/n_112_278));
@@ -21039,8 +21046,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_254), .A4(
       execution_unit_0/register_file_0/n_112_255), .ZN(
       execution_unit_0/register_file_0/n_112_256));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_269 (.A1(inst_dest[0]), .A2(
-      pc[12]), .ZN(execution_unit_0/register_file_0/n_112_257));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_269 (.A1(inst_dest[0]), 
+      .A2(pc[12]), .ZN(execution_unit_0/register_file_0/n_112_257));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_270 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[12]), .ZN(
       execution_unit_0/register_file_0/n_112_258));
@@ -21115,8 +21122,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_234), .A4(
       execution_unit_0/register_file_0/n_112_235), .ZN(
       execution_unit_0/register_file_0/n_112_236));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_248 (.A1(inst_dest[0]), .A2(
-      pc[11]), .ZN(execution_unit_0/register_file_0/n_112_237));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_248 (.A1(inst_dest[0]), 
+      .A2(pc[11]), .ZN(execution_unit_0/register_file_0/n_112_237));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_249 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[11]), .ZN(
       execution_unit_0/register_file_0/n_112_238));
@@ -21191,8 +21198,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_214), .A4(
       execution_unit_0/register_file_0/n_112_215), .ZN(
       execution_unit_0/register_file_0/n_112_216));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_227 (.A1(inst_dest[0]), .A2(
-      pc[10]), .ZN(execution_unit_0/register_file_0/n_112_217));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_227 (.A1(inst_dest[0]), 
+      .A2(pc[10]), .ZN(execution_unit_0/register_file_0/n_112_217));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_228 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[10]), .ZN(
       execution_unit_0/register_file_0/n_112_218));
@@ -21267,8 +21274,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_194), .A4(
       execution_unit_0/register_file_0/n_112_195), .ZN(
       execution_unit_0/register_file_0/n_112_196));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_206 (.A1(inst_dest[0]), .A2(
-      pc[9]), .ZN(execution_unit_0/register_file_0/n_112_197));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_206 (.A1(inst_dest[0]), 
+      .A2(pc[9]), .ZN(execution_unit_0/register_file_0/n_112_197));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_207 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[9]), .ZN(
       execution_unit_0/register_file_0/n_112_198));
@@ -21343,8 +21350,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_174), .A4(
       execution_unit_0/register_file_0/n_112_175), .ZN(
       execution_unit_0/register_file_0/n_112_176));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_185 (.A1(inst_dest[0]), .A2(
-      pc[8]), .ZN(execution_unit_0/register_file_0/n_112_177));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_185 (.A1(inst_dest[0]), 
+      .A2(pc[8]), .ZN(execution_unit_0/register_file_0/n_112_177));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_186 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[8]), .ZN(
       execution_unit_0/register_file_0/n_112_178));
@@ -21418,8 +21425,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_154), .A4(
       execution_unit_0/register_file_0/n_112_155), .ZN(
       execution_unit_0/register_file_0/n_112_156));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_164 (.A1(inst_dest[0]), .A2(
-      pc[7]), .ZN(execution_unit_0/register_file_0/n_112_157));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_164 (.A1(inst_dest[0]), 
+      .A2(pc[7]), .ZN(execution_unit_0/register_file_0/n_112_157));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_165 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[7]), .ZN(
       execution_unit_0/register_file_0/n_112_158));
@@ -21493,8 +21500,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_134), .A4(
       execution_unit_0/register_file_0/n_112_135), .ZN(
       execution_unit_0/register_file_0/n_112_136));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_143 (.A1(inst_dest[0]), .A2(
-      pc[6]), .ZN(execution_unit_0/register_file_0/n_112_137));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_143 (.A1(inst_dest[0]), 
+      .A2(pc[6]), .ZN(execution_unit_0/register_file_0/n_112_137));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_144 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[6]), .ZN(
       execution_unit_0/register_file_0/n_112_138));
@@ -21568,8 +21575,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_114), .A4(
       execution_unit_0/register_file_0/n_112_115), .ZN(
       execution_unit_0/register_file_0/n_112_116));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_122 (.A1(inst_dest[0]), .A2(
-      pc[5]), .ZN(execution_unit_0/register_file_0/n_112_117));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_122 (.A1(inst_dest[0]), 
+      .A2(pc[5]), .ZN(execution_unit_0/register_file_0/n_112_117));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_123 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[5]), .ZN(
       execution_unit_0/register_file_0/n_112_118));
@@ -21644,8 +21651,8 @@ module openMSP430(cpu_en,dbg_en,dbg_i2c_addr,dbg_i2c_broadcast,dbg_i2c_scl,
       execution_unit_0/register_file_0/n_112_94), .A4(
       execution_unit_0/register_file_0/n_112_95), .ZN(
       execution_unit_0/register_file_0/n_112_96));
-  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_101 (.A1(inst_dest[0]), .A2(
-      pc[4]), .ZN(execution_unit_0/register_file_0/n_112_97));
+  NAND2_X1_LVT execution_unit_0/register_file_0/i_112_101 (.A1(inst_dest[0]), 
+      .A2(pc[4]), .ZN(execution_unit_0/register_file_0/n_112_97));
   NAND2_X1_LVT execution_unit_0/register_file_0/i_112_102 (.A1(inst_dest[15]), 
       .A2(execution_unit_0/register_file_0/r15[4]), .ZN(
       execution_unit_0/register_file_0/n_112_98));

@@ -1,6 +1,7 @@
 \#*
 .#*
 .nfs*
+bin
 *~
 *.tidy
 *.old
