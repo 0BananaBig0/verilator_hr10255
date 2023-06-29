@@ -31,56 +31,58 @@ struct ConstValueAndXOrZ {
 // It can store C[1], 1'd1, 3'd4, ci and C[3:0].
 class MultipleBitsRefVar {
    public:
-      MultipleBitsRefVar() : _refVarName(""), _hasXOrZ(false), _width(0) { ; }
+      MultipleBitsRefVar(): _refVarName( "" ), _hasXOrZ( false ), _width( 0 ) {
+         ;
+      }
       ~MultipleBitsRefVar() { ; }
 
-      void refVarName(const std::string &name) { _refVarName = name; }
-      const std::string &refVarName() const { return _refVarName; }
+      void refVarName( const std::string& name ) { _refVarName = name; }
+      const std::string& refVarName() const { return _refVarName; }
 
-      void hasXOrZ(const bool &hasXOrZ) { _hasXOrZ = hasXOrZ; }
-      const bool &hasXOrZ() const { return _hasXOrZ; }
+      void hasXOrZ( const bool& hasXOrZ ) { _hasXOrZ = hasXOrZ; }
+      const bool& hasXOrZ() const { return _hasXOrZ; }
 
-      void width(const uint32_t &width) { _width = width; }
-      const uint32_t &width() const { return _width; }
+      void width( const uint32_t& width ) { _width = width; }
+      const uint32_t& width() const { return _width; }
 
-      RefVarRange &refVarRange() { return _refVarRange; }
+      RefVarRange& refVarRange() { return _refVarRange; }
 
-      std::vector<ConstValueAndXOrZ> &values() { return _values; }
+      std::vector< ConstValueAndXOrZ >& values() { return _values; }
 
    private:
-      std::string _refVarName; // Referenced Variable Name
-      bool _hasXOrZ;           // Are there x or z?
+      std::string _refVarName;   // Referenced Variable Name
+      bool _hasXOrZ;             // Are there x or z?
       uint32_t _width;
       // Only when _refVarName != "", it will be used.
       RefVarRange _refVarRange;
       // Only when _refVarName = "", it will be used.
-      std::vector<ConstValueAndXOrZ> _values;
+      std::vector< ConstValueAndXOrZ > _values;
 };
 // It can sotre .A(4'd1), .B({1'd0,3'd3,B[2:0],ci}) and so on.
 class MultipleBitsPortAssignment {
    public:
-      MultipleBitsPortAssignment() : _portDefName("") { ; }
+      MultipleBitsPortAssignment(): _portDefName( "" ) { ; }
       ~MultipleBitsPortAssignment() { ; }
 
-      void portDefName(const std::string &name) { _portDefName = name; }
-      const std::string &portDefName() const { return _portDefName; }
+      void portDefName( const std::string& name ) { _portDefName = name; }
+      const std::string& portDefName() const { return _portDefName; }
 
-      std::vector<MultipleBitsRefVar> &multipleBitsRefVars() {
+      std::vector< MultipleBitsRefVar >& multipleBitsRefVars() {
          return _multipleBitsRefVars;
       }
 
    private:
-      std::string _portDefName; // Port Defined Name
-      std::vector<MultipleBitsRefVar> _multipleBitsRefVars;
+      std::string _portDefName;   // Port Defined Name
+      std::vector< MultipleBitsRefVar > _multipleBitsRefVars;
 };
 
 // lValue = C[3:0], rValue = Ci[3:0] or {1'b0,ci,1'b1,Ci[1]} or ...
 class MultipleBitsAssignStatement {
    public:
-      MultipleBitsRefVar &lValue() { return _lValue; }
-      std::vector<MultipleBitsRefVar> &rValue() { return _rValue; }
+      MultipleBitsRefVar& lValue() { return _lValue; }
+      std::vector< MultipleBitsRefVar >& rValue() { return _rValue; }
 
    private:
-      MultipleBitsRefVar _lValue;              // left value (locator value)
-      std::vector<MultipleBitsRefVar> _rValue; // right value (read value)
+      MultipleBitsRefVar _lValue;                  // left value (locator value)
+      std::vector< MultipleBitsRefVar > _rValue;   // right value (read value)
 };

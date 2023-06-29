@@ -13,82 +13,84 @@
 #include <unordered_set>
 
 void VerilogNetlist::genHierNet(
-   std::unordered_set<std::string> emptyStdCellsInJson) {
-   HierNetlistVisitor hierNetlistVisitor(v3Global.rootp(), emptyStdCellsInJson);
-   _hierNetlist               = hierNetlistVisitor.hierNetlist();
+   std::unordered_set< std::string > emptyStdCellsInJson ) {
+   HierNetlistVisitor hierNetlistVisitor( v3Global.rootp(),
+                                          emptyStdCellsInJson );
+   _hierNetlist = hierNetlistVisitor.hierNetlist();
    _totalUsedNotEmptyStdCells = hierNetlistVisitor.totalUsedNotEmptyStdCells();
-   _totalUsedStdCells         = hierNetlistVisitor.totalUsedStdCells();
-   _totalUsedBlackBoxes       = hierNetlistVisitor.totalUsedBlackBoxes();
-   _moduleNameMapIndex        = hierNetlistVisitor.moduleNameMapIndex();
+   _totalUsedStdCells = hierNetlistVisitor.totalUsedStdCells();
+   _totalUsedBlackBoxes = hierNetlistVisitor.totalUsedBlackBoxes();
+   _moduleNameMapIndex = hierNetlistVisitor.moduleNameMapIndex();
 }
 
-void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
-                                  const uint32_t totalUsedStdCells,
-                                  const uint32_t totalUsedBlackBoxes,
-                                  const std::string &fileName,
-                                  const uint32_t maxHierLevel) {
-   std::ofstream ofs(fileName);
-   if(!ofs.is_open()) {
+void VerilogNetlist::printNetlist( const std::vector< Module >& hierNetlist,
+                                   const uint32_t totalUsedStdCells,
+                                   const uint32_t totalUsedBlackBoxes,
+                                   const std::string& fileName,
+                                   const uint32_t maxHierLevel ) {
+   std::ofstream ofs( fileName );
+   if( !ofs.is_open() ) {
       std::cout << "Error: cannot print " << fileName << "." << std::endl;
       return;
    }
    bool shouldHaveEscapeChar = false;
-   uint32_t totalCharsEveryLine;
-   auto getDecimalNumberLength = [](uint32_t number) {
+   uint32_t totalCharsEveryLine = 0;
+   auto getDecimalNumberLength = []( uint32_t number ) {
       uint32_t length = 0;
-      if(!(number ^ 0))
+      if( !( number ^ 0 ) )
          length++;
-      while(number) {
+      while( number ) {
          number /= 10;
          length++;
       }
       return length;
    };
-   auto hasVerilogKeyWordOrOperator = [](const string &name) {
+   auto hasVerilogKeyWordOrOperator = []( const string& name ) {
       // If there are too many kinds of keywords(more than 14) will be used in
       // port name, instance name, module name, variable name and so on, use map
       // to replace vector.
-      std::vector<std::string> verilogKeyWord  = {"run", "signed"};
-      std::vector<std::string> verilogOperator = {"[", ".", "]"};
-      for(auto vKW: verilogKeyWord) {
-         if(vKW.size() == name.size() && name.find(vKW) < name.size())
+      std::vector< std::string > verilogKeyWord = { "run", "signed" };
+      std::vector< std::string > verilogOperator = { "[", ".", "]" };
+      for( auto vKW: verilogKeyWord ) {
+         if( vKW.size() == name.size() && name.find( vKW ) < name.size() )
             return true;
       }
-      for(auto vO: verilogOperator) {
-         if(name.find(vO) < name.size())
+      for( auto vO: verilogOperator ) {
+         if( name.find( vO ) < name.size() )
             return true;
       }
       return false;
    };
    const uint32_t maxCharsEveryLine = 80;
-   uint32_t modIndex                = totalUsedStdCells;
+   uint32_t modIndex = totalUsedStdCells;
    // Every time print one module defintion
-   for(uint32_t modIndex = totalUsedStdCells; modIndex < hierNetlist.size();
-       modIndex++) {
-      const auto &curMod  = hierNetlist[modIndex];
+   for( uint32_t modIndex = totalUsedStdCells; modIndex < hierNetlist.size();
+        modIndex++ ) {
+      const auto& curMod = hierNetlist[modIndex];
       totalCharsEveryLine = 0;
-      if(curMod.level() <= maxHierLevel ||
-         modIndex < totalUsedBlackBoxes) { // Print one module declaration
+      if( curMod.level() <= maxHierLevel
+          || modIndex
+                < totalUsedBlackBoxes ) {   // Print one module declaration
          ofs << "module " << curMod.moduleDefName() << "(";
-         totalCharsEveryLine =
-            totalCharsEveryLine + 7 + curMod.moduleDefName().size() + 1;
-         for(const auto &port: curMod.ports()) {
-            if(port.portType != PortType::WIRE &&
-               port.portType != PortType::LAST_PORT_TYPE) {
-               if(totalCharsEveryLine + port.portDefName.size() >
-                  maxCharsEveryLine) {
+         totalCharsEveryLine
+            = totalCharsEveryLine + 7 + curMod.moduleDefName().size() + 1;
+         for( const auto& port: curMod.ports() ) {
+            if( port.portType != PortType::WIRE
+                && port.portType != PortType::LAST_PORT_TYPE ) {
+               if( totalCharsEveryLine + port.portDefName.size()
+                   > maxCharsEveryLine ) {
                   ofs << std::endl << "      ";
                   totalCharsEveryLine = 6;
                }
-               totalCharsEveryLine =
-                  port.portDefName.size() + totalCharsEveryLine;
-               if(hasVerilogKeyWordOrOperator(port.portDefName)) {
+               totalCharsEveryLine
+                  = port.portDefName.size() + totalCharsEveryLine;
+               if( hasVerilogKeyWordOrOperator( port.portDefName ) ) {
                   shouldHaveEscapeChar = true;
                   ofs << "\\";
                   totalCharsEveryLine++;
                }
                ofs << port.portDefName;
-               if(shouldHaveEscapeChar) {
+               if( shouldHaveEscapeChar ) {
                   ofs << " ";
                   totalCharsEveryLine++;
                   shouldHaveEscapeChar = false;
@@ -97,12 +99,12 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                totalCharsEveryLine++;
             }
          }
-         if(!curMod.ports().empty())
-            ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+         if( !curMod.ports().empty() )
+            ofs.seekp( ofs.tellp() - std::streampos( 1 ) );   // delete one ","
          ofs << ");" << std::endl;
          // Every time print one port definition
-         for(const auto &curPort: curMod.ports()) {
-            switch(curPort.portType) {
+         for( const auto& curPort: curMod.ports() ) {
+            switch( curPort.portType ) {
                case PortType::INPUT:
                   ofs << "   input ";
                   break;
@@ -121,15 +123,15 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                       << curPort.portDefName;
                   break;
             }
-            if(curPort.isVector) {
+            if( curPort.isVector ) {
                ofs << "[" << curPort.bitWidth - 1 << ":0]";
             }
-            if(hasVerilogKeyWordOrOperator(curPort.portDefName)) {
+            if( hasVerilogKeyWordOrOperator( curPort.portDefName ) ) {
                shouldHaveEscapeChar = true;
                ofs << "\\";
             }
             ofs << curPort.portDefName;
-            if(shouldHaveEscapeChar) {
+            if( shouldHaveEscapeChar ) {
                ofs << " ";
                shouldHaveEscapeChar = false;
             }
@@ -138,30 +140,30 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 
          // Every time print one assign statement, every assign statement only
          // has one bit data;
-         for(auto curAssign: curMod.assigns()) {
+         for( auto curAssign: curMod.assigns() ) {
             ofs << "  assign ";
-            if(hasVerilogKeyWordOrOperator(
-                  curMod.ports()[curAssign.lValue.refVarDefIndex]
-                     .portDefName)) {
+            if( hasVerilogKeyWordOrOperator(
+                   curMod.ports()[curAssign.lValue.refVarDefIndex]
+                      .portDefName ) ) {
                shouldHaveEscapeChar = true;
                ofs << "\\";
             }
             ofs << curMod.ports()[curAssign.lValue.refVarDefIndex].portDefName;
-            if(shouldHaveEscapeChar) {
+            if( shouldHaveEscapeChar ) {
                ofs << " ";
                shouldHaveEscapeChar = false;
             }
-            if(curAssign.lValue.refVarDefIndex != UINT32_MAX) {
-               if(curMod.ports()[curAssign.lValue.refVarDefIndex].isVector)
+            if( curAssign.lValue.refVarDefIndex != UINT32_MAX ) {
+               if( curMod.ports()[curAssign.lValue.refVarDefIndex].isVector )
                   ofs << "[" << curAssign.lValue.bitIndex << "]";
             } else {
                throw std::runtime_error(
-                  "Assign left value can not be const value or x or z.");
+                  "Assign left value can not be const value or x or z." );
             }
             ofs << " = ";
             // rValue is a consta value or x or z
-            if(curAssign.rValue.refVarDefIndex == UINT32_MAX) {
-               switch(curAssign.rValue.valueAndValueX) {
+            if( curAssign.rValue.refVarDefIndex == UINT32_MAX ) {
+               switch( curAssign.rValue.valueAndValueX ) {
                   case CHAR_ONE:
                      ofs << "1'b1";
                      break;
@@ -175,23 +177,23 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                      ofs << "1'bz";
                      break;
                   default:
-                     ofs << "1'be"; // e = error valuex
+                     ofs << "1'be";   // e = error valuex
                      break;
                }
             } else {
-               if(hasVerilogKeyWordOrOperator(
-                     curMod.ports()[curAssign.rValue.refVarDefIndex]
-                        .portDefName)) {
+               if( hasVerilogKeyWordOrOperator(
+                      curMod.ports()[curAssign.rValue.refVarDefIndex]
+                         .portDefName ) ) {
                   shouldHaveEscapeChar = true;
                   ofs << "\\";
                }
                ofs << curMod.ports()[curAssign.rValue.refVarDefIndex]
                          .portDefName;
-               if(shouldHaveEscapeChar) {
+               if( shouldHaveEscapeChar ) {
                   ofs << " ";
                   shouldHaveEscapeChar = false;
                }
-               if(curMod.ports()[curAssign.rValue.refVarDefIndex].isVector)
+               if( curMod.ports()[curAssign.rValue.refVarDefIndex].isVector )
                   ofs << "[" << curAssign.rValue.bitIndex << "]";
             }
             ofs << ";" << std::endl;
@@ -199,41 +201,41 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 
          // Every time print one submodule instance
          uint32_t subModInsIndex = 0;
-         for(const auto &curSubModInsName: curMod.subModuleInstanceNames()) {
+         for( const auto& curSubModInsName: curMod.subModuleInstanceNames() ) {
             totalCharsEveryLine = 0;
             ofs << "  "
                 << hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
                       .moduleDefName()
                 << " ";
-            if(hasVerilogKeyWordOrOperator(curSubModInsName)) {
+            if( hasVerilogKeyWordOrOperator( curSubModInsName ) ) {
                ofs << "\\";
                totalCharsEveryLine++;
             }
             ofs << curSubModInsName << " "
                 << "(";
-            totalCharsEveryLine =
-               totalCharsEveryLine + 5 +
-               hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
-                  .moduleDefName()
-                  .size() +
-               curSubModInsName.size();
+            totalCharsEveryLine
+               = totalCharsEveryLine + 5
+               + hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
+                    .moduleDefName()
+                    .size()
+               + curSubModInsName.size();
             // Every time print one port assignment
             uint32_t portDefIndex = 0;
-            for(const auto &curPortAssignment:
-                curMod.portAssignmentsOfSubModInss()[subModInsIndex]) {
-               if(totalCharsEveryLine + 1 +
-                     hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
-                        .ports()[portDefIndex]
-                        .portDefName.size() >
-                  maxCharsEveryLine) {
+            for( const auto& curPortAssignment:
+                 curMod.portAssignmentsOfSubModInss()[subModInsIndex] ) {
+               if( totalCharsEveryLine + 1
+                      + hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
+                           .ports()[portDefIndex]
+                           .portDefName.size()
+                   > maxCharsEveryLine ) {
                   ofs << std::endl << "      ";
                   totalCharsEveryLine = 6;
                }
                ofs << ".";
-               if(hasVerilogKeyWordOrOperator(
-                     hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
-                        .ports()[portDefIndex]
-                        .portDefName)) {
+               if( hasVerilogKeyWordOrOperator(
+                      hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
+                         .ports()[portDefIndex]
+                         .portDefName ) ) {
                   shouldHaveEscapeChar = true;
                   ofs << "\\";
                   totalCharsEveryLine++;
@@ -241,30 +243,31 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                ofs << hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
                          .ports()[portDefIndex]
                          .portDefName;
-               if(shouldHaveEscapeChar) {
+               if( shouldHaveEscapeChar ) {
                   ofs << " ";
                   totalCharsEveryLine++;
                   shouldHaveEscapeChar = false;
                }
                ofs << "(";
-               totalCharsEveryLine =
-                  totalCharsEveryLine + 2 +
-                  hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
-                     .ports()[portDefIndex]
-                     .portDefName.size();
-               if(curPortAssignment.size() > 1) {
+               totalCharsEveryLine
+                  = totalCharsEveryLine + 2
+                  + hierNetlist[curMod.subModuleDefIndexs()[subModInsIndex]]
+                       .ports()[portDefIndex]
+                       .portDefName.size();
+               if( curPortAssignment.size() > 1 ) {
                   ofs << "{";
                   totalCharsEveryLine++;
                }
-               for(uint32_t indexOfRefVars = curPortAssignment.size();
-                   indexOfRefVars > 0; indexOfRefVars--) {
-                  auto &refVar = curPortAssignment[indexOfRefVars - 1];
-                  if(refVar.refVarDefIndex == UINT32_MAX) {
-                     if(totalCharsEveryLine + 4 > maxCharsEveryLine) {
+               for( uint32_t indexOfRefVars = curPortAssignment.size();
+                    indexOfRefVars > 0;
+                    indexOfRefVars-- ) {
+                  auto& refVar = curPortAssignment[indexOfRefVars - 1];
+                  if( refVar.refVarDefIndex == UINT32_MAX ) {
+                     if( totalCharsEveryLine + 4 > maxCharsEveryLine ) {
                         ofs << std::endl << "      ";
                         totalCharsEveryLine = 6;
                      }
-                     switch(refVar.valueAndValueX) {
+                     switch( refVar.valueAndValueX ) {
                         case CHAR_ONE:
                            ofs << "1'b1";
                            break;
@@ -278,59 +281,61 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                            ofs << "1'bz";
                            break;
                         default:
-                           ofs << "1'be"; // e = error valuex
+                           ofs << "1'be";   // e = error valuex
                            break;
                      }
                      totalCharsEveryLine = totalCharsEveryLine + 4;
                   } else {
-                     if(curMod.ports()[refVar.refVarDefIndex].isVector) {
-                        if(totalCharsEveryLine +
-                              curMod.ports()[refVar.refVarDefIndex]
-                                 .portDefName.size() +
-                              2 + getDecimalNumberLength(refVar.bitIndex) >
-                           maxCharsEveryLine) {
+                     if( curMod.ports()[refVar.refVarDefIndex].isVector ) {
+                        if( totalCharsEveryLine
+                               + curMod.ports()[refVar.refVarDefIndex]
+                                    .portDefName.size()
+                               + 2 + getDecimalNumberLength( refVar.bitIndex )
+                            > maxCharsEveryLine ) {
                            ofs << std::endl << "      ";
                            totalCharsEveryLine = 6;
                         }
                      } else {
-                        if(totalCharsEveryLine +
-                              curMod.ports()[refVar.refVarDefIndex]
-                                 .portDefName.size() >
-                           maxCharsEveryLine) {
+                        if( totalCharsEveryLine
+                               + curMod.ports()[refVar.refVarDefIndex]
+                                    .portDefName.size()
+                            > maxCharsEveryLine ) {
                            ofs << std::endl << "      ";
                            totalCharsEveryLine = 6;
                         }
                      }
-                     if(hasVerilogKeyWordOrOperator(
-                           curMod.ports()[refVar.refVarDefIndex].portDefName)) {
+                     if( hasVerilogKeyWordOrOperator(
+                            curMod.ports()[refVar.refVarDefIndex]
+                               .portDefName ) ) {
                         shouldHaveEscapeChar = true;
                         ofs << "\\";
                         totalCharsEveryLine++;
                      }
                      ofs << curMod.ports()[refVar.refVarDefIndex].portDefName;
-                     totalCharsEveryLine = totalCharsEveryLine +
-                                           curMod.ports()[refVar.refVarDefIndex]
+                     totalCharsEveryLine = totalCharsEveryLine
+                                         + curMod.ports()[refVar.refVarDefIndex]
                                               .portDefName.size();
-                     if(shouldHaveEscapeChar) {
+                     if( shouldHaveEscapeChar ) {
                         ofs << " ";
                         totalCharsEveryLine++;
                         shouldHaveEscapeChar = false;
                      }
-                     if(curMod.ports()[refVar.refVarDefIndex].isVector) {
+                     if( curMod.ports()[refVar.refVarDefIndex].isVector ) {
                         ofs << "[" << refVar.bitIndex << "]";
-                        totalCharsEveryLine =
-                           totalCharsEveryLine + 2 +
-                           getDecimalNumberLength(refVar.bitIndex);
+                        totalCharsEveryLine
+                           = totalCharsEveryLine + 2
+                           + getDecimalNumberLength( refVar.bitIndex );
                      }
                   }
                   ofs << ",";
                   totalCharsEveryLine++;
                }
-               if(curPortAssignment.size() >= 1) {
-                  ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
+               if( curPortAssignment.size() >= 1 ) {
+                  ofs.seekp( ofs.tellp()
+                             - std::streampos( 1 ) );   // delete one ","
                   totalCharsEveryLine--;
                }
-               if(curPortAssignment.size() > 1) {
+               if( curPortAssignment.size() > 1 ) {
                   ofs << "}";
                   totalCharsEveryLine++;
                }
@@ -339,8 +344,8 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
                totalCharsEveryLine = totalCharsEveryLine + 3;
                portDefIndex++;
             }
-            ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one ","
-            ofs.seekp(ofs.tellp() - std::streampos(1)); // delete one " "
+            ofs.seekp( ofs.tellp() - std::streampos( 1 ) );   // delete one ","
+            ofs.seekp( ofs.tellp() - std::streampos( 1 ) );   // delete one " "
             ofs << ");";
             ofs << std::endl;
             subModInsIndex++;
@@ -352,100 +357,102 @@ void VerilogNetlist::printNetlist(const std::vector<Module> &hierNetlist,
 }
 
 // Use case2 as a example to demonstrate.
-void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
-                                    std::vector<Module> &flatNetlist,
-                                    const uint32_t totalUsedBlackBoxes) {
-   flatNetlist                                = hierNetlist;
+void VerilogNetlist::flattenHierNet( const std::vector< Module >& hierNetlist,
+                                     std::vector< Module >& flatNetlist,
+                                     const uint32_t totalUsedBlackBoxes ) {
+   flatNetlist = hierNetlist;
    // Use to not flatten such module which only have black boxes or assign
    // statement; Sometimes, totalUsedBlackBoxes = 0.
-   auto &theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level();
-   for(uint32_t modDefIndex = hierNetlist.size() - 1;
-       modDefIndex >= totalUsedBlackBoxes && modDefIndex != UINT32_MAX;
-       modDefIndex--) {
+   auto& theMostDepthLevelExcludingBlackBoxes = hierNetlist.back().level();
+   for( uint32_t modDefIndex = hierNetlist.size() - 1;
+        modDefIndex >= totalUsedBlackBoxes && modDefIndex != UINT32_MAX;
+        modDefIndex-- ) {
       // full_adder definition
-      const auto &curModH = hierNetlist[modDefIndex];
-      auto &curModF       = flatNetlist[modDefIndex];
-      if(curModH.level() < theMostDepthLevelExcludingBlackBoxes) {
+      const auto& curModH = hierNetlist[modDefIndex];
+      auto& curModF = flatNetlist[modDefIndex];
+      if( curModH.level() < theMostDepthLevelExcludingBlackBoxes ) {
          curModF.subModuleInstanceNames().clear();
          curModF.subModuleDefIndexs().clear();
          curModF.portAssignmentsOfSubModInss().clear();
          uint32_t subModInsIndex = 0;
          // full_adder_co U1 (.co(co), .a(a), .b(b), .ci(ci));
-         for(auto &subModDefIndex: curModH.subModuleDefIndexs()) {
+         for( auto& subModDefIndex: curModH.subModuleDefIndexs() ) {
             // subModule is a stdCell or an other black box
-            if(subModDefIndex < totalUsedBlackBoxes) {
+            if( subModDefIndex < totalUsedBlackBoxes ) {
                curModF.subModuleInstanceNames().push_back(
-                  curModH.subModuleInstanceNames()[subModInsIndex]);
-               curModF.subModuleDefIndexs().push_back(subModDefIndex);
+                  curModH.subModuleInstanceNames()[subModInsIndex] );
+               curModF.subModuleDefIndexs().push_back( subModDefIndex );
                curModF.portAssignmentsOfSubModInss().push_back(
-                  curModH.portAssignmentsOfSubModInss()[subModInsIndex]);
-            } else { // U1, subModule is not a stdCell nor an other black box
-               const std::string &subModInsName =
-                  curModH.subModuleInstanceNames()[subModInsIndex];
+                  curModH.portAssignmentsOfSubModInss()[subModInsIndex] );
+            } else {   // U1, subModule is not a stdCell nor an other black box
+               const std::string& subModInsName
+                  = curModH.subModuleInstanceNames()[subModInsIndex];
                // (.co(co), .a(a), .b(b), .ci(ci));
-               const auto &portAssignmentsOfSubModIns =
-                  curModH.portAssignmentsOfSubModInss()[subModInsIndex];
+               const auto& portAssignmentsOfSubModIns
+                  = curModH.portAssignmentsOfSubModInss()[subModInsIndex];
                // full_adder_co definition
-               auto &curSubMod           = flatNetlist[subModDefIndex];
-               uint32_t curModFPortsNum  = curModF.ports().size();
+               auto& curSubMod = flatNetlist[subModDefIndex];
+               uint32_t curModFPortsNum = curModF.ports().size();
                uint32_t curSubModWirePos = curSubMod.totalPortsExcludingWires();
-               uint32_t newSize =
-                  curModFPortsNum + curSubMod.ports().size() - curSubModWirePos;
-               curModF.ports().resize(newSize);
-               curModF.portNameMapPortDefIndex().reserve(newSize);
+               uint32_t newSize = curModFPortsNum + curSubMod.ports().size()
+                                - curSubModWirePos;
+               curModF.ports().resize( newSize );
+               curModF.portNameMapPortDefIndex().reserve( newSize );
                // full_adder_co wires,n_0_0 become U1_n_0_0
-               for(uint32_t i = curModFPortsNum; i < curModF.ports().size();
-                   i++) {
+               for( uint32_t i = curModFPortsNum; i < curModF.ports().size();
+                    i++ ) {
                   curModF.ports()[i] = curSubMod.ports()[curSubModWirePos];
-                  curModF.ports()[i].portDefName.insert(0, "/");
-                  curModF.ports()[i].portDefName.insert(0, subModInsName);
-                  curModF.portNameMapPortDefIndex()[curModF.ports()[i]
-                                                       .portDefName] = i;
+                  curModF.ports()[i].portDefName.insert( 0, "/" );
+                  curModF.ports()[i].portDefName.insert( 0, subModInsName );
+                  curModF
+                     .portNameMapPortDefIndex()[curModF.ports()[i].portDefName]
+                     = i;
                   curSubModWirePos++;
                }
                curModF.subModuleDefIndexs().insert(
                   curModF.subModuleDefIndexs().end(),
                   curSubMod.subModuleDefIndexs().begin(),
-                  curSubMod.subModuleDefIndexs().end());
+                  curSubMod.subModuleDefIndexs().end() );
                uint32_t blackBoxInsNameIndex = 0;
-               uint32_t portAssignmentsIndex =
-                  curModF.portAssignmentsOfSubModInss().size();
+               uint32_t portAssignmentsIndex
+                  = curModF.portAssignmentsOfSubModInss().size();
                curModF.portAssignmentsOfSubModInss().resize(
-                  portAssignmentsIndex +
-                  curSubMod.portAssignmentsOfSubModInss().size());
+                  portAssignmentsIndex
+                  + curSubMod.portAssignmentsOfSubModInss().size() );
                // INV_X1_LVT i_0_0 (.A(a), .ZN(n_0_0));
-               for(auto curBlackBoxIns:
-                   curSubMod.portAssignmentsOfSubModInss()) {
+               for( auto curBlackBoxIns:
+                    curSubMod.portAssignmentsOfSubModInss() ) {
                   // blackBoxInsName i_0_0 becomes U1_i_0_0
                   curModF.subModuleInstanceNames().push_back(
-                     curSubMod.subModuleInstanceNames()[blackBoxInsNameIndex]);
+                     curSubMod.subModuleInstanceNames()[blackBoxInsNameIndex] );
                   blackBoxInsNameIndex++;
-                  curModF.subModuleInstanceNames().back().insert(0, "/");
-                  curModF.subModuleInstanceNames().back().insert(0,
-                                                                 subModInsName);
+                  curModF.subModuleInstanceNames().back().insert( 0, "/" );
+                  curModF.subModuleInstanceNames().back().insert(
+                     0, subModInsName );
                   // .A(a)
-                  for(auto &portAssignmentOfBlackBox: curBlackBoxIns) {
-                     for(auto &curRefVar: portAssignmentOfBlackBox) {
+                  for( auto& portAssignmentOfBlackBox: curBlackBoxIns ) {
+                     for( auto& curRefVar: portAssignmentOfBlackBox ) {
                         // Now, curRefVar is a wire
-                        if(curRefVar.refVarDefIndex >=
-                              curSubMod.totalPortsExcludingWires() &&
-                           curRefVar.refVarDefIndex < UINT32_MAX) {
-                           curRefVar.refVarDefIndex =
-                              curRefVar.refVarDefIndex -
-                              curSubMod.totalPortsExcludingWires() +
-                              curModFPortsNum;
+                        if( curRefVar.refVarDefIndex
+                               >= curSubMod.totalPortsExcludingWires()
+                            && curRefVar.refVarDefIndex < UINT32_MAX ) {
+                           curRefVar.refVarDefIndex
+                              = curRefVar.refVarDefIndex
+                              - curSubMod.totalPortsExcludingWires()
+                              + curModFPortsNum;
                         }
                         // Now,curRefVar is a input, output or inout
-                        else if(curRefVar.refVarDefIndex <
-                                curSubMod
-                                   .totalPortsExcludingWires()) { // If the port
+                        else if(
+                           curRefVar.refVarDefIndex
+                           < curSubMod
+                                .totalPortsExcludingWires() ) {   // If the port
                                                                   // of
                            // full_adder_co
                            // instance is
                            // empty.
-                           if(portAssignmentsOfSubModIns[curRefVar
-                                                            .refVarDefIndex]
-                                 .empty()) {
+                           if( portAssignmentsOfSubModIns[curRefVar
+                                                             .refVarDefIndex]
+                                  .empty() ) {
                               portAssignmentOfBlackBox.clear();
                               break;
                            } else
@@ -456,30 +463,31 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                         // else{}
                      }
                   }
-                  curModF.portAssignmentsOfSubModInss()[portAssignmentsIndex] =
-                     curBlackBoxIns;
+                  curModF.portAssignmentsOfSubModInss()[portAssignmentsIndex]
+                     = curBlackBoxIns;
                   portAssignmentsIndex++;
                }
                uint32_t assignsIndex = curModF.assigns().size();
-               uint32_t totalAssigns =
-                  assignsIndex + curSubMod.assigns().size();
-               curModF.assigns().resize(totalAssigns);
-               for(auto curAssign: curSubMod.assigns()) {
+               uint32_t totalAssigns
+                  = assignsIndex + curSubMod.assigns().size();
+               curModF.assigns().resize( totalAssigns );
+               for( auto curAssign: curSubMod.assigns() ) {
                   bool _curAssignConnectToEmptySignal = false;
                   // lValue is a wire
-                  if(curAssign.lValue.refVarDefIndex >=
-                        curSubMod.totalPortsExcludingWires() &&
-                     curAssign.lValue.refVarDefIndex < UINT32_MAX) {
-                     curAssign.lValue.refVarDefIndex =
-                        curAssign.lValue.refVarDefIndex -
-                        curSubMod.totalPortsExcludingWires() + curModFPortsNum;
+                  if( curAssign.lValue.refVarDefIndex
+                         >= curSubMod.totalPortsExcludingWires()
+                      && curAssign.lValue.refVarDefIndex < UINT32_MAX ) {
+                     curAssign.lValue.refVarDefIndex
+                        = curAssign.lValue.refVarDefIndex
+                        - curSubMod.totalPortsExcludingWires()
+                        + curModFPortsNum;
                   }
                   // lValue is a inout or output
-                  else if(curAssign.lValue.refVarDefIndex <
-                          curSubMod.totalPortsExcludingWires()) {
-                     if(portAssignmentsOfSubModIns[curAssign.lValue
-                                                      .refVarDefIndex]
-                           .empty())
+                  else if( curAssign.lValue.refVarDefIndex
+                           < curSubMod.totalPortsExcludingWires() ) {
+                     if( portAssignmentsOfSubModIns[curAssign.lValue
+                                                       .refVarDefIndex]
+                            .empty() )
                         _curAssignConnectToEmptySignal = true;
                      else
                         curAssign.lValue = portAssignmentsOfSubModIns
@@ -487,26 +495,27 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                            [curAssign.lValue.bitIndex];
                   }
                   // rValue is a wire
-                  if(curAssign.rValue.refVarDefIndex >=
-                        curSubMod.totalPortsExcludingWires() &&
-                     curAssign.rValue.refVarDefIndex < UINT32_MAX) {
-                     curAssign.rValue.refVarDefIndex =
-                        curAssign.rValue.refVarDefIndex -
-                        curSubMod.totalPortsExcludingWires() + curModFPortsNum;
+                  if( curAssign.rValue.refVarDefIndex
+                         >= curSubMod.totalPortsExcludingWires()
+                      && curAssign.rValue.refVarDefIndex < UINT32_MAX ) {
+                     curAssign.rValue.refVarDefIndex
+                        = curAssign.rValue.refVarDefIndex
+                        - curSubMod.totalPortsExcludingWires()
+                        + curModFPortsNum;
                   }
                   // rValue is a input, inout or output
-                  else if(curAssign.rValue.refVarDefIndex <
-                          curSubMod.totalPortsExcludingWires()) {
-                     if(portAssignmentsOfSubModIns[curAssign.rValue
-                                                      .refVarDefIndex]
-                           .empty())
+                  else if( curAssign.rValue.refVarDefIndex
+                           < curSubMod.totalPortsExcludingWires() ) {
+                     if( portAssignmentsOfSubModIns[curAssign.rValue
+                                                       .refVarDefIndex]
+                            .empty() )
                         _curAssignConnectToEmptySignal = true;
                      else
                         curAssign.rValue = portAssignmentsOfSubModIns
                            [curAssign.rValue.refVarDefIndex]
                            [curAssign.rValue.bitIndex];
                   }
-                  if(_curAssignConnectToEmptySignal) {
+                  if( _curAssignConnectToEmptySignal ) {
                      _curAssignConnectToEmptySignal = false;
                      totalAssigns--;
                   } else {
@@ -514,7 +523,7 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
                      assignsIndex++;
                   }
                }
-               curModF.assigns().resize(totalAssigns);
+               curModF.assigns().resize( totalAssigns );
             }
             subModInsIndex++;
          }
@@ -523,30 +532,30 @@ void VerilogNetlist::flattenHierNet(const std::vector<Module> &hierNetlist,
 }
 
 // make all empty black boxes store at the end of vector.
-void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex) {
-   auto &topMod                = _flatNetlist[topModIndex];
-   auto &subModDefIndexs       = topMod.subModuleDefIndexs();
-   auto &subModInsNames        = topMod.subModuleInstanceNames();
-   auto &subModPortAssignments = topMod.portAssignmentsOfSubModInss();
-   _totalUsedNotEmptyInsInTop  = subModDefIndexs.size();
-   for(uint32_t curInsInd = 0; curInsInd < _totalUsedNotEmptyInsInTop;
-       curInsInd++) {
-      if(subModDefIndexs[curInsInd] >= _totalUsedNotEmptyStdCells) {
+void VerilogNetlist::sortInsOrderInTop( const uint32_t topModIndex ) {
+   auto& topMod = _flatNetlist[topModIndex];
+   auto& subModDefIndexs = topMod.subModuleDefIndexs();
+   auto& subModInsNames = topMod.subModuleInstanceNames();
+   auto& subModPortAssignments = topMod.portAssignmentsOfSubModInss();
+   _totalUsedNotEmptyInsInTop = subModDefIndexs.size();
+   for( uint32_t curInsInd = 0; curInsInd < _totalUsedNotEmptyInsInTop;
+        curInsInd++ ) {
+      if( subModDefIndexs[curInsInd] >= _totalUsedNotEmptyStdCells ) {
          _totalUsedNotEmptyInsInTop--;
-         while(subModDefIndexs[_totalUsedNotEmptyInsInTop] >=
-               _totalUsedNotEmptyStdCells) {
-            if(_totalUsedNotEmptyInsInTop > curInsInd)
+         while( subModDefIndexs[_totalUsedNotEmptyInsInTop]
+                >= _totalUsedNotEmptyStdCells ) {
+            if( _totalUsedNotEmptyInsInTop > curInsInd )
                _totalUsedNotEmptyInsInTop--;
             else
                return;
          }
-         std::swap(subModDefIndexs[curInsInd],
-                   subModDefIndexs[_totalUsedNotEmptyInsInTop]);
-         std::swap(subModInsNames[curInsInd],
-                   subModInsNames[_totalUsedNotEmptyInsInTop]);
-         std::swap(subModPortAssignments[curInsInd],
-                   subModPortAssignments[_totalUsedNotEmptyInsInTop]);
-      } else if(subModDefIndexs[curInsInd] >= _totalUsedBlackBoxes)
+         std::swap( subModDefIndexs[curInsInd],
+                    subModDefIndexs[_totalUsedNotEmptyInsInTop] );
+         std::swap( subModInsNames[curInsInd],
+                    subModInsNames[_totalUsedNotEmptyInsInTop] );
+         std::swap( subModPortAssignments[curInsInd],
+                    subModPortAssignments[_totalUsedNotEmptyInsInTop] );
+      } else if( subModDefIndexs[curInsInd] >= _totalUsedBlackBoxes )
          std::cout << "After flattening, no instanced module index will bigger "
                       "than _totalUsedBlackBoxes. You should check the module "
                    << _flatNetlist[subModDefIndexs[curInsInd]].moduleDefName()
@@ -557,46 +566,50 @@ void VerilogNetlist::sortInsOrderInTop(const uint32_t topModIndex) {
 
 // make all constant assignments( assign a = 1'b1 or 1'b0 or 1'bz or 1'bx)
 // store at the end of vector.
-void VerilogNetlist::sortAssignOrderInTop(const uint32_t moduleIndex) {
-   auto &assigns                   = _flatNetlist[moduleIndex].assigns();
+void VerilogNetlist::sortAssignOrderInTop( const uint32_t moduleIndex ) {
+   auto& assigns = _flatNetlist[moduleIndex].assigns();
    _totalNotTieConstantAssignInTop = assigns.size();
-   for(uint32_t curAssignIndex = 0;
-       curAssignIndex < _totalNotTieConstantAssignInTop; curAssignIndex++) {
-      auto &curAssign = assigns[curAssignIndex];
-      if(curAssign.rValue.refVarDefIndex ^ UINT32_MAX)
+   for( uint32_t curAssignIndex = 0;
+        curAssignIndex < _totalNotTieConstantAssignInTop;
+        curAssignIndex++ ) {
+      auto& curAssign = assigns[curAssignIndex];
+      if( curAssign.rValue.refVarDefIndex ^ UINT32_MAX )
          continue;
       _totalNotTieConstantAssignInTop--;
-      while(!(assigns[_totalNotTieConstantAssignInTop].rValue.refVarDefIndex ^
-              UINT32_MAX)) {
-         if(_totalNotTieConstantAssignInTop > curAssignIndex)
+      while( !( assigns[_totalNotTieConstantAssignInTop].rValue.refVarDefIndex
+                ^ UINT32_MAX ) ) {
+         if( _totalNotTieConstantAssignInTop > curAssignIndex )
             _totalNotTieConstantAssignInTop--;
          else
             return;
       }
-      std::swap(curAssign, assigns[_totalNotTieConstantAssignInTop]);
+      std::swap( curAssign, assigns[_totalNotTieConstantAssignInTop] );
    }
 }
 
-void VerilogNetlist::computePortsPositionInOneMod(const uint32_t moduleIndex) {
-   auto &curMod = _flatNetlist[moduleIndex];
+void VerilogNetlist::computePortsPositionInOneMod(
+   const uint32_t moduleIndex ) {
+   auto& curMod = _flatNetlist[moduleIndex];
    curMod.portPositionInStdCellNetlists().resize(
-      curMod.totalPortsExcludingWires(), 0);
+      curMod.totalPortsExcludingWires(), 0 );
    uint32_t i = 0;
-   while(i < (curMod.totalInoutsAndInputs() - 1) &&
-         curMod.totalInoutsAndInputs() > 0) {
-      curMod.portPositionInStdCellNetlists()[i + 1] =
-         curMod.ports()[i].bitWidth + curMod.portPositionInStdCellNetlists()[i];
+   while( i < ( curMod.totalInoutsAndInputs() - 1 )
+          && curMod.totalInoutsAndInputs() > 0 ) {
+      curMod.portPositionInStdCellNetlists()[i + 1]
+         = curMod.ports()[i].bitWidth
+         + curMod.portPositionInStdCellNetlists()[i];
       i++;
    }
-   if(curMod.totalInoutsAndInputs() > 0)
+   if( curMod.totalInoutsAndInputs() > 0 )
       i++;
-   if(curMod.totalInouts() > 0)
-      curMod.portPositionInStdCellNetlists()[i] =
-         curMod.portPositionInStdCellNetlists()[curMod.totalInouts()];
-   while(i < (curMod.totalPortsExcludingWires() - 1) &&
-         curMod.totalPortsExcludingWires() > 0) {
-      curMod.portPositionInStdCellNetlists()[i + 1] =
-         curMod.ports()[i].bitWidth + curMod.portPositionInStdCellNetlists()[i];
+   if( curMod.totalInouts() > 0 )
+      curMod.portPositionInStdCellNetlists()[i]
+         = curMod.portPositionInStdCellNetlists()[curMod.totalInouts()];
+   while( i < ( curMod.totalPortsExcludingWires() - 1 )
+          && curMod.totalPortsExcludingWires() > 0 ) {
+      curMod.portPositionInStdCellNetlists()[i + 1]
+         = curMod.ports()[i].bitWidth
+         + curMod.portPositionInStdCellNetlists()[i];
       i++;
    }
 }

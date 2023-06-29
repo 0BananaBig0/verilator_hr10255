@@ -27,21 +27,23 @@ class VerilogNetlist final {
       // notTieConstantAssign : all assignments whose rvalue is not a constant,
       // for example, assing a = b, not a = 1'b1 or 1'b0 or 1'bz or 1'bx;
       uint32_t _totalNotTieConstantAssignInTop;
-      std::vector<Module> _hierNetlist;
-      std::vector<Module> _flatNetlist;
+      std::vector< Module > _hierNetlist;
+      std::vector< Module > _flatNetlist;
       // given a moduel name, map it to the corresponding index in _hierNetlist
       // or _flatNetlist.
-      std::unordered_map<std::string, uint32_t> _moduleNameMapIndex;
+      std::unordered_map< std::string, uint32_t > _moduleNameMapIndex;
 
    public:
-      VerilogNetlist() :
-         _totalUsedStdCells(0), _totalUsedNotEmptyStdCells(0),
-         _totalUsedBlackBoxes(0), _totalUsedNotEmptyInsInTop(0),
-         _totalNotTieConstantAssignInTop(0) {
+      VerilogNetlist():
+         _totalUsedStdCells( 0 ),
+         _totalUsedNotEmptyStdCells( 0 ),
+         _totalUsedBlackBoxes( 0 ),
+         _totalUsedNotEmptyInsInTop( 0 ),
+         _totalNotTieConstantAssignInTop( 0 ) {
          ;
       }
-      const std::vector<Module> &hierNet() const { return _hierNetlist; }
-      const std::vector<Module> &flatNet() const { return _flatNetlist; }
+      const std::vector< Module >& hierNet() const { return _hierNetlist; }
+      const std::vector< Module >& flatNet() const { return _flatNetlist; }
       uint32_t totalUsedStdCells() const { return _totalUsedStdCells; }
       uint32_t totalUsedNotEmptyStdCells() {
          return _totalUsedNotEmptyStdCells;
@@ -50,38 +52,41 @@ class VerilogNetlist final {
       uint32_t totalNotTieConstantAssignInTop() const {
          return _totalNotTieConstantAssignInTop;
       }
-      const std::unordered_map<std::string, uint32_t> &
-      moduleNameMapIndex() const {
+      const std::unordered_map< std::string, uint32_t >& moduleNameMapIndex()
+         const {
          return _moduleNameMapIndex;
       }
       void callFlattenHierNet() {
-         flattenHierNet(_hierNetlist, _flatNetlist, _totalUsedBlackBoxes);
+         flattenHierNet( _hierNetlist, _flatNetlist, _totalUsedBlackBoxes );
       }
-      void printHierNet(const std::string &fileName) {
-         printNetlist(_hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
-                      fileName);
+      void printHierNet( const std::string& fileName ) {
+         printNetlist(
+            _hierNetlist, _totalUsedStdCells, _totalUsedBlackBoxes, fileName );
       }
-      void printFlatNet(const std::string &fileName) {
-         printNetlist(_flatNetlist, _totalUsedStdCells, _totalUsedBlackBoxes,
-                      fileName, _hierNetlist[_totalUsedBlackBoxes].level());
+      void printFlatNet( const std::string& fileName ) {
+         printNetlist( _flatNetlist,
+                       _totalUsedStdCells,
+                       _totalUsedBlackBoxes,
+                       fileName,
+                       _hierNetlist[_totalUsedBlackBoxes].level() );
       }
       // Get a hierarchical netlist from ast
-      void genHierNet(std::unordered_set<std::string> emptyStdCellsInJson = {
-                         "MemGen_16_10", "PLL"});
+      void genHierNet( std::unordered_set< std::string > emptyStdCellsInJson
+                       = { "MemGen_16_10", "PLL" } );
       // Print a Netlist
-      void printNetlist(const std::vector<Module> &hierNetlist,
-                        const uint32_t totalUsedStdCells,
-                        const uint32_t totalUsedBlackBoxes,
-                        const std::string &fileName,
-                        const uint32_t maxHierLevel = UINT32_MAX);
+      void printNetlist( const std::vector< Module >& hierNetlist,
+                         const uint32_t totalUsedStdCells,
+                         const uint32_t totalUsedBlackBoxes,
+                         const std::string& fileName,
+                         const uint32_t maxHierLevel = UINT32_MAX );
       // Flatten Hierarchical netlist
-      void flattenHierNet(const std::vector<Module> &hierNetlist,
-                          std::vector<Module> &flatNetlist,
-                          const uint32_t totalUsedBlackBoxes);
-      void parseHierNet(int argc, char **argv, char **env);
+      void flattenHierNet( const std::vector< Module >& hierNetlist,
+                           std::vector< Module >& flatNetlist,
+                           const uint32_t totalUsedBlackBoxes );
+      void parseHierNet( int argc, char** argv, char** env );
 
    private:
-      void sortInsOrderInTop(const uint32_t moduleIndex);
-      void sortAssignOrderInTop(const uint32_t moduleIndex);
-      void computePortsPositionInOneMod(const uint32_t moduleIndex);
+      void sortInsOrderInTop( const uint32_t moduleIndex );
+      void sortAssignOrderInTop( const uint32_t moduleIndex );
+      void computePortsPositionInOneMod( const uint32_t moduleIndex );
 };
