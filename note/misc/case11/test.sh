@@ -9,5 +9,5 @@
 ../../../bin/verilator -Wno-implicit has_memory_PLL_blackbox.v ../LibBlackbox.v --xml-only
 hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
 flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
-[ $hier ] && echo "In case11,$hier." && error=true
-[ $flat ] && echo "In case11,$flat." && error=true
+[ ! -z "$hier" ] && echo "In case11,$hier." && error=true
+[ ! -z "$flat" ] && echo "In case11,$flat." && error=true

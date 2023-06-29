@@ -9,5 +9,5 @@
 ../../../bin/verilator -Wno-implicit only_has_one_empty_stdcell ../LibBlackbox.v --xml-only
 hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
 flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
-[ $hier ] && echo "In case12,$hier." && error=true
-[ $flat ] && echo "In case12,$flat." && error=true
+[ ! -z "$hier" ] && echo "In case12,$hier." && error=true
+[ ! -z "$flat" ] && echo "In case12,$flat." && error=true

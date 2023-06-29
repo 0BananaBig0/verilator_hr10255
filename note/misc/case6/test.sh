@@ -8,5 +8,5 @@
 ../../../bin/verilator -Wno-implicit has_bigger_constant_value.v ../LibBlackbox.v --xml-only
 hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
 flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
-[ $hier ] && echo "In case6,$hier." && error=true
-[ $flat ] && echo "In case6,$flat." && error=true
+[ ! -z "$hier" ] && echo "In case6,$hier." && error=true
+[ ! -z "$flat" ] && echo "In case6,$flat." && error=true

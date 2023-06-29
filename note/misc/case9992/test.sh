@@ -9,5 +9,5 @@
 ../../../bin/verilator -Wno-implicit --language 1364-2005 -Wno-litendian -Od -Wno-assignin --xml-only openmsp430_oasys_2021_h.syn.v ../LibBlackbox.v
 hier=`diff -bqBH HierNetlist.v standard/StandardHierNetlist.v`
 flat=`diff -bqBH FlatNetlist.v standard/StandardFlatNetlist.v`
-[ $hier ] && echo "In case9992,$hier." && error=true
-[ $flat ] && echo "In case9992,$flat." && error=true
+[ ! -z "$hier" ] && echo "In case9992,$hier." && error=true
+[ ! -z "$flat" ] && echo "In case9992,$flat." && error=true
